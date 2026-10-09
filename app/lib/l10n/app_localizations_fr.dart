@@ -341,4 +341,75 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get voirDetail => 'Voir le détail';
+
+  @override
+  String get mesDonnees => 'Mes données';
+
+  @override
+  String get sectionActivite => 'Activité';
+
+  @override
+  String get sectionSommeil => 'Sommeil';
+
+  @override
+  String get sectionCoeur => 'Cœur et respiration';
+
+  @override
+  String get sectionCorps => 'Corps';
+
+  @override
+  String get periode7 => '7 jours';
+
+  @override
+  String get periode30 => '30 jours';
+
+  @override
+  String get mesurePas => 'Pas';
+
+  @override
+  String get mesureKcalActives => 'Calories actives';
+
+  @override
+  String get mesureDistance => 'Distance (km)';
+
+  @override
+  String get mesureEtages => 'Étages';
+
+  @override
+  String get mesureSommeil => 'Durée de sommeil (h)';
+
+  @override
+  String get phaseProfond => 'Profond';
+
+  @override
+  String get phaseLeger => 'Léger';
+
+  @override
+  String get phaseParadoxal => 'Paradoxal';
+
+  @override
+  String get mesureFcRepos => 'FC au repos (bpm)';
+
+  @override
+  String get mesureVariabilite => 'Variabilité cardiaque (ms)';
+
+  @override
+  String get mesureSpo2 => 'Oxygène sanguin (%)';
+
+  @override
+  String get mesureFreqResp => 'Fréquence respiratoire (/min)';
+
+  @override
+  String get mesurePoids => 'Poids (kg)';
+
+  @override
+  String get mesureMasseGrasse => 'Masse grasse (%)';
+
+  @override
+  String derniereValeur(String valeur) {
+    return 'Dernière valeur : $valeur';
+  }
+
+  @override
+  String get aucuneDonneePeriode => 'Aucune donnée sur cette période.';
 }

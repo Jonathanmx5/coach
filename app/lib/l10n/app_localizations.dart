@@ -699,6 +699,144 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Voir le détail'**
   String get voirDetail;
+
+  /// No description provided for @mesDonnees.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mes données'**
+  String get mesDonnees;
+
+  /// No description provided for @sectionActivite.
+  ///
+  /// In fr, this message translates to:
+  /// **'Activité'**
+  String get sectionActivite;
+
+  /// No description provided for @sectionSommeil.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sommeil'**
+  String get sectionSommeil;
+
+  /// No description provided for @sectionCoeur.
+  ///
+  /// In fr, this message translates to:
+  /// **'Cœur et respiration'**
+  String get sectionCoeur;
+
+  /// No description provided for @sectionCorps.
+  ///
+  /// In fr, this message translates to:
+  /// **'Corps'**
+  String get sectionCorps;
+
+  /// No description provided for @periode7.
+  ///
+  /// In fr, this message translates to:
+  /// **'7 jours'**
+  String get periode7;
+
+  /// No description provided for @periode30.
+  ///
+  /// In fr, this message translates to:
+  /// **'30 jours'**
+  String get periode30;
+
+  /// No description provided for @mesurePas.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pas'**
+  String get mesurePas;
+
+  /// No description provided for @mesureKcalActives.
+  ///
+  /// In fr, this message translates to:
+  /// **'Calories actives'**
+  String get mesureKcalActives;
+
+  /// No description provided for @mesureDistance.
+  ///
+  /// In fr, this message translates to:
+  /// **'Distance (km)'**
+  String get mesureDistance;
+
+  /// No description provided for @mesureEtages.
+  ///
+  /// In fr, this message translates to:
+  /// **'Étages'**
+  String get mesureEtages;
+
+  /// No description provided for @mesureSommeil.
+  ///
+  /// In fr, this message translates to:
+  /// **'Durée de sommeil (h)'**
+  String get mesureSommeil;
+
+  /// No description provided for @phaseProfond.
+  ///
+  /// In fr, this message translates to:
+  /// **'Profond'**
+  String get phaseProfond;
+
+  /// No description provided for @phaseLeger.
+  ///
+  /// In fr, this message translates to:
+  /// **'Léger'**
+  String get phaseLeger;
+
+  /// No description provided for @phaseParadoxal.
+  ///
+  /// In fr, this message translates to:
+  /// **'Paradoxal'**
+  String get phaseParadoxal;
+
+  /// No description provided for @mesureFcRepos.
+  ///
+  /// In fr, this message translates to:
+  /// **'FC au repos (bpm)'**
+  String get mesureFcRepos;
+
+  /// No description provided for @mesureVariabilite.
+  ///
+  /// In fr, this message translates to:
+  /// **'Variabilité cardiaque (ms)'**
+  String get mesureVariabilite;
+
+  /// No description provided for @mesureSpo2.
+  ///
+  /// In fr, this message translates to:
+  /// **'Oxygène sanguin (%)'**
+  String get mesureSpo2;
+
+  /// No description provided for @mesureFreqResp.
+  ///
+  /// In fr, this message translates to:
+  /// **'Fréquence respiratoire (/min)'**
+  String get mesureFreqResp;
+
+  /// No description provided for @mesurePoids.
+  ///
+  /// In fr, this message translates to:
+  /// **'Poids (kg)'**
+  String get mesurePoids;
+
+  /// No description provided for @mesureMasseGrasse.
+  ///
+  /// In fr, this message translates to:
+  /// **'Masse grasse (%)'**
+  String get mesureMasseGrasse;
+
+  /// No description provided for @derniereValeur.
+  ///
+  /// In fr, this message translates to:
+  /// **'Dernière valeur : {valeur}'**
+  String derniereValeur(String valeur);
+
+  /// No description provided for @aucuneDonneePeriode.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucune donnée sur cette période.'**
+  String get aucuneDonneePeriode;
 }
 
 class _AppLocalizationsDelegate

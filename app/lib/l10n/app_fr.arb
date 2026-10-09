@@ -165,5 +165,35 @@
   "connecterMontreAide": "Pour voir ton activité et ton sommeil, et ajuster tes repères.",
   "aucuneDonneeMontre": "Aucune donnée reçue de ta montre pour l'instant.",
   "suiviErreur": "Impossible de lire les données de ta montre pour le moment.",
-  "voirDetail": "Voir le détail"
+  "voirDetail": "Voir le détail",
+  "mesDonnees": "Mes données",
+  "sectionActivite": "Activité",
+  "sectionSommeil": "Sommeil",
+  "sectionCoeur": "Cœur et respiration",
+  "sectionCorps": "Corps",
+  "periode7": "7 jours",
+  "periode30": "30 jours",
+  "mesurePas": "Pas",
+  "mesureKcalActives": "Calories actives",
+  "mesureDistance": "Distance (km)",
+  "mesureEtages": "Étages",
+  "mesureSommeil": "Durée de sommeil (h)",
+  "phaseProfond": "Profond",
+  "phaseLeger": "Léger",
+  "phaseParadoxal": "Paradoxal",
+  "mesureFcRepos": "FC au repos (bpm)",
+  "mesureVariabilite": "Variabilité cardiaque (ms)",
+  "mesureSpo2": "Oxygène sanguin (%)",
+  "mesureFreqResp": "Fréquence respiratoire (/min)",
+  "mesurePoids": "Poids (kg)",
+  "mesureMasseGrasse": "Masse grasse (%)",
+  "derniereValeur": "Dernière valeur : {valeur}",
+  "@derniereValeur": {
+    "placeholders": {
+      "valeur": {
+        "type": "String"
+      }
+    }
+  },
+  "aucuneDonneePeriode": "Aucune donnée sur cette période."
 }

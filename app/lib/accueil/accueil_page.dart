@@ -13,6 +13,7 @@ import '../profil/questionnaire/etapes.dart';
 import '../profil/questionnaire/questionnaire_page.dart';
 import '../sante/ajustements.dart';
 import '../sante/carte_journee.dart';
+import '../sante/mes_donnees_page.dart';
 import '../sante/sante_service.dart';
 import '../sante/suivi.dart';
 import '../theme.dart';
@@ -191,6 +192,11 @@ class _AccueilPageState extends State<AccueilPage> {
                           montre: _profil.montre,
                           onConnecter: _modifierProfil,
                           onAutoriser: _autoriser,
+                          onDetail: () => Navigator.of(context).push(
+                            MaterialPageRoute<void>(
+                              builder: (_) => MesDonneesPage(suivi: _suivi),
+                            ),
+                          ),
                         ),
                         const SizedBox(height: 12),
                         _CarteBientot(

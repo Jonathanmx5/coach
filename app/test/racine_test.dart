@@ -188,4 +188,17 @@ void main() {
     await defilerJusqua(tester, find.text('Connecte ta montre'));
     expect(find.text('Connecte ta montre'), findsOneWidget);
   });
+
+  testWidgets('Ma journée ouvre Mes données', (tester) async {
+    await monter(
+      tester,
+      FauxAuth(connecte: lea),
+      depotAvecProfil(avecMontre),
+      sante: FauxSante(points: semaineType()),
+    );
+
+    await taper(tester, 'Voir le détail');
+
+    expect(find.text('Mes données'), findsOneWidget);
+  });
 }
