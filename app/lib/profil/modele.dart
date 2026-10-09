@@ -10,6 +10,9 @@ enum TypeEntrainement { salle, maison, course, marche }
 
 enum Niveau { debutant, reprise, regulier }
 
+/// Application qui accompagne la montre ou le bracelet.
+enum AppMontre { googleFit, samsungHealth, miFitness, fitbit, garmin, autre }
+
 /// Réponses du questionnaire de départ (spec §3).
 @immutable
 class Profil {
@@ -25,6 +28,9 @@ class Profil {
     required this.joursParSemaine,
     required this.dureeSeanceMin,
     required this.problemeSante,
+    this.montre = false,
+    this.appMontre,
+    this.poidsDate,
   });
 
   final Objectif objectif;
@@ -38,6 +44,11 @@ class Profil {
   final int joursParSemaine;
   final int dureeSeanceMin;
   final bool problemeSante;
+  final bool montre;
+  final AppMontre? appMontre;
+
+  /// Date de la pesée connue (saisie ou importée de Health Connect).
+  final DateTime? poidsDate;
 
   int age(DateTime maintenant) => maintenant.year - anneeNaissance;
 
@@ -53,6 +64,10 @@ class Profil {
     int? joursParSemaine,
     int? dureeSeanceMin,
     bool? problemeSante,
+    bool? montre,
+    AppMontre? appMontre,
+    bool effacerAppMontre = false,
+    DateTime? poidsDate,
   }) => Profil(
     objectif: objectif ?? this.objectif,
     sexe: sexe ?? this.sexe,
@@ -65,6 +80,9 @@ class Profil {
     joursParSemaine: joursParSemaine ?? this.joursParSemaine,
     dureeSeanceMin: dureeSeanceMin ?? this.dureeSeanceMin,
     problemeSante: problemeSante ?? this.problemeSante,
+    montre: montre ?? this.montre,
+    appMontre: effacerAppMontre ? null : appMontre ?? this.appMontre,
+    poidsDate: poidsDate ?? this.poidsDate,
   );
 
   Map<String, Object?> toMap() => {
@@ -82,6 +100,9 @@ class Profil {
     'joursParSemaine': joursParSemaine,
     'dureeSeanceMin': dureeSeanceMin,
     'problemeSante': problemeSante,
+    'montre': montre,
+    'appMontre': appMontre?.name,
+    'poidsDate': poidsDate?.millisecondsSinceEpoch,
   };
 
   static Profil fromMap(Map<String, Object?> m) => Profil(
@@ -98,6 +119,13 @@ class Profil {
     joursParSemaine: (m['joursParSemaine']! as num).toInt(),
     dureeSeanceMin: (m['dureeSeanceMin']! as num).toInt(),
     problemeSante: m['problemeSante']! as bool,
+    // Profils antérieurs à la santé connectée : champs absents.
+    montre: m['montre'] as bool? ?? false,
+    appMontre: AppMontre.values.asNameMap()[m['appMontre']],
+    poidsDate: switch (m['poidsDate']) {
+      final num ms => DateTime.fromMillisecondsSinceEpoch(ms.toInt()),
+      _ => null,
+    },
   );
 
   @override
@@ -113,7 +141,10 @@ class Profil {
       other.niveau == niveau &&
       other.joursParSemaine == joursParSemaine &&
       other.dureeSeanceMin == dureeSeanceMin &&
-      other.problemeSante == problemeSante;
+      other.problemeSante == problemeSante &&
+      other.montre == montre &&
+      other.appMontre == appMontre &&
+      other.poidsDate == poidsDate;
 
   @override
   int get hashCode => Object.hash(
@@ -128,5 +159,8 @@ class Profil {
     joursParSemaine,
     dureeSeanceMin,
     problemeSante,
+    montre,
+    appMontre,
+    poidsDate,
   );
 }

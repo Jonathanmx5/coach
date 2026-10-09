@@ -36,4 +36,34 @@ void main() {
   test('âge calculé depuis l\'année de naissance', () {
     expect(profil.age(DateTime(2026, 10, 9)), 30);
   });
+
+  test('aller-retour avec montre, application et date de pesée', () {
+    final avecMontre = profil.copyWith(
+      montre: true,
+      appMontre: AppMontre.miFitness,
+      poidsDate: DateTime(2026, 10, 1, 7, 30),
+    );
+    expect(Profil.fromMap(avecMontre.toMap()), avecMontre);
+  });
+
+  test('ancien profil sans champs montre : valeurs par défaut', () {
+    final ancien = profil.toMap()
+      ..remove('montre')
+      ..remove('appMontre')
+      ..remove('poidsDate');
+    final lu = Profil.fromMap(ancien);
+    expect(lu.montre, isFalse);
+    expect(lu.appMontre, isNull);
+    expect(lu.poidsDate, isNull);
+  });
+
+  test("copyWith peut effacer l'application de la montre", () {
+    final avecMontre = profil.copyWith(
+      montre: true,
+      appMontre: AppMontre.fitbit,
+    );
+    final sans = avecMontre.copyWith(montre: false, effacerAppMontre: true);
+    expect(sans.appMontre, isNull);
+    expect(sans.montre, isFalse);
+  });
 }
