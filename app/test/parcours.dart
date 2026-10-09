@@ -16,7 +16,10 @@ Future<void> saisir(WidgetTester tester, String champ, String valeur) async {
 /// Répond à tout le questionnaire jusqu'à l'étape santé incluse
 /// (perte, homme, 30 ans, 180 cm, 80,5 kg, un peu actif, salle, débutant,
 /// 3 jours, 45 min).
-Future<void> remplirJusquaSante(WidgetTester tester, {bool sante = false}) async {
+Future<void> remplirJusquaSante(
+  WidgetTester tester, {
+  bool sante = false,
+}) async {
   await taper(tester, 'Perdre du poids');
   await taper(tester, 'Suivant');
   await taper(tester, 'Homme');

@@ -18,8 +18,12 @@ const profil = Profil(
   problemeSante: false,
 );
 
-const reperes =
-    Reperes(depenseBase: 1345, maintien: 2085, kcalCible: 2290, proteinesG: 97);
+const reperes = Reperes(
+  depenseBase: 1345,
+  maintien: 2085,
+  kcalCible: 2290,
+  proteinesG: 97,
+);
 
 void main() {
   test('enregistrer puis observer renvoie le profil et les repères', () async {

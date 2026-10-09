@@ -27,24 +27,28 @@ const profilAttendu = Profil(
 
 class Banc {
   Banc({Future<Utilisateur?> Function()? reponse})
-      : auth = FauxAuth(reponse: reponse);
+    : auth = FauxAuth(reponse: reponse);
 
   final FauxAuth auth;
   final depot = FauxDepot();
-  final controleur =
-      QuestionnaireControleur(maintenant: maintenant, avecConnexion: true);
+  final controleur = QuestionnaireControleur(
+    maintenant: maintenant,
+    avecConnexion: true,
+  );
   var termine = false;
 
   Future<void> monter(WidgetTester tester) async {
-    await tester.pumpWidget(CoachApp(
-      accueil: QuestionnairePage(
-        controleur: controleur,
-        auth: auth,
-        depot: depot,
-        horloge: () => maintenant,
-        quandTermine: () => termine = true,
+    await tester.pumpWidget(
+      CoachApp(
+        accueil: QuestionnairePage(
+          controleur: controleur,
+          auth: auth,
+          depot: depot,
+          horloge: () => maintenant,
+          quandTermine: () => termine = true,
+        ),
       ),
-    ));
+    );
     await tester.pumpAndSettle();
   }
 }
@@ -56,10 +60,12 @@ bool suivantActif(WidgetTester tester) =>
     null;
 
 void main() {
-  testWidgets('parcours complet puis connexion : profil enregistré',
-      (tester) async {
-    final banc =
-        Banc(reponse: () async => const Utilisateur(uid: 'u1', prenom: 'Léa'));
+  testWidgets('parcours complet puis connexion : profil enregistré', (
+    tester,
+  ) async {
+    final banc = Banc(
+      reponse: () async => const Utilisateur(uid: 'u1', prenom: 'Léa'),
+    );
     await banc.monter(tester);
 
     await remplirJusquaSante(tester);
@@ -71,8 +77,9 @@ void main() {
     expect(banc.termine, isTrue);
   });
 
-  testWidgets('connexion annulée : reste sur place, sans erreur',
-      (tester) async {
+  testWidgets('connexion annulée : reste sur place, sans erreur', (
+    tester,
+  ) async {
     final banc = Banc(reponse: () async => null);
     await banc.monter(tester);
 
@@ -90,7 +97,8 @@ void main() {
 
   testWidgets('connexion en erreur : message affiché', (tester) async {
     final banc = Banc(
-        reponse: () async => throw const ConnexionEchouee('réseau'));
+      reponse: () async => throw const ConnexionEchouee('réseau'),
+    );
     await banc.monter(tester);
 
     await remplirJusquaSante(tester);
@@ -110,8 +118,10 @@ void main() {
     await taper(tester, 'Femme');
     await saisir(tester, 'Âge', '17');
 
-    expect(find.textContaining('réservé aux personnes de 18 ans'),
-        findsOneWidget);
+    expect(
+      find.textContaining('réservé aux personnes de 18 ans'),
+      findsOneWidget,
+    );
     expect(suivantActif(tester), isFalse);
   });
 

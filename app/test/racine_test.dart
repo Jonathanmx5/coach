@@ -28,10 +28,16 @@ const perteSimple = Profil(
   problemeSante: false,
 );
 
-Future<void> monter(WidgetTester tester, AuthService auth, ProfilRepository depot) async {
-  await tester.pumpWidget(CoachApp(
-    accueil: Racine(auth: auth, depot: depot, horloge: () => maintenant),
-  ));
+Future<void> monter(
+  WidgetTester tester,
+  AuthService auth,
+  ProfilRepository depot,
+) async {
+  await tester.pumpWidget(
+    CoachApp(
+      accueil: Racine(auth: auth, depot: depot, horloge: () => maintenant),
+    ),
+  );
   await tester.pumpAndSettle();
 }
 
@@ -50,8 +56,9 @@ void main() {
     expect(find.text('Repas en photo, sans compter'), findsOneWidget);
   });
 
-  testWidgets('compte existant sur un nouveau téléphone : accueil direct',
-      (tester) async {
+  testWidgets('compte existant sur un nouveau téléphone : accueil direct', (
+    tester,
+  ) async {
     await monter(tester, FauxAuth(reponse: () async => lea), depotAvecProfil());
 
     await taper(tester, "J'ai déjà un compte");
@@ -60,10 +67,14 @@ void main() {
     expect(find.text('Quel est ton objectif ?'), findsNothing);
   });
 
-  testWidgets('enregistrement hors-ligne : l\'accueil s\'affiche quand même',
-      (tester) async {
-    await monter(tester, FauxAuth(reponse: () async => lea),
-        FauxDepot(bloquerEnregistrement: true));
+  testWidgets('enregistrement hors-ligne : l\'accueil s\'affiche quand même', (
+    tester,
+  ) async {
+    await monter(
+      tester,
+      FauxAuth(reponse: () async => lea),
+      FauxDepot(bloquerEnregistrement: true),
+    );
 
     await taper(tester, 'Commencer');
     await remplirJusquaSante(tester);
@@ -92,8 +103,9 @@ void main() {
     expect(find.text('Commencer'), findsOneWidget);
   });
 
-  testWidgets('modifier mon profil : questionnaire prérempli puis accueil',
-      (tester) async {
+  testWidgets('modifier mon profil : questionnaire prérempli puis accueil', (
+    tester,
+  ) async {
     final depot = depotAvecProfil();
     await monter(tester, FauxAuth(connecte: lea), depot);
 

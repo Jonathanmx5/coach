@@ -23,28 +23,38 @@ void main() {
   });
 
   test('IMC 18,48 : perte refusée', () {
-    expect(pertePermise(poidsKg: 53.4, tailleCm: 170, problemeSante: false),
-        isFalse);
+    expect(
+      pertePermise(poidsKg: 53.4, tailleCm: 170, problemeSante: false),
+      isFalse,
+    );
   });
 
   test('IMC 18,51 : perte permise', () {
-    expect(pertePermise(poidsKg: 53.5, tailleCm: 170, problemeSante: false),
-        isTrue);
+    expect(
+      pertePermise(poidsKg: 53.5, tailleCm: 170, problemeSante: false),
+      isTrue,
+    );
   });
 
   test('problème de santé : perte refusée', () {
-    expect(pertePermise(poidsKg: 80, tailleCm: 180, problemeSante: true),
-        isFalse);
+    expect(
+      pertePermise(poidsKg: 80, tailleCm: 180, problemeSante: true),
+      isFalse,
+    );
   });
 
   test('perte + problème de santé devient forme', () {
-    expect(appliquerGardeFous(base.copyWith(problemeSante: true)).objectif,
-        Objectif.forme);
+    expect(
+      appliquerGardeFous(base.copyWith(problemeSante: true)).objectif,
+      Objectif.forme,
+    );
   });
 
   test('perte + IMC bas devient forme', () {
-    expect(appliquerGardeFous(base.copyWith(poidsKg: 50)).objectif,
-        Objectif.forme);
+    expect(
+      appliquerGardeFous(base.copyWith(poidsKg: 50)).objectif,
+      Objectif.forme,
+    );
   });
 
   test('muscle + problème de santé reste muscle', () {

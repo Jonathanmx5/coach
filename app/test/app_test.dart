@@ -5,11 +5,13 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   testWidgets('CoachApp fournit les textes français', (tester) async {
-    await tester.pumpWidget(CoachApp(
-      accueil: Builder(
-        builder: (c) => Text(AppLocalizations.of(c)!.boutonCommencer),
+    await tester.pumpWidget(
+      CoachApp(
+        accueil: Builder(
+          builder: (c) => Text(AppLocalizations.of(c)!.boutonCommencer),
+        ),
       ),
-    ));
+    );
     await tester.pumpAndSettle();
 
     expect(find.text('Commencer'), findsOneWidget);

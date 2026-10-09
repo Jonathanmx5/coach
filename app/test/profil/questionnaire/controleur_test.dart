@@ -164,8 +164,10 @@ void main() {
   });
 
   test('depuis(profil) : prérempli et sans étape connexion', () {
-    final c =
-        QuestionnaireControleur.depuis(profilAttendu, maintenant: maintenant);
+    final c = QuestionnaireControleur.depuis(
+      profilAttendu,
+      maintenant: maintenant,
+    );
     expect(c.etapes, isNot(contains(Etape.connexion)));
     expect(c.etapes.last, Etape.sante);
     expect(c.construireProfil(), profilAttendu);
