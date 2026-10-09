@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "67566402702",
+    "project_id": "coach-jonathanmx5",
+    "storage_bucket": "coach-jonathanmx5.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:67566402702:android:9ebb825adf35faa7401ddf",
+        "android_client_info": {
+          "package_name": "io.github.jonathanmx5.coach"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDm9tMOSbhqg7Wcy2P7zMzM0Nlr9yeGusc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
