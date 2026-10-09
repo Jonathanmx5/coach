@@ -32,7 +32,7 @@
 
 ---
 
-### Tâche 1 : Projet Flutter, localisation et thème
+### Task 1: Projet Flutter, localisation et thème
 
 **Files :**
 - Create : `app/` (via `flutter create`), `app/l10n.yaml`, `app/lib/l10n/app_fr.arb`, `app/lib/app.dart`, `app/lib/main.dart` (remplacé)
@@ -136,7 +136,7 @@ Expected : « All done! ». Ensuite, `applicationId` vaut `io.github.jonathanmx5
 
 ---
 
-### Tâche 2 : Modèle du profil et saisie des nombres
+### Task 2: Modèle du profil et saisie des nombres
 
 **Files :**
 - Create : `app/lib/profil/modele.dart`, `app/lib/profil/saisie.dart`
@@ -158,7 +158,7 @@ Expected : « All done! ». Ensuite, `applicationId` vaut `io.github.jonathanmx5
 
 ---
 
-### Tâche 3 : Calcul des besoins
+### Task 3: Calcul des besoins
 
 **Files :**
 - Create : `app/lib/profil/besoins.dart`
@@ -193,7 +193,7 @@ Plus l'aller-retour `Reperes.fromMap(r.toMap()) == r`.
 
 ---
 
-### Tâche 4 : Garde-fous
+### Task 4: Garde-fous
 
 **Files :**
 - Create : `app/lib/profil/garde_fous.dart`
@@ -214,7 +214,7 @@ Plus l'aller-retour `Reperes.fromMap(r.toMap()) == r`.
 
 ---
 
-### Tâche 5 : Firebase (projet, configuration, initialisation, Crashlytics)
+### Task 5: Firebase (projet, configuration, initialisation, Crashlytics)
 
 Tâche en partie **manuelle par l'utilisateur** : connexion à son compte Google et actions dans la console Firebase. L'agent prépare, guide, puis vérifie.
 
@@ -240,7 +240,7 @@ Tâche en partie **manuelle par l'utilisateur** : connexion à son compte Google
 
 ---
 
-### Tâche 6 : Règles Firestore et leurs tests
+### Task 6: Règles Firestore et leurs tests
 
 **Files :**
 - Create : `firebase/firebase.json`, `firebase/.firebaserc` (projet par défaut = id réel), `firebase/firestore.rules`, `firebase/package.json`, `firebase/test/regles.test.js`
@@ -264,7 +264,7 @@ Tâche en partie **manuelle par l'utilisateur** : connexion à son compte Google
 
 ---
 
-### Tâche 7 : Contrôleur du questionnaire (logique pure)
+### Task 7: Contrôleur du questionnaire (logique pure)
 
 **Files :**
 - Create : `app/lib/profil/questionnaire/controleur.dart`
@@ -306,7 +306,7 @@ Tâche en partie **manuelle par l'utilisateur** : connexion à son compte Google
 
 ---
 
-### Tâche 8 : Services (connexion, dépôt du profil) et écrans du questionnaire
+### Task 8: Services (connexion, dépôt du profil) et écrans du questionnaire
 
 **Files :**
 - Create : `app/lib/compte/auth_service.dart`, `app/lib/profil/profil_repository.dart`, `app/lib/profil/questionnaire/questionnaire_page.dart`, `app/lib/profil/questionnaire/etapes.dart` (un widget par étape)
@@ -339,7 +339,7 @@ Tâche en partie **manuelle par l'utilisateur** : connexion à son compte Google
 
 ---
 
-### Tâche 9 : Racine de l'appli et accueil
+### Task 9: Racine de l'appli et accueil
 
 **Files :**
 - Create : `app/lib/racine.dart`, `app/lib/accueil/bienvenue_page.dart`, `app/lib/accueil/accueil_page.dart`
@@ -371,7 +371,7 @@ Tâche en partie **manuelle par l'utilisateur** : connexion à son compte Google
 
 ---
 
-### Tâche 10 : Vérification sur le téléphone et dépôt GitHub
+### Task 10: Vérification sur le téléphone et dépôt GitHub
 
 - [ ] **Étape 1 (utilisateur) :** activer le débogage USB sur le téléphone et le brancher. **Agent :** `adb devices` (depuis `%LOCALAPPDATA%/Android/Sdk/platform-tools`) → le téléphone est listé.
 - [ ] **Étape 2 (agent) :** `flutter run -d <id>` (mode debug).

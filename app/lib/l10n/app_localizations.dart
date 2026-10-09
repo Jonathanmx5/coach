@@ -1,0 +1,506 @@
+import 'dart:async';
+
+import 'package:flutter/foundation.dart';
+import 'package:flutter/widgets.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:intl/intl.dart' as intl;
+
+import 'app_localizations_fr.dart';
+
+// ignore_for_file: type=lint
+
+/// Callers can lookup localized strings with an instance of AppLocalizations
+/// returned by `AppLocalizations.of(context)`.
+///
+/// Applications need to include `AppLocalizations.delegate()` in their app's
+/// `localizationDelegates` list, and the locales they support in the app's
+/// `supportedLocales` list. For example:
+///
+/// ```dart
+/// import 'l10n/app_localizations.dart';
+///
+/// return MaterialApp(
+///   localizationsDelegates: AppLocalizations.localizationsDelegates,
+///   supportedLocales: AppLocalizations.supportedLocales,
+///   home: MyApplicationHome(),
+/// );
+/// ```
+///
+/// ## Update pubspec.yaml
+///
+/// Please make sure to update your pubspec.yaml to include the following
+/// packages:
+///
+/// ```yaml
+/// dependencies:
+///   # Internationalization support.
+///   flutter_localizations:
+///     sdk: flutter
+///   intl: any # Use the pinned version from flutter_localizations
+///
+///   # Rest of dependencies
+/// ```
+///
+/// ## iOS Applications
+///
+/// iOS applications define key application metadata, including supported
+/// locales, in an Info.plist file that is built into the application bundle.
+/// To configure the locales supported by your app, you’ll need to edit this
+/// file.
+///
+/// First, open your project’s ios/Runner.xcworkspace Xcode workspace file.
+/// Then, in the Project Navigator, open the Info.plist file under the Runner
+/// project’s Runner folder.
+///
+/// Next, select the Information Property List item, select Add Item from the
+/// Editor menu, then select Localizations from the pop-up menu.
+///
+/// Select and expand the newly-created Localizations item then, for each
+/// locale your application supports, add a new item and select the locale
+/// you wish to add from the pop-up menu in the Value field. This list should
+/// be consistent with the languages listed in the AppLocalizations.supportedLocales
+/// property.
+abstract class AppLocalizations {
+  AppLocalizations(String locale)
+    : localeName = intl.Intl.canonicalizedLocale(locale.toString());
+
+  final String localeName;
+
+  static AppLocalizations? of(BuildContext context) {
+    return Localizations.of<AppLocalizations>(context, AppLocalizations);
+  }
+
+  static const LocalizationsDelegate<AppLocalizations> delegate =
+      _AppLocalizationsDelegate();
+
+  /// A list of this localizations delegate along with the default localizations
+  /// delegates.
+  ///
+  /// Returns a list of localizations delegates containing this delegate along with
+  /// GlobalMaterialLocalizations.delegate, GlobalCupertinoLocalizations.delegate,
+  /// and GlobalWidgetsLocalizations.delegate.
+  ///
+  /// Additional delegates can be added by appending to this list in
+  /// MaterialApp. This list does not have to be used at all if a custom list
+  /// of delegates is preferred or required.
+  static const List<LocalizationsDelegate<dynamic>> localizationsDelegates =
+      <LocalizationsDelegate<dynamic>>[
+        delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+      ];
+
+  /// A list of this localizations delegate's supported locales.
+  static const List<Locale> supportedLocales = <Locale>[Locale('fr')];
+
+  /// No description provided for @appTitre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Coach'**
+  String get appTitre;
+
+  /// No description provided for @bienvenueTitre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton coach sport et alimentation'**
+  String get bienvenueTitre;
+
+  /// No description provided for @bienvenueSousTitre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Un programme adapté à toi, en une minute.'**
+  String get bienvenueSousTitre;
+
+  /// No description provided for @boutonCommencer.
+  ///
+  /// In fr, this message translates to:
+  /// **'Commencer'**
+  String get boutonCommencer;
+
+  /// No description provided for @boutonDejaCompte.
+  ///
+  /// In fr, this message translates to:
+  /// **'J\'ai déjà un compte'**
+  String get boutonDejaCompte;
+
+  /// No description provided for @boutonSuivant.
+  ///
+  /// In fr, this message translates to:
+  /// **'Suivant'**
+  String get boutonSuivant;
+
+  /// No description provided for @boutonRetour.
+  ///
+  /// In fr, this message translates to:
+  /// **'Retour'**
+  String get boutonRetour;
+
+  /// No description provided for @boutonOui.
+  ///
+  /// In fr, this message translates to:
+  /// **'Oui'**
+  String get boutonOui;
+
+  /// No description provided for @boutonNon.
+  ///
+  /// In fr, this message translates to:
+  /// **'Non'**
+  String get boutonNon;
+
+  /// No description provided for @qObjectif.
+  ///
+  /// In fr, this message translates to:
+  /// **'Quel est ton objectif ?'**
+  String get qObjectif;
+
+  /// No description provided for @objectifPerte.
+  ///
+  /// In fr, this message translates to:
+  /// **'Perdre du poids'**
+  String get objectifPerte;
+
+  /// No description provided for @objectifMuscle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Prendre du muscle'**
+  String get objectifMuscle;
+
+  /// No description provided for @objectifForme.
+  ///
+  /// In fr, this message translates to:
+  /// **'Garder la forme'**
+  String get objectifForme;
+
+  /// No description provided for @objectifReprise.
+  ///
+  /// In fr, this message translates to:
+  /// **'Reprendre le sport'**
+  String get objectifReprise;
+
+  /// No description provided for @qSexeAge.
+  ///
+  /// In fr, this message translates to:
+  /// **'Parle-nous un peu de toi'**
+  String get qSexeAge;
+
+  /// No description provided for @sexeHomme.
+  ///
+  /// In fr, this message translates to:
+  /// **'Homme'**
+  String get sexeHomme;
+
+  /// No description provided for @sexeFemme.
+  ///
+  /// In fr, this message translates to:
+  /// **'Femme'**
+  String get sexeFemme;
+
+  /// No description provided for @sexeExplication.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sert uniquement au calcul de tes besoins.'**
+  String get sexeExplication;
+
+  /// No description provided for @champAge.
+  ///
+  /// In fr, this message translates to:
+  /// **'Âge'**
+  String get champAge;
+
+  /// No description provided for @qMensurations.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ta taille et ton poids'**
+  String get qMensurations;
+
+  /// No description provided for @champTaille.
+  ///
+  /// In fr, this message translates to:
+  /// **'Taille (cm)'**
+  String get champTaille;
+
+  /// No description provided for @champPoids.
+  ///
+  /// In fr, this message translates to:
+  /// **'Poids (kg)'**
+  String get champPoids;
+
+  /// No description provided for @qTypeDeVie.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton quotidien ressemble plutôt à…'**
+  String get qTypeDeVie;
+
+  /// No description provided for @vieSedentaire.
+  ///
+  /// In fr, this message translates to:
+  /// **'Assis toute la journée'**
+  String get vieSedentaire;
+
+  /// No description provided for @vieSedentaireEx.
+  ///
+  /// In fr, this message translates to:
+  /// **'Bureau, voiture, peu de marche'**
+  String get vieSedentaireEx;
+
+  /// No description provided for @viePeuActif.
+  ///
+  /// In fr, this message translates to:
+  /// **'Un peu actif'**
+  String get viePeuActif;
+
+  /// No description provided for @viePeuActifEx.
+  ///
+  /// In fr, this message translates to:
+  /// **'Souvent debout, un peu de marche'**
+  String get viePeuActifEx;
+
+  /// No description provided for @vieActif.
+  ///
+  /// In fr, this message translates to:
+  /// **'Actif'**
+  String get vieActif;
+
+  /// No description provided for @vieActifEx.
+  ///
+  /// In fr, this message translates to:
+  /// **'Métier physique, beaucoup de marche'**
+  String get vieActifEx;
+
+  /// No description provided for @vieTresActif.
+  ///
+  /// In fr, this message translates to:
+  /// **'Très actif'**
+  String get vieTresActif;
+
+  /// No description provided for @vieTresActifEx.
+  ///
+  /// In fr, this message translates to:
+  /// **'Travail très physique ou sport tous les jours'**
+  String get vieTresActifEx;
+
+  /// No description provided for @qEntrainements.
+  ///
+  /// In fr, this message translates to:
+  /// **'Où veux-tu t\'entraîner ?'**
+  String get qEntrainements;
+
+  /// No description provided for @qEntrainementsAide.
+  ///
+  /// In fr, this message translates to:
+  /// **'Plusieurs choix possibles.'**
+  String get qEntrainementsAide;
+
+  /// No description provided for @entrainementSalle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Salle de sport'**
+  String get entrainementSalle;
+
+  /// No description provided for @entrainementMaison.
+  ///
+  /// In fr, this message translates to:
+  /// **'À la maison'**
+  String get entrainementMaison;
+
+  /// No description provided for @entrainementCourse.
+  ///
+  /// In fr, this message translates to:
+  /// **'Course à pied'**
+  String get entrainementCourse;
+
+  /// No description provided for @entrainementMarche.
+  ///
+  /// In fr, this message translates to:
+  /// **'Marche'**
+  String get entrainementMarche;
+
+  /// No description provided for @qNiveau.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton niveau'**
+  String get qNiveau;
+
+  /// No description provided for @niveauDebutant.
+  ///
+  /// In fr, this message translates to:
+  /// **'Débutant'**
+  String get niveauDebutant;
+
+  /// No description provided for @niveauReprise.
+  ///
+  /// In fr, this message translates to:
+  /// **'Je reprends'**
+  String get niveauReprise;
+
+  /// No description provided for @niveauRegulier.
+  ///
+  /// In fr, this message translates to:
+  /// **'Régulier'**
+  String get niveauRegulier;
+
+  /// No description provided for @qDisponibilite.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton temps disponible'**
+  String get qDisponibilite;
+
+  /// No description provided for @champJours.
+  ///
+  /// In fr, this message translates to:
+  /// **'Jours par semaine'**
+  String get champJours;
+
+  /// No description provided for @champDuree.
+  ///
+  /// In fr, this message translates to:
+  /// **'Durée d\'une séance'**
+  String get champDuree;
+
+  /// No description provided for @dureeMinutes.
+  ///
+  /// In fr, this message translates to:
+  /// **'{n} min'**
+  String dureeMinutes(int n);
+
+  /// No description provided for @qSante.
+  ///
+  /// In fr, this message translates to:
+  /// **'Es-tu enceinte ou as-tu un problème de santé particulier ?'**
+  String get qSante;
+
+  /// No description provided for @conseilMedecin.
+  ///
+  /// In fr, this message translates to:
+  /// **'Parles-en à ton médecin avant de commencer. Par prudence, l\'objectif « perdre du poids » est désactivé.'**
+  String get conseilMedecin;
+
+  /// No description provided for @messageMineur.
+  ///
+  /// In fr, this message translates to:
+  /// **'Coach est réservé aux personnes de 18 ans et plus. Les besoins des adolescents sont différents : parles-en à ton médecin.'**
+  String get messageMineur;
+
+  /// No description provided for @messagePerteImc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton poids est déjà bas pour ta taille : on part plutôt sur « garder la forme ».'**
+  String get messagePerteImc;
+
+  /// No description provided for @erreurNombre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Entre un nombre valide.'**
+  String get erreurNombre;
+
+  /// No description provided for @erreurPlage.
+  ///
+  /// In fr, this message translates to:
+  /// **'Entre une valeur entre {min} et {max}.'**
+  String erreurPlage(int min, int max);
+
+  /// No description provided for @qConnexion.
+  ///
+  /// In fr, this message translates to:
+  /// **'Dernière étape : sauvegarde ton profil'**
+  String get qConnexion;
+
+  /// No description provided for @boutonGoogle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Continuer avec Google'**
+  String get boutonGoogle;
+
+  /// No description provided for @erreurConnexion.
+  ///
+  /// In fr, this message translates to:
+  /// **'La connexion a échoué. Vérifie ta connexion internet et réessaie.'**
+  String get erreurConnexion;
+
+  /// No description provided for @mentionMedicale.
+  ///
+  /// In fr, this message translates to:
+  /// **'Coach ne remplace pas un avis médical.'**
+  String get mentionMedicale;
+
+  /// No description provided for @accueilBonjour.
+  ///
+  /// In fr, this message translates to:
+  /// **'Bonjour {prenom} !'**
+  String accueilBonjour(String prenom);
+
+  /// No description provided for @accueilBonjourSansNom.
+  ///
+  /// In fr, this message translates to:
+  /// **'Bonjour !'**
+  String get accueilBonjourSansNom;
+
+  /// No description provided for @accueilProgrammeBientot.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton programme arrive bientôt.'**
+  String get accueilProgrammeBientot;
+
+  /// No description provided for @boutonVoirReperes.
+  ///
+  /// In fr, this message translates to:
+  /// **'Voir mes repères'**
+  String get boutonVoirReperes;
+
+  /// No description provided for @reperesKcal.
+  ///
+  /// In fr, this message translates to:
+  /// **'{kcal} kcal par jour (estimation)'**
+  String reperesKcal(int kcal);
+
+  /// No description provided for @reperesProteines.
+  ///
+  /// In fr, this message translates to:
+  /// **'{g} g de protéines par jour'**
+  String reperesProteines(int g);
+
+  /// No description provided for @boutonModifierProfil.
+  ///
+  /// In fr, this message translates to:
+  /// **'Modifier mon profil'**
+  String get boutonModifierProfil;
+
+  /// No description provided for @boutonDeconnexion.
+  ///
+  /// In fr, this message translates to:
+  /// **'Se déconnecter'**
+  String get boutonDeconnexion;
+}
+
+class _AppLocalizationsDelegate
+    extends LocalizationsDelegate<AppLocalizations> {
+  const _AppLocalizationsDelegate();
+
+  @override
+  Future<AppLocalizations> load(Locale locale) {
+    return SynchronousFuture<AppLocalizations>(lookupAppLocalizations(locale));
+  }
+
+  @override
+  bool isSupported(Locale locale) =>
+      <String>['fr'].contains(locale.languageCode);
+
+  @override
+  bool shouldReload(_AppLocalizationsDelegate old) => false;
+}
+
+AppLocalizations lookupAppLocalizations(Locale locale) {
+  // Lookup logic when only language code is specified.
+  switch (locale.languageCode) {
+    case 'fr':
+      return AppLocalizationsFr();
+  }
+
+  throw FlutterError(
+    'AppLocalizations.delegate failed to load unsupported locale "$locale". This is likely '
+    'an issue with the localizations generation tool. Please file an issue '
+    'on GitHub with a reproducible sample app and the gen-l10n configuration '
+    'that was used.',
+  );
+}
