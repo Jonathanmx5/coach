@@ -181,9 +181,7 @@ Fichiers JSON intégrés à l'appli et versionnés avec elle : exercices, gabari
 
 ## 6. Suivi
 
-- Poids : saisie (rappel hebdomadaire) et courbe.
-- **Health Connect, en lecture seule** : pas, distance, séances d'exercice. Les permissions ne sont demandées qu'à l'ouverture de l'écran Suivi, avec une explication. Les pas comptent dans l'activité de la semaine.
-- **À confirmer au premier prototype :** Health Connect doit fonctionner avec une appli installée par APK, hors Play Store.
+**Remplacé par `2026-10-09-sante-connectee-design.md`** (montre connectée demandée dès le questionnaire, lecture élargie à Health Connect, sommeil compris, ajustement des repères par les calories mesurées). Ce chantier est avancé avant l'étape 2.
 
 ## 7. Erreurs
 
