@@ -34,9 +34,10 @@ void remplir(
   c.choisirDuree(45);
   c.suivant();
   c.repondreSante(sante);
+  c.repondreMontre(false); // répondu d'avance : l'étape suivante est prête
 }
 
-const profilAttendu = Profil(
+final profilAttendu = Profil(
   objectif: Objectif.perte,
   sexe: Sexe.homme,
   anneeNaissance: 1996,
@@ -48,6 +49,7 @@ const profilAttendu = Profil(
   joursParSemaine: 3,
   dureeSeanceMin: 45,
   problemeSante: false,
+  poidsDate: maintenant,
 );
 
 void main() {
@@ -55,6 +57,8 @@ void main() {
     final c = nouveau();
     remplir(c);
     expect(c.peutContinuer, isTrue);
+    c.suivant();
+    expect(c.etape, Etape.montre);
     c.suivant();
     expect(c.etape, Etape.connexion);
     expect(c.construireProfil(), profilAttendu);
@@ -169,15 +173,59 @@ void main() {
       maintenant: maintenant,
     );
     expect(c.etapes, isNot(contains(Etape.connexion)));
-    expect(c.etapes.last, Etape.sante);
+    expect(c.etapes.last, Etape.montre);
     expect(c.construireProfil(), profilAttendu);
   });
 
-  test('progression de 1/9 à 9/9', () {
+  test('progression de 1/10 à 10/10 sans montre', () {
     final c = nouveau();
-    expect(c.progression, closeTo(1 / 9, 1e-9));
+    expect(c.progression, closeTo(1 / 10, 1e-9));
     remplir(c);
     c.suivant();
+    c.suivant();
     expect(c.progression, 1.0);
+  });
+
+  test('montre oui : étape application ajoutée et exigée', () {
+    final c = nouveau();
+    remplir(c);
+    c.repondreMontre(true);
+    expect(c.etapes, contains(Etape.appMontre));
+    expect(c.etapes.length, 11);
+    c.suivant();
+    c.suivant();
+    expect(c.etape, Etape.appMontre);
+    expect(c.peutContinuer, isFalse);
+    c.choisirAppMontre(AppMontre.miFitness);
+    expect(c.peutContinuer, isTrue);
+    final p = c.construireProfil();
+    expect(p.montre, isTrue);
+    expect(p.appMontre, AppMontre.miFitness);
+  });
+
+  test('montre non après un choix : application effacée', () {
+    final c = nouveau();
+    remplir(c);
+    c
+      ..repondreMontre(true)
+      ..choisirAppMontre(AppMontre.fitbit)
+      ..repondreMontre(false);
+    expect(c.etapes, isNot(contains(Etape.appMontre)));
+    expect(c.construireProfil().appMontre, isNull);
+  });
+
+  test('montre oui sans application : profil incomplet', () {
+    final c = nouveau();
+    remplir(c);
+    c.repondreMontre(true);
+    expect(c.construireProfil, throwsStateError);
+  });
+
+  test('date de pesée : conservée si le poids ne change pas', () {
+    final ancien = profilAttendu.copyWith(poidsDate: DateTime(2026, 9, 1));
+    final c = QuestionnaireControleur.depuis(ancien, maintenant: maintenant);
+    expect(c.construireProfil().poidsDate, DateTime(2026, 9, 1));
+    c.saisirPoids('79');
+    expect(c.construireProfil().poidsDate, maintenant);
   });
 }

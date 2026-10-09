@@ -3,7 +3,16 @@ import 'package:flutter_test/flutter_test.dart';
 
 /// Gestes communs aux tests d'écrans.
 Future<void> taper(WidgetTester tester, String texte) async {
+  // Les listes longues ne construisent pas ce qui est hors écran.
+  if (find.text(texte).evaluate().isEmpty) {
+    await tester.scrollUntilVisible(
+      find.text(texte),
+      200,
+      scrollable: find.byType(Scrollable).first,
+    );
+  }
   await tester.ensureVisible(find.text(texte).last);
+  await tester.pumpAndSettle();
   await tester.tap(find.text(texte).last);
   await tester.pumpAndSettle();
 }
@@ -38,4 +47,22 @@ Future<void> remplirJusquaSante(
   await taper(tester, '45 min');
   await taper(tester, 'Suivant');
   await taper(tester, sante ? 'Oui' : 'Non');
+}
+
+/// Depuis l'étape santé : répond « Non » à la montre et passe à la suite.
+Future<void> sansMontre(WidgetTester tester) async {
+  await taper(tester, 'Suivant');
+  await taper(tester, 'Non');
+  await taper(tester, 'Suivant');
+}
+
+/// Fait défiler la liste jusqu'à [cible] (construite seulement si visible).
+Future<void> defilerJusqua(WidgetTester tester, Finder cible) async {
+  if (cible.evaluate().isEmpty) {
+    await tester.scrollUntilVisible(
+      cible,
+      200,
+      scrollable: find.byType(Scrollable).first,
+    );
+  }
 }

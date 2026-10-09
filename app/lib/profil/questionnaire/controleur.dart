@@ -13,6 +13,8 @@ enum Etape {
   niveau,
   disponibilite,
   sante,
+  montre,
+  appMontre,
   connexion,
 }
 
@@ -30,10 +32,8 @@ const durees = [20, 30, 45, 60];
 class QuestionnaireControleur extends ChangeNotifier {
   QuestionnaireControleur({
     required this.maintenant,
-    required bool avecConnexion,
-  }) : etapes = avecConnexion
-           ? Etape.values
-           : Etape.values.where((e) => e != Etape.connexion).toList();
+    required this.avecConnexion,
+  });
 
   /// Questionnaire prérempli pour modifier un profil existant.
   factory QuestionnaireControleur.depuis(
@@ -51,11 +51,25 @@ class QuestionnaireControleur extends ChangeNotifier {
       .._niveau = p.niveau
       .._jours = p.joursParSemaine
       .._duree = p.dureeSeanceMin
-      .._sante = p.problemeSante;
+      .._sante = p.problemeSante
+      .._montre = p.montre
+      .._appMontre = p.appMontre
+      .._profilOrigine = p;
   }
 
   final DateTime maintenant;
-  final List<Etape> etapes;
+  final bool avecConnexion;
+
+  /// Profil modifié (mode édition) : sert à conserver la date de pesée.
+  Profil? _profilOrigine;
+
+  /// Étapes réelles : l'application de la montre seulement si elle existe.
+  List<Etape> get etapes => [
+    for (final e in Etape.values)
+      if ((e != Etape.appMontre || _montre == true) &&
+          (e != Etape.connexion || avecConnexion))
+        e,
+  ];
 
   int _index = 0;
   Alerte? _alerte;
@@ -71,6 +85,8 @@ class QuestionnaireControleur extends ChangeNotifier {
   int? _jours;
   int? _duree;
   bool? _sante;
+  bool? _montre;
+  AppMontre? _appMontre;
 
   Etape get etape => etapes[_index];
   Alerte? get alerte => _alerte;
@@ -88,6 +104,8 @@ class QuestionnaireControleur extends ChangeNotifier {
   int? get joursParSemaine => _jours;
   int? get dureeSeanceMin => _duree;
   bool? get problemeSante => _sante;
+  bool? get montre => _montre;
+  AppMontre? get appMontre => _appMontre;
 
   bool get peutContinuer => switch (etape) {
     Etape.objectif => _objectif != null,
@@ -98,6 +116,8 @@ class QuestionnaireControleur extends ChangeNotifier {
     Etape.niveau => _niveau != null,
     Etape.disponibilite => _jours != null && _duree != null,
     Etape.sante => _sante != null,
+    Etape.montre => _montre != null,
+    Etape.appMontre => _appMontre != null,
     Etape.connexion => true,
   };
 
@@ -105,6 +125,12 @@ class QuestionnaireControleur extends ChangeNotifier {
   void choisirSexe(Sexe s) => _maj(() => _sexe = s);
   void choisirTypeDeVie(TypeDeVie t) => _maj(() => _typeDeVie = t);
   void choisirNiveau(Niveau n) => _maj(() => _niveau = n);
+  void choisirAppMontre(AppMontre a) => _maj(() => _appMontre = a);
+
+  void repondreMontre(bool oui) => _maj(() {
+    _montre = oui;
+    if (!oui) _appMontre = null;
+  });
 
   void basculerEntrainement(TypeEntrainement t) =>
       _maj(() => _types.contains(t) ? _types.remove(t) : _types.add(t));
@@ -213,9 +239,13 @@ class QuestionnaireControleur extends ChangeNotifier {
         _niveau == null ||
         _jours == null ||
         _duree == null ||
-        _sante == null) {
+        _sante == null ||
+        _montre == null ||
+        (_montre! && _appMontre == null)) {
       throw StateError('Questionnaire incomplet');
     }
+    final origine = _profilOrigine;
+    final poidsInchange = origine != null && origine.poidsKg == _poidsKg;
     return appliquerGardeFous(
       Profil(
         objectif: _objectif!,
@@ -229,6 +259,9 @@ class QuestionnaireControleur extends ChangeNotifier {
         joursParSemaine: _jours!,
         dureeSeanceMin: _duree!,
         problemeSante: _sante!,
+        montre: _montre!,
+        appMontre: _appMontre,
+        poidsDate: poidsInchange ? origine.poidsDate : maintenant,
       ),
     );
   }

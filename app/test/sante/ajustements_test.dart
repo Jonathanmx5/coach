@@ -6,10 +6,8 @@ import 'package:flutter_test/flutter_test.dart';
 
 final aujourdhui = DateTime(2026, 10, 9);
 
-JourSante j(int joursAvant, double? kcal) => JourSante(
-  jour: DateTime(2026, 10, 9 - joursAvant),
-  kcalTotales: kcal,
-);
+JourSante j(int joursAvant, double? kcal) =>
+    JourSante(jour: DateTime(2026, 10, 9 - joursAvant), kcalTotales: kcal);
 
 const perteSimple = Profil(
   objectif: Objectif.perte,

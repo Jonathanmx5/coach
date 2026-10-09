@@ -238,4 +238,63 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get bientot => 'Arrive bientôt';
+
+  @override
+  String get qMontre => 'As-tu une montre ou un bracelet connecté ?';
+
+  @override
+  String get montreAide =>
+      'Coach pourra lire ton activité, ton sommeil et ton cœur via Health Connect, sans rien envoyer sur internet.';
+
+  @override
+  String get qAppMontre => 'Quelle application l\'accompagne ?';
+
+  @override
+  String get appGoogleFit => 'Google Fit';
+
+  @override
+  String get appSamsungHealth => 'Samsung Health';
+
+  @override
+  String get appMiFitness => 'Mi Fitness';
+
+  @override
+  String get appFitbit => 'Fitbit';
+
+  @override
+  String get appGarmin => 'Garmin Connect';
+
+  @override
+  String get appAutre => 'Autre';
+
+  @override
+  String consignePartage(String app) {
+    return 'Dans $app, active le partage des données vers Health Connect (souvent dans Profil ou Paramètres, rubrique « Health Connect » ou « Applications connectées »).';
+  }
+
+  @override
+  String get consignePartageAutre =>
+      'Dans l\'application de ta montre, active le partage des données vers Health Connect.';
+
+  @override
+  String get boutonAutoriser => 'Autoriser l\'accès';
+
+  @override
+  String get boutonInstallerHc => 'Installer Health Connect';
+
+  @override
+  String get hcAInstaller =>
+      'Health Connect doit être installé ou mis à jour sur ce téléphone.';
+
+  @override
+  String get hcIndisponible =>
+      'Health Connect n\'est pas disponible sur ce téléphone. Coach utilisera des estimations.';
+
+  @override
+  String get accesAccorde =>
+      'Accès autorisé : Coach lira les données de ta montre.';
+
+  @override
+  String get accesRefuse =>
+      'Accès non autorisé. Pas de souci : Coach utilisera des estimations, et tu pourras réessayer plus tard.';
 }

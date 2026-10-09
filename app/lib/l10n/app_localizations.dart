@@ -519,6 +519,108 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Arrive bientôt'**
   String get bientot;
+
+  /// No description provided for @qMontre.
+  ///
+  /// In fr, this message translates to:
+  /// **'As-tu une montre ou un bracelet connecté ?'**
+  String get qMontre;
+
+  /// No description provided for @montreAide.
+  ///
+  /// In fr, this message translates to:
+  /// **'Coach pourra lire ton activité, ton sommeil et ton cœur via Health Connect, sans rien envoyer sur internet.'**
+  String get montreAide;
+
+  /// No description provided for @qAppMontre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Quelle application l\'accompagne ?'**
+  String get qAppMontre;
+
+  /// No description provided for @appGoogleFit.
+  ///
+  /// In fr, this message translates to:
+  /// **'Google Fit'**
+  String get appGoogleFit;
+
+  /// No description provided for @appSamsungHealth.
+  ///
+  /// In fr, this message translates to:
+  /// **'Samsung Health'**
+  String get appSamsungHealth;
+
+  /// No description provided for @appMiFitness.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mi Fitness'**
+  String get appMiFitness;
+
+  /// No description provided for @appFitbit.
+  ///
+  /// In fr, this message translates to:
+  /// **'Fitbit'**
+  String get appFitbit;
+
+  /// No description provided for @appGarmin.
+  ///
+  /// In fr, this message translates to:
+  /// **'Garmin Connect'**
+  String get appGarmin;
+
+  /// No description provided for @appAutre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Autre'**
+  String get appAutre;
+
+  /// No description provided for @consignePartage.
+  ///
+  /// In fr, this message translates to:
+  /// **'Dans {app}, active le partage des données vers Health Connect (souvent dans Profil ou Paramètres, rubrique « Health Connect » ou « Applications connectées »).'**
+  String consignePartage(String app);
+
+  /// No description provided for @consignePartageAutre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Dans l\'application de ta montre, active le partage des données vers Health Connect.'**
+  String get consignePartageAutre;
+
+  /// No description provided for @boutonAutoriser.
+  ///
+  /// In fr, this message translates to:
+  /// **'Autoriser l\'accès'**
+  String get boutonAutoriser;
+
+  /// No description provided for @boutonInstallerHc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Installer Health Connect'**
+  String get boutonInstallerHc;
+
+  /// No description provided for @hcAInstaller.
+  ///
+  /// In fr, this message translates to:
+  /// **'Health Connect doit être installé ou mis à jour sur ce téléphone.'**
+  String get hcAInstaller;
+
+  /// No description provided for @hcIndisponible.
+  ///
+  /// In fr, this message translates to:
+  /// **'Health Connect n\'est pas disponible sur ce téléphone. Coach utilisera des estimations.'**
+  String get hcIndisponible;
+
+  /// No description provided for @accesAccorde.
+  ///
+  /// In fr, this message translates to:
+  /// **'Accès autorisé : Coach lira les données de ta montre.'**
+  String get accesAccorde;
+
+  /// No description provided for @accesRefuse.
+  ///
+  /// In fr, this message translates to:
+  /// **'Accès non autorisé. Pas de souci : Coach utilisera des estimations, et tu pourras réessayer plus tard.'**
+  String get accesRefuse;
 }
 
 class _AppLocalizationsDelegate

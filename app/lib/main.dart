@@ -11,6 +11,7 @@ import 'compte/auth_service.dart';
 import 'firebase_options.dart';
 import 'profil/profil_repository.dart';
 import 'racine.dart';
+import 'sante/sante_service.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -34,6 +35,7 @@ Future<void> main() async {
       accueil: Racine(
         auth: FirebaseAuthService(),
         depot: FirestoreProfilRepository(),
+        sante: HealthSanteService(),
         horloge: DateTime.now,
       ),
     ),

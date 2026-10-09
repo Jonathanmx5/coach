@@ -7,6 +7,7 @@ import '../profil/profil_repository.dart';
 import '../profil/questionnaire/controleur.dart';
 import '../profil/questionnaire/etapes.dart';
 import '../profil/questionnaire/questionnaire_page.dart';
+import '../sante/sante_service.dart';
 import '../theme.dart';
 
 class AccueilPage extends StatelessWidget {
@@ -16,6 +17,7 @@ class AccueilPage extends StatelessWidget {
     required this.enregistre,
     required this.auth,
     required this.depot,
+    required this.sante,
     required this.horloge,
   });
 
@@ -23,6 +25,7 @@ class AccueilPage extends StatelessWidget {
   final ProfilEnregistre enregistre;
   final AuthService auth;
   final ProfilRepository depot;
+  final SanteService sante;
   final DateTime Function() horloge;
 
   void _modifierProfil(BuildContext context) {
@@ -38,6 +41,7 @@ class AccueilPage extends StatelessWidget {
           controleur: controleur,
           auth: auth,
           depot: depot,
+          sante: sante,
           horloge: horloge,
           quandTermine: () => Navigator.of(routeContext).pop(),
         ),

@@ -6,6 +6,7 @@ import 'compte/auth_service.dart';
 import 'profil/profil_repository.dart';
 import 'profil/questionnaire/controleur.dart';
 import 'profil/questionnaire/questionnaire_page.dart';
+import 'sante/sante_service.dart';
 
 /// Aiguillage : bienvenue, questionnaire ou accueil selon la connexion et le
 /// profil enregistré.
@@ -14,11 +15,13 @@ class Racine extends StatefulWidget {
     super.key,
     required this.auth,
     required this.depot,
+    required this.sante,
     required this.horloge,
   });
 
   final AuthService auth;
   final ProfilRepository depot;
+  final SanteService sante;
   final DateTime Function() horloge;
 
   @override
@@ -41,6 +44,7 @@ class _RacineState extends State<Racine> {
           controleur: controleur,
           auth: widget.auth,
           depot: widget.depot,
+          sante: widget.sante,
           horloge: widget.horloge,
           quandTermine: () =>
               Navigator.of(routeContext).popUntil((r) => r.isFirst),
@@ -65,6 +69,7 @@ class _RacineState extends State<Racine> {
         utilisateur: u,
         auth: widget.auth,
         depot: widget.depot,
+        sante: widget.sante,
         horloge: widget.horloge,
       );
     },
@@ -77,12 +82,14 @@ class _ProfilUtilisateur extends StatefulWidget {
     required this.utilisateur,
     required this.auth,
     required this.depot,
+    required this.sante,
     required this.horloge,
   });
 
   final Utilisateur utilisateur;
   final AuthService auth;
   final ProfilRepository depot;
+  final SanteService sante;
   final DateTime Function() horloge;
 
   @override
@@ -119,6 +126,7 @@ class _ProfilUtilisateurState extends State<_ProfilUtilisateur> {
           controleur: _controleur,
           auth: widget.auth,
           depot: widget.depot,
+          sante: widget.sante,
           horloge: widget.horloge,
           // Le flux du profil fait basculer vers l'accueil.
           quandTermine: () {},
@@ -129,6 +137,7 @@ class _ProfilUtilisateurState extends State<_ProfilUtilisateur> {
         enregistre: enregistre,
         auth: widget.auth,
         depot: widget.depot,
+        sante: widget.sante,
         horloge: widget.horloge,
       );
     },

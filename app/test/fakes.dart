@@ -4,6 +4,8 @@ import 'package:coach/compte/auth_service.dart';
 import 'package:coach/profil/besoins.dart';
 import 'package:coach/profil/modele.dart';
 import 'package:coach/profil/profil_repository.dart';
+import 'package:coach/sante/modele.dart';
+import 'package:coach/sante/sante_service.dart';
 
 /// Connexion programmable : [reponse] décide du résultat de connecterGoogle.
 class FauxAuth implements AuthService {
@@ -60,4 +62,37 @@ class FauxDepot implements ProfilRepository {
     _flux.add(uid);
     return bloquerEnregistrement ? Completer<void>().future : Future.value();
   }
+}
+
+/// Health Connect simulé.
+class FauxSante implements SanteService {
+  FauxSante({
+    this.dispo = DispoSante.disponible,
+    this.accorde = true,
+    List<PointSante>? points,
+  }) : points = points ?? [];
+
+  DispoSante dispo;
+  bool accorde;
+  List<PointSante> points;
+  int autorisationsDemandees = 0;
+  int installations = 0;
+
+  @override
+  Future<DispoSante> disponibilite() async => dispo;
+
+  @override
+  Future<void> installer() async => installations++;
+
+  @override
+  Future<bool> demanderAutorisations() async {
+    autorisationsDemandees++;
+    return accorde;
+  }
+
+  @override
+  Future<List<PointSante>> lire(DateTime debut, DateTime fin) async => [
+    for (final p in points)
+      if (!p.fin.isBefore(debut) && !p.debut.isAfter(fin)) p,
+  ];
 }

@@ -3,6 +3,7 @@ import 'package:coach/compte/auth_service.dart';
 import 'package:coach/profil/modele.dart';
 import 'package:coach/profil/questionnaire/controleur.dart';
 import 'package:coach/profil/questionnaire/questionnaire_page.dart';
+import 'package:coach/sante/sante_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -11,7 +12,7 @@ import '../../parcours.dart';
 
 final maintenant = DateTime(2026, 10, 9);
 
-const profilAttendu = Profil(
+final profilAttendu = Profil(
   objectif: Objectif.perte,
   sexe: Sexe.homme,
   anneeNaissance: 1996,
@@ -23,13 +24,16 @@ const profilAttendu = Profil(
   joursParSemaine: 3,
   dureeSeanceMin: 45,
   problemeSante: false,
+  poidsDate: maintenant,
 );
 
 class Banc {
-  Banc({Future<Utilisateur?> Function()? reponse})
-    : auth = FauxAuth(reponse: reponse);
+  Banc({Future<Utilisateur?> Function()? reponse, FauxSante? sante})
+    : auth = FauxAuth(reponse: reponse),
+      sante = sante ?? FauxSante();
 
   final FauxAuth auth;
+  final FauxSante sante;
   final depot = FauxDepot();
   final controleur = QuestionnaireControleur(
     maintenant: maintenant,
@@ -44,6 +48,7 @@ class Banc {
           controleur: controleur,
           auth: auth,
           depot: depot,
+          sante: sante,
           horloge: () => maintenant,
           quandTermine: () => termine = true,
         ),
@@ -69,7 +74,7 @@ void main() {
     await banc.monter(tester);
 
     await remplirJusquaSante(tester);
-    await taper(tester, 'Suivant');
+    await sansMontre(tester);
     await taper(tester, 'Continuer avec Google');
 
     expect(banc.depot.donnees['u1']?.profil, profilAttendu);
@@ -84,7 +89,7 @@ void main() {
     await banc.monter(tester);
 
     await remplirJusquaSante(tester);
-    await taper(tester, 'Suivant');
+    await sansMontre(tester);
     await taper(tester, 'Continuer avec Google');
 
     expect(find.text('Continuer avec Google'), findsOneWidget);
@@ -102,7 +107,7 @@ void main() {
     await banc.monter(tester);
 
     await remplirJusquaSante(tester);
-    await taper(tester, 'Suivant');
+    await sansMontre(tester);
     await taper(tester, 'Continuer avec Google');
 
     expect(find.textContaining('La connexion a échoué'), findsOneWidget);
@@ -139,11 +144,65 @@ void main() {
     final banc = Banc();
     await banc.monter(tester);
 
-    expect(find.text('Étape 1 sur 9'), findsOneWidget);
+    expect(find.text('Étape 1 sur 10'), findsOneWidget);
     expect(find.byTooltip('Retour'), findsNothing);
     await taper(tester, 'Garder la forme');
     await taper(tester, 'Suivant');
-    expect(find.text('Étape 2 sur 9'), findsOneWidget);
+    expect(find.text('Étape 2 sur 10'), findsOneWidget);
     expect(find.byTooltip('Retour'), findsOneWidget);
+  });
+
+  Future<void> jusquaAppMontre(WidgetTester tester) async {
+    await remplirJusquaSante(tester);
+    await taper(tester, 'Suivant');
+    await taper(tester, 'Oui');
+    await taper(tester, 'Suivant');
+    await taper(tester, 'Mi Fitness');
+  }
+
+  testWidgets('montre : autorisation accordée', (tester) async {
+    final banc = Banc();
+    await banc.monter(tester);
+
+    await jusquaAppMontre(tester);
+    await defilerJusqua(
+      tester,
+      find.textContaining('Dans Mi Fitness, active le partage'),
+    );
+    expect(
+      find.textContaining('Dans Mi Fitness, active le partage'),
+      findsOneWidget,
+    );
+    await taper(tester, "Autoriser l'accès");
+
+    expect(banc.sante.autorisationsDemandees, 1);
+    await defilerJusqua(tester, find.textContaining('Accès autorisé'));
+    expect(find.textContaining('Accès autorisé'), findsOneWidget);
+  });
+
+  testWidgets('montre : refus bienveillant, Suivant reste possible', (
+    tester,
+  ) async {
+    final banc = Banc(sante: FauxSante(accorde: false));
+    await banc.monter(tester);
+
+    await jusquaAppMontre(tester);
+    await taper(tester, "Autoriser l'accès");
+
+    await defilerJusqua(tester, find.textContaining('Pas de souci'));
+    expect(find.textContaining('Pas de souci'), findsOneWidget);
+    expect(suivantActif(tester), isTrue);
+    await taper(tester, 'Suivant');
+    expect(find.text('Continuer avec Google'), findsOneWidget);
+  });
+
+  testWidgets('montre : Health Connect à installer', (tester) async {
+    final banc = Banc(sante: FauxSante(dispo: DispoSante.aInstaller));
+    await banc.monter(tester);
+
+    await jusquaAppMontre(tester);
+    await taper(tester, 'Installer Health Connect');
+
+    expect(banc.sante.installations, 1);
   });
 }

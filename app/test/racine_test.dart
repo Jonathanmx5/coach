@@ -4,6 +4,7 @@ import 'package:coach/profil/besoins.dart';
 import 'package:coach/profil/modele.dart';
 import 'package:coach/profil/profil_repository.dart';
 import 'package:coach/racine.dart';
+import 'package:coach/sante/sante_service.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'fakes.dart';
@@ -31,11 +32,17 @@ const perteSimple = Profil(
 Future<void> monter(
   WidgetTester tester,
   AuthService auth,
-  ProfilRepository depot,
-) async {
+  ProfilRepository depot, {
+  SanteService? sante,
+}) async {
   await tester.pumpWidget(
     CoachApp(
-      accueil: Racine(auth: auth, depot: depot, horloge: () => maintenant),
+      accueil: Racine(
+        auth: auth,
+        depot: depot,
+        sante: sante ?? FauxSante(dispo: DispoSante.indisponible),
+        horloge: () => maintenant,
+      ),
     ),
   );
   await tester.pumpAndSettle();
@@ -78,7 +85,7 @@ void main() {
 
     await taper(tester, 'Commencer');
     await remplirJusquaSante(tester);
-    await taper(tester, 'Suivant');
+    await sansMontre(tester);
     await taper(tester, 'Continuer avec Google');
 
     expect(find.text('Bonjour Léa !'), findsOneWidget);
@@ -112,7 +119,7 @@ void main() {
     await taper(tester, 'Modifier mon profil');
     expect(find.text('Quel est ton objectif ?'), findsOneWidget);
     await taper(tester, 'Prendre du muscle');
-    for (var i = 0; i < 7; i++) {
+    for (var i = 0; i < 8; i++) {
       await taper(tester, 'Suivant');
     }
     await taper(tester, 'Suivant');

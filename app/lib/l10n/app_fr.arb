@@ -118,5 +118,29 @@
   "reperesEstimation": "Estimations calculées d'après ton profil.",
   "carteProgramme": "Ton programme",
   "cartePhoto": "Photo de repas",
-  "bientot": "Arrive bientôt"
+  "bientot": "Arrive bientôt",
+  "qMontre": "As-tu une montre ou un bracelet connecté ?",
+  "montreAide": "Coach pourra lire ton activité, ton sommeil et ton cœur via Health Connect, sans rien envoyer sur internet.",
+  "qAppMontre": "Quelle application l'accompagne ?",
+  "appGoogleFit": "Google Fit",
+  "appSamsungHealth": "Samsung Health",
+  "appMiFitness": "Mi Fitness",
+  "appFitbit": "Fitbit",
+  "appGarmin": "Garmin Connect",
+  "appAutre": "Autre",
+  "consignePartage": "Dans {app}, active le partage des données vers Health Connect (souvent dans Profil ou Paramètres, rubrique « Health Connect » ou « Applications connectées »).",
+  "@consignePartage": {
+    "placeholders": {
+      "app": {
+        "type": "String"
+      }
+    }
+  },
+  "consignePartageAutre": "Dans l'application de ta montre, active le partage des données vers Health Connect.",
+  "boutonAutoriser": "Autoriser l'accès",
+  "boutonInstallerHc": "Installer Health Connect",
+  "hcAInstaller": "Health Connect doit être installé ou mis à jour sur ce téléphone.",
+  "hcIndisponible": "Health Connect n'est pas disponible sur ce téléphone. Coach utilisera des estimations.",
+  "accesAccorde": "Accès autorisé : Coach lira les données de ta montre.",
+  "accesRefuse": "Accès non autorisé. Pas de souci : Coach utilisera des estimations, et tu pourras réessayer plus tard."
 }

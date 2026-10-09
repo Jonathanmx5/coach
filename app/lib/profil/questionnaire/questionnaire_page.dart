@@ -5,7 +5,9 @@ import 'package:flutter/material.dart';
 import '../../compte/auth_service.dart';
 import '../../l10n/app_localizations.dart';
 import '../../theme.dart';
+import '../../sante/sante_service.dart';
 import '../besoins.dart';
+import '../modele.dart';
 import '../profil_repository.dart';
 import 'controleur.dart';
 import 'etapes.dart';
@@ -16,6 +18,7 @@ class QuestionnairePage extends StatefulWidget {
     required this.controleur,
     required this.auth,
     required this.depot,
+    required this.sante,
     required this.horloge,
     required this.quandTermine,
   });
@@ -23,6 +26,7 @@ class QuestionnairePage extends StatefulWidget {
   final QuestionnaireControleur controleur;
   final AuthService auth;
   final ProfilRepository depot;
+  final SanteService sante;
   final DateTime Function() horloge;
   final VoidCallback quandTermine;
 
@@ -33,6 +37,45 @@ class QuestionnairePage extends StatefulWidget {
 class _QuestionnairePageState extends State<QuestionnairePage> {
   bool _connexionEnCours = false;
   bool _connexionEchouee = false;
+
+  // Étape « application de la montre » : état de Health Connect.
+  DispoSante? _dispo;
+  bool? _accesAccorde;
+  bool _demandeEnCours = false;
+
+  @override
+  void initState() {
+    super.initState();
+    widget.sante.disponibilite().then(
+      (d) {
+        if (mounted) setState(() => _dispo = d);
+      },
+      onError: (Object _) {
+        if (mounted) setState(() => _dispo = DispoSante.indisponible);
+      },
+    );
+  }
+
+  Future<void> _autoriser() async {
+    setState(() => _demandeEnCours = true);
+    var accorde = false;
+    try {
+      accorde = await widget.sante.demanderAutorisations();
+    } catch (_) {
+      accorde = false;
+    }
+    if (!mounted) return;
+    setState(() {
+      _demandeEnCours = false;
+      _accesAccorde = accorde;
+    });
+  }
+
+  Future<void> _installer() async {
+    await widget.sante.installer();
+    final d = await widget.sante.disponibilite();
+    if (mounted) setState(() => _dispo = d);
+  }
 
   QuestionnaireControleur get _c => widget.controleur;
 
@@ -124,6 +167,8 @@ class _QuestionnairePageState extends State<QuestionnairePage> {
                       const SizedBox(height: 20),
                       ...contenuEtape(context, _c),
                       if (enConnexion) ..._contenuConnexion(t),
+                      if (_c.etape == Etape.appMontre && _c.appMontre != null)
+                        ..._contenuAutorisation(t, _c.appMontre!),
                       if (alerte != null) ...[
                         const SizedBox(height: 16),
                         EncadreAlerte(texteAlerte(t, alerte)),
@@ -145,6 +190,47 @@ class _QuestionnairePageState extends State<QuestionnairePage> {
         );
       },
     );
+  }
+
+  List<Widget> _contenuAutorisation(AppLocalizations t, AppMontre app) {
+    final accorde = _accesAccorde;
+    return [
+      const SizedBox(height: 8),
+      EncadreInfo(
+        app == AppMontre.autre
+            ? t.consignePartageAutre
+            : t.consignePartage(libelleAppMontre(t, app)),
+      ),
+      const SizedBox(height: 16),
+      switch (_dispo) {
+        null => const Center(child: CircularProgressIndicator()),
+        DispoSante.indisponible => EncadreAlerte(t.hcIndisponible),
+        DispoSante.aInstaller => Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            EncadreAlerte(t.hcAInstaller),
+            const SizedBox(height: 12),
+            OutlinedButton.icon(
+              onPressed: _installer,
+              icon: const Icon(Icons.download_outlined),
+              label: Text(t.boutonInstallerHc),
+            ),
+          ],
+        ),
+        DispoSante.disponible =>
+          _demandeEnCours
+              ? const Center(child: CircularProgressIndicator())
+              : OutlinedButton.icon(
+                  onPressed: _autoriser,
+                  icon: const Icon(Icons.lock_open_outlined),
+                  label: Text(t.boutonAutoriser),
+                ),
+      },
+      if (accorde != null) ...[
+        const SizedBox(height: 16),
+        accorde ? EncadreInfo(t.accesAccorde) : EncadreAlerte(t.accesRefuse),
+      ],
+    ];
   }
 
   List<Widget> _contenuConnexion(AppLocalizations t) => [

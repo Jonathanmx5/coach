@@ -208,6 +208,36 @@ class EncadreAlerte extends StatelessWidget {
   );
 }
 
+/// Information neutre (vert pâle).
+class EncadreInfo extends StatelessWidget {
+  const EncadreInfo(this.texte, {super.key});
+
+  final String texte;
+
+  @override
+  Widget build(BuildContext context) => Container(
+    padding: const EdgeInsets.all(16),
+    decoration: BoxDecoration(
+      color: CouleursCoach.vertClair,
+      borderRadius: BorderRadius.circular(rayonCarte),
+    ),
+    child: Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Icon(Icons.lightbulb_outline, color: CouleursCoach.vertFonce),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Text(
+            texte,
+            style: Theme.of(context).textTheme.bodyMedium
+                ?.copyWith(color: CouleursCoach.vertFonce),
+          ),
+        ),
+      ],
+    ),
+  );
+}
+
 String formaterNombre(num? v) {
   if (v == null) return '';
   if (v == v.roundToDouble()) return v.round().toString();
@@ -275,6 +305,8 @@ String titreEtape(AppLocalizations t, Etape e) => switch (e) {
   Etape.niveau => t.qNiveau,
   Etape.disponibilite => t.qDisponibilite,
   Etape.sante => t.qSante,
+  Etape.montre => t.qMontre,
+  Etape.appMontre => t.qAppMontre,
   Etape.connexion => t.qConnexion,
 };
 
@@ -296,6 +328,24 @@ const iconesObjectif = {
   Objectif.muscle: Icons.fitness_center,
   Objectif.forme: Icons.favorite_outline,
   Objectif.reprise: Icons.replay,
+};
+
+const iconesAppMontre = {
+  AppMontre.googleFit: Icons.favorite_border,
+  AppMontre.samsungHealth: Icons.monitor_heart_outlined,
+  AppMontre.miFitness: Icons.watch_outlined,
+  AppMontre.fitbit: Icons.directions_walk,
+  AppMontre.garmin: Icons.explore_outlined,
+  AppMontre.autre: Icons.more_horiz,
+};
+
+String libelleAppMontre(AppLocalizations t, AppMontre a) => switch (a) {
+  AppMontre.googleFit => t.appGoogleFit,
+  AppMontre.samsungHealth => t.appSamsungHealth,
+  AppMontre.miFitness => t.appMiFitness,
+  AppMontre.fitbit => t.appFitbit,
+  AppMontre.garmin => t.appGarmin,
+  AppMontre.autre => t.appAutre,
 };
 
 /// Contenu des étapes de réponse (l'étape connexion est gérée par la page).
@@ -493,6 +543,37 @@ List<Widget> contenuEtape(BuildContext context, QuestionnaireControleur c) {
           ),
         ]),
         Text(t.mentionMedicale, style: petit),
+      ];
+    case Etape.montre:
+      return [
+        Text(t.montreAide, style: petit),
+        const SizedBox(height: 16),
+        grille([
+          tuile(
+            t.boutonOui,
+            Icons.watch_outlined,
+            c.montre == true,
+            () => c.repondreMontre(true),
+          ),
+          tuile(
+            t.boutonNon,
+            Icons.phone_android,
+            c.montre == false,
+            () => c.repondreMontre(false),
+          ),
+        ]),
+      ];
+    case Etape.appMontre:
+      return [
+        grille([
+          for (final a in AppMontre.values)
+            tuile(
+              libelleAppMontre(t, a),
+              iconesAppMontre[a]!,
+              c.appMontre == a,
+              () => c.choisirAppMontre(a),
+            ),
+        ]),
       ];
     case Etape.connexion:
       return const [];
