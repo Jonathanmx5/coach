@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../fakes.dart';
+import '../../parcours.dart';
 
 final maintenant = DateTime(2026, 10, 9);
 
@@ -46,39 +47,6 @@ class Banc {
     ));
     await tester.pumpAndSettle();
   }
-}
-
-Future<void> taper(WidgetTester tester, String texte) async {
-  await tester.ensureVisible(find.text(texte).last);
-  await tester.tap(find.text(texte).last);
-  await tester.pumpAndSettle();
-}
-
-Future<void> saisir(WidgetTester tester, String champ, String valeur) async {
-  await tester.enterText(find.widgetWithText(TextField, champ), valeur);
-  await tester.pumpAndSettle();
-}
-
-/// Répond à tout jusqu'à l'étape santé incluse.
-Future<void> remplirJusquaSante(WidgetTester tester, {bool sante = false}) async {
-  await taper(tester, 'Perdre du poids');
-  await taper(tester, 'Suivant');
-  await taper(tester, 'Homme');
-  await saisir(tester, 'Âge', '30');
-  await taper(tester, 'Suivant');
-  await saisir(tester, 'Taille (cm)', '180');
-  await saisir(tester, 'Poids (kg)', '80,5');
-  await taper(tester, 'Suivant');
-  await taper(tester, 'Un peu actif');
-  await taper(tester, 'Suivant');
-  await taper(tester, 'Salle de sport');
-  await taper(tester, 'Suivant');
-  await taper(tester, 'Débutant');
-  await taper(tester, 'Suivant');
-  await taper(tester, '3');
-  await taper(tester, '45 min');
-  await taper(tester, 'Suivant');
-  await taper(tester, sante ? 'Oui' : 'Non');
 }
 
 bool suivantActif(WidgetTester tester) =>

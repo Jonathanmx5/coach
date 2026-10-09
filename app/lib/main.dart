@@ -7,7 +7,10 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import 'app.dart';
+import 'compte/auth_service.dart';
 import 'firebase_options.dart';
+import 'profil/profil_repository.dart';
+import 'racine.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -25,5 +28,11 @@ Future<void> main() async {
     return true;
   };
 
-  runApp(const CoachApp(accueil: Placeholder()));
+  runApp(CoachApp(
+    accueil: Racine(
+      auth: FirebaseAuthService(),
+      depot: FirestoreProfilRepository(),
+      horloge: DateTime.now,
+    ),
+  ));
 }
