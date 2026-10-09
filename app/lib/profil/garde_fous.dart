@@ -15,16 +15,16 @@ bool pertePermise({
   required double poidsKg,
   required int tailleCm,
   required bool problemeSante,
-}) =>
-    !problemeSante && imc(poidsKg, tailleCm) >= imcMinimumPerte;
+}) => !problemeSante && imc(poidsKg, tailleCm) >= imcMinimumPerte;
 
 /// Remplace « perdre du poids » par « garder la forme » quand ce n'est pas sûr.
 Profil appliquerGardeFous(Profil p) {
   if (p.objectif == Objectif.perte &&
       !pertePermise(
-          poidsKg: p.poidsKg,
-          tailleCm: p.tailleCm,
-          problemeSante: p.problemeSante)) {
+        poidsKg: p.poidsKg,
+        tailleCm: p.tailleCm,
+        problemeSante: p.problemeSante,
+      )) {
     return p.copyWith(objectif: Objectif.forme);
   }
   return p;

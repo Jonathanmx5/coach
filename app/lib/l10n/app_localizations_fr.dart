@@ -192,24 +192,50 @@ class AppLocalizationsFr extends AppLocalizations {
   String get accueilBonjourSansNom => 'Bonjour !';
 
   @override
-  String get accueilProgrammeBientot => 'Ton programme arrive bientôt.';
-
-  @override
-  String get boutonVoirReperes => 'Voir mes repères';
-
-  @override
-  String reperesKcal(int kcal) {
-    return '$kcal kcal par jour (estimation)';
-  }
-
-  @override
-  String reperesProteines(int g) {
-    return '$g g de protéines par jour';
-  }
-
-  @override
   String get boutonModifierProfil => 'Modifier mon profil';
 
   @override
   String get boutonDeconnexion => 'Se déconnecter';
+
+  @override
+  String get bienvenuePoint1 => 'Programme à la maison, en salle ou en course';
+
+  @override
+  String get bienvenuePoint2 => 'Repas en photo, sans compter';
+
+  @override
+  String etapeSur(int n, int total) {
+    return 'Étape $n sur $total';
+  }
+
+  @override
+  String objectifPastille(String objectif) {
+    return 'Objectif : $objectif';
+  }
+
+  @override
+  String get reperesTitre => 'Tes repères du jour';
+
+  @override
+  String get reperesKcalLabel => 'kcal par jour';
+
+  @override
+  String reperesProteinesValeur(int g) {
+    return '$g g';
+  }
+
+  @override
+  String get reperesProteinesLabel => 'de protéines';
+
+  @override
+  String get reperesEstimation => 'Estimations calculées d\'après ton profil.';
+
+  @override
+  String get carteProgramme => 'Ton programme';
+
+  @override
+  String get cartePhoto => 'Photo de repas';
+
+  @override
+  String get bientot => 'Arrive bientôt';
 }

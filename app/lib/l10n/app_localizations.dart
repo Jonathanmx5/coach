@@ -436,30 +436,6 @@ abstract class AppLocalizations {
   /// **'Bonjour !'**
   String get accueilBonjourSansNom;
 
-  /// No description provided for @accueilProgrammeBientot.
-  ///
-  /// In fr, this message translates to:
-  /// **'Ton programme arrive bientôt.'**
-  String get accueilProgrammeBientot;
-
-  /// No description provided for @boutonVoirReperes.
-  ///
-  /// In fr, this message translates to:
-  /// **'Voir mes repères'**
-  String get boutonVoirReperes;
-
-  /// No description provided for @reperesKcal.
-  ///
-  /// In fr, this message translates to:
-  /// **'{kcal} kcal par jour (estimation)'**
-  String reperesKcal(int kcal);
-
-  /// No description provided for @reperesProteines.
-  ///
-  /// In fr, this message translates to:
-  /// **'{g} g de protéines par jour'**
-  String reperesProteines(int g);
-
   /// No description provided for @boutonModifierProfil.
   ///
   /// In fr, this message translates to:
@@ -471,6 +447,78 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Se déconnecter'**
   String get boutonDeconnexion;
+
+  /// No description provided for @bienvenuePoint1.
+  ///
+  /// In fr, this message translates to:
+  /// **'Programme à la maison, en salle ou en course'**
+  String get bienvenuePoint1;
+
+  /// No description provided for @bienvenuePoint2.
+  ///
+  /// In fr, this message translates to:
+  /// **'Repas en photo, sans compter'**
+  String get bienvenuePoint2;
+
+  /// No description provided for @etapeSur.
+  ///
+  /// In fr, this message translates to:
+  /// **'Étape {n} sur {total}'**
+  String etapeSur(int n, int total);
+
+  /// No description provided for @objectifPastille.
+  ///
+  /// In fr, this message translates to:
+  /// **'Objectif : {objectif}'**
+  String objectifPastille(String objectif);
+
+  /// No description provided for @reperesTitre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tes repères du jour'**
+  String get reperesTitre;
+
+  /// No description provided for @reperesKcalLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'kcal par jour'**
+  String get reperesKcalLabel;
+
+  /// No description provided for @reperesProteinesValeur.
+  ///
+  /// In fr, this message translates to:
+  /// **'{g} g'**
+  String reperesProteinesValeur(int g);
+
+  /// No description provided for @reperesProteinesLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'de protéines'**
+  String get reperesProteinesLabel;
+
+  /// No description provided for @reperesEstimation.
+  ///
+  /// In fr, this message translates to:
+  /// **'Estimations calculées d\'après ton profil.'**
+  String get reperesEstimation;
+
+  /// No description provided for @carteProgramme.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton programme'**
+  String get carteProgramme;
+
+  /// No description provided for @cartePhoto.
+  ///
+  /// In fr, this message translates to:
+  /// **'Photo de repas'**
+  String get cartePhoto;
+
+  /// No description provided for @bientot.
+  ///
+  /// In fr, this message translates to:
+  /// **'Arrive bientôt'**
+  String get bientot;
 }
 
 class _AppLocalizationsDelegate

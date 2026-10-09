@@ -45,27 +45,78 @@
   "champJours": "Jours par semaine",
   "champDuree": "Durée d'une séance",
   "dureeMinutes": "{n} min",
-  "@dureeMinutes": {"placeholders": {"n": {"type": "int"}}},
+  "@dureeMinutes": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
   "qSante": "Es-tu enceinte ou as-tu un problème de santé particulier ?",
   "conseilMedecin": "Parles-en à ton médecin avant de commencer. Par prudence, l'objectif « perdre du poids » est désactivé.",
   "messageMineur": "Coach est réservé aux personnes de 18 ans et plus. Les besoins des adolescents sont différents : parles-en à ton médecin.",
   "messagePerteImc": "Ton poids est déjà bas pour ta taille : on part plutôt sur « garder la forme ».",
   "erreurNombre": "Entre un nombre valide.",
   "erreurPlage": "Entre une valeur entre {min} et {max}.",
-  "@erreurPlage": {"placeholders": {"min": {"type": "int"}, "max": {"type": "int"}}},
+  "@erreurPlage": {
+    "placeholders": {
+      "min": {
+        "type": "int"
+      },
+      "max": {
+        "type": "int"
+      }
+    }
+  },
   "qConnexion": "Dernière étape : sauvegarde ton profil",
   "boutonGoogle": "Continuer avec Google",
   "erreurConnexion": "La connexion a échoué. Vérifie ta connexion internet et réessaie.",
   "mentionMedicale": "Coach ne remplace pas un avis médical.",
   "accueilBonjour": "Bonjour {prenom} !",
-  "@accueilBonjour": {"placeholders": {"prenom": {"type": "String"}}},
+  "@accueilBonjour": {
+    "placeholders": {
+      "prenom": {
+        "type": "String"
+      }
+    }
+  },
   "accueilBonjourSansNom": "Bonjour !",
-  "accueilProgrammeBientot": "Ton programme arrive bientôt.",
-  "boutonVoirReperes": "Voir mes repères",
-  "reperesKcal": "{kcal} kcal par jour (estimation)",
-  "@reperesKcal": {"placeholders": {"kcal": {"type": "int"}}},
-  "reperesProteines": "{g} g de protéines par jour",
-  "@reperesProteines": {"placeholders": {"g": {"type": "int"}}},
   "boutonModifierProfil": "Modifier mon profil",
-  "boutonDeconnexion": "Se déconnecter"
+  "boutonDeconnexion": "Se déconnecter",
+  "bienvenuePoint1": "Programme à la maison, en salle ou en course",
+  "bienvenuePoint2": "Repas en photo, sans compter",
+  "etapeSur": "Étape {n} sur {total}",
+  "@etapeSur": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "objectifPastille": "Objectif : {objectif}",
+  "@objectifPastille": {
+    "placeholders": {
+      "objectif": {
+        "type": "String"
+      }
+    }
+  },
+  "reperesTitre": "Tes repères du jour",
+  "reperesKcalLabel": "kcal par jour",
+  "reperesProteinesValeur": "{g} g",
+  "@reperesProteinesValeur": {
+    "placeholders": {
+      "g": {
+        "type": "int"
+      }
+    }
+  },
+  "reperesProteinesLabel": "de protéines",
+  "reperesEstimation": "Estimations calculées d'après ton profil.",
+  "carteProgramme": "Ton programme",
+  "cartePhoto": "Photo de repas",
+  "bientot": "Arrive bientôt"
 }

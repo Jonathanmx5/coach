@@ -53,53 +53,52 @@ class Profil {
     int? joursParSemaine,
     int? dureeSeanceMin,
     bool? problemeSante,
-  }) =>
-      Profil(
-        objectif: objectif ?? this.objectif,
-        sexe: sexe ?? this.sexe,
-        anneeNaissance: anneeNaissance ?? this.anneeNaissance,
-        tailleCm: tailleCm ?? this.tailleCm,
-        poidsKg: poidsKg ?? this.poidsKg,
-        typeDeVie: typeDeVie ?? this.typeDeVie,
-        typesEntrainement: typesEntrainement ?? this.typesEntrainement,
-        niveau: niveau ?? this.niveau,
-        joursParSemaine: joursParSemaine ?? this.joursParSemaine,
-        dureeSeanceMin: dureeSeanceMin ?? this.dureeSeanceMin,
-        problemeSante: problemeSante ?? this.problemeSante,
-      );
+  }) => Profil(
+    objectif: objectif ?? this.objectif,
+    sexe: sexe ?? this.sexe,
+    anneeNaissance: anneeNaissance ?? this.anneeNaissance,
+    tailleCm: tailleCm ?? this.tailleCm,
+    poidsKg: poidsKg ?? this.poidsKg,
+    typeDeVie: typeDeVie ?? this.typeDeVie,
+    typesEntrainement: typesEntrainement ?? this.typesEntrainement,
+    niveau: niveau ?? this.niveau,
+    joursParSemaine: joursParSemaine ?? this.joursParSemaine,
+    dureeSeanceMin: dureeSeanceMin ?? this.dureeSeanceMin,
+    problemeSante: problemeSante ?? this.problemeSante,
+  );
 
   Map<String, Object?> toMap() => {
-        'objectif': objectif.name,
-        'sexe': sexe.name,
-        'anneeNaissance': anneeNaissance,
-        'tailleCm': tailleCm,
-        'poidsKg': poidsKg,
-        'typeDeVie': typeDeVie.name,
-        'typesEntrainement': (typesEntrainement.toList()
-              ..sort((a, b) => a.index.compareTo(b.index)))
+    'objectif': objectif.name,
+    'sexe': sexe.name,
+    'anneeNaissance': anneeNaissance,
+    'tailleCm': tailleCm,
+    'poidsKg': poidsKg,
+    'typeDeVie': typeDeVie.name,
+    'typesEntrainement':
+        (typesEntrainement.toList()..sort((a, b) => a.index.compareTo(b.index)))
             .map((t) => t.name)
             .toList(),
-        'niveau': niveau.name,
-        'joursParSemaine': joursParSemaine,
-        'dureeSeanceMin': dureeSeanceMin,
-        'problemeSante': problemeSante,
-      };
+    'niveau': niveau.name,
+    'joursParSemaine': joursParSemaine,
+    'dureeSeanceMin': dureeSeanceMin,
+    'problemeSante': problemeSante,
+  };
 
   static Profil fromMap(Map<String, Object?> m) => Profil(
-        objectif: Objectif.values.byName(m['objectif']! as String),
-        sexe: Sexe.values.byName(m['sexe']! as String),
-        anneeNaissance: (m['anneeNaissance']! as num).toInt(),
-        tailleCm: (m['tailleCm']! as num).toInt(),
-        poidsKg: (m['poidsKg']! as num).toDouble(),
-        typeDeVie: TypeDeVie.values.byName(m['typeDeVie']! as String),
-        typesEntrainement: (m['typesEntrainement']! as List)
-            .map((t) => TypeEntrainement.values.byName(t as String))
-            .toSet(),
-        niveau: Niveau.values.byName(m['niveau']! as String),
-        joursParSemaine: (m['joursParSemaine']! as num).toInt(),
-        dureeSeanceMin: (m['dureeSeanceMin']! as num).toInt(),
-        problemeSante: m['problemeSante']! as bool,
-      );
+    objectif: Objectif.values.byName(m['objectif']! as String),
+    sexe: Sexe.values.byName(m['sexe']! as String),
+    anneeNaissance: (m['anneeNaissance']! as num).toInt(),
+    tailleCm: (m['tailleCm']! as num).toInt(),
+    poidsKg: (m['poidsKg']! as num).toDouble(),
+    typeDeVie: TypeDeVie.values.byName(m['typeDeVie']! as String),
+    typesEntrainement: (m['typesEntrainement']! as List)
+        .map((t) => TypeEntrainement.values.byName(t as String))
+        .toSet(),
+    niveau: Niveau.values.byName(m['niveau']! as String),
+    joursParSemaine: (m['joursParSemaine']! as num).toInt(),
+    dureeSeanceMin: (m['dureeSeanceMin']! as num).toInt(),
+    problemeSante: m['problemeSante']! as bool,
+  );
 
   @override
   bool operator ==(Object other) =>
@@ -118,16 +117,16 @@ class Profil {
 
   @override
   int get hashCode => Object.hash(
-        objectif,
-        sexe,
-        anneeNaissance,
-        tailleCm,
-        poidsKg,
-        typeDeVie,
-        Object.hashAllUnordered(typesEntrainement),
-        niveau,
-        joursParSemaine,
-        dureeSeanceMin,
-        problemeSante,
-      );
+    objectif,
+    sexe,
+    anneeNaissance,
+    tailleCm,
+    poidsKg,
+    typeDeVie,
+    Object.hashAllUnordered(typesEntrainement),
+    niveau,
+    joursParSemaine,
+    dureeSeanceMin,
+    problemeSante,
+  );
 }

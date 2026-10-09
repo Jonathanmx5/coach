@@ -18,18 +18,18 @@ class Reperes {
   final int proteinesG;
 
   Map<String, Object?> toMap() => {
-        'depenseBase': depenseBase,
-        'maintien': maintien,
-        'kcalCible': kcalCible,
-        'proteinesG': proteinesG,
-      };
+    'depenseBase': depenseBase,
+    'maintien': maintien,
+    'kcalCible': kcalCible,
+    'proteinesG': proteinesG,
+  };
 
   static Reperes fromMap(Map<String, Object?> m) => Reperes(
-        depenseBase: (m['depenseBase']! as num).toInt(),
-        maintien: (m['maintien']! as num).toInt(),
-        kcalCible: (m['kcalCible']! as num).toInt(),
-        proteinesG: (m['proteinesG']! as num).toInt(),
-      );
+    depenseBase: (m['depenseBase']! as num).toInt(),
+    maintien: (m['maintien']! as num).toInt(),
+    kcalCible: (m['kcalCible']! as num).toInt(),
+    proteinesG: (m['proteinesG']! as num).toInt(),
+  );
 
   @override
   bool operator ==(Object other) =>
@@ -59,7 +59,8 @@ const _deficitMax = 500.0;
 
 Reperes calculerReperes(Profil p, {required DateTime maintenant}) {
   // Mifflin-St Jeor.
-  final base = 10 * p.poidsKg +
+  final base =
+      10 * p.poidsKg +
       6.25 * p.tailleCm -
       5 * p.age(maintenant) +
       (p.sexe == Sexe.homme ? 5 : -161);

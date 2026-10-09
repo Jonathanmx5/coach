@@ -28,14 +28,18 @@ const durees = [20, 30, 45, 60];
 
 /// État et règles du questionnaire de départ (spec §3), sans interface.
 class QuestionnaireControleur extends ChangeNotifier {
-  QuestionnaireControleur({required this.maintenant, required bool avecConnexion})
-      : etapes = avecConnexion
-            ? Etape.values
-            : Etape.values.where((e) => e != Etape.connexion).toList();
+  QuestionnaireControleur({
+    required this.maintenant,
+    required bool avecConnexion,
+  }) : etapes = avecConnexion
+           ? Etape.values
+           : Etape.values.where((e) => e != Etape.connexion).toList();
 
   /// Questionnaire prérempli pour modifier un profil existant.
-  factory QuestionnaireControleur.depuis(Profil p,
-      {required DateTime maintenant}) {
+  factory QuestionnaireControleur.depuis(
+    Profil p, {
+    required DateTime maintenant,
+  }) {
     return QuestionnaireControleur(maintenant: maintenant, avecConnexion: false)
       .._objectif = p.objectif
       .._sexe = p.sexe
@@ -86,16 +90,16 @@ class QuestionnaireControleur extends ChangeNotifier {
   bool? get problemeSante => _sante;
 
   bool get peutContinuer => switch (etape) {
-        Etape.objectif => _objectif != null,
-        Etape.sexeAge => _sexe != null && _age != null && !estMineur(_age!),
-        Etape.mensurations => _tailleCm != null && _poidsKg != null,
-        Etape.typeDeVie => _typeDeVie != null,
-        Etape.entrainements => _types.isNotEmpty,
-        Etape.niveau => _niveau != null,
-        Etape.disponibilite => _jours != null && _duree != null,
-        Etape.sante => _sante != null,
-        Etape.connexion => true,
-      };
+    Etape.objectif => _objectif != null,
+    Etape.sexeAge => _sexe != null && _age != null && !estMineur(_age!),
+    Etape.mensurations => _tailleCm != null && _poidsKg != null,
+    Etape.typeDeVie => _typeDeVie != null,
+    Etape.entrainements => _types.isNotEmpty,
+    Etape.niveau => _niveau != null,
+    Etape.disponibilite => _jours != null && _duree != null,
+    Etape.sante => _sante != null,
+    Etape.connexion => true,
+  };
 
   void choisirObjectif(Objectif o) => _maj(() => _objectif = o);
   void choisirSexe(Sexe s) => _maj(() => _sexe = s);
@@ -160,14 +164,14 @@ class QuestionnaireControleur extends ChangeNotifier {
   }
 
   void repondreSante(bool oui) => _maj(() {
-        _sante = oui;
-        if (oui) {
-          if (_objectif == Objectif.perte) _objectif = Objectif.forme;
-          _alerte = Alerte.conseilMedecin;
-        } else if (_alerte == Alerte.conseilMedecin) {
-          _alerte = null;
-        }
-      });
+    _sante = oui;
+    if (oui) {
+      if (_objectif == Objectif.perte) _objectif = Objectif.forme;
+      _alerte = Alerte.conseilMedecin;
+    } else if (_alerte == Alerte.conseilMedecin) {
+      _alerte = null;
+    }
+  });
 
   void suivant() {
     if (!peutContinuer || estDerniereEtape) return;
@@ -177,7 +181,10 @@ class QuestionnaireControleur extends ChangeNotifier {
       if (quittee == Etape.mensurations &&
           _objectif == Objectif.perte &&
           !pertePermise(
-              poidsKg: _poidsKg!, tailleCm: _tailleCm!, problemeSante: false)) {
+            poidsKg: _poidsKg!,
+            tailleCm: _tailleCm!,
+            problemeSante: false,
+          )) {
         _objectif = Objectif.forme;
         _alerte = Alerte.perteRefuseeImc;
       }
@@ -209,19 +216,21 @@ class QuestionnaireControleur extends ChangeNotifier {
         _sante == null) {
       throw StateError('Questionnaire incomplet');
     }
-    return appliquerGardeFous(Profil(
-      objectif: _objectif!,
-      sexe: _sexe!,
-      anneeNaissance: maintenant.year - _age!,
-      tailleCm: _tailleCm!,
-      poidsKg: _poidsKg!,
-      typeDeVie: _typeDeVie!,
-      typesEntrainement: Set.of(_types),
-      niveau: _niveau!,
-      joursParSemaine: _jours!,
-      dureeSeanceMin: _duree!,
-      problemeSante: _sante!,
-    ));
+    return appliquerGardeFous(
+      Profil(
+        objectif: _objectif!,
+        sexe: _sexe!,
+        anneeNaissance: maintenant.year - _age!,
+        tailleCm: _tailleCm!,
+        poidsKg: _poidsKg!,
+        typeDeVie: _typeDeVie!,
+        typesEntrainement: Set.of(_types),
+        niveau: _niveau!,
+        joursParSemaine: _jours!,
+        dureeSeanceMin: _duree!,
+        problemeSante: _sante!,
+      ),
+    );
   }
 
   ErreurChamp _invalide(VoidCallback effacer, ErreurChamp erreur) {

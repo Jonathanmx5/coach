@@ -17,8 +17,9 @@ Future<void> main() async {
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
   // Hors-ligne : l'appli lit et écrit dans le cache, synchronisé au retour du réseau.
-  FirebaseFirestore.instance.settings =
-      const Settings(persistenceEnabled: true);
+  FirebaseFirestore.instance.settings = const Settings(
+    persistenceEnabled: true,
+  );
 
   final crashlytics = FirebaseCrashlytics.instance;
   await crashlytics.setCrashlyticsCollectionEnabled(!kDebugMode);
@@ -28,11 +29,13 @@ Future<void> main() async {
     return true;
   };
 
-  runApp(CoachApp(
-    accueil: Racine(
-      auth: FirebaseAuthService(),
-      depot: FirestoreProfilRepository(),
-      horloge: DateTime.now,
+  runApp(
+    CoachApp(
+      accueil: Racine(
+        auth: FirebaseAuthService(),
+        depot: FirestoreProfilRepository(),
+        horloge: DateTime.now,
+      ),
     ),
-  ));
+  );
 }

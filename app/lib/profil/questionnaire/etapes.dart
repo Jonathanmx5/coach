@@ -2,40 +2,181 @@ import 'package:flutter/material.dart';
 
 import '../../l10n/app_localizations.dart';
 import '../modele.dart';
+import '../../theme.dart';
 import 'controleur.dart';
 
-/// Grosse carte de choix, adaptée aux débutants.
+/// Carte de choix pleine largeur, avec icône et sous-titre facultatif.
 class CarteChoix extends StatelessWidget {
   const CarteChoix({
     super.key,
     required this.titre,
     this.sousTitre,
+    this.icone,
     required this.selectionne,
     required this.onTap,
   });
 
   final String titre;
   final String? sousTitre;
+  final IconData? icone;
   final bool selectionne;
   final VoidCallback onTap;
 
   @override
-  Widget build(BuildContext context) {
-    final couleurs = Theme.of(context).colorScheme;
-    return Card(
-      color: selectionne ? couleurs.primaryContainer : null,
-      child: ListTile(
-        minVerticalPadding: 16,
-        title: Text(titre, style: Theme.of(context).textTheme.titleMedium),
-        subtitle: sousTitre == null ? null : Text(sousTitre!),
-        trailing: selectionne
-            ? Icon(Icons.check_circle, color: couleurs.primary)
-            : null,
-        onTap: onTap,
+  Widget build(BuildContext context) => _Cadre(
+    selectionne: selectionne,
+    onTap: onTap,
+    child: Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      child: Row(
+        children: [
+          if (icone != null) ...[
+            _Icone(icone!, selectionne),
+            const SizedBox(width: 14),
+          ],
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(titre, style: _styleTitre(context, selectionne)),
+                if (sousTitre != null) ...[
+                  const SizedBox(height: 2),
+                  Text(
+                    sousTitre!,
+                    style: Theme.of(context).textTheme.bodyMedium
+                        ?.copyWith(color: CouleursCoach.texteDoux),
+                  ),
+                ],
+              ],
+            ),
+          ),
+          if (selectionne)
+            const Icon(Icons.check_circle, color: CouleursCoach.vert),
+        ],
       ),
-    );
-  }
+    ),
+  );
 }
+
+/// Tuile carrée de choix (grille de deux colonnes).
+class TuileChoix extends StatelessWidget {
+  const TuileChoix({
+    super.key,
+    required this.titre,
+    required this.icone,
+    required this.selectionne,
+    required this.onTap,
+  });
+
+  final String titre;
+  final IconData icone;
+  final bool selectionne;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) => _Cadre(
+    selectionne: selectionne,
+    onTap: onTap,
+    child: Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 20),
+      child: Column(
+        children: [
+          _Icone(icone, selectionne, taille: 52),
+          const SizedBox(height: 12),
+          Text(
+            titre,
+            textAlign: TextAlign.center,
+            style: _styleTitre(context, selectionne),
+          ),
+        ],
+      ),
+    ),
+  );
+}
+
+TextStyle? _styleTitre(BuildContext context, bool selectionne) =>
+    Theme.of(context).textTheme.titleMedium?.copyWith(
+      fontWeight: selectionne ? FontWeight.w700 : FontWeight.w500,
+      color: selectionne ? CouleursCoach.vertFonce : CouleursCoach.texte,
+    );
+
+class _Cadre extends StatelessWidget {
+  const _Cadre({
+    required this.selectionne,
+    required this.onTap,
+    required this.child,
+  });
+
+  final bool selectionne;
+  final VoidCallback onTap;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) => AnimatedContainer(
+    duration: const Duration(milliseconds: 150),
+    decoration: BoxDecoration(
+      color: selectionne ? CouleursCoach.vertClair : Colors.white,
+      borderRadius: BorderRadius.circular(rayonCarte),
+      border: Border.all(
+        color: selectionne ? CouleursCoach.vert : CouleursCoach.bordure,
+        width: selectionne ? 2 : 0.8,
+      ),
+    ),
+    child: Material(
+      type: MaterialType.transparency,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(rayonCarte),
+        onTap: onTap,
+        child: child,
+      ),
+    ),
+  );
+}
+
+class _Icone extends StatelessWidget {
+  const _Icone(this.icone, this.selectionne, {this.taille = 44});
+
+  final IconData icone;
+  final bool selectionne;
+  final double taille;
+
+  @override
+  Widget build(BuildContext context) => Container(
+    width: taille,
+    height: taille,
+    decoration: BoxDecoration(
+      color: selectionne ? CouleursCoach.vert : CouleursCoach.vertClair,
+      borderRadius: BorderRadius.circular(taille / 3.5),
+    ),
+    child: Icon(
+      icone,
+      size: taille * 0.52,
+      color: selectionne ? Colors.white : CouleursCoach.vert,
+    ),
+  );
+}
+
+/// Dispose des tuiles sur deux colonnes.
+Widget grille(List<Widget> tuiles) => Column(
+  children: [
+    for (var i = 0; i < tuiles.length; i += 2)
+      Padding(
+        padding: const EdgeInsets.only(bottom: 12),
+        child: IntrinsicHeight(
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Expanded(child: tuiles[i]),
+              const SizedBox(width: 12),
+              Expanded(
+                child: i + 1 < tuiles.length ? tuiles[i + 1] : const SizedBox(),
+              ),
+            ],
+          ),
+        ),
+      ),
+  ],
+);
 
 /// Message bienveillant (jamais en rouge).
 class EncadreAlerte extends StatelessWidget {
@@ -44,19 +185,27 @@ class EncadreAlerte extends StatelessWidget {
   final String texte;
 
   @override
-  Widget build(BuildContext context) => Card(
-        color: Theme.of(context).colorScheme.secondaryContainer,
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Row(
-            children: [
-              const Icon(Icons.info_outline),
-              const SizedBox(width: 12),
-              Expanded(child: Text(texte)),
-            ],
+  Widget build(BuildContext context) => Container(
+    padding: const EdgeInsets.all(16),
+    decoration: BoxDecoration(
+      color: CouleursCoach.orangeClair,
+      borderRadius: BorderRadius.circular(rayonCarte),
+    ),
+    child: Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Icon(Icons.info_outline, color: CouleursCoach.orangeFonce),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Text(
+            texte,
+            style: Theme.of(context).textTheme.bodyMedium
+                ?.copyWith(color: CouleursCoach.orangeFonce),
           ),
         ),
-      );
+      ],
+    ),
+  );
 }
 
 String formaterNombre(num? v) {
@@ -105,7 +254,6 @@ class _ChampNombreState extends State<ChampNombre> {
         keyboardType: const TextInputType.numberWithOptions(decimal: true),
         decoration: InputDecoration(
           labelText: widget.label,
-          border: const OutlineInputBorder(),
           errorText: switch (_erreur) {
             null => null,
             ErreurChamp.nombreInvalide => t.erreurNombre,
@@ -119,57 +267,100 @@ class _ChampNombreState extends State<ChampNombre> {
 }
 
 String titreEtape(AppLocalizations t, Etape e) => switch (e) {
-      Etape.objectif => t.qObjectif,
-      Etape.sexeAge => t.qSexeAge,
-      Etape.mensurations => t.qMensurations,
-      Etape.typeDeVie => t.qTypeDeVie,
-      Etape.entrainements => t.qEntrainements,
-      Etape.niveau => t.qNiveau,
-      Etape.disponibilite => t.qDisponibilite,
-      Etape.sante => t.qSante,
-      Etape.connexion => t.qConnexion,
-    };
+  Etape.objectif => t.qObjectif,
+  Etape.sexeAge => t.qSexeAge,
+  Etape.mensurations => t.qMensurations,
+  Etape.typeDeVie => t.qTypeDeVie,
+  Etape.entrainements => t.qEntrainements,
+  Etape.niveau => t.qNiveau,
+  Etape.disponibilite => t.qDisponibilite,
+  Etape.sante => t.qSante,
+  Etape.connexion => t.qConnexion,
+};
 
 String libelleObjectif(AppLocalizations t, Objectif o) => switch (o) {
-      Objectif.perte => t.objectifPerte,
-      Objectif.muscle => t.objectifMuscle,
-      Objectif.forme => t.objectifForme,
-      Objectif.reprise => t.objectifReprise,
-    };
+  Objectif.perte => t.objectifPerte,
+  Objectif.muscle => t.objectifMuscle,
+  Objectif.forme => t.objectifForme,
+  Objectif.reprise => t.objectifReprise,
+};
 
 String texteAlerte(AppLocalizations t, Alerte a) => switch (a) {
-      Alerte.mineur => t.messageMineur,
-      Alerte.perteRefuseeImc => t.messagePerteImc,
-      Alerte.conseilMedecin => t.conseilMedecin,
-    };
+  Alerte.mineur => t.messageMineur,
+  Alerte.perteRefuseeImc => t.messagePerteImc,
+  Alerte.conseilMedecin => t.conseilMedecin,
+};
+
+const iconesObjectif = {
+  Objectif.perte: Icons.monitor_weight_outlined,
+  Objectif.muscle: Icons.fitness_center,
+  Objectif.forme: Icons.favorite_outline,
+  Objectif.reprise: Icons.replay,
+};
 
 /// Contenu des étapes de réponse (l'étape connexion est gérée par la page).
-List<Widget> contenuEtape(
-    BuildContext context, QuestionnaireControleur c) {
+List<Widget> contenuEtape(BuildContext context, QuestionnaireControleur c) {
   final t = AppLocalizations.of(context)!;
-  CarteChoix carte(String titre, bool sel, VoidCallback onTap,
-          [String? sousTitre]) =>
-      CarteChoix(
-          titre: titre, sousTitre: sousTitre, selectionne: sel, onTap: onTap);
+  final petit = Theme.of(context).textTheme.bodyMedium
+      ?.copyWith(color: CouleursCoach.texteDoux);
+  TuileChoix tuile(
+    String titre,
+    IconData icone,
+    bool sel,
+    VoidCallback onTap,
+  ) => TuileChoix(titre: titre, icone: icone, selectionne: sel, onTap: onTap);
+  Widget carte(
+    String titre,
+    IconData icone,
+    bool sel,
+    VoidCallback onTap, [
+    String? sousTitre,
+  ]) => Padding(
+    padding: const EdgeInsets.only(bottom: 12),
+    child: CarteChoix(
+      titre: titre,
+      sousTitre: sousTitre,
+      icone: icone,
+      selectionne: sel,
+      onTap: onTap,
+    ),
+  );
+  Widget titreSection(String texte) => Padding(
+    padding: const EdgeInsets.only(bottom: 10),
+    child: Text(texte, style: Theme.of(context).textTheme.titleMedium),
+  );
 
   switch (c.etape) {
     case Etape.objectif:
       return [
-        for (final o in Objectif.values)
-          carte(libelleObjectif(t, o), c.objectif == o,
-              () => c.choisirObjectif(o)),
+        grille([
+          for (final o in Objectif.values)
+            tuile(
+              libelleObjectif(t, o),
+              iconesObjectif[o]!,
+              c.objectif == o,
+              () => c.choisirObjectif(o),
+            ),
+        ]),
       ];
     case Etape.sexeAge:
       return [
-        carte(t.sexeHomme, c.sexe == Sexe.homme,
-            () => c.choisirSexe(Sexe.homme)),
-        carte(t.sexeFemme, c.sexe == Sexe.femme,
-            () => c.choisirSexe(Sexe.femme)),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
-          child: Text(t.sexeExplication,
-              style: Theme.of(context).textTheme.bodySmall),
-        ),
+        grille([
+          tuile(
+            t.sexeHomme,
+            Icons.male,
+            c.sexe == Sexe.homme,
+            () => c.choisirSexe(Sexe.homme),
+          ),
+          tuile(
+            t.sexeFemme,
+            Icons.female,
+            c.sexe == Sexe.femme,
+            () => c.choisirSexe(Sexe.femme),
+          ),
+        ]),
+        Text(t.sexeExplication, style: petit),
+        const SizedBox(height: 16),
         ChampNombre(
           key: const ValueKey('age'),
           label: t.champAge,
@@ -200,43 +391,64 @@ List<Widget> contenuEtape(
       ];
     case Etape.typeDeVie:
       final libelles = {
-        TypeDeVie.sedentaire: (t.vieSedentaire, t.vieSedentaireEx),
-        TypeDeVie.peuActif: (t.viePeuActif, t.viePeuActifEx),
-        TypeDeVie.actif: (t.vieActif, t.vieActifEx),
-        TypeDeVie.tresActif: (t.vieTresActif, t.vieTresActifEx),
+        TypeDeVie.sedentaire: (
+          t.vieSedentaire,
+          t.vieSedentaireEx,
+          Icons.chair_outlined,
+        ),
+        TypeDeVie.peuActif: (
+          t.viePeuActif,
+          t.viePeuActifEx,
+          Icons.directions_walk,
+        ),
+        TypeDeVie.actif: (t.vieActif, t.vieActifEx, Icons.handyman_outlined),
+        TypeDeVie.tresActif: (t.vieTresActif, t.vieTresActifEx, Icons.bolt),
       };
       return [
-        for (final MapEntry(key: v, value: (titre, exemple)) in libelles.entries)
-          carte(titre, c.typeDeVie == v, () => c.choisirTypeDeVie(v), exemple),
+        for (final MapEntry(key: v, value: (titre, exemple, icone))
+            in libelles.entries)
+          carte(
+            titre,
+            icone,
+            c.typeDeVie == v,
+            () => c.choisirTypeDeVie(v),
+            exemple,
+          ),
       ];
     case Etape.entrainements:
       final libelles = {
-        TypeEntrainement.salle: t.entrainementSalle,
-        TypeEntrainement.maison: t.entrainementMaison,
-        TypeEntrainement.course: t.entrainementCourse,
-        TypeEntrainement.marche: t.entrainementMarche,
+        TypeEntrainement.salle: (t.entrainementSalle, Icons.fitness_center),
+        TypeEntrainement.maison: (t.entrainementMaison, Icons.home_outlined),
+        TypeEntrainement.course: (t.entrainementCourse, Icons.directions_run),
+        TypeEntrainement.marche: (t.entrainementMarche, Icons.hiking),
       };
       return [
-        Text(t.qEntrainementsAide),
-        const SizedBox(height: 8),
-        for (final MapEntry(key: v, value: titre) in libelles.entries)
-          carte(titre, c.typesEntrainement.contains(v),
-              () => c.basculerEntrainement(v)),
+        Text(t.qEntrainementsAide, style: petit),
+        const SizedBox(height: 12),
+        grille([
+          for (final MapEntry(key: v, value: (titre, icone))
+              in libelles.entries)
+            tuile(
+              titre,
+              icone,
+              c.typesEntrainement.contains(v),
+              () => c.basculerEntrainement(v),
+            ),
+        ]),
       ];
     case Etape.niveau:
       final libelles = {
-        Niveau.debutant: t.niveauDebutant,
-        Niveau.reprise: t.niveauReprise,
-        Niveau.regulier: t.niveauRegulier,
+        Niveau.debutant: (t.niveauDebutant, Icons.signal_cellular_alt_1_bar),
+        Niveau.reprise: (t.niveauReprise, Icons.signal_cellular_alt_2_bar),
+        Niveau.regulier: (t.niveauRegulier, Icons.signal_cellular_alt),
       };
       return [
-        for (final MapEntry(key: v, value: titre) in libelles.entries)
-          carte(titre, c.niveau == v, () => c.choisirNiveau(v)),
+        for (final MapEntry(key: v, value: (titre, icone)) in libelles.entries)
+          carte(titre, icone, c.niveau == v, () => c.choisirNiveau(v)),
       ];
     case Etape.disponibilite:
       return [
-        Text(t.champJours, style: Theme.of(context).textTheme.titleMedium),
-        const SizedBox(height: 8),
+        titreSection(t.champJours),
         SegmentedButton<int>(
           emptySelectionAllowed: true,
           showSelectedIcon: false,
@@ -249,9 +461,8 @@ List<Widget> contenuEtape(
             if (s.isNotEmpty) c.choisirJours(s.first);
           },
         ),
-        const SizedBox(height: 24),
-        Text(t.champDuree, style: Theme.of(context).textTheme.titleMedium),
-        const SizedBox(height: 8),
+        const SizedBox(height: 28),
+        titreSection(t.champDuree),
         SegmentedButton<int>(
           emptySelectionAllowed: true,
           showSelectedIcon: false,
@@ -267,12 +478,21 @@ List<Widget> contenuEtape(
       ];
     case Etape.sante:
       return [
-        carte(t.boutonOui, c.problemeSante == true,
-            () => c.repondreSante(true)),
-        carte(t.boutonNon, c.problemeSante == false,
-            () => c.repondreSante(false)),
-        const SizedBox(height: 8),
-        Text(t.mentionMedicale, style: Theme.of(context).textTheme.bodySmall),
+        grille([
+          tuile(
+            t.boutonOui,
+            Icons.medical_services_outlined,
+            c.problemeSante == true,
+            () => c.repondreSante(true),
+          ),
+          tuile(
+            t.boutonNon,
+            Icons.thumb_up_outlined,
+            c.problemeSante == false,
+            () => c.repondreSante(false),
+          ),
+        ]),
+        Text(t.mentionMedicale, style: petit),
       ];
     case Etape.connexion:
       return const [];

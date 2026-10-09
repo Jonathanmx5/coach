@@ -83,7 +83,8 @@ void main() {
     expect(find.text('Continuer avec Google'), findsOneWidget);
     expect(find.textContaining('La connexion a échoué'), findsNothing);
     expect(banc.termine, isFalse);
-    await taper(tester, 'Retour');
+    await tester.tap(find.byTooltip('Retour'));
+    await tester.pumpAndSettle();
     expect(banc.controleur.construireProfil(), profilAttendu);
   });
 
@@ -122,5 +123,17 @@ void main() {
 
     expect(find.textContaining('Parles-en à ton médecin'), findsOneWidget);
     expect(find.text('Coach ne remplace pas un avis médical.'), findsOneWidget);
+  });
+
+  testWidgets("indique l'étape en cours sur le total", (tester) async {
+    final banc = Banc();
+    await banc.monter(tester);
+
+    expect(find.text('Étape 1 sur 9'), findsOneWidget);
+    expect(find.byTooltip('Retour'), findsNothing);
+    await taper(tester, 'Garder la forme');
+    await taper(tester, 'Suivant');
+    expect(find.text('Étape 2 sur 9'), findsOneWidget);
+    expect(find.byTooltip('Retour'), findsOneWidget);
   });
 }

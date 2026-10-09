@@ -47,6 +47,7 @@ void main() {
 
     expect(find.text('Commencer'), findsOneWidget);
     expect(find.text("J'ai déjà un compte"), findsOneWidget);
+    expect(find.text('Repas en photo, sans compter'), findsOneWidget);
   });
 
   testWidgets('compte existant sur un nouveau téléphone : accueil direct',
@@ -73,19 +74,20 @@ void main() {
     expect(find.text('Continuer avec Google'), findsNothing);
   });
 
-  testWidgets('voir mes repères', (tester) async {
+  testWidgets("repères affichés directement sur l'accueil", (tester) async {
     await monter(tester, FauxAuth(connecte: lea), depotAvecProfil());
 
-    await taper(tester, 'Voir mes repères');
-
-    expect(find.text('2080 kcal par jour (estimation)'), findsOneWidget);
-    expect(find.text('128 g de protéines par jour'), findsOneWidget);
+    expect(find.text('2080'), findsOneWidget);
+    expect(find.text('kcal par jour'), findsOneWidget);
+    expect(find.text('128 g'), findsOneWidget);
+    expect(find.text('Objectif : perdre du poids'), findsOneWidget);
   });
 
   testWidgets('se déconnecter : retour à la bienvenue', (tester) async {
     await monter(tester, FauxAuth(connecte: lea), depotAvecProfil());
 
-    await taper(tester, 'Se déconnecter');
+    await tester.tap(find.byTooltip('Se déconnecter'));
+    await tester.pumpAndSettle();
 
     expect(find.text('Commencer'), findsOneWidget);
   });

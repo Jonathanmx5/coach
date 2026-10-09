@@ -20,7 +20,7 @@ abstract class ProfilRepository {
 
 class FirestoreProfilRepository implements ProfilRepository {
   FirestoreProfilRepository([FirebaseFirestore? db])
-      : _db = db ?? FirebaseFirestore.instance;
+    : _db = db ?? FirebaseFirestore.instance;
 
   final FirebaseFirestore _db;
 
@@ -43,11 +43,10 @@ class FirestoreProfilRepository implements ProfilRepository {
       });
 
   @override
-  Future<void> enregistrer(String uid, Profil p, Reperes r) =>
-      _doc(uid).set({
-        'profil': p.toMap(),
-        'reperes': r.toMap(),
-        'schema': _schema,
-        'majLe': FieldValue.serverTimestamp(),
-      }, SetOptions(merge: true));
+  Future<void> enregistrer(String uid, Profil p, Reperes r) => _doc(uid).set({
+    'profil': p.toMap(),
+    'reperes': r.toMap(),
+    'schema': _schema,
+    'majLe': FieldValue.serverTimestamp(),
+  }, SetOptions(merge: true));
 }

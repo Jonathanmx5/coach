@@ -34,8 +34,8 @@ const _serverClientId =
 
 class FirebaseAuthService implements AuthService {
   FirebaseAuthService({FirebaseAuth? auth, GoogleSignIn? google})
-      : _auth = auth ?? FirebaseAuth.instance,
-        _google = google ?? GoogleSignIn.instance;
+    : _auth = auth ?? FirebaseAuth.instance,
+      _google = google ?? GoogleSignIn.instance;
 
   final FirebaseAuth _auth;
   final GoogleSignIn _google;
@@ -67,8 +67,9 @@ class FirebaseAuthService implements AuthService {
       final compte = await _google.authenticate();
       final idToken = compte.authentication.idToken;
       if (idToken == null) throw const ConnexionEchouee('idToken absent');
-      final resultat = await _auth
-          .signInWithCredential(GoogleAuthProvider.credential(idToken: idToken));
+      final resultat = await _auth.signInWithCredential(
+        GoogleAuthProvider.credential(idToken: idToken),
+      );
       return _versUtilisateur(resultat.user);
     } on GoogleSignInException catch (e) {
       if (e.code == GoogleSignInExceptionCode.canceled) return null;

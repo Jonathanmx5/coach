@@ -31,40 +31,44 @@ class _RacineState extends State<Racine> {
   void _commencer() {
     // Créé hors du builder : la route peut être reconstruite sans perdre
     // les réponses.
-    final controleur =
-        QuestionnaireControleur(maintenant: widget.horloge(), avecConnexion: true);
-    Navigator.of(context).push(MaterialPageRoute<void>(
-      builder: (routeContext) => QuestionnairePage(
-        controleur: controleur,
-        auth: widget.auth,
-        depot: widget.depot,
-        horloge: widget.horloge,
-        quandTermine: () =>
-            Navigator.of(routeContext).popUntil((r) => r.isFirst),
+    final controleur = QuestionnaireControleur(
+      maintenant: widget.horloge(),
+      avecConnexion: true,
+    );
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (routeContext) => QuestionnairePage(
+          controleur: controleur,
+          auth: widget.auth,
+          depot: widget.depot,
+          horloge: widget.horloge,
+          quandTermine: () =>
+              Navigator.of(routeContext).popUntil((r) => r.isFirst),
+        ),
       ),
-    ));
+    );
   }
 
   @override
   Widget build(BuildContext context) => StreamBuilder<Utilisateur?>(
-        stream: _utilisateur,
-        builder: (context, snap) {
-          if (snap.connectionState == ConnectionState.waiting) {
-            return const _Chargement();
-          }
-          final u = snap.data;
-          if (u == null) {
-            return BienvenuePage(auth: widget.auth, onCommencer: _commencer);
-          }
-          return _ProfilUtilisateur(
-            key: ValueKey(u.uid),
-            utilisateur: u,
-            auth: widget.auth,
-            depot: widget.depot,
-            horloge: widget.horloge,
-          );
-        },
+    stream: _utilisateur,
+    builder: (context, snap) {
+      if (snap.connectionState == ConnectionState.waiting) {
+        return const _Chargement();
+      }
+      final u = snap.data;
+      if (u == null) {
+        return BienvenuePage(auth: widget.auth, onCommencer: _commencer);
+      }
+      return _ProfilUtilisateur(
+        key: ValueKey(u.uid),
+        utilisateur: u,
+        auth: widget.auth,
+        depot: widget.depot,
+        horloge: widget.horloge,
       );
+    },
+  );
 }
 
 class _ProfilUtilisateur extends StatefulWidget {
@@ -86,12 +90,15 @@ class _ProfilUtilisateur extends StatefulWidget {
 }
 
 class _ProfilUtilisateurState extends State<_ProfilUtilisateur> {
-  late final Stream<ProfilEnregistre?> _profil =
-      widget.depot.observer(widget.utilisateur.uid);
+  late final Stream<ProfilEnregistre?> _profil = widget.depot.observer(
+    widget.utilisateur.uid,
+  );
 
   // Connecté sans profil : questionnaire sans étape de connexion.
   late final _controleur = QuestionnaireControleur(
-      maintenant: widget.horloge(), avecConnexion: false);
+    maintenant: widget.horloge(),
+    avecConnexion: false,
+  );
 
   @override
   void dispose() {
@@ -101,31 +108,31 @@ class _ProfilUtilisateurState extends State<_ProfilUtilisateur> {
 
   @override
   Widget build(BuildContext context) => StreamBuilder<ProfilEnregistre?>(
-        stream: _profil,
-        builder: (context, snap) {
-          if (snap.connectionState == ConnectionState.waiting) {
-            return const _Chargement();
-          }
-          final enregistre = snap.data;
-          if (enregistre == null) {
-            return QuestionnairePage(
-              controleur: _controleur,
-              auth: widget.auth,
-              depot: widget.depot,
-              horloge: widget.horloge,
-              // Le flux du profil fait basculer vers l'accueil.
-              quandTermine: () {},
-            );
-          }
-          return AccueilPage(
-            utilisateur: widget.utilisateur,
-            enregistre: enregistre,
-            auth: widget.auth,
-            depot: widget.depot,
-            horloge: widget.horloge,
-          );
-        },
+    stream: _profil,
+    builder: (context, snap) {
+      if (snap.connectionState == ConnectionState.waiting) {
+        return const _Chargement();
+      }
+      final enregistre = snap.data;
+      if (enregistre == null) {
+        return QuestionnairePage(
+          controleur: _controleur,
+          auth: widget.auth,
+          depot: widget.depot,
+          horloge: widget.horloge,
+          // Le flux du profil fait basculer vers l'accueil.
+          quandTermine: () {},
+        );
+      }
+      return AccueilPage(
+        utilisateur: widget.utilisateur,
+        enregistre: enregistre,
+        auth: widget.auth,
+        depot: widget.depot,
+        horloge: widget.horloge,
       );
+    },
+  );
 }
 
 class _Chargement extends StatelessWidget {
