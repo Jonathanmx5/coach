@@ -12,7 +12,20 @@
           "package_name": "io.github.jonathanmx5.coach"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "67566402702-bpdjnq2m3hphkf3od3si9kbqmq08pmhe.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "io.github.jonathanmx5.coach",
+            "certificate_hash": "c32bdcb161bbcf7e9450e56daa0366cb6a9023b0"
+          }
+        },
+        {
+          "client_id": "67566402702-0smaeibd2fn2fn27u955hu9tmcj4md0f.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyDm9tMOSbhqg7Wcy2P7zMzM0Nlr9yeGusc"
@@ -20,7 +33,12 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "67566402702-0smaeibd2fn2fn27u955hu9tmcj4md0f.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }

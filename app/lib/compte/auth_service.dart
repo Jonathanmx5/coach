@@ -30,7 +30,7 @@ abstract class AuthService {
 /// Identifiant OAuth « Web » du projet Firebase (client_type 3 de
 /// google-services.json), exigé par Google pour délivrer un jeton à Firebase.
 const _serverClientId =
-    '67566402702-REMPLACER.apps.googleusercontent.com';
+    '67566402702-0smaeibd2fn2fn27u955hu9tmcj4md0f.apps.googleusercontent.com';
 
 class FirebaseAuthService implements AuthService {
   FirebaseAuthService({FirebaseAuth? auth, GoogleSignIn? google})
