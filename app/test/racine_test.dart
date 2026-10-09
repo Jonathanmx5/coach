@@ -1,16 +1,19 @@
+import 'package:coach/accueil/accueil_page.dart';
 import 'package:coach/app.dart';
 import 'package:coach/compte/auth_service.dart';
 import 'package:coach/profil/besoins.dart';
 import 'package:coach/profil/modele.dart';
 import 'package:coach/profil/profil_repository.dart';
+import 'package:coach/profil/questionnaire/questionnaire_page.dart';
 import 'package:coach/racine.dart';
 import 'package:coach/sante/sante_service.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import 'donnees_sante.dart';
 import 'fakes.dart';
 import 'parcours.dart';
 
-final maintenant = DateTime(2026, 10, 9);
+final maintenant = DateTime(2026, 10, 9, 20);
 
 const lea = Utilisateur(uid: 'u1', prenom: 'Léa');
 
@@ -48,11 +51,12 @@ Future<void> monter(
   await tester.pumpAndSettle();
 }
 
-FauxDepot depotAvecProfil() => FauxDepot()
-  ..donnees['u1'] = ProfilEnregistre(
-    profil: perteSimple,
-    reperes: calculerReperes(perteSimple, maintenant: maintenant),
-  );
+FauxDepot depotAvecProfil([Profil profil = perteSimple]) =>
+    FauxDepot()
+      ..donnees['u1'] = ProfilEnregistre(
+        profil: profil,
+        reperes: calculerReperes(profil, maintenant: maintenant),
+      );
 
 void main() {
   testWidgets('non connecté : page de bienvenue', (tester) async {
@@ -125,6 +129,63 @@ void main() {
     await taper(tester, 'Suivant');
 
     expect(depot.donnees['u1']?.profil.objectif, Objectif.muscle);
-    expect(find.text('Bonjour Léa !'), findsOneWidget);
+    expect(find.byType(AccueilPage), findsOneWidget);
+    expect(find.byType(QuestionnairePage), findsNothing);
+  });
+
+  final avecMontre = perteSimple.copyWith(
+    montre: true,
+    appMontre: AppMontre.miFitness,
+    poidsDate: DateTime(2026, 10, 1),
+  );
+
+  testWidgets('montre : repères mesurés et Ma journée', (tester) async {
+    await monter(
+      tester,
+      FauxAuth(connecte: lea),
+      depotAvecProfil(avecMontre),
+      sante: FauxSante(points: semaineType()),
+    );
+
+    expect(find.text('Mesuré par ta montre'), findsOneWidget);
+    expect(find.text('2210'), findsOneWidget);
+    await defilerJusqua(tester, find.text('6500'));
+    expect(find.text('6500'), findsOneWidget);
+    expect(find.text('7 h 00'), findsOneWidget);
+  });
+
+  testWidgets('montre sans Health Connect : repères estimés', (tester) async {
+    await monter(
+      tester,
+      FauxAuth(connecte: lea),
+      depotAvecProfil(avecMontre),
+      sante: FauxSante(dispo: DispoSante.indisponible),
+    );
+
+    expect(find.text('Estimé'), findsOneWidget);
+    expect(find.text('2080'), findsOneWidget);
+  });
+
+  testWidgets('pesée plus récente : poids du profil mis à jour', (
+    tester,
+  ) async {
+    final depot = depotAvecProfil(avecMontre);
+    await monter(
+      tester,
+      FauxAuth(connecte: lea),
+      depot,
+      sante: FauxSante(points: semaineType()),
+    );
+
+    final profil = depot.donnees['u1']!.profil;
+    expect(profil.poidsKg, 79.5);
+    expect(profil.poidsDate, DateTime(2026, 10, 9, 7));
+  });
+
+  testWidgets('sans montre : invitation à en connecter une', (tester) async {
+    await monter(tester, FauxAuth(connecte: lea), depotAvecProfil());
+
+    await defilerJusqua(tester, find.text('Connecte ta montre'));
+    expect(find.text('Connecte ta montre'), findsOneWidget);
   });
 }

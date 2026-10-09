@@ -142,5 +142,28 @@
   "hcAInstaller": "Health Connect doit être installé ou mis à jour sur ce téléphone.",
   "hcIndisponible": "Health Connect n'est pas disponible sur ce téléphone. Coach utilisera des estimations.",
   "accesAccorde": "Accès autorisé : Coach lira les données de ta montre.",
-  "accesRefuse": "Accès non autorisé. Pas de souci : Coach utilisera des estimations, et tu pourras réessayer plus tard."
+  "accesRefuse": "Accès non autorisé. Pas de souci : Coach utilisera des estimations, et tu pourras réessayer plus tard.",
+  "sourceMesure": "Mesuré par ta montre",
+  "sourceEstime": "Estimé",
+  "maJournee": "Ma journée",
+  "statPas": "pas",
+  "statKcal": "kcal brûlées",
+  "statSommeil": "de sommeil",
+  "statFcRepos": "bpm au repos",
+  "dureeHeures": "{h} h {m}",
+  "@dureeHeures": {
+    "placeholders": {
+      "h": {
+        "type": "int"
+      },
+      "m": {
+        "type": "String"
+      }
+    }
+  },
+  "connecterMontre": "Connecte ta montre",
+  "connecterMontreAide": "Pour voir ton activité et ton sommeil, et ajuster tes repères.",
+  "aucuneDonneeMontre": "Aucune donnée reçue de ta montre pour l'instant.",
+  "suiviErreur": "Impossible de lire les données de ta montre pour le moment.",
+  "voirDetail": "Voir le détail"
 }

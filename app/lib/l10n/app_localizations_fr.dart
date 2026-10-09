@@ -297,4 +297,48 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get accesRefuse =>
       'Accès non autorisé. Pas de souci : Coach utilisera des estimations, et tu pourras réessayer plus tard.';
+
+  @override
+  String get sourceMesure => 'Mesuré par ta montre';
+
+  @override
+  String get sourceEstime => 'Estimé';
+
+  @override
+  String get maJournee => 'Ma journée';
+
+  @override
+  String get statPas => 'pas';
+
+  @override
+  String get statKcal => 'kcal brûlées';
+
+  @override
+  String get statSommeil => 'de sommeil';
+
+  @override
+  String get statFcRepos => 'bpm au repos';
+
+  @override
+  String dureeHeures(int h, String m) {
+    return '$h h $m';
+  }
+
+  @override
+  String get connecterMontre => 'Connecte ta montre';
+
+  @override
+  String get connecterMontreAide =>
+      'Pour voir ton activité et ton sommeil, et ajuster tes repères.';
+
+  @override
+  String get aucuneDonneeMontre =>
+      'Aucune donnée reçue de ta montre pour l\'instant.';
+
+  @override
+  String get suiviErreur =>
+      'Impossible de lire les données de ta montre pour le moment.';
+
+  @override
+  String get voirDetail => 'Voir le détail';
 }

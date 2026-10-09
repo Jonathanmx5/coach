@@ -621,6 +621,84 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Accès non autorisé. Pas de souci : Coach utilisera des estimations, et tu pourras réessayer plus tard.'**
   String get accesRefuse;
+
+  /// No description provided for @sourceMesure.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mesuré par ta montre'**
+  String get sourceMesure;
+
+  /// No description provided for @sourceEstime.
+  ///
+  /// In fr, this message translates to:
+  /// **'Estimé'**
+  String get sourceEstime;
+
+  /// No description provided for @maJournee.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ma journée'**
+  String get maJournee;
+
+  /// No description provided for @statPas.
+  ///
+  /// In fr, this message translates to:
+  /// **'pas'**
+  String get statPas;
+
+  /// No description provided for @statKcal.
+  ///
+  /// In fr, this message translates to:
+  /// **'kcal brûlées'**
+  String get statKcal;
+
+  /// No description provided for @statSommeil.
+  ///
+  /// In fr, this message translates to:
+  /// **'de sommeil'**
+  String get statSommeil;
+
+  /// No description provided for @statFcRepos.
+  ///
+  /// In fr, this message translates to:
+  /// **'bpm au repos'**
+  String get statFcRepos;
+
+  /// No description provided for @dureeHeures.
+  ///
+  /// In fr, this message translates to:
+  /// **'{h} h {m}'**
+  String dureeHeures(int h, String m);
+
+  /// No description provided for @connecterMontre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Connecte ta montre'**
+  String get connecterMontre;
+
+  /// No description provided for @connecterMontreAide.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pour voir ton activité et ton sommeil, et ajuster tes repères.'**
+  String get connecterMontreAide;
+
+  /// No description provided for @aucuneDonneeMontre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucune donnée reçue de ta montre pour l\'instant.'**
+  String get aucuneDonneeMontre;
+
+  /// No description provided for @suiviErreur.
+  ///
+  /// In fr, this message translates to:
+  /// **'Impossible de lire les données de ta montre pour le moment.'**
+  String get suiviErreur;
+
+  /// No description provided for @voirDetail.
+  ///
+  /// In fr, this message translates to:
+  /// **'Voir le détail'**
+  String get voirDetail;
 }
 
 class _AppLocalizationsDelegate
