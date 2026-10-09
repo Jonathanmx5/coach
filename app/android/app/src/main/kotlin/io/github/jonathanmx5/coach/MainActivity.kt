@@ -1,5 +1,6 @@
 package io.github.jonathanmx5.coach
 
-import io.flutter.embedding.android.FlutterActivity
+import io.flutter.embedding.android.FlutterFragmentActivity
 
-class MainActivity : FlutterActivity()
+// FlutterFragmentActivity : exigée par l'extension health pour les autorisations.
+class MainActivity : FlutterFragmentActivity()
