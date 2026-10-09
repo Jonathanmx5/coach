@@ -73,7 +73,7 @@ void main() {
   });
 
   test('nuit de 23 h à 7 h rattachée au jour du lever', () {
-    final h = (int heures) => lundi.add(Duration(hours: heures));
+    DateTime h(int heures) => lundi.add(Duration(hours: heures));
     final jours = agregerParJour(
       [
         pt(TypeMesure.sommeilProfond, h(23), h(25), 120),
@@ -93,7 +93,7 @@ void main() {
   });
 
   test('segments qui se chevauchent comptés une seule fois', () {
-    final h = (int heures) => mardi.add(Duration(hours: heures));
+    DateTime h(int heures) => mardi.add(Duration(hours: heures));
     final resume = resumerSommeil([
       pt(TypeMesure.sommeilLeger, h(1), h(3), 120),
       pt(TypeMesure.sommeilLeger, h(2), h(4), 120),
@@ -104,7 +104,7 @@ void main() {
   });
 
   test('sommeil sans phases : durée endormie seule', () {
-    final h = (int heures) => mardi.add(Duration(hours: heures));
+    DateTime h(int heures) => mardi.add(Duration(hours: heures));
     final resume = resumerSommeil([
       pt(TypeMesure.sommeilEndormi, h(0), h(7), 420),
       pt(
