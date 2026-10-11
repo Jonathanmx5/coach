@@ -7,7 +7,7 @@
     <string name="widget_photo_repas">📷 Photographier</string>
     <string name="widget_eau_description">Ton eau du jour et deux boutons pour en ajouter.</string>
     <string name="widget_repas_description">Calories et protéines du jour, et un accès direct à la photo du repas.</string>
-    <string name="widget_ajouter_250">Ajouter 250 millilitres d'eau</string>
-    <string name="widget_ajouter_500">Ajouter 500 millilitres d'eau</string>
+    <string name="widget_ajouter_250">Ajouter 250 millilitres d’eau</string>
+    <string name="widget_ajouter_500">Ajouter 500 millilitres d’eau</string>
     <string name="widget_photo_description">Photographier mon repas</string>
 </resources>
