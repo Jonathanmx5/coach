@@ -508,17 +508,29 @@ abstract class AppLocalizations {
   /// **'Ton programme'**
   String get carteProgramme;
 
-  /// No description provided for @cartePhoto.
+  /// No description provided for @carteProgrammeSous.
   ///
   /// In fr, this message translates to:
-  /// **'Photo de repas'**
-  String get cartePhoto;
+  /// **'Ta séance du jour'**
+  String get carteProgrammeSous;
 
-  /// No description provided for @bientot.
+  /// No description provided for @carteIdees.
   ///
   /// In fr, this message translates to:
-  /// **'Arrive bientôt'**
-  String get bientot;
+  /// **'Idées de repas'**
+  String get carteIdees;
+
+  /// No description provided for @carteIdeesSous.
+  ///
+  /// In fr, this message translates to:
+  /// **'Balaie des idées adaptées à toi'**
+  String get carteIdeesSous;
+
+  /// No description provided for @tabSport.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sport'**
+  String get tabSport;
 
   /// No description provided for @qMontre.
   ///

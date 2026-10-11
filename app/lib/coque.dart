@@ -4,6 +4,7 @@ import 'accueil/accueil_page.dart';
 import 'bienetre/bienetre_page.dart';
 import 'compte/auth_service.dart';
 import 'entrainement/entrainement_page.dart';
+import 'recettes/idees_page.dart';
 import 'journal/journal_page.dart';
 import 'l10n/app_localizations.dart';
 import 'poids/poids_page.dart';
@@ -74,6 +75,18 @@ class _CoqueState extends State<Coque> {
             sante: _s.sante,
             suivi: _suivi,
             horloge: widget.horloge,
+            onProgramme: () => setState(() => _onglet = 2),
+            onIdees: () => Navigator.of(context).push<void>(
+              MaterialPageRoute(
+                builder: (_) => IdeesPage(
+                  utilisateur: widget.utilisateur,
+                  objectif: widget.enregistre.profil.objectif,
+                  kcalCible: widget.enregistre.reperes.kcalCible,
+                  avis: _s.avis,
+                  horloge: widget.horloge,
+                ),
+              ),
+            ),
           ),
           JournalPage(
             utilisateur: widget.utilisateur,
@@ -160,7 +173,7 @@ class _CoqueState extends State<Coque> {
               NavigationDestination(
                 icon: const Icon(Icons.fitness_center_outlined),
                 selectedIcon: const Icon(Icons.fitness_center),
-                label: t.tabEntrainement,
+                label: t.tabSport,
               ),
               NavigationDestination(
                 icon: const Icon(Icons.spa_outlined),

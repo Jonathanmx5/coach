@@ -28,6 +28,8 @@ class AccueilPage extends StatefulWidget {
     required this.sante,
     required this.suivi,
     required this.horloge,
+    required this.onProgramme,
+    required this.onIdees,
   });
 
   final Utilisateur utilisateur;
@@ -37,6 +39,12 @@ class AccueilPage extends StatefulWidget {
   final SanteService sante;
   final Suivi suivi;
   final DateTime Function() horloge;
+
+  /// Ouvre l'onglet Entraînement.
+  final VoidCallback onProgramme;
+
+  /// Ouvre les idées de repas.
+  final VoidCallback onIdees;
 
   @override
   State<AccueilPage> createState() => _AccueilPageState();
@@ -192,20 +200,22 @@ class _AccueilPageState extends State<AccueilPage> {
                           ),
                         ),
                         const SizedBox(height: 12),
-                        _CarteBientot(
+                        _CarteAction(
                           icone: Icons.fitness_center,
                           titre: t.carteProgramme,
-                          sousTitre: t.bientot,
+                          sousTitre: t.carteProgrammeSous,
                           fond: CouleursCoach.vertClair,
                           couleur: CouleursCoach.vert,
+                          onTap: widget.onProgramme,
                         ),
                         const SizedBox(height: 12),
-                        _CarteBientot(
-                          icone: Icons.photo_camera_outlined,
-                          titre: t.cartePhoto,
-                          sousTitre: t.bientot,
+                        _CarteAction(
+                          icone: Icons.swipe_outlined,
+                          titre: t.carteIdees,
+                          sousTitre: t.carteIdeesSous,
                           fond: CouleursCoach.orangeClair,
                           couleur: CouleursCoach.orangeFonce,
+                          onTap: widget.onIdees,
                         ),
                         const SizedBox(height: 20),
                         TextButton.icon(
@@ -360,13 +370,14 @@ class _TuileRepere extends StatelessWidget {
   }
 }
 
-class _CarteBientot extends StatelessWidget {
-  const _CarteBientot({
+class _CarteAction extends StatelessWidget {
+  const _CarteAction({
     required this.icone,
     required this.titre,
     required this.sousTitre,
     required this.fond,
     required this.couleur,
+    required this.onTap,
   });
 
   final IconData icone;
@@ -374,6 +385,7 @@ class _CarteBientot extends StatelessWidget {
   final String sousTitre;
   final Color fond;
   final Color couleur;
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -407,7 +419,7 @@ class _CarteBientot extends StatelessWidget {
                 ],
               ),
             ),
-            const Icon(Icons.schedule, color: CouleursCoach.texteDoux),
+            const Icon(Icons.chevron_right, color: CouleursCoach.texteDoux),
           ],
         ),
       ),

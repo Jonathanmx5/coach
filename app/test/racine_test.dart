@@ -288,7 +288,7 @@ void main() {
     for (final nom in [
       'Accueil',
       'Journal',
-      'Entraînement',
+      'Sport',
       'Bien-être',
       'Poids',
     ]) {

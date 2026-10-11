@@ -234,10 +234,16 @@ class AppLocalizationsFr extends AppLocalizations {
   String get carteProgramme => 'Ton programme';
 
   @override
-  String get cartePhoto => 'Photo de repas';
+  String get carteProgrammeSous => 'Ta séance du jour';
 
   @override
-  String get bientot => 'Arrive bientôt';
+  String get carteIdees => 'Idées de repas';
+
+  @override
+  String get carteIdeesSous => 'Balaie des idées adaptées à toi';
+
+  @override
+  String get tabSport => 'Sport';
 
   @override
   String get qMontre => 'As-tu une montre ou un bracelet connecté ?';
