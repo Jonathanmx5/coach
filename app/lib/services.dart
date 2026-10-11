@@ -10,6 +10,7 @@ import 'poids/mensurations_repository.dart';
 import 'poids/pesees_repository.dart';
 import 'poids/photos.dart';
 import 'profil/profil_repository.dart';
+import 'reseau.dart';
 import 'sante/sante_service.dart';
 
 /// Tout ce que l'appli utilise à l'extérieur (Firebase, Health Connect,
@@ -26,6 +27,7 @@ class Services {
     required this.bienetre,
     required this.meteo,
     required this.rappels,
+    required this.reseau,
     required this.journal,
     required this.catalogue,
     required this.sante,
@@ -41,6 +43,7 @@ class Services {
   final BienEtreRepository bienetre;
   final Meteo meteo;
   final Rappels rappels;
+  final Reseau reseau;
   final JournalRepository journal;
   final CatalogueProduits catalogue;
   final SanteService sante;

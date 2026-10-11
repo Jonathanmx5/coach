@@ -734,6 +734,10 @@ class AppLocalizationsFr extends AppLocalizations {
   }
 
   @override
+  String get horsLigne =>
+      'Hors-ligne : tes saisies sont gardées et seront envoyées au retour du réseau.';
+
+  @override
   String get courbePoids => 'Évolution du poids';
 
   @override

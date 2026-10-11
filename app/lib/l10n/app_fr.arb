@@ -394,6 +394,7 @@
       }
     }
   },
+  "horsLigne": "Hors-ligne : tes saisies sont gardées et seront envoyées au retour du réseau.",
   "courbePoids": "Évolution du poids",
   "periode90": "90 jours",
   "periode1an": "1 an",

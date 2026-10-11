@@ -21,6 +21,7 @@ import 'entrainement/voix.dart';
 import 'firebase_options.dart';
 import 'profil/profil_repository.dart';
 import 'racine.dart';
+import 'reseau.dart';
 import 'sante/sante_service.dart';
 import 'services.dart';
 
@@ -55,6 +56,7 @@ Future<void> main() async {
           bienetre: FirestoreBienEtreRepository(),
           meteo: MeteoOpenMeteo(),
           rappels: RappelsLocaux(),
+          reseau: ReseauReel(),
           journal: FirestoreJournalRepository(),
           catalogue: CatalogueOpenFoodFacts(),
           sante: HealthSanteService(),

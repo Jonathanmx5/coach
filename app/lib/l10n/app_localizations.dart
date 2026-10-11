@@ -1396,6 +1396,12 @@ abstract class AppLocalizations {
   /// **'{n, plural, =0{0 jour} =1{1 jour} other{{n} jours}}'**
   String nbJours(int n);
 
+  /// No description provided for @horsLigne.
+  ///
+  /// In fr, this message translates to:
+  /// **'Hors-ligne : tes saisies sont gardées et seront envoyées au retour du réseau.'**
+  String get horsLigne;
+
   /// No description provided for @courbePoids.
   ///
   /// In fr, this message translates to:

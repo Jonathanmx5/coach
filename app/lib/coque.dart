@@ -9,6 +9,7 @@ import 'l10n/app_localizations.dart';
 import 'poids/poids_page.dart';
 import 'profil/profil_repository.dart';
 import 'services.dart';
+import 'theme.dart';
 import 'sante/suivi.dart';
 
 /// Barre d'onglets de l'appli (Accueil, Journal, Poids ; d'autres viendront).
@@ -35,6 +36,7 @@ class Coque extends StatefulWidget {
 class _CoqueState extends State<Coque> {
   int _onglet = 0;
   Services get _s => widget.services;
+  late final Stream<bool> _enLigne = _s.reseau.enLigne;
   late final Suivi _suivi = Suivi(sante: _s.sante, horloge: widget.horloge);
 
   @override
@@ -113,34 +115,61 @@ class _CoqueState extends State<Coque> {
           ),
         ],
       ),
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: _onglet,
-        onDestinationSelected: (i) => setState(() => _onglet = i),
-        destinations: [
-          NavigationDestination(
-            icon: const Icon(Icons.home_outlined),
-            selectedIcon: const Icon(Icons.home),
-            label: t.tabAccueil,
+      bottomNavigationBar: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          StreamBuilder<bool>(
+            stream: _enLigne,
+            initialData: true,
+            builder: (context, snap) => snap.data == false
+                ? Material(
+                    color: CouleursCoach.orange,
+                    child: SizedBox(
+                      width: double.infinity,
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 6,
+                        ),
+                        child: Text(
+                          t.horsLigne,
+                          style: Theme.of(context).textTheme.bodySmall,
+                        ),
+                      ),
+                    ),
+                  )
+                : const SizedBox.shrink(),
           ),
-          NavigationDestination(
-            icon: const Icon(Icons.restaurant_outlined),
-            selectedIcon: const Icon(Icons.restaurant),
-            label: t.tabJournal,
-          ),
-          NavigationDestination(
-            icon: const Icon(Icons.fitness_center_outlined),
-            selectedIcon: const Icon(Icons.fitness_center),
-            label: t.tabEntrainement,
-          ),
-          NavigationDestination(
-            icon: const Icon(Icons.spa_outlined),
-            selectedIcon: const Icon(Icons.spa),
-            label: t.tabBienEtre,
-          ),
-          NavigationDestination(
-            icon: const Icon(Icons.monitor_weight_outlined),
-            selectedIcon: const Icon(Icons.monitor_weight),
-            label: t.tabPoids,
+          NavigationBar(
+            selectedIndex: _onglet,
+            onDestinationSelected: (i) => setState(() => _onglet = i),
+            destinations: [
+              NavigationDestination(
+                icon: const Icon(Icons.home_outlined),
+                selectedIcon: const Icon(Icons.home),
+                label: t.tabAccueil,
+              ),
+              NavigationDestination(
+                icon: const Icon(Icons.restaurant_outlined),
+                selectedIcon: const Icon(Icons.restaurant),
+                label: t.tabJournal,
+              ),
+              NavigationDestination(
+                icon: const Icon(Icons.fitness_center_outlined),
+                selectedIcon: const Icon(Icons.fitness_center),
+                label: t.tabEntrainement,
+              ),
+              NavigationDestination(
+                icon: const Icon(Icons.spa_outlined),
+                selectedIcon: const Icon(Icons.spa),
+                label: t.tabBienEtre,
+              ),
+              NavigationDestination(
+                icon: const Icon(Icons.monitor_weight_outlined),
+                selectedIcon: const Icon(Icons.monitor_weight),
+                label: t.tabPoids,
+              ),
+            ],
           ),
         ],
       ),

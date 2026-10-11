@@ -26,6 +26,14 @@ Ces données servent à :
 
 **Elles restent sur votre téléphone.** Coach ne les copie pas sur un serveur. Seul le poids importé est enregistré dans votre profil, comme une saisie manuelle. Coach n'écrit rien dans Health Connect.
 
+## Autres données
+
+- **Journal, entraînement, eau, compléments, mensurations** : enregistrés dans votre compte (Firestore, Europe), visibles de vous seul. Coach ne donne aucune dose de complément.
+- **Photos de progression** : conservées **uniquement sur votre téléphone**, jamais envoyées.
+- **Localisation approximative** (optionnelle) : si vous activez « Adapter à la météo », votre position, arrondie à environ 10 km, est envoyée au service Open-Meteo pour obtenir la température du jour. Elle n'est pas enregistrée.
+- **Codes-barres** : le code d'un produit scanné est envoyé à Open Food Facts pour retrouver ses valeurs nutritionnelles.
+- **Notifications** (optionnelles) : rappels de compléments programmés sur votre téléphone.
+
 ## Ce que Coach ne fait pas
 
 - Aucune vente, location ou cession de vos données.

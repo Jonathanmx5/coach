@@ -20,6 +20,7 @@ import 'package:coach/poids/pesees_repository.dart';
 import 'package:coach/profil/besoins.dart';
 import 'package:coach/profil/modele.dart';
 import 'package:coach/profil/profil_repository.dart';
+import 'package:coach/reseau.dart';
 import 'package:coach/sante/modele.dart';
 import 'package:coach/sante/sante_service.dart';
 
@@ -160,6 +161,25 @@ class FauxPesees implements PeseesRepository {
         if (p.id != id) p,
     ];
     _flux.add(uid);
+  }
+}
+
+/// Réseau piloté par le test.
+class FauxReseau implements Reseau {
+  FauxReseau([bool enLigne = true]) : _etat = enLigne;
+
+  bool _etat;
+  final _flux = StreamController<bool>.broadcast();
+
+  void changer(bool enLigne) {
+    _etat = enLigne;
+    _flux.add(enLigne);
+  }
+
+  @override
+  Stream<bool> get enLigne async* {
+    yield _etat;
+    yield* _flux.stream;
   }
 }
 

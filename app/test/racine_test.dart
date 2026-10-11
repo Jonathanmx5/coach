@@ -40,6 +40,7 @@ Future<void> monter(
   ProfilRepository depot, {
   SanteService? sante,
   FauxPesees? pesees,
+  FauxReseau? reseau,
 }) async {
   await tester.pumpWidget(
     CoachApp(
@@ -57,6 +58,7 @@ Future<void> monter(
           bienetre: FauxBienEtre(),
           meteo: FausseMeteo(),
           rappels: FauxRappels(),
+          reseau: reseau ?? FauxReseau(),
           catalogue: FauxCatalogue(),
         ),
         horloge: () => maintenant,
@@ -255,5 +257,46 @@ void main() {
 
     expect(find.text('Bilan énergétique'), findsOneWidget);
     expect(find.text('Objectif du jour : 2080 kcal'), findsOneWidget);
+  });
+
+  testWidgets('hors-ligne : bandeau, qui disparaît au retour du réseau', (
+    tester,
+  ) async {
+    final reseau = FauxReseau(false);
+    await monter(
+      tester,
+      FauxAuth(connecte: lea),
+      depotAvecProfil(),
+      reseau: reseau,
+    );
+    expect(find.textContaining('Hors-ligne'), findsOneWidget);
+
+    reseau.changer(true);
+    await tester.pumpAndSettle();
+    expect(find.textContaining('Hors-ligne'), findsNothing);
+
+    reseau.changer(false);
+    await tester.pumpAndSettle();
+    expect(find.textContaining('Hors-ligne'), findsOneWidget);
+  });
+
+  testWidgets('les 5 onglets sont présents', (tester) async {
+    await monter(tester, FauxAuth(connecte: lea), depotAvecProfil());
+    for (final nom in [
+      'Accueil',
+      'Journal',
+      'Entraînement',
+      'Bien-être',
+      'Poids',
+    ]) {
+      expect(
+        find.descendant(
+          of: find.byType(NavigationBar),
+          matching: find.text(nom),
+        ),
+        findsOneWidget,
+        reason: nom,
+      );
+    }
   });
 }
