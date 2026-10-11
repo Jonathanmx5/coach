@@ -637,6 +637,8 @@
   "scanPortionLabel": "Quantité mangée (g)",
   "analyseIncertaine": "Je ne suis pas sûr de ce que je vois. Dis-moi ce que c'est, je regarde à nouveau.",
   "reanalyser": "Analyser à nouveau",
+  "anneauxSemantique": "Anneaux du jour. Calories brûlées : {brulees} sur {objBrule}. Calories mangées : {mangees} sur {objMange}. Protéines : {proteines} sur {objProteines} grammes. Eau : {eau} sur {objEau} millilitres. Bilan : {bilan} kilocalories.",
+  "@anneauxSemantique": {"placeholders": {"brulees": {"type": "int"}, "objBrule": {"type": "int"}, "mangees": {"type": "int"}, "objMange": {"type": "int"}, "proteines": {"type": "int"}, "objProteines": {"type": "int"}, "eau": {"type": "int"}, "objEau": {"type": "int"}, "bilan": {"type": "String"}}},
   "courbePoids": "Évolution du poids",
   "periode90": "90 jours",
   "periode1an": "1 an",

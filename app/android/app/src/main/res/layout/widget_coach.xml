@@ -53,6 +53,7 @@
 
             <Button
                 android:id="@+id/widget_plus250"
+                android:contentDescription="@string/widget_ajouter_250"
                 android:layout_width="0dp"
                 android:layout_height="36dp"
                 android:layout_marginEnd="6dp"
@@ -68,6 +69,7 @@
 
             <Button
                 android:id="@+id/widget_plus500"
+                android:contentDescription="@string/widget_ajouter_500"
                 android:layout_width="0dp"
                 android:layout_height="36dp"
                 android:layout_weight="1"

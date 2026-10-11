@@ -1195,6 +1195,21 @@ class AppLocalizationsFr extends AppLocalizations {
   String get reanalyser => 'Analyser à nouveau';
 
   @override
+  String anneauxSemantique(
+    int brulees,
+    int objBrule,
+    int mangees,
+    int objMange,
+    int proteines,
+    int objProteines,
+    int eau,
+    int objEau,
+    String bilan,
+  ) {
+    return 'Anneaux du jour. Calories brûlées : $brulees sur $objBrule. Calories mangées : $mangees sur $objMange. Protéines : $proteines sur $objProteines grammes. Eau : $eau sur $objEau millilitres. Bilan : $bilan kilocalories.';
+  }
+
+  @override
   String get courbePoids => 'Évolution du poids';
 
   @override

@@ -34,6 +34,7 @@ class Anneaux extends StatelessWidget {
     required this.progres,
     this.taille = 230,
     this.centre,
+    this.semantique,
     this.animer = true,
   });
 
@@ -47,27 +48,37 @@ class Anneaux extends StatelessWidget {
   /// Faux pour dessiner d'un coup (image du widget de l'écran d'accueil).
   final bool animer;
 
+  /// Description lue par le lecteur d'écran (les anneaux sont un dessin).
+  final String? semantique;
+
   static const couleurs = [_cBrule, _cMange, _cProteines, _cEau];
 
   @override
-  Widget build(BuildContext context) => SizedBox.square(
-    dimension: taille,
-    child: Stack(
-      alignment: Alignment.center,
-      children: [
-        TweenAnimationBuilder<double>(
-          tween: Tween(begin: 0, end: 1),
-          duration: animer ? const Duration(milliseconds: 900) : Duration.zero,
-          curve: Curves.easeOutCubic,
-          builder: (context, t, _) => CustomPaint(
-            size: Size.square(taille),
-            painter: _AnneauxPainter([
-              for (final p in progres) p.clamp(0.0, 1.0) * t,
-            ], couleurs),
+  Widget build(BuildContext context) => Semantics(
+    label: semantique,
+    image: true,
+    excludeSemantics: semantique != null,
+    child: SizedBox.square(
+      dimension: taille,
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          TweenAnimationBuilder<double>(
+            tween: Tween(begin: 0, end: 1),
+            duration: animer
+                ? const Duration(milliseconds: 900)
+                : Duration.zero,
+            curve: Curves.easeOutCubic,
+            builder: (context, t, _) => CustomPaint(
+              size: Size.square(taille),
+              painter: _AnneauxPainter([
+                for (final p in progres) p.clamp(0.0, 1.0) * t,
+              ], couleurs),
+            ),
           ),
-        ),
-        ?centre,
-      ],
+          ?centre,
+        ],
+      ),
     ),
   );
 }
@@ -304,6 +315,17 @@ class _CarteAujourdhuiState extends State<CarteAujourdhui> {
           ),
           const SizedBox(height: 16),
           Anneaux(
+            semantique: t.anneauxSemantique(
+              brulees.round(),
+              objectifBrule.round(),
+              macros.kcal.round(),
+              cibles.kcal.round(),
+              macros.proteines.round(),
+              cibles.proteines.round(),
+              bu,
+              objectifEau,
+              bilanTexte(macros.kcal - brulees),
+            ),
             centre: _Bilan(net: macros.kcal - brulees),
             progres: [
               part(brulees, objectifBrule),

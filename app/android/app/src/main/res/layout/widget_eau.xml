@@ -42,6 +42,7 @@
 
         <Button
             android:id="@+id/eau_plus250"
+            android:contentDescription="@string/widget_ajouter_250"
             android:layout_width="0dp"
             android:layout_height="34dp"
             android:layout_marginEnd="4dp"
@@ -57,6 +58,7 @@
 
         <Button
             android:id="@+id/eau_plus500"
+            android:contentDescription="@string/widget_ajouter_500"
             android:layout_width="0dp"
             android:layout_height="34dp"
             android:layout_weight="1"

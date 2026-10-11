@@ -2206,6 +2206,22 @@ abstract class AppLocalizations {
   /// **'Analyser à nouveau'**
   String get reanalyser;
 
+  /// No description provided for @anneauxSemantique.
+  ///
+  /// In fr, this message translates to:
+  /// **'Anneaux du jour. Calories brûlées : {brulees} sur {objBrule}. Calories mangées : {mangees} sur {objMange}. Protéines : {proteines} sur {objProteines} grammes. Eau : {eau} sur {objEau} millilitres. Bilan : {bilan} kilocalories.'**
+  String anneauxSemantique(
+    int brulees,
+    int objBrule,
+    int mangees,
+    int objMange,
+    int proteines,
+    int objProteines,
+    int eau,
+    int objEau,
+    String bilan,
+  );
+
   /// No description provided for @courbePoids.
   ///
   /// In fr, this message translates to:
