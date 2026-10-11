@@ -2,14 +2,19 @@ import 'package:flutter/material.dart';
 
 import 'accueil/accueil_page.dart';
 import 'compte/auth_service.dart';
+import 'journal/catalogue.dart';
+import 'journal/journal_page.dart';
+import 'journal/journal_repository.dart';
 import 'l10n/app_localizations.dart';
 import 'poids/pesees_repository.dart';
 import 'poids/poids_page.dart';
 import 'profil/profil_repository.dart';
 import 'sante/sante_service.dart';
+import 'sante/suivi.dart';
 
-/// Barre d'onglets de l'appli (Accueil, Poids ; d'autres viendront).
-/// Chaque onglet garde son état quand on change d'onglet.
+/// Barre d'onglets de l'appli (Accueil, Journal, Poids ; d'autres viendront).
+/// Chaque onglet garde son état quand on change d'onglet. La coque possède le
+/// suivi Health Connect, partagé entre les onglets.
 class Coque extends StatefulWidget {
   const Coque({
     super.key,
@@ -18,6 +23,8 @@ class Coque extends StatefulWidget {
     required this.auth,
     required this.depot,
     required this.pesees,
+    required this.journal,
+    required this.catalogue,
     required this.sante,
     required this.horloge,
   });
@@ -27,6 +34,8 @@ class Coque extends StatefulWidget {
   final AuthService auth;
   final ProfilRepository depot;
   final PeseesRepository pesees;
+  final JournalRepository journal;
+  final CatalogueProduits catalogue;
   final SanteService sante;
   final DateTime Function() horloge;
 
@@ -36,6 +45,27 @@ class Coque extends StatefulWidget {
 
 class _CoqueState extends State<Coque> {
   int _onglet = 0;
+  late final Suivi _suivi = Suivi(sante: widget.sante, horloge: widget.horloge);
+
+  @override
+  void initState() {
+    super.initState();
+    _suivi.charger(montre: widget.enregistre.profil.montre);
+  }
+
+  @override
+  void didUpdateWidget(Coque ancien) {
+    super.didUpdateWidget(ancien);
+    if (ancien.enregistre.profil.montre != widget.enregistre.profil.montre) {
+      _suivi.charger(montre: widget.enregistre.profil.montre);
+    }
+  }
+
+  @override
+  void dispose() {
+    _suivi.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -50,6 +80,15 @@ class _CoqueState extends State<Coque> {
             auth: widget.auth,
             depot: widget.depot,
             sante: widget.sante,
+            suivi: _suivi,
+            horloge: widget.horloge,
+          ),
+          JournalPage(
+            utilisateur: widget.utilisateur,
+            enregistre: widget.enregistre,
+            journal: widget.journal,
+            catalogue: widget.catalogue,
+            suivi: _suivi,
             horloge: widget.horloge,
           ),
           PoidsPage(
@@ -70,6 +109,11 @@ class _CoqueState extends State<Coque> {
             icon: const Icon(Icons.home_outlined),
             selectedIcon: const Icon(Icons.home),
             label: t.tabAccueil,
+          ),
+          NavigationDestination(
+            icon: const Icon(Icons.restaurant_outlined),
+            selectedIcon: const Icon(Icons.restaurant),
+            label: t.tabJournal,
           ),
           NavigationDestination(
             icon: const Icon(Icons.monitor_weight_outlined),

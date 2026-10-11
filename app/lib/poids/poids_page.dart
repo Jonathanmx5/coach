@@ -122,6 +122,7 @@ class _PoidsPageState extends State<PoidsPage> {
     return Scaffold(
       appBar: AppBar(title: Text(t.tabPoids)),
       floatingActionButton: FloatingActionButton.extended(
+        heroTag: 'fab-poids',
         onPressed: _ouvrirAjout,
         icon: const Icon(Icons.add),
         label: Text(t.ajouterPesee),

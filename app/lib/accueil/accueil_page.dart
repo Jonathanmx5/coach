@@ -26,6 +26,7 @@ class AccueilPage extends StatefulWidget {
     required this.auth,
     required this.depot,
     required this.sante,
+    required this.suivi,
     required this.horloge,
   });
 
@@ -34,6 +35,7 @@ class AccueilPage extends StatefulWidget {
   final AuthService auth;
   final ProfilRepository depot;
   final SanteService sante;
+  final Suivi suivi;
   final DateTime Function() horloge;
 
   @override
@@ -41,7 +43,7 @@ class AccueilPage extends StatefulWidget {
 }
 
 class _AccueilPageState extends State<AccueilPage> {
-  late final _suivi = Suivi(sante: widget.sante, horloge: widget.horloge);
+  Suivi get _suivi => widget.suivi;
 
   Profil get _profil => widget.enregistre.profil;
 
@@ -49,20 +51,11 @@ class _AccueilPageState extends State<AccueilPage> {
   void initState() {
     super.initState();
     _suivi.addListener(_importerPoids);
-    _charger();
-  }
-
-  @override
-  void didUpdateWidget(AccueilPage ancien) {
-    super.didUpdateWidget(ancien);
-    if (ancien.enregistre.profil.montre != _profil.montre) _charger();
   }
 
   @override
   void dispose() {
-    _suivi
-      ..removeListener(_importerPoids)
-      ..dispose();
+    _suivi.removeListener(_importerPoids);
     super.dispose();
   }
 

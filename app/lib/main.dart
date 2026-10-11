@@ -8,6 +8,8 @@ import 'package:flutter/material.dart';
 
 import 'app.dart';
 import 'compte/auth_service.dart';
+import 'journal/catalogue.dart';
+import 'journal/journal_repository.dart';
 import 'poids/pesees_repository.dart';
 import 'firebase_options.dart';
 import 'profil/profil_repository.dart';
@@ -37,6 +39,8 @@ Future<void> main() async {
         auth: FirebaseAuthService(),
         depot: FirestoreProfilRepository(),
         pesees: FirestorePeseesRepository(),
+        journal: FirestoreJournalRepository(),
+        catalogue: CatalogueOpenFoodFacts(),
         sante: HealthSanteService(),
         horloge: DateTime.now,
       ),

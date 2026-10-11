@@ -47,6 +47,8 @@ Future<void> monter(
         depot: depot,
         sante: sante ?? FauxSante(dispo: DispoSante.indisponible),
         pesees: pesees ?? FauxPesees(),
+        journal: FauxJournal(),
+        catalogue: FauxCatalogue(),
         horloge: () => maintenant,
       ),
     ),
@@ -228,5 +230,20 @@ void main() {
     );
     await tester.pumpAndSettle();
     expect(find.text('Bonjour Léa !'), findsOneWidget);
+  });
+
+  testWidgets('onglet Journal : bilan énergétique du jour', (tester) async {
+    await monter(tester, FauxAuth(connecte: lea), depotAvecProfil());
+
+    await tester.tap(
+      find.descendant(
+        of: find.byType(NavigationBar),
+        matching: find.text('Journal'),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('Bilan énergétique'), findsOneWidget);
+    expect(find.text('Objectif du jour : 2080 kcal'), findsOneWidget);
   });
 }

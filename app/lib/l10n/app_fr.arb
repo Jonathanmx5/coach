@@ -234,5 +234,105 @@
   "supprimerPesee": "Supprimer",
   "aucunePesee": "Aucune pesée pour l'instant. Ajoute la première !",
   "sourceMontre": "Montre",
-  "sourceSaisie": "Saisie"
+  "sourceSaisie": "Saisie",
+  "tabJournal": "Journal",
+  "jourAujourdhui": "Aujourd'hui",
+  "jourPrecedent": "Jour précédent",
+  "jourSuivant": "Jour suivant",
+  "bilanTitre": "Bilan énergétique",
+  "bilanMange": "Mangé",
+  "bilanDepense": "Dépensé",
+  "bilanSolde": "Solde",
+  "kcalValeur": "{kcal} kcal",
+  "@kcalValeur": {
+    "placeholders": {
+      "kcal": {
+        "type": "String"
+      }
+    }
+  },
+  "soldeDeficit": "Déficit",
+  "soldeExcedent": "Excédent",
+  "cibleJour": "Objectif du jour : {kcal} kcal",
+  "@cibleJour": {
+    "placeholders": {
+      "kcal": {
+        "type": "int"
+      }
+    }
+  },
+  "jourRepos": "Jour de repos",
+  "jourModere": "Jour modéré",
+  "jourIntense": "Jour intense",
+  "macrosTitre": "Macros du jour",
+  "macroProteines": "Protéines",
+  "macroGlucides": "Glucides",
+  "macroLipides": "Lipides",
+  "macroProgression": "{mange} / {cible} g",
+  "@macroProgression": {
+    "placeholders": {
+      "mange": {
+        "type": "int"
+      },
+      "cible": {
+        "type": "int"
+      }
+    }
+  },
+  "repasTitre": "Repas",
+  "activitesTitre": "Activités",
+  "aucunRepas": "Aucun repas enregistré.",
+  "aucuneActivite": "Aucune activité enregistrée.",
+  "momentPetitDej": "Petit-déjeuner",
+  "momentDejeuner": "Déjeuner",
+  "momentDiner": "Dîner",
+  "momentCollation": "Collation",
+  "menuRepas": "Ajouter un repas",
+  "menuScanner": "Scanner un produit",
+  "menuActivite": "Ajouter une activité",
+  "ajouter": "Ajouter",
+  "champNomRepas": "Nom du repas",
+  "champKcal": "Calories (kcal)",
+  "champProteines": "Protéines (g)",
+  "champGlucides": "Glucides (g)",
+  "champLipides": "Lipides (g)",
+  "champMoment": "Moment",
+  "nomRepasDefaut": "Repas",
+  "scanTitre": "Scanner un produit",
+  "scanAide": "Place le code-barres dans le cadre.",
+  "scanOuSaisir": "Ou saisis le code à la main",
+  "champCode": "Code-barres",
+  "scanRechercher": "Rechercher",
+  "produitIntrouvable": "Produit introuvable. Tu peux l'ajouter à la main.",
+  "erreurReseauProduit": "Impossible de joindre Open Food Facts. Vérifie ta connexion.",
+  "champQuantite": "Quantité (g)",
+  "produitPour100g": "Pour 100 g : {kcal} kcal",
+  "@produitPour100g": {
+    "placeholders": {
+      "kcal": {
+        "type": "int"
+      }
+    }
+  },
+  "actVelo": "Vélo",
+  "actMma": "MMA",
+  "actCourse": "Course à pied",
+  "actNatation": "Natation",
+  "actMuscu": "Musculation",
+  "actMarche": "Marche",
+  "actAutre": "Autre",
+  "champDureeMin": "Durée (min)",
+  "intLegere": "Légère",
+  "intModeree": "Modérée",
+  "intIntense": "Intense",
+  "activiteEstimation": "≈ {kcal} kcal brûlées",
+  "@activiteEstimation": {
+    "placeholders": {
+      "kcal": {
+        "type": "int"
+      }
+    }
+  },
+  "supprimer": "Supprimer",
+  "erreurDuree": "Entre une durée en minutes."
 }

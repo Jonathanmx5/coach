@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'coque.dart';
 import 'accueil/bienvenue_page.dart';
 import 'compte/auth_service.dart';
+import 'journal/catalogue.dart';
+import 'journal/journal_repository.dart';
 import 'poids/pesees_repository.dart';
 import 'profil/profil_repository.dart';
 import 'profil/questionnaire/controleur.dart';
@@ -17,6 +19,8 @@ class Racine extends StatefulWidget {
     required this.auth,
     required this.depot,
     required this.pesees,
+    required this.journal,
+    required this.catalogue,
     required this.sante,
     required this.horloge,
   });
@@ -24,6 +28,8 @@ class Racine extends StatefulWidget {
   final AuthService auth;
   final ProfilRepository depot;
   final PeseesRepository pesees;
+  final JournalRepository journal;
+  final CatalogueProduits catalogue;
   final SanteService sante;
   final DateTime Function() horloge;
 
@@ -73,6 +79,8 @@ class _RacineState extends State<Racine> {
         auth: widget.auth,
         depot: widget.depot,
         pesees: widget.pesees,
+        journal: widget.journal,
+        catalogue: widget.catalogue,
         sante: widget.sante,
         horloge: widget.horloge,
       );
@@ -87,6 +95,8 @@ class _ProfilUtilisateur extends StatefulWidget {
     required this.auth,
     required this.depot,
     required this.pesees,
+    required this.journal,
+    required this.catalogue,
     required this.sante,
     required this.horloge,
   });
@@ -95,6 +105,8 @@ class _ProfilUtilisateur extends StatefulWidget {
   final AuthService auth;
   final ProfilRepository depot;
   final PeseesRepository pesees;
+  final JournalRepository journal;
+  final CatalogueProduits catalogue;
   final SanteService sante;
   final DateTime Function() horloge;
 
@@ -144,6 +156,8 @@ class _ProfilUtilisateurState extends State<_ProfilUtilisateur> {
         auth: widget.auth,
         depot: widget.depot,
         pesees: widget.pesees,
+        journal: widget.journal,
+        catalogue: widget.catalogue,
         sante: widget.sante,
         horloge: widget.horloge,
       );

@@ -484,4 +484,202 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get sourceSaisie => 'Saisie';
+
+  @override
+  String get tabJournal => 'Journal';
+
+  @override
+  String get jourAujourdhui => 'Aujourd\'hui';
+
+  @override
+  String get jourPrecedent => 'Jour précédent';
+
+  @override
+  String get jourSuivant => 'Jour suivant';
+
+  @override
+  String get bilanTitre => 'Bilan énergétique';
+
+  @override
+  String get bilanMange => 'Mangé';
+
+  @override
+  String get bilanDepense => 'Dépensé';
+
+  @override
+  String get bilanSolde => 'Solde';
+
+  @override
+  String kcalValeur(String kcal) {
+    return '$kcal kcal';
+  }
+
+  @override
+  String get soldeDeficit => 'Déficit';
+
+  @override
+  String get soldeExcedent => 'Excédent';
+
+  @override
+  String cibleJour(int kcal) {
+    return 'Objectif du jour : $kcal kcal';
+  }
+
+  @override
+  String get jourRepos => 'Jour de repos';
+
+  @override
+  String get jourModere => 'Jour modéré';
+
+  @override
+  String get jourIntense => 'Jour intense';
+
+  @override
+  String get macrosTitre => 'Macros du jour';
+
+  @override
+  String get macroProteines => 'Protéines';
+
+  @override
+  String get macroGlucides => 'Glucides';
+
+  @override
+  String get macroLipides => 'Lipides';
+
+  @override
+  String macroProgression(int mange, int cible) {
+    return '$mange / $cible g';
+  }
+
+  @override
+  String get repasTitre => 'Repas';
+
+  @override
+  String get activitesTitre => 'Activités';
+
+  @override
+  String get aucunRepas => 'Aucun repas enregistré.';
+
+  @override
+  String get aucuneActivite => 'Aucune activité enregistrée.';
+
+  @override
+  String get momentPetitDej => 'Petit-déjeuner';
+
+  @override
+  String get momentDejeuner => 'Déjeuner';
+
+  @override
+  String get momentDiner => 'Dîner';
+
+  @override
+  String get momentCollation => 'Collation';
+
+  @override
+  String get menuRepas => 'Ajouter un repas';
+
+  @override
+  String get menuScanner => 'Scanner un produit';
+
+  @override
+  String get menuActivite => 'Ajouter une activité';
+
+  @override
+  String get ajouter => 'Ajouter';
+
+  @override
+  String get champNomRepas => 'Nom du repas';
+
+  @override
+  String get champKcal => 'Calories (kcal)';
+
+  @override
+  String get champProteines => 'Protéines (g)';
+
+  @override
+  String get champGlucides => 'Glucides (g)';
+
+  @override
+  String get champLipides => 'Lipides (g)';
+
+  @override
+  String get champMoment => 'Moment';
+
+  @override
+  String get nomRepasDefaut => 'Repas';
+
+  @override
+  String get scanTitre => 'Scanner un produit';
+
+  @override
+  String get scanAide => 'Place le code-barres dans le cadre.';
+
+  @override
+  String get scanOuSaisir => 'Ou saisis le code à la main';
+
+  @override
+  String get champCode => 'Code-barres';
+
+  @override
+  String get scanRechercher => 'Rechercher';
+
+  @override
+  String get produitIntrouvable =>
+      'Produit introuvable. Tu peux l\'ajouter à la main.';
+
+  @override
+  String get erreurReseauProduit =>
+      'Impossible de joindre Open Food Facts. Vérifie ta connexion.';
+
+  @override
+  String get champQuantite => 'Quantité (g)';
+
+  @override
+  String produitPour100g(int kcal) {
+    return 'Pour 100 g : $kcal kcal';
+  }
+
+  @override
+  String get actVelo => 'Vélo';
+
+  @override
+  String get actMma => 'MMA';
+
+  @override
+  String get actCourse => 'Course à pied';
+
+  @override
+  String get actNatation => 'Natation';
+
+  @override
+  String get actMuscu => 'Musculation';
+
+  @override
+  String get actMarche => 'Marche';
+
+  @override
+  String get actAutre => 'Autre';
+
+  @override
+  String get champDureeMin => 'Durée (min)';
+
+  @override
+  String get intLegere => 'Légère';
+
+  @override
+  String get intModeree => 'Modérée';
+
+  @override
+  String get intIntense => 'Intense';
+
+  @override
+  String activiteEstimation(int kcal) {
+    return '≈ $kcal kcal brûlées';
+  }
+
+  @override
+  String get supprimer => 'Supprimer';
+
+  @override
+  String get erreurDuree => 'Entre une durée en minutes.';
 }

@@ -969,6 +969,378 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Saisie'**
   String get sourceSaisie;
+
+  /// No description provided for @tabJournal.
+  ///
+  /// In fr, this message translates to:
+  /// **'Journal'**
+  String get tabJournal;
+
+  /// No description provided for @jourAujourdhui.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aujourd\'hui'**
+  String get jourAujourdhui;
+
+  /// No description provided for @jourPrecedent.
+  ///
+  /// In fr, this message translates to:
+  /// **'Jour précédent'**
+  String get jourPrecedent;
+
+  /// No description provided for @jourSuivant.
+  ///
+  /// In fr, this message translates to:
+  /// **'Jour suivant'**
+  String get jourSuivant;
+
+  /// No description provided for @bilanTitre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Bilan énergétique'**
+  String get bilanTitre;
+
+  /// No description provided for @bilanMange.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mangé'**
+  String get bilanMange;
+
+  /// No description provided for @bilanDepense.
+  ///
+  /// In fr, this message translates to:
+  /// **'Dépensé'**
+  String get bilanDepense;
+
+  /// No description provided for @bilanSolde.
+  ///
+  /// In fr, this message translates to:
+  /// **'Solde'**
+  String get bilanSolde;
+
+  /// No description provided for @kcalValeur.
+  ///
+  /// In fr, this message translates to:
+  /// **'{kcal} kcal'**
+  String kcalValeur(String kcal);
+
+  /// No description provided for @soldeDeficit.
+  ///
+  /// In fr, this message translates to:
+  /// **'Déficit'**
+  String get soldeDeficit;
+
+  /// No description provided for @soldeExcedent.
+  ///
+  /// In fr, this message translates to:
+  /// **'Excédent'**
+  String get soldeExcedent;
+
+  /// No description provided for @cibleJour.
+  ///
+  /// In fr, this message translates to:
+  /// **'Objectif du jour : {kcal} kcal'**
+  String cibleJour(int kcal);
+
+  /// No description provided for @jourRepos.
+  ///
+  /// In fr, this message translates to:
+  /// **'Jour de repos'**
+  String get jourRepos;
+
+  /// No description provided for @jourModere.
+  ///
+  /// In fr, this message translates to:
+  /// **'Jour modéré'**
+  String get jourModere;
+
+  /// No description provided for @jourIntense.
+  ///
+  /// In fr, this message translates to:
+  /// **'Jour intense'**
+  String get jourIntense;
+
+  /// No description provided for @macrosTitre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Macros du jour'**
+  String get macrosTitre;
+
+  /// No description provided for @macroProteines.
+  ///
+  /// In fr, this message translates to:
+  /// **'Protéines'**
+  String get macroProteines;
+
+  /// No description provided for @macroGlucides.
+  ///
+  /// In fr, this message translates to:
+  /// **'Glucides'**
+  String get macroGlucides;
+
+  /// No description provided for @macroLipides.
+  ///
+  /// In fr, this message translates to:
+  /// **'Lipides'**
+  String get macroLipides;
+
+  /// No description provided for @macroProgression.
+  ///
+  /// In fr, this message translates to:
+  /// **'{mange} / {cible} g'**
+  String macroProgression(int mange, int cible);
+
+  /// No description provided for @repasTitre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Repas'**
+  String get repasTitre;
+
+  /// No description provided for @activitesTitre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Activités'**
+  String get activitesTitre;
+
+  /// No description provided for @aucunRepas.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucun repas enregistré.'**
+  String get aucunRepas;
+
+  /// No description provided for @aucuneActivite.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucune activité enregistrée.'**
+  String get aucuneActivite;
+
+  /// No description provided for @momentPetitDej.
+  ///
+  /// In fr, this message translates to:
+  /// **'Petit-déjeuner'**
+  String get momentPetitDej;
+
+  /// No description provided for @momentDejeuner.
+  ///
+  /// In fr, this message translates to:
+  /// **'Déjeuner'**
+  String get momentDejeuner;
+
+  /// No description provided for @momentDiner.
+  ///
+  /// In fr, this message translates to:
+  /// **'Dîner'**
+  String get momentDiner;
+
+  /// No description provided for @momentCollation.
+  ///
+  /// In fr, this message translates to:
+  /// **'Collation'**
+  String get momentCollation;
+
+  /// No description provided for @menuRepas.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ajouter un repas'**
+  String get menuRepas;
+
+  /// No description provided for @menuScanner.
+  ///
+  /// In fr, this message translates to:
+  /// **'Scanner un produit'**
+  String get menuScanner;
+
+  /// No description provided for @menuActivite.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ajouter une activité'**
+  String get menuActivite;
+
+  /// No description provided for @ajouter.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ajouter'**
+  String get ajouter;
+
+  /// No description provided for @champNomRepas.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nom du repas'**
+  String get champNomRepas;
+
+  /// No description provided for @champKcal.
+  ///
+  /// In fr, this message translates to:
+  /// **'Calories (kcal)'**
+  String get champKcal;
+
+  /// No description provided for @champProteines.
+  ///
+  /// In fr, this message translates to:
+  /// **'Protéines (g)'**
+  String get champProteines;
+
+  /// No description provided for @champGlucides.
+  ///
+  /// In fr, this message translates to:
+  /// **'Glucides (g)'**
+  String get champGlucides;
+
+  /// No description provided for @champLipides.
+  ///
+  /// In fr, this message translates to:
+  /// **'Lipides (g)'**
+  String get champLipides;
+
+  /// No description provided for @champMoment.
+  ///
+  /// In fr, this message translates to:
+  /// **'Moment'**
+  String get champMoment;
+
+  /// No description provided for @nomRepasDefaut.
+  ///
+  /// In fr, this message translates to:
+  /// **'Repas'**
+  String get nomRepasDefaut;
+
+  /// No description provided for @scanTitre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Scanner un produit'**
+  String get scanTitre;
+
+  /// No description provided for @scanAide.
+  ///
+  /// In fr, this message translates to:
+  /// **'Place le code-barres dans le cadre.'**
+  String get scanAide;
+
+  /// No description provided for @scanOuSaisir.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ou saisis le code à la main'**
+  String get scanOuSaisir;
+
+  /// No description provided for @champCode.
+  ///
+  /// In fr, this message translates to:
+  /// **'Code-barres'**
+  String get champCode;
+
+  /// No description provided for @scanRechercher.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rechercher'**
+  String get scanRechercher;
+
+  /// No description provided for @produitIntrouvable.
+  ///
+  /// In fr, this message translates to:
+  /// **'Produit introuvable. Tu peux l\'ajouter à la main.'**
+  String get produitIntrouvable;
+
+  /// No description provided for @erreurReseauProduit.
+  ///
+  /// In fr, this message translates to:
+  /// **'Impossible de joindre Open Food Facts. Vérifie ta connexion.'**
+  String get erreurReseauProduit;
+
+  /// No description provided for @champQuantite.
+  ///
+  /// In fr, this message translates to:
+  /// **'Quantité (g)'**
+  String get champQuantite;
+
+  /// No description provided for @produitPour100g.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pour 100 g : {kcal} kcal'**
+  String produitPour100g(int kcal);
+
+  /// No description provided for @actVelo.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vélo'**
+  String get actVelo;
+
+  /// No description provided for @actMma.
+  ///
+  /// In fr, this message translates to:
+  /// **'MMA'**
+  String get actMma;
+
+  /// No description provided for @actCourse.
+  ///
+  /// In fr, this message translates to:
+  /// **'Course à pied'**
+  String get actCourse;
+
+  /// No description provided for @actNatation.
+  ///
+  /// In fr, this message translates to:
+  /// **'Natation'**
+  String get actNatation;
+
+  /// No description provided for @actMuscu.
+  ///
+  /// In fr, this message translates to:
+  /// **'Musculation'**
+  String get actMuscu;
+
+  /// No description provided for @actMarche.
+  ///
+  /// In fr, this message translates to:
+  /// **'Marche'**
+  String get actMarche;
+
+  /// No description provided for @actAutre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Autre'**
+  String get actAutre;
+
+  /// No description provided for @champDureeMin.
+  ///
+  /// In fr, this message translates to:
+  /// **'Durée (min)'**
+  String get champDureeMin;
+
+  /// No description provided for @intLegere.
+  ///
+  /// In fr, this message translates to:
+  /// **'Légère'**
+  String get intLegere;
+
+  /// No description provided for @intModeree.
+  ///
+  /// In fr, this message translates to:
+  /// **'Modérée'**
+  String get intModeree;
+
+  /// No description provided for @intIntense.
+  ///
+  /// In fr, this message translates to:
+  /// **'Intense'**
+  String get intIntense;
+
+  /// No description provided for @activiteEstimation.
+  ///
+  /// In fr, this message translates to:
+  /// **'≈ {kcal} kcal brûlées'**
+  String activiteEstimation(int kcal);
+
+  /// No description provided for @supprimer.
+  ///
+  /// In fr, this message translates to:
+  /// **'Supprimer'**
+  String get supprimer;
+
+  /// No description provided for @erreurDuree.
+  ///
+  /// In fr, this message translates to:
+  /// **'Entre une durée en minutes.'**
+  String get erreurDuree;
 }
 
 class _AppLocalizationsDelegate

@@ -1,6 +1,9 @@
 import 'dart:async';
 
 import 'package:coach/compte/auth_service.dart';
+import 'package:coach/journal/catalogue.dart';
+import 'package:coach/journal/journal_repository.dart';
+import 'package:coach/journal/modele.dart';
 import 'package:coach/poids/pesees.dart';
 import 'package:coach/poids/pesees_repository.dart';
 import 'package:coach/profil/besoins.dart';
@@ -146,5 +149,108 @@ class FauxPesees implements PeseesRepository {
         if (p.id != id) p,
     ];
     _flux.add(uid);
+  }
+}
+
+/// Journal en mémoire (repas et activités).
+class FauxJournal implements JournalRepository {
+  final repasParUid = <String, List<Repas>>{};
+  final activitesParUid = <String, List<Activite>>{};
+  final _flux = StreamController<void>.broadcast();
+  var _compteur = 0;
+
+  List<Repas> repasDe(String uid) => repasParUid[uid] ?? const [];
+  List<Activite> activitesDe(String uid) => activitesParUid[uid] ?? const [];
+
+  Stream<T> _suivre<T>(T Function() lire) async* {
+    yield lire();
+    yield* _flux.stream.map((_) => lire());
+  }
+
+  bool _dans(DateTime d, DateTime debut, DateTime fin) =>
+      !d.isBefore(debut) && d.isBefore(fin);
+
+  @override
+  Stream<List<Repas>> repas(String uid, DateTime debut, DateTime fin) =>
+      _suivre(
+        () => [
+          for (final r in repasDe(uid))
+            if (_dans(r.date, debut, fin)) r,
+        ]..sort((a, b) => a.date.compareTo(b.date)),
+      );
+
+  @override
+  Stream<List<Activite>> activites(String uid, DateTime debut, DateTime fin) =>
+      _suivre(
+        () => [
+          for (final a in activitesDe(uid))
+            if (_dans(a.date, debut, fin)) a,
+        ]..sort((a, b) => a.date.compareTo(b.date)),
+      );
+
+  @override
+  Future<void> ajouterRepas(String uid, Repas repas) async {
+    repasParUid[uid] = [
+      ...repasDe(uid),
+      Repas(
+        id: 'r${_compteur++}',
+        date: repas.date,
+        moment: repas.moment,
+        nom: repas.nom,
+        macros: repas.macros,
+        source: repas.source,
+      ),
+    ];
+    _flux.add(null);
+  }
+
+  @override
+  Future<void> supprimerRepas(String uid, String id) async {
+    repasParUid[uid] = [
+      for (final r in repasDe(uid))
+        if (r.id != id) r,
+    ];
+    _flux.add(null);
+  }
+
+  @override
+  Future<void> ajouterActivite(String uid, Activite activite) async {
+    activitesParUid[uid] = [
+      ...activitesDe(uid),
+      Activite(
+        id: 'a${_compteur++}',
+        date: activite.date,
+        type: activite.type,
+        minutes: activite.minutes,
+        intensite: activite.intensite,
+        kcal: activite.kcal,
+      ),
+    ];
+    _flux.add(null);
+  }
+
+  @override
+  Future<void> supprimerActivite(String uid, String id) async {
+    activitesParUid[uid] = [
+      for (final a in activitesDe(uid))
+        if (a.id != id) a,
+    ];
+    _flux.add(null);
+  }
+}
+
+/// Catalogue de produits programmable.
+class FauxCatalogue implements CatalogueProduits {
+  FauxCatalogue({this.produit, this.erreur = false});
+
+  ProduitOff? produit;
+  bool erreur;
+  final recherches = <String>[];
+
+  @override
+  Future<ProduitOff?> chercher(String codeBarres) async {
+    recherches.add(codeBarres);
+    if (erreur) throw const ErreurCatalogue('hors-ligne');
+    return produit;
   }
 }
