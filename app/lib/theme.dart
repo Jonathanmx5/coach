@@ -36,6 +36,9 @@ class PaletteCoach extends ThemeExtension<PaletteCoach> {
     required this.orangeClair,
     required this.orangeFonce,
     required this.rougeClair,
+    required this.verre,
+    required this.verreBord,
+    required this.verreDense,
   });
 
   final Color fond;
@@ -50,11 +53,16 @@ class PaletteCoach extends ThemeExtension<PaletteCoach> {
   final Color orangeFonce;
   final Color rougeClair;
 
+  /// Verre givré : remplissage des cartes, bord lumineux, tuiles posées dessus.
+  final Color verre;
+  final Color verreBord;
+  final Color verreDense;
+
   static const clair = PaletteCoach(
-    fond: CouleursCoach.fond,
+    fond: Color(0xFFD3E3DB),
     carte: Colors.white,
     texte: CouleursCoach.texte,
-    texteDoux: CouleursCoach.texteDoux,
+    texteDoux: Color(0xFF45453F),
     bordure: CouleursCoach.bordure,
     vertClair: CouleursCoach.vertClair,
     vertPale: CouleursCoach.vertPale,
@@ -62,13 +70,16 @@ class PaletteCoach extends ThemeExtension<PaletteCoach> {
     orangeClair: CouleursCoach.orangeClair,
     orangeFonce: CouleursCoach.orangeFonce,
     rougeClair: Color(0xFFFCE8E8),
+    verre: Color(0x70FFFFFF),
+    verreBord: Color(0xB3FFFFFF),
+    verreDense: Color(0x8CFFFFFF),
   );
 
   static const sombre = PaletteCoach(
     fond: Color(0xFF111614),
     carte: Color(0xFF1B2220),
-    texte: Color(0xFFE8ECEA),
-    texteDoux: Color(0xFFA9B1AD),
+    texte: Color(0xFFF0F4F2),
+    texteDoux: Color(0xFFD3DBD7),
     bordure: Color(0xFF3A4440),
     vertClair: Color(0xFF173B31),
     vertPale: Color(0xFF2C5E4D),
@@ -76,6 +87,9 @@ class PaletteCoach extends ThemeExtension<PaletteCoach> {
     orangeClair: Color(0xFF3A2E18),
     orangeFonce: Color(0xFFF3C983),
     rougeClair: Color(0xFF3D1E1E),
+    verre: Color(0x16FFFFFF),
+    verreBord: Color(0x47FFFFFF),
+    verreDense: Color(0x14FFFFFF),
   );
 
   @override
@@ -91,6 +105,9 @@ class PaletteCoach extends ThemeExtension<PaletteCoach> {
     Color? orangeClair,
     Color? orangeFonce,
     Color? rougeClair,
+    Color? verre,
+    Color? verreBord,
+    Color? verreDense,
   }) => PaletteCoach(
     fond: fond ?? this.fond,
     carte: carte ?? this.carte,
@@ -103,6 +120,9 @@ class PaletteCoach extends ThemeExtension<PaletteCoach> {
     orangeClair: orangeClair ?? this.orangeClair,
     orangeFonce: orangeFonce ?? this.orangeFonce,
     rougeClair: rougeClair ?? this.rougeClair,
+    verre: verre ?? this.verre,
+    verreBord: verreBord ?? this.verreBord,
+    verreDense: verreDense ?? this.verreDense,
   );
 
   @override
@@ -121,6 +141,9 @@ class PaletteCoach extends ThemeExtension<PaletteCoach> {
       orangeClair: m(orangeClair, autre.orangeClair),
       orangeFonce: m(orangeFonce, autre.orangeFonce),
       rougeClair: m(rougeClair, autre.rougeClair),
+      verre: m(verre, autre.verre),
+      verreBord: m(verreBord, autre.verreBord),
+      verreDense: m(verreDense, autre.verreDense),
     );
   }
 }
@@ -192,14 +215,33 @@ ThemeData themeCoach({Brightness luminosite = Brightness.light}) {
         textStyle: texteBouton,
       ),
     ),
+    // Cartes en verre givré : translucides, avec un bord qui capte la lumière.
     cardTheme: CardThemeData(
-      elevation: 0,
+      elevation: 1,
+      shadowColor: const Color(0x2B0F2A24),
       margin: EdgeInsets.zero,
-      color: p.carte,
+      color: p.verre,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(rayonCarte),
-        side: BorderSide(color: p.bordure, width: 0.8),
+        borderRadius: BorderRadius.circular(rayonCarte + 4),
+        side: BorderSide(color: p.verreBord, width: 1),
       ),
+    ),
+    appBarTheme: AppBarTheme(
+      backgroundColor: Colors.transparent,
+      surfaceTintColor: Colors.transparent,
+      elevation: 0,
+      scrolledUnderElevation: 0,
+      foregroundColor: p.texte,
+    ),
+    navigationBarTheme: NavigationBarThemeData(
+      backgroundColor: Colors.transparent,
+      surfaceTintColor: Colors.transparent,
+      elevation: 0,
+      height: 64,
+      indicatorColor: sombre
+          ? Colors.white.withValues(alpha: 0.22)
+          : CouleursCoach.vert.withValues(alpha: 0.16),
+      indicatorShape: const StadiumBorder(),
     ),
     inputDecorationTheme: InputDecorationTheme(
       filled: true,

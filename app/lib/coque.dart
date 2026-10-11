@@ -16,6 +16,7 @@ import 'reglages/mises_a_jour.dart';
 import 'reglages/reglages_page.dart';
 import 'services.dart';
 import 'theme.dart';
+import 'verre.dart';
 import 'sante/suivi.dart';
 
 /// Barre d'onglets de l'appli (Accueil, Journal, Poids ; d'autres viendront).
@@ -113,141 +114,155 @@ class _CoqueState extends State<Coque> {
   @override
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context)!;
-    return Scaffold(
-      body: IndexedStack(
-        index: _onglet,
-        children: [
-          AccueilPage(
-            utilisateur: widget.utilisateur,
-            enregistre: widget.enregistre,
-            auth: _s.auth,
-            depot: _s.depot,
-            sante: _s.sante,
-            suivi: _suivi,
-            horloge: widget.horloge,
-            onOnglet: (i) => setState(() => _onglet = i),
-            journal: _s.journal,
-            bienetre: _s.bienetre,
-            meteoSuivi: _meteoSuivi,
-            miseAJour: _maj,
-            onReglages: _ouvrirReglages,
-            majWidget: _s.widgetAccueil,
-            onIdees: () => Navigator.of(context).push<void>(
-              MaterialPageRoute(
-                builder: (_) => IdeesPage(
-                  utilisateur: widget.utilisateur,
-                  objectif: widget.enregistre.profil.objectif,
-                  kcalCible: widget.enregistre.reperes.kcalCible,
-                  avis: _s.avis,
-                  horloge: widget.horloge,
+    return FondVerre(
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        body: Theme(
+          // Les onglets laissent voir le fond de verre.
+          data: Theme.of(context)
+              .copyWith(scaffoldBackgroundColor: Colors.transparent),
+          child: IndexedStack(
+            index: _onglet,
+            children: [
+              AccueilPage(
+                utilisateur: widget.utilisateur,
+                enregistre: widget.enregistre,
+                auth: _s.auth,
+                depot: _s.depot,
+                sante: _s.sante,
+                suivi: _suivi,
+                horloge: widget.horloge,
+                onOnglet: (i) => setState(() => _onglet = i),
+                journal: _s.journal,
+                bienetre: _s.bienetre,
+                meteoSuivi: _meteoSuivi,
+                miseAJour: _maj,
+                onReglages: _ouvrirReglages,
+                majWidget: _s.widgetAccueil,
+                onIdees: () => Navigator.of(context).push<void>(
+                  MaterialPageRoute(
+                    builder: (_) => IdeesPage(
+                      utilisateur: widget.utilisateur,
+                      objectif: widget.enregistre.profil.objectif,
+                      kcalCible: widget.enregistre.reperes.kcalCible,
+                      avis: _s.avis,
+                      horloge: widget.horloge,
+                    ),
+                  ),
                 ),
               ),
-            ),
-          ),
-          JournalPage(
-            utilisateur: widget.utilisateur,
-            enregistre: widget.enregistre,
-            journal: _s.journal,
-            analyse: _s.analyse,
-            planning: _s.planning,
-            avis: _s.avis,
-            consentements: _s.consentements,
-            photosRepas: _s.photosRepas,
-            catalogue: _s.catalogue,
-            demandePhoto: _demandePhoto,
-            suivi: _suivi,
-            horloge: widget.horloge,
-          ),
-          EntrainementPage(
-            utilisateur: widget.utilisateur,
-            enregistre: widget.enregistre,
-            entrainement: _s.entrainement,
-            journal: _s.journal,
-            voix: _s.voix,
-            suivi: _suivi,
-            horloge: widget.horloge,
-          ),
-          PoidsPage(
-            utilisateur: widget.utilisateur,
-            enregistre: widget.enregistre,
-            depot: _s.depot,
-            pesees: _s.pesees,
-            journal: _s.journal,
-            mensurations: _s.mensurations,
-            photos: _s.photos,
-            sante: _s.sante,
-            horloge: widget.horloge,
-          ),
-          BienEtrePage(
-            utilisateur: widget.utilisateur,
-            enregistre: widget.enregistre,
-            bienetre: _s.bienetre,
-            journal: _s.journal,
-            meteoSuivi: _meteoSuivi,
-            rappels: _s.rappels,
-            entrainement: _s.entrainement,
-            consentements: _s.consentements,
-            horloge: widget.horloge,
-          ),
-        ],
-      ),
-      bottomNavigationBar: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          StreamBuilder<bool>(
-            stream: _enLigne,
-            initialData: true,
-            builder: (context, snap) => snap.data == false
-                ? Material(
-                    color: CouleursCoach.orange,
-                    child: SizedBox(
-                      width: double.infinity,
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 6,
-                        ),
-                        child: Text(
-                          t.horsLigne,
-                          style: Theme.of(context).textTheme.bodySmall,
-                        ),
-                      ),
-                    ),
-                  )
-                : const SizedBox.shrink(),
-          ),
-          NavigationBar(
-            selectedIndex: _onglet,
-            onDestinationSelected: (i) => setState(() => _onglet = i),
-            destinations: [
-              NavigationDestination(
-                icon: const Icon(Icons.home_outlined),
-                selectedIcon: const Icon(Icons.home),
-                label: t.tabAccueil,
+              JournalPage(
+                utilisateur: widget.utilisateur,
+                enregistre: widget.enregistre,
+                journal: _s.journal,
+                analyse: _s.analyse,
+                planning: _s.planning,
+                avis: _s.avis,
+                consentements: _s.consentements,
+                photosRepas: _s.photosRepas,
+                catalogue: _s.catalogue,
+                demandePhoto: _demandePhoto,
+                suivi: _suivi,
+                horloge: widget.horloge,
               ),
-              NavigationDestination(
-                icon: const Icon(Icons.restaurant_outlined),
-                selectedIcon: const Icon(Icons.restaurant),
-                label: t.tabJournal,
+              EntrainementPage(
+                utilisateur: widget.utilisateur,
+                enregistre: widget.enregistre,
+                entrainement: _s.entrainement,
+                journal: _s.journal,
+                voix: _s.voix,
+                suivi: _suivi,
+                horloge: widget.horloge,
               ),
-              NavigationDestination(
-                icon: const Icon(Icons.fitness_center_outlined),
-                selectedIcon: const Icon(Icons.fitness_center),
-                label: t.tabSport,
+              PoidsPage(
+                utilisateur: widget.utilisateur,
+                enregistre: widget.enregistre,
+                depot: _s.depot,
+                pesees: _s.pesees,
+                journal: _s.journal,
+                mensurations: _s.mensurations,
+                photos: _s.photos,
+                sante: _s.sante,
+                horloge: widget.horloge,
               ),
-              NavigationDestination(
-                icon: const Icon(Icons.monitor_weight_outlined),
-                selectedIcon: const Icon(Icons.monitor_weight),
-                label: t.tabPoids,
-              ),
-              NavigationDestination(
-                icon: const Icon(Icons.spa_outlined),
-                selectedIcon: const Icon(Icons.spa),
-                label: t.tabBienEtre,
+              BienEtrePage(
+                utilisateur: widget.utilisateur,
+                enregistre: widget.enregistre,
+                bienetre: _s.bienetre,
+                journal: _s.journal,
+                meteoSuivi: _meteoSuivi,
+                rappels: _s.rappels,
+                entrainement: _s.entrainement,
+                consentements: _s.consentements,
+                horloge: widget.horloge,
               ),
             ],
           ),
-        ],
+        ),
+        bottomNavigationBar: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            StreamBuilder<bool>(
+              stream: _enLigne,
+              initialData: true,
+              builder: (context, snap) => snap.data == false
+                  ? Material(
+                      color: CouleursCoach.orange,
+                      child: SizedBox(
+                        width: double.infinity,
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 6,
+                          ),
+                          child: Text(
+                            t.horsLigne,
+                            style: Theme.of(context).textTheme.bodySmall,
+                          ),
+                        ),
+                      ),
+                    )
+                  : const SizedBox.shrink(),
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(14, 4, 14, 10),
+              child: VerreFlou(
+                rayon: 34,
+                child: NavigationBar(
+                  selectedIndex: _onglet,
+                  onDestinationSelected: (i) => setState(() => _onglet = i),
+                  destinations: [
+                    NavigationDestination(
+                      icon: const Icon(Icons.home_outlined),
+                      selectedIcon: const Icon(Icons.home),
+                      label: t.tabAccueil,
+                    ),
+                    NavigationDestination(
+                      icon: const Icon(Icons.restaurant_outlined),
+                      selectedIcon: const Icon(Icons.restaurant),
+                      label: t.tabJournal,
+                    ),
+                    NavigationDestination(
+                      icon: const Icon(Icons.fitness_center_outlined),
+                      selectedIcon: const Icon(Icons.fitness_center),
+                      label: t.tabSport,
+                    ),
+                    NavigationDestination(
+                      icon: const Icon(Icons.monitor_weight_outlined),
+                      selectedIcon: const Icon(Icons.monitor_weight),
+                      label: t.tabPoids,
+                    ),
+                    NavigationDestination(
+                      icon: const Icon(Icons.spa_outlined),
+                      selectedIcon: const Icon(Icons.spa),
+                      label: t.tabBienEtre,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

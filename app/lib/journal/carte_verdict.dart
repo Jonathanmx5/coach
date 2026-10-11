@@ -48,8 +48,9 @@ class CarteVerdict extends StatelessWidget {
         margin: const EdgeInsets.only(right: 6),
         padding: const EdgeInsets.all(10),
         decoration: BoxDecoration(
-          color: context.palette.carte,
-          borderRadius: BorderRadius.circular(12),
+          color: context.palette.verreDense,
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: context.palette.verreBord),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -70,16 +71,33 @@ class CarteVerdict extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: fond,
-        borderRadius: BorderRadius.circular(rayonCarte),
-        border: Border.all(color: couleur, width: 2),
+        color: Color.alphaBlend(
+          couleur.withValues(alpha: 0.16),
+          fond.withValues(alpha: 0.35),
+        ),
+        borderRadius: BorderRadius.circular(rayonCarte + 4),
+        border: Border.all(color: couleur.withValues(alpha: 0.85), width: 1.5),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              Icon(Icons.circle, color: couleur, size: 22),
+              Container(
+                width: 22,
+                height: 22,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: couleur,
+                  boxShadow: [
+                    BoxShadow(
+                      color: couleur.withValues(alpha: 0.55),
+                      blurRadius: 14,
+                      spreadRadius: 1,
+                    ),
+                  ],
+                ),
+              ),
               const SizedBox(width: 10),
               Expanded(child: Text(titre, style: textes.titleLarge)),
             ],

@@ -1,5 +1,6 @@
 import 'package:coach/accueil/accueil_page.dart';
 import 'package:coach/theme.dart';
+import 'package:coach/verre.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -33,6 +34,30 @@ void main() {
       expect(contraste(p.texte, p.vertClair), greaterThanOrEqualTo(4.5));
       expect(contraste(p.texte, p.orangeClair), greaterThanOrEqualTo(4.5));
       expect(contraste(p.texte, p.rougeClair), greaterThanOrEqualTo(4.5));
+    });
+  }
+
+  for (final (nom, p, sombre) in [
+    ('clair', PaletteCoach.clair, false),
+    ('sombre', PaletteCoach.sombre, true),
+  ]) {
+    test('verre givré $nom : texte lisible sur chaque tache de couleur', () {
+      for (final tache in [
+        CouleursCoach.vertVif,
+        CouleursCoach.orange,
+        CouleursCoach.bleu,
+      ]) {
+        final fond = Color.alphaBlend(
+          tache.withValues(alpha: alphaTache(tache, sombre: sombre)),
+          p.fond,
+        );
+        final carte = Color.alphaBlend(p.verre, fond);
+        final tuile = Color.alphaBlend(p.verreDense, carte);
+        expect(contraste(p.texte, carte), greaterThanOrEqualTo(4.5));
+        expect(contraste(p.texteDoux, carte), greaterThanOrEqualTo(4.5));
+        expect(contraste(p.texte, tuile), greaterThanOrEqualTo(4.5));
+        expect(contraste(p.texte, fond), greaterThanOrEqualTo(4.5));
+      }
     });
   }
 

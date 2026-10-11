@@ -258,26 +258,29 @@ class _EnTete extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final textes = Theme.of(context).textTheme;
-    return Container(
-      decoration: const BoxDecoration(
-        color: CouleursCoach.vert,
-        borderRadius: BorderRadius.vertical(bottom: Radius.circular(32)),
-      ),
+    final p = context.palette;
+    return ColoredBox(
+      color: Colors.transparent,
       child: SafeArea(
         bottom: false,
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(20, 16, 8, 28),
+          padding: const EdgeInsets.fromLTRB(20, 12, 8, 14),
           child: Row(
             children: [
-              CircleAvatar(
-                radius: 24,
-                backgroundColor: CouleursCoach.vertMoyen,
-                foregroundColor: Colors.white,
+              Container(
+                width: 48,
+                height: 48,
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: p.verre,
+                  border: Border.all(color: p.verreBord),
+                ),
                 child: initiale == null
-                    ? const Icon(Icons.person_outline)
+                    ? Icon(Icons.person_outline, color: p.texte)
                     : Text(
                         initiale!,
-                        style: textes.titleLarge?.copyWith(color: Colors.white),
+                        style: textes.titleLarge?.copyWith(color: p.texte),
                       ),
               ),
               const SizedBox(width: 14),
@@ -287,9 +290,7 @@ class _EnTete extends StatelessWidget {
                   children: [
                     Text(
                       salutation,
-                      style: textes.headlineSmall?.copyWith(
-                        color: Colors.white,
-                      ),
+                      style: textes.headlineSmall?.copyWith(color: p.texte),
                     ),
                     const SizedBox(height: 6),
                     Container(
@@ -298,14 +299,13 @@ class _EnTete extends StatelessWidget {
                         vertical: 4,
                       ),
                       decoration: BoxDecoration(
-                        color: CouleursCoach.vertFonce,
-                        borderRadius: BorderRadius.circular(12),
+                        color: p.verre,
+                        borderRadius: BorderRadius.circular(999),
+                        border: Border.all(color: p.verreBord),
                       ),
                       child: Text(
                         objectif,
-                        style: textes.labelMedium?.copyWith(
-                          color: CouleursCoach.vertPale,
-                        ),
+                        style: textes.labelMedium?.copyWith(color: p.vertFonce),
                       ),
                     ),
                   ],
@@ -316,7 +316,7 @@ class _EnTete extends StatelessWidget {
                 builder: (context, maj, _) => IconButton(
                   tooltip: tooltipReglages,
                   onPressed: onReglages,
-                  color: Colors.white,
+                  color: p.texte,
                   icon: Badge(
                     smallSize: 10,
                     backgroundColor: CouleursCoach.orange,

@@ -307,8 +307,16 @@ class _CarteAujourdhuiState extends State<CarteAujourdhui> {
     return Container(
       padding: const EdgeInsets.fromLTRB(20, 20, 20, 12),
       decoration: BoxDecoration(
-        color: context.palette.vertClair,
+        color: context.palette.verre,
         borderRadius: BorderRadius.circular(28),
+        border: Border.all(color: context.palette.verreBord),
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0x1F0F2A24),
+            blurRadius: 24,
+            offset: Offset(0, 8),
+          ),
+        ],
       ),
       child: Column(
         children: [
