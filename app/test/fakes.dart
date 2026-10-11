@@ -4,6 +4,8 @@ import 'package:coach/compte/auth_service.dart';
 import 'package:coach/journal/catalogue.dart';
 import 'package:coach/journal/journal_repository.dart';
 import 'package:coach/journal/modele.dart';
+import 'package:coach/poids/mensurations.dart';
+import 'package:coach/poids/mensurations_repository.dart';
 import 'package:coach/poids/pesees.dart';
 import 'package:coach/poids/pesees_repository.dart';
 import 'package:coach/profil/besoins.dart';
@@ -147,6 +149,39 @@ class FauxPesees implements PeseesRepository {
     donnees[uid] = [
       for (final p in de(uid))
         if (p.id != id) p,
+    ];
+    _flux.add(uid);
+  }
+}
+
+/// Mensurations en mémoire.
+class FauxMensurations implements MensurationsRepository {
+  final donnees = <String, List<Mensuration>>{};
+  final _flux = StreamController<String>.broadcast();
+  var _compteur = 0;
+
+  List<Mensuration> de(String uid) => donnees[uid] ?? const [];
+
+  @override
+  Stream<List<Mensuration>> observer(String uid) async* {
+    yield de(uid);
+    yield* _flux.stream.where((u) => u == uid).map((_) => de(uid));
+  }
+
+  @override
+  Future<void> ajouter(String uid, Mensuration m) async {
+    donnees[uid] = [
+      ...de(uid),
+      Mensuration(id: 'm${_compteur++}', date: m.date, valeurs: m.valeurs),
+    ]..sort((a, b) => a.date.compareTo(b.date));
+    _flux.add(uid);
+  }
+
+  @override
+  Future<void> supprimer(String uid, String id) async {
+    donnees[uid] = [
+      for (final m in de(uid))
+        if (m.id != id) m,
     ];
     _flux.add(uid);
   }

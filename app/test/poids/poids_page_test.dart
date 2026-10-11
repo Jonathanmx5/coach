@@ -1,3 +1,4 @@
+import 'package:coach/poids/mensurations.dart';
 import 'package:coach/journal/modele.dart';
 import 'package:coach/app.dart';
 import 'package:coach/compte/auth_service.dart';
@@ -50,6 +51,7 @@ class Banc {
   final depot = FauxDepot();
   final pesees = FauxPesees();
   final journal = FauxJournal();
+  final mensurations = FauxMensurations();
   late final FauxSante sante;
 
   Profil get profil => depot.donnees['u1']!.profil;
@@ -63,6 +65,7 @@ class Banc {
           depot: depot,
           pesees: pesees,
           journal: journal,
+          mensurations: mensurations,
           sante: sante,
           horloge: () => maintenant,
         ),
@@ -118,10 +121,10 @@ void main() {
   testWidgets('aucune pesée : invitation et IMC du profil', (tester) async {
     final banc = Banc();
     await banc.monter(tester);
+    expect(find.text('Poids normal'), findsOneWidget);
 
     await defilerJusqua(tester, find.textContaining('Aucune pesée pour l'));
     expect(find.textContaining('Aucune pesée pour l'), findsOneWidget);
-    expect(find.text('Poids normal'), findsOneWidget);
   });
 
   testWidgets('ajouter une pesée avec une virgule : profil mis à jour', (
@@ -248,5 +251,37 @@ void main() {
     expect(courbes.last.spots, hasLength(6));
     expect(courbes.last.spots.last.y, greaterThan(62));
     expect(find.textContaining('projection sur 5 jours'), findsOneWidget);
+  });
+
+  testWidgets('mensurations : saisie partielle, affichage, valeur absurde', (
+    tester,
+  ) async {
+    final banc = Banc();
+    await banc.monter(tester);
+
+    await taper(tester, 'Ajouter des mesures');
+    await taper(tester, 'Enregistrer');
+    expect(find.text('Entre au moins une mesure.'), findsOneWidget);
+
+    await saisir(tester, 'Tour de taille (cm)', '5');
+    await taper(tester, 'Enregistrer');
+    expect(
+      find.textContaining('Entre une valeur entre 40 et 200'),
+      findsOneWidget,
+    );
+
+    await saisir(tester, 'Tour de taille (cm)', '88,5');
+    await saisir(tester, 'Masse grasse (%)', '22');
+    await taper(tester, 'Enregistrer');
+
+    final saisies = banc.mensurations.de('u1');
+    expect(saisies, hasLength(1));
+    expect(saisies.single.valeurs, {
+      TypeMensuration.taille: 88.5,
+      TypeMensuration.masseGrasse: 22,
+    });
+    await defilerJusqua(tester, find.text('88,5 cm'));
+    expect(find.text('88,5 cm'), findsOneWidget);
+    expect(find.text('22,0 %'), findsOneWidget);
   });
 }

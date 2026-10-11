@@ -403,7 +403,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get mesurePoids => 'Poids (kg)';
 
   @override
-  String get mesureMasseGrasse => 'Masse grasse (%)';
+  String get mesureMasseGrasse => 'Masse grasse';
 
   @override
   String derniereValeur(String valeur) {
@@ -454,6 +454,30 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get projectionLegende =>
       'Pointillés : projection sur 5 jours d\'après ton journal des 7 derniers jours.';
+
+  @override
+  String get mensurationsTitre => 'Mensurations';
+
+  @override
+  String get mesureTaille => 'Tour de taille';
+
+  @override
+  String get mesurePoitrine => 'Tour de poitrine';
+
+  @override
+  String get mesureBras => 'Tour de bras';
+
+  @override
+  String get ajouterMesures => 'Ajouter des mesures';
+
+  @override
+  String get aucuneMesure => 'Pas encore de mesure. Un mètre ruban suffit !';
+
+  @override
+  String get mesuresAide => 'Remplis seulement ce que tu as mesuré.';
+
+  @override
+  String get erreurMesures => 'Entre au moins une mesure.';
 
   @override
   String get courbePoids => 'Évolution du poids';

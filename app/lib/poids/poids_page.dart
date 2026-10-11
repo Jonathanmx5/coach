@@ -20,6 +20,8 @@ import '../sante/agregation.dart';
 import '../sante/modele.dart';
 import '../sante/sante_service.dart';
 import '../theme.dart';
+import 'mensurations_repository.dart';
+import 'mensurations_section.dart';
 import 'pesees.dart';
 import 'pesees_repository.dart';
 
@@ -32,6 +34,7 @@ class PoidsPage extends StatefulWidget {
     required this.depot,
     required this.pesees,
     required this.journal,
+    required this.mensurations,
     required this.sante,
     required this.horloge,
   });
@@ -41,6 +44,7 @@ class PoidsPage extends StatefulWidget {
   final ProfilRepository depot;
   final PeseesRepository pesees;
   final JournalRepository journal;
+  final MensurationsRepository mensurations;
   final SanteService sante;
   final DateTime Function() horloge;
 
@@ -182,6 +186,12 @@ class _PoidsPageState extends State<PoidsPage> {
                 maintenant: maintenant,
                 pesees: visibles,
                 debut: debut,
+              ),
+              const SizedBox(height: 24),
+              MensurationsSection(
+                depot: widget.mensurations,
+                uid: _uid,
+                horloge: widget.horloge,
               ),
               const SizedBox(height: 24),
               Text(t.historiquePoids, style: textes.titleLarge),

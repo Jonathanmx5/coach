@@ -50,6 +50,7 @@ Future<void> monter(
           sante: sante ?? FauxSante(dispo: DispoSante.indisponible),
           pesees: pesees ?? FauxPesees(),
           journal: FauxJournal(),
+          mensurations: FauxMensurations(),
           catalogue: FauxCatalogue(),
         ),
         horloge: () => maintenant,

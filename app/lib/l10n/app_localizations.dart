@@ -823,7 +823,7 @@ abstract class AppLocalizations {
   /// No description provided for @mesureMasseGrasse.
   ///
   /// In fr, this message translates to:
-  /// **'Masse grasse (%)'**
+  /// **'Masse grasse'**
   String get mesureMasseGrasse;
 
   /// No description provided for @derniereValeur.
@@ -909,6 +909,54 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Pointillés : projection sur 5 jours d\'après ton journal des 7 derniers jours.'**
   String get projectionLegende;
+
+  /// No description provided for @mensurationsTitre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mensurations'**
+  String get mensurationsTitre;
+
+  /// No description provided for @mesureTaille.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tour de taille'**
+  String get mesureTaille;
+
+  /// No description provided for @mesurePoitrine.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tour de poitrine'**
+  String get mesurePoitrine;
+
+  /// No description provided for @mesureBras.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tour de bras'**
+  String get mesureBras;
+
+  /// No description provided for @ajouterMesures.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ajouter des mesures'**
+  String get ajouterMesures;
+
+  /// No description provided for @aucuneMesure.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pas encore de mesure. Un mètre ruban suffit !'**
+  String get aucuneMesure;
+
+  /// No description provided for @mesuresAide.
+  ///
+  /// In fr, this message translates to:
+  /// **'Remplis seulement ce que tu as mesuré.'**
+  String get mesuresAide;
+
+  /// No description provided for @erreurMesures.
+  ///
+  /// In fr, this message translates to:
+  /// **'Entre au moins une mesure.'**
+  String get erreurMesures;
 
   /// No description provided for @courbePoids.
   ///
