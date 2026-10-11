@@ -47,7 +47,10 @@ export async function traiter(request, env, deps = {}) {
 
   let sortie;
   try {
-    const brut = await env.AI.run(env.MODELE, entreeModele(octets));
+    const brut = await env.AI.run(
+      env.MODELE,
+      entreeModele(octets, url.searchParams.get('indice') ?? ''),
+    );
     sortie = aliments(brut?.response ?? brut);
   } catch {
     return reponse({ erreur: 'ia' }, 502);

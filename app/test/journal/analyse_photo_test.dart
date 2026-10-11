@@ -70,6 +70,42 @@ void main() {
     expect(liste.last.macros.glucides, 0);
   });
 
+  test("la précision de l'utilisateur part en paramètre", () async {
+    late Uri vue;
+    final c = client((r) async {
+      vue = r.url;
+      return json({'aliments': []});
+    });
+    await c.analyser(image, indice: '  sauce à part  ');
+    expect(vue.path, '/analyse');
+    expect(vue.queryParameters, {'indice': 'sauce à part'});
+
+    await c.analyser(image, indice: '   ');
+    expect(vue.query, isEmpty);
+    await c.analyser(image);
+    expect(vue.query, isEmpty);
+  });
+
+  test('confiance : lue, et « à vérifier » sous le seuil', () async {
+    final c = client(
+      (_) async => json({
+        'aliments': [
+          {'nom': 'a', 'grammes': 10, 'kcal': 10, 'confiance': 0.9},
+          {'nom': 'b', 'grammes': 10, 'kcal': 10, 'confiance': 0.4},
+          {'nom': 'c', 'grammes': 10, 'kcal': 10},
+        ],
+      }),
+    );
+    final l = await c.analyser(image);
+    expect(l.map((a) => a.confiance), [0.9, 0.4, null]);
+    expect(l.map((a) => a.aVerifier), [false, true, false]);
+    // La portion changée garde la confiance et le nom reste modifiable.
+    final b = l[1].avecGrammes(20).avecNom('Sauce');
+    expect(b.confiance, 0.4);
+    expect(b.nom, 'Sauce');
+    expect(b.macros.kcal, 20);
+  });
+
   test(
     'erreurs : pas de jeton, 401, 429, 413/422, 500, réseau, corps cassé',
     () async {

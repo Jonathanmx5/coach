@@ -55,6 +55,7 @@ class Banc {
   final consentements = FauxConsentements({Consentement.photo});
   final planning = FauxPlanning();
   Uint8List? photo = Uint8List.fromList([1, 2, 3]);
+  final sources = <SourcePhoto>[];
 
   Future<void> monter(WidgetTester tester) async {
     await tester.pumpWidget(
@@ -74,7 +75,10 @@ class Banc {
           planning: planning,
           avis: FauxAvis(),
           consentements: consentements,
-          prise: () async => photo,
+          prise: (source) async {
+            sources.add(source);
+            return photo;
+          },
         ),
       ),
     );
@@ -111,6 +115,22 @@ Future<void> menu(WidgetTester tester, String entree) async {
   await tester.tap(find.byType(FloatingActionButton));
   await tester.pumpAndSettle();
   await taper(tester, entree);
+}
+
+/// Le repas se saisit à la main depuis l'écran « Photo du repas ».
+Future<void> saisieManuelle(WidgetTester tester) async {
+  await menu(tester, 'Photo du repas');
+  await taper(tester, 'Saisir à la main');
+}
+
+/// Photo prise, précision facultative, analyse lancée.
+Future<void> analyserUnePhoto(WidgetTester tester, {String? precision}) async {
+  await menu(tester, 'Photo du repas');
+  await taper(tester, 'Prendre une photo');
+  if (precision != null) {
+    await saisir(tester, 'Une précision ? (facultatif)', precision);
+  }
+  await taper(tester, 'Analyser ce repas');
 }
 
 const produit = ProduitOff(
@@ -175,7 +195,7 @@ void main() {
     final banc = Banc();
     await banc.monter(tester);
 
-    await menu(tester, 'Ajouter un repas');
+    await saisieManuelle(tester);
     await saisir(tester, 'Nom du repas', 'Pâtes');
     await saisir(tester, 'Calories (kcal)', '650,5');
     await saisir(tester, 'Protéines (g)', '24');
@@ -193,7 +213,7 @@ void main() {
     final banc = Banc();
     await banc.monter(tester);
 
-    await menu(tester, 'Ajouter un repas');
+    await saisieManuelle(tester);
     await taper(tester, 'Enregistrer');
 
     expect(find.text('Entre un nombre valide.'), findsOneWidget);
@@ -326,7 +346,7 @@ void main() {
 
     await tester.tap(find.byTooltip('Jour précédent'));
     await tester.pumpAndSettle();
-    await menu(tester, 'Ajouter un repas');
+    await saisieManuelle(tester);
     await saisir(tester, 'Calories (kcal)', '400');
     await taper(tester, 'Enregistrer');
 
@@ -337,62 +357,273 @@ void main() {
     nom: 'Riz',
     grammes: 100,
     macros: Macros(kcal: 130, proteines: 3, glucides: 28, lipides: 0),
+    confiance: 0.9,
   );
   const poulet = AlimentEstime(
     nom: 'Poulet',
     grammes: 100,
     macros: Macros(kcal: 165, proteines: 31, glucides: 0, lipides: 4),
+    confiance: 0.8,
   );
 
-  testWidgets('photo : fonction masquée sans relais', (tester) async {
+  testWidgets("le menu ne propose plus d'ajouter un repas à la main", (
+    tester,
+  ) async {
     final banc = Banc();
-    banc.analyse.disponible = false;
     await banc.monter(tester);
 
     await tester.tap(find.byType(FloatingActionButton));
     await tester.pumpAndSettle();
-    expect(find.text('Photo du repas'), findsNothing);
+    expect(find.text('Ajouter un repas'), findsNothing);
+    expect(find.text('Photo du repas'), findsOneWidget);
     expect(find.text('Scanner un produit'), findsOneWidget);
+    expect(find.text('Ajouter une activité'), findsOneWidget);
   });
 
-  testWidgets('photo : on décoche, on corrige la portion, on enregistre', (
-    tester,
-  ) async {
+  testWidgets('sans relais : la saisie à la main s\'ouvre', (tester) async {
     final banc = Banc();
-    banc.analyse.aliments = [riz, poulet];
+    banc.analyse.disponible = false;
     await banc.monter(tester);
 
     await menu(tester, 'Photo du repas');
-    expect(banc.analyse.appels, 1);
-    expect(find.textContaining('Estimation par IA'), findsOneWidget);
-    expect(find.text('295 kcal · 34 g · 28 g · 4 g'), findsOneWidget);
 
-    await tester.tap(find.byTooltip('Changer la portion').first);
-    await tester.pumpAndSettle();
-    await tester.enterText(find.byType(TextField), '200');
-    await taper(tester, 'Enregistrer');
-    expect(find.textContaining('425 kcal'), findsOneWidget);
-
-    await tester.tap(find.text('Poulet'));
-    await tester.pump();
-    await taper(tester, 'Enregistrer');
-
-    final r = banc.journal.repasDe('u1').single;
-    expect(r.nom, 'Riz');
-    expect(r.macros.kcal, 260);
-    expect(r.source, SourceRepas.photo);
+    expect(find.textContaining('Sans analyse par IA'), findsOneWidget);
+    expect(find.text('Calories (kcal)'), findsOneWidget);
+    expect(banc.analyse.appels, 0);
   });
 
-  testWidgets('photo : annulée, rien n\'est analysé', (tester) async {
+  testWidgets('photo : appareil ou galerie, la source est transmise', (
+    tester,
+  ) async {
+    final banc = Banc();
+    banc.analyse.aliments = [riz];
+    await banc.monter(tester);
+
+    await menu(tester, 'Photo du repas');
+    await taper(tester, 'Choisir dans la galerie');
+    expect(banc.sources, [SourcePhoto.galerie]);
+    expect(find.text('Analyser ce repas'), findsOneWidget);
+    await taper(tester, 'Changer de photo');
+    await taper(tester, 'Prendre une photo');
+    expect(banc.sources, [SourcePhoto.galerie, SourcePhoto.appareil]);
+  });
+
+  testWidgets('photo : annulée au choix, on reste sur le choix', (
+    tester,
+  ) async {
     final banc = Banc();
     banc.photo = null;
     await banc.monter(tester);
 
     await menu(tester, 'Photo du repas');
+    await taper(tester, 'Prendre une photo');
 
     expect(banc.analyse.appels, 0);
+    expect(find.text('Choisir dans la galerie'), findsOneWidget);
     expect(banc.journal.repasDe('u1'), isEmpty);
-    expect(find.text('Photo du repas'), findsNothing);
+  });
+
+  testWidgets('photo : la précision de l\'utilisateur part avec la photo', (
+    tester,
+  ) async {
+    final banc = Banc();
+    banc.analyse.aliments = [riz];
+    await banc.monter(tester);
+
+    await analyserUnePhoto(tester, precision: 'sauce à part');
+
+    expect(banc.analyse.indices, ['sauce à part']);
+    expect(find.text('Riz'), findsOneWidget);
+  });
+
+  testWidgets('photo : sans précision, rien n\'est ajouté', (tester) async {
+    final banc = Banc();
+    banc.analyse.aliments = [riz];
+    await banc.monter(tester);
+
+    await analyserUnePhoto(tester);
+
+    expect(banc.analyse.indices.single, anyOf(isNull, isEmpty));
+  });
+
+  testWidgets('photo : on décoche un aliment et on enregistre', (tester) async {
+    final banc = Banc();
+    banc.analyse.aliments = [riz, poulet];
+    await banc.monter(tester);
+
+    await analyserUnePhoto(tester);
+    expect(find.textContaining('Estimation par IA'), findsOneWidget);
+    expect(find.textContaining('295 kcal · 34 g de protéines'), findsOneWidget);
+
+    await tester.tap(find.byType(Checkbox).last);
+    await tester.pump();
+    await taper(tester, 'Enregistrer');
+
+    final r = banc.journal.repasDe('u1').single;
+    expect(r.nom, 'Riz');
+    expect(r.macros.kcal, 130);
+    expect(r.source, SourceRepas.photo);
+  });
+
+  testWidgets('photo : + et − ajustent la portion de 10 %', (tester) async {
+    final banc = Banc();
+    banc.analyse.aliments = [riz];
+    await banc.monter(tester);
+    await analyserUnePhoto(tester);
+
+    await tester.tap(find.byTooltip('Augmenter la portion'));
+    await tester.pump();
+    expect(find.text('110 g · 143 kcal'), findsOneWidget);
+
+    await tester.tap(find.byTooltip('Diminuer la portion'));
+    await tester.tap(find.byTooltip('Diminuer la portion'));
+    await tester.pump();
+    expect(find.text('90 g · 117 kcal'), findsOneWidget);
+    await taper(tester, 'Enregistrer');
+    expect(banc.journal.repasDe('u1').single.macros.kcal, closeTo(117, 0.01));
+  });
+
+  testWidgets('photo : on corrige le nom et la portion', (tester) async {
+    final banc = Banc();
+    banc.analyse.aliments = [riz];
+    await banc.monter(tester);
+    await analyserUnePhoto(tester);
+
+    await tester.tap(find.text('Riz'));
+    await tester.pumpAndSettle();
+    await tester.enterText(
+      find.widgetWithText(TextField, "Nom de l'aliment"),
+      'Riz complet',
+    );
+    await tester.enterText(
+      find.widgetWithText(TextField, 'Quantité (g)'),
+      '200',
+    );
+    await taper(tester, 'Enregistrer');
+    expect(find.text('Riz complet'), findsOneWidget);
+    expect(find.text('200 g · 260 kcal'), findsOneWidget);
+
+    await taper(tester, 'Enregistrer');
+    final r = banc.journal.repasDe('u1').single;
+    expect(r.nom, 'Riz complet');
+    expect(r.macros.kcal, 260);
+  });
+
+  testWidgets('photo : on ajoute un aliment oublié par l\'IA', (tester) async {
+    final banc = Banc();
+    banc.analyse.aliments = [riz];
+    await banc.monter(tester);
+    await analyserUnePhoto(tester);
+
+    await taper(tester, 'Ajouter un aliment');
+    await tester.enterText(
+      find.widgetWithText(TextField, "Nom de l'aliment"),
+      'Pain',
+    );
+    await tester.enterText(
+      find.widgetWithText(TextField, 'Quantité (g)'),
+      '50',
+    );
+    await tester.enterText(
+      find.widgetWithText(TextField, 'Calories (kcal)'),
+      '130',
+    );
+    await tester.enterText(
+      find.widgetWithText(TextField, 'Protéines (g)'),
+      '4',
+    );
+    await taper(tester, 'Enregistrer');
+
+    expect(find.text('50 g · 130 kcal'), findsOneWidget);
+    expect(find.textContaining('260 kcal · 7 g de protéines'), findsOneWidget);
+    await taper(tester, 'Enregistrer');
+    final r = banc.journal.repasDe('u1').single;
+    expect(r.nom, 'Riz, Pain');
+    expect(r.macros.kcal, 260);
+  });
+
+  testWidgets('photo : un aliment sans nom ou sans calories est refusé', (
+    tester,
+  ) async {
+    final banc = Banc();
+    banc.analyse.aliments = [riz];
+    await banc.monter(tester);
+    await analyserUnePhoto(tester);
+
+    await taper(tester, 'Ajouter un aliment');
+    await taper(tester, 'Enregistrer');
+    expect(find.text("Donne un nom à l'aliment."), findsOneWidget);
+
+    await tester.enterText(
+      find.widgetWithText(TextField, "Nom de l'aliment"),
+      'Pain',
+    );
+    await tester.enterText(
+      find.widgetWithText(TextField, 'Quantité (g)'),
+      '50',
+    );
+    await taper(tester, 'Enregistrer');
+    expect(
+      find.textContaining('Entre une valeur entre 0 et 5000'),
+      findsOneWidget,
+    );
+  });
+
+  testWidgets('photo : un aliment incertain est signalé « À vérifier »', (
+    tester,
+  ) async {
+    final banc = Banc();
+    banc.analyse.aliments = [
+      riz,
+      const AlimentEstime(
+        nom: 'Sauce',
+        grammes: 30,
+        macros: Macros(kcal: 60),
+        confiance: 0.3,
+      ),
+    ];
+    await banc.monter(tester);
+    await analyserUnePhoto(tester);
+
+    expect(find.text('À vérifier'), findsOneWidget);
+  });
+
+  testWidgets('photo : l\'effet du repas sur la journée est montré', (
+    tester,
+  ) async {
+    final banc = Banc();
+    banc.analyse.aliments = [riz];
+    banc.journal.repasParUid['u1'] = [
+      Repas(
+        date: maintenant,
+        moment: Moment.dejeuner,
+        nom: 'x',
+        macros: const Macros(kcal: 500, proteines: 20),
+        source: SourceRepas.manuel,
+      ),
+    ];
+    await banc.monter(tester);
+    await analyserUnePhoto(tester);
+
+    // Objectif du jour : 2080 kcal, 128 g de protéines (voir plus haut).
+    expect(
+      find.text('Après ce repas : 630 / 2080 kcal · 23 / 128 g de protéines'),
+      findsOneWidget,
+    );
+  });
+
+  testWidgets('photo : « Saisir à la main » depuis le résultat', (
+    tester,
+  ) async {
+    final banc = Banc();
+    banc.analyse.aliments = [riz];
+    await banc.monter(tester);
+    await analyserUnePhoto(tester);
+
+    await taper(tester, 'Saisir à la main');
+
+    expect(find.text('Calories (kcal)'), findsOneWidget);
+    expect(banc.journal.repasDe('u1'), isEmpty);
   });
 
   testWidgets('photo : échec réseau puis réessai', (tester) async {
@@ -401,7 +632,7 @@ void main() {
     banc.analyse.aliments = [riz];
     await banc.monter(tester);
 
-    await menu(tester, 'Photo du repas');
+    await analyserUnePhoto(tester);
     expect(
       find.textContaining('Pas de connexion pour analyser'),
       findsOneWidget,
@@ -418,20 +649,31 @@ void main() {
     banc.analyse.echec = CauseAnalyse.quota;
     await banc.monter(tester);
 
-    await menu(tester, 'Photo du repas');
+    await analyserUnePhoto(tester);
     expect(find.textContaining('limite de photos'), findsOneWidget);
     expect(find.text('Réessayer'), findsNothing);
+  });
+
+  testWidgets('photo : illisible, on peut changer de photo', (tester) async {
+    final banc = Banc();
+    banc.analyse.echec = CauseAnalyse.illisible;
+    await banc.monter(tester);
+
+    await analyserUnePhoto(tester);
+    await taper(tester, 'Changer de photo');
+
+    expect(find.text('Prendre une photo'), findsOneWidget);
   });
 
   testWidgets('photo : aucun aliment reconnu', (tester) async {
     final banc = Banc();
     await banc.monter(tester);
 
-    await menu(tester, 'Photo du repas');
-    expect(find.textContaining('Je ne vois pas d\'aliment'), findsOneWidget);
+    await analyserUnePhoto(tester);
+    expect(find.textContaining("Je ne vois pas d'aliment"), findsOneWidget);
   });
 
-  testWidgets('photo : accord demandé la première fois, refus respecté', (
+  testWidgets('photo : accord refusé, la saisie à la main s\'ouvre', (
     tester,
   ) async {
     final banc = Banc();
@@ -440,12 +682,12 @@ void main() {
     await banc.monter(tester);
 
     await menu(tester, 'Photo du repas');
-    expect(find.text('Envoyer la photo pour l\'analyse ?'), findsOneWidget);
+    expect(find.text("Envoyer la photo pour l'analyse ?"), findsOneWidget);
     await taper(tester, 'Refuser');
 
     expect(banc.analyse.appels, 0);
     expect(banc.consentements.accordesMaintenant, isEmpty);
-    expect(find.text('Estimation par IA'), findsNothing);
+    expect(find.text('Calories (kcal)'), findsOneWidget);
   });
 
   testWidgets('photo : accord donné, enregistré, puis analyse', (tester) async {
@@ -456,6 +698,8 @@ void main() {
 
     await menu(tester, 'Photo du repas');
     await taper(tester, 'Accepter');
+    await taper(tester, 'Prendre une photo');
+    await taper(tester, 'Analyser ce repas');
 
     expect(banc.consentements.accordesMaintenant, {Consentement.photo});
     expect(banc.analyse.appels, 1);

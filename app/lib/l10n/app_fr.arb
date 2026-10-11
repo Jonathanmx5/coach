@@ -519,6 +519,55 @@
   "objectifDuJour": "Objectif du jour",
   "sourceEstimeJusqua": "Estimé jusqu'à maintenant",
   "bilanCentre": "bilan kcal",
+  "photoConseil": "Photographie ton repas de dessus, dans une bonne lumière, sans rien cacher : l'estimation des portions n'en sera que meilleure.",
+  "prendrePhotoRepas": "Prendre une photo",
+  "galerieChoix": "Choisir dans la galerie",
+  "precisionLabel": "Une précision ? (facultatif)",
+  "precisionAide": "ex. sauce à part, grande assiette, sans pain",
+  "analyserRepas": "Analyser ce repas",
+  "changerPhoto": "Changer de photo",
+  "aVerifier": "À vérifier",
+  "moinsPortion": "Diminuer la portion",
+  "plusPortion": "Augmenter la portion",
+  "ajouterAliment": "Ajouter un aliment",
+  "modifierAliment": "Modifier l'aliment",
+  "nomAliment": "Nom de l'aliment",
+  "erreurNomAliment": "Donne un nom à l'aliment.",
+  "sansAnalyse": "Sans analyse par IA, tu peux saisir ton repas à la main.",
+  "ceRepas": "Ce repas : {kcal} kcal · {p} g de protéines · {g} g de glucides · {l} g de lipides",
+  "@ceRepas": {
+    "placeholders": {
+      "kcal": {
+        "type": "int"
+      },
+      "p": {
+        "type": "int"
+      },
+      "g": {
+        "type": "int"
+      },
+      "l": {
+        "type": "int"
+      }
+    }
+  },
+  "apresRepas": "Après ce repas : {kcal} / {cible} kcal · {p} / {pc} g de protéines",
+  "@apresRepas": {
+    "placeholders": {
+      "kcal": {
+        "type": "int"
+      },
+      "cible": {
+        "type": "int"
+      },
+      "p": {
+        "type": "int"
+      },
+      "pc": {
+        "type": "int"
+      }
+    }
+  },
   "courbePoids": "Évolution du poids",
   "periode90": "90 jours",
   "periode1an": "1 an",
@@ -582,7 +631,7 @@
   "momentDejeuner": "Déjeuner",
   "momentDiner": "Dîner",
   "momentCollation": "Collation",
-  "menuRepas": "Ajouter un repas",
+  "menuRepas": "Saisie à la main",
   "menuScanner": "Scanner un produit",
   "menuActivite": "Ajouter une activité",
   "ajouter": "Ajouter",

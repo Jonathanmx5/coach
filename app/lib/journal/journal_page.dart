@@ -72,6 +72,10 @@ class _JournalPageState extends State<JournalPage> {
 
   String get _uid => widget.utilisateur.uid;
 
+  // Totaux du jour affiché, gardés pour montrer l'effet d'un repas photographié.
+  Macros _macrosDuJour = Macros.zero;
+  CiblesJour? _ciblesDuJour;
+
   static DateTime _debutDeJour(DateTime t) => DateTime(t.year, t.month, t.day);
 
   DateTime get _aujourdhui => _debutDeJour(widget.horloge());
@@ -115,16 +119,10 @@ class _JournalPageState extends State<JournalPage> {
           mainAxisSize: MainAxisSize.min,
           children: [
             ListTile(
-              leading: const Icon(Icons.restaurant),
-              title: Text(t.menuRepas),
-              onTap: () => Navigator.of(context).pop('repas'),
+              leading: const Icon(Icons.photo_camera_outlined),
+              title: Text(t.menuPhoto),
+              onTap: () => Navigator.of(context).pop('photo'),
             ),
-            if (widget.analyse.disponible)
-              ListTile(
-                leading: const Icon(Icons.photo_camera_outlined),
-                title: Text(t.menuPhoto),
-                onTap: () => Navigator.of(context).pop('photo'),
-              ),
             ListTile(
               leading: const Icon(Icons.qr_code_scanner),
               title: Text(t.menuScanner),
@@ -141,8 +139,6 @@ class _JournalPageState extends State<JournalPage> {
     );
     if (!mounted) return;
     switch (choix) {
-      case 'repas':
-        await _ajouterRepas();
       case 'photo':
         await _photo();
       case 'scan':
@@ -160,23 +156,39 @@ class _JournalPageState extends State<JournalPage> {
   }
 
   Future<void> _photo() async {
-    final accord = await assurerConsentement(
-      context,
-      widget.consentements,
-      _uid,
-      Consentement.photo,
-    );
-    if (!accord || !mounted) return;
-    final repas = await Navigator.of(context).push<Repas>(
+    final t = AppLocalizations.of(context)!;
+    // Sans analyse possible (pas de relais) ou sans l'accord de l'utilisateur
+    // pour envoyer la photo, il reste la saisie à la main.
+    final accord =
+        widget.analyse.disponible &&
+        await assurerConsentement(
+          context,
+          widget.consentements,
+          _uid,
+          Consentement.photo,
+        );
+    if (!mounted) return;
+    if (!accord) {
+      _message(t.sansAnalyse);
+      await _ajouterRepas();
+      return;
+    }
+    final resultat = await Navigator.of(context).push<Object>(
       MaterialPageRoute(
         builder: (_) => PhotoRepasPage(
           date: _dateAjout,
           analyse: widget.analyse,
           prise: widget.prise,
+          dejaMange: _macrosDuJour,
+          cibles: _ciblesDuJour,
         ),
       ),
     );
-    if (repas != null) unawaited(widget.journal.ajouterRepas(_uid, repas));
+    if (resultat is Repas) {
+      unawaited(widget.journal.ajouterRepas(_uid, resultat));
+    } else if (resultat is SaisieManuelle && mounted) {
+      await _ajouterRepas();
+    }
   }
 
   Future<void> _scanner() async {
@@ -308,6 +320,8 @@ class _JournalPageState extends State<JournalPage> {
     );
     final cibles = ciblesDuJour(reperes, kcalExercice: kcalExercice);
     final macros = totalMacros(repas);
+    _macrosDuJour = macros;
+    _ciblesDuJour = cibles;
     final depense = depenseDuJour(
       depenseBase: reperes.depenseBase,
       kcalMontre: jourSante?.kcalTotales,

@@ -1894,6 +1894,108 @@ abstract class AppLocalizations {
   /// **'bilan kcal'**
   String get bilanCentre;
 
+  /// No description provided for @photoConseil.
+  ///
+  /// In fr, this message translates to:
+  /// **'Photographie ton repas de dessus, dans une bonne lumière, sans rien cacher : l\'estimation des portions n\'en sera que meilleure.'**
+  String get photoConseil;
+
+  /// No description provided for @prendrePhotoRepas.
+  ///
+  /// In fr, this message translates to:
+  /// **'Prendre une photo'**
+  String get prendrePhotoRepas;
+
+  /// No description provided for @galerieChoix.
+  ///
+  /// In fr, this message translates to:
+  /// **'Choisir dans la galerie'**
+  String get galerieChoix;
+
+  /// No description provided for @precisionLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Une précision ? (facultatif)'**
+  String get precisionLabel;
+
+  /// No description provided for @precisionAide.
+  ///
+  /// In fr, this message translates to:
+  /// **'ex. sauce à part, grande assiette, sans pain'**
+  String get precisionAide;
+
+  /// No description provided for @analyserRepas.
+  ///
+  /// In fr, this message translates to:
+  /// **'Analyser ce repas'**
+  String get analyserRepas;
+
+  /// No description provided for @changerPhoto.
+  ///
+  /// In fr, this message translates to:
+  /// **'Changer de photo'**
+  String get changerPhoto;
+
+  /// No description provided for @aVerifier.
+  ///
+  /// In fr, this message translates to:
+  /// **'À vérifier'**
+  String get aVerifier;
+
+  /// No description provided for @moinsPortion.
+  ///
+  /// In fr, this message translates to:
+  /// **'Diminuer la portion'**
+  String get moinsPortion;
+
+  /// No description provided for @plusPortion.
+  ///
+  /// In fr, this message translates to:
+  /// **'Augmenter la portion'**
+  String get plusPortion;
+
+  /// No description provided for @ajouterAliment.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ajouter un aliment'**
+  String get ajouterAliment;
+
+  /// No description provided for @modifierAliment.
+  ///
+  /// In fr, this message translates to:
+  /// **'Modifier l\'aliment'**
+  String get modifierAliment;
+
+  /// No description provided for @nomAliment.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nom de l\'aliment'**
+  String get nomAliment;
+
+  /// No description provided for @erreurNomAliment.
+  ///
+  /// In fr, this message translates to:
+  /// **'Donne un nom à l\'aliment.'**
+  String get erreurNomAliment;
+
+  /// No description provided for @sansAnalyse.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sans analyse par IA, tu peux saisir ton repas à la main.'**
+  String get sansAnalyse;
+
+  /// No description provided for @ceRepas.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce repas : {kcal} kcal · {p} g de protéines · {g} g de glucides · {l} g de lipides'**
+  String ceRepas(int kcal, int p, int g, int l);
+
+  /// No description provided for @apresRepas.
+  ///
+  /// In fr, this message translates to:
+  /// **'Après ce repas : {kcal} / {cible} kcal · {p} / {pc} g de protéines'**
+  String apresRepas(int kcal, int cible, int p, int pc);
+
   /// No description provided for @courbePoids.
   ///
   /// In fr, this message translates to:
@@ -2131,7 +2233,7 @@ abstract class AppLocalizations {
   /// No description provided for @menuRepas.
   ///
   /// In fr, this message translates to:
-  /// **'Ajouter un repas'**
+  /// **'Saisie à la main'**
   String get menuRepas;
 
   /// No description provided for @menuScanner.

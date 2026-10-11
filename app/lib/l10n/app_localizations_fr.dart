@@ -1013,6 +1013,63 @@ class AppLocalizationsFr extends AppLocalizations {
   String get bilanCentre => 'bilan kcal';
 
   @override
+  String get photoConseil =>
+      'Photographie ton repas de dessus, dans une bonne lumière, sans rien cacher : l\'estimation des portions n\'en sera que meilleure.';
+
+  @override
+  String get prendrePhotoRepas => 'Prendre une photo';
+
+  @override
+  String get galerieChoix => 'Choisir dans la galerie';
+
+  @override
+  String get precisionLabel => 'Une précision ? (facultatif)';
+
+  @override
+  String get precisionAide => 'ex. sauce à part, grande assiette, sans pain';
+
+  @override
+  String get analyserRepas => 'Analyser ce repas';
+
+  @override
+  String get changerPhoto => 'Changer de photo';
+
+  @override
+  String get aVerifier => 'À vérifier';
+
+  @override
+  String get moinsPortion => 'Diminuer la portion';
+
+  @override
+  String get plusPortion => 'Augmenter la portion';
+
+  @override
+  String get ajouterAliment => 'Ajouter un aliment';
+
+  @override
+  String get modifierAliment => 'Modifier l\'aliment';
+
+  @override
+  String get nomAliment => 'Nom de l\'aliment';
+
+  @override
+  String get erreurNomAliment => 'Donne un nom à l\'aliment.';
+
+  @override
+  String get sansAnalyse =>
+      'Sans analyse par IA, tu peux saisir ton repas à la main.';
+
+  @override
+  String ceRepas(int kcal, int p, int g, int l) {
+    return 'Ce repas : $kcal kcal · $p g de protéines · $g g de glucides · $l g de lipides';
+  }
+
+  @override
+  String apresRepas(int kcal, int cible, int p, int pc) {
+    return 'Après ce repas : $kcal / $cible kcal · $p / $pc g de protéines';
+  }
+
+  @override
   String get courbePoids => 'Évolution du poids';
 
   @override
@@ -1137,7 +1194,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get momentCollation => 'Collation';
 
   @override
-  String get menuRepas => 'Ajouter un repas';
+  String get menuRepas => 'Saisie à la main';
 
   @override
   String get menuScanner => 'Scanner un produit';

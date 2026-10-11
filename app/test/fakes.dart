@@ -195,10 +195,12 @@ class FausseAnalyse implements AnalysePhoto {
   List<AlimentEstime> aliments;
   CauseAnalyse? echec;
   int appels = 0;
+  final indices = <String?>[];
 
   @override
-  Future<List<AlimentEstime>> analyser(Uint8List jpeg) async {
+  Future<List<AlimentEstime>> analyser(Uint8List jpeg, {String? indice}) async {
     appels++;
+    indices.add(indice);
     if (echec != null) throw AnalyseEchouee(echec!);
     return aliments;
   }

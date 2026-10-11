@@ -7,6 +7,9 @@ import 'package:image_picker/image_picker.dart';
 
 import 'modele.dart';
 
+/// Sous ce seuil de certitude, l'aliment est signalé « à vérifier ».
+const seuilConfiance = 0.6;
+
 /// Un aliment repéré sur la photo, avec sa portion estimée.
 @immutable
 class AlimentEstime {
@@ -14,6 +17,7 @@ class AlimentEstime {
     required this.nom,
     required this.grammes,
     required this.macros,
+    this.confiance,
   });
 
   final String nom;
@@ -22,11 +26,24 @@ class AlimentEstime {
   /// Apports pour [grammes].
   final Macros macros;
 
+  /// Certitude de l'IA, de 0 à 1 ; null pour un aliment ajouté à la main.
+  final double? confiance;
+
+  bool get aVerifier => confiance != null && confiance! < seuilConfiance;
+
   /// Même aliment avec une autre portion (macros proportionnelles).
   AlimentEstime avecGrammes(double g) => AlimentEstime(
     nom: nom,
     grammes: g,
+    confiance: confiance,
     macros: grammes <= 0 ? macros : macros.multiplie(g / grammes),
+  );
+
+  AlimentEstime avecNom(String n) => AlimentEstime(
+    nom: n,
+    grammes: grammes,
+    macros: macros,
+    confiance: confiance,
   );
 }
 
@@ -42,11 +59,12 @@ class AnalyseEchouee implements Exception {
 }
 
 abstract class AnalysePhoto {
-  /// Faux si le relais n'est pas configuré : la fonction est alors masquée.
+  /// Faux si le relais n'est pas configuré : l'analyse n'est alors pas proposée.
   bool get disponible;
 
+  /// [indice] : précision libre de l'utilisateur (« sauce à part »…).
   /// Lève [AnalyseEchouee].
-  Future<List<AlimentEstime>> analyser(Uint8List jpeg);
+  Future<List<AlimentEstime>> analyser(Uint8List jpeg, {String? indice});
 }
 
 /// Appelle le relais Cloudflare (dossier `relais/`) avec le jeton Firebase.
@@ -65,14 +83,17 @@ class AnalysePhotoRelais implements AnalysePhoto {
   bool get disponible => url.isNotEmpty;
 
   @override
-  Future<List<AlimentEstime>> analyser(Uint8List jpeg) async {
+  Future<List<AlimentEstime>> analyser(Uint8List jpeg, {String? indice}) async {
     final token = await jeton();
     if (token == null) throw const AnalyseEchouee(CauseAnalyse.auth);
+    final precision = indice?.trim() ?? '';
     final http.Response r;
     try {
       r = await _client
           .post(
-            Uri.parse('$url/analyse'),
+            Uri.parse('$url/analyse').replace(
+              queryParameters: precision.isEmpty ? null : {'indice': precision},
+            ),
             headers: {
               'authorization': 'Bearer $token',
               'content-type': 'image/jpeg',
@@ -104,6 +125,7 @@ class AnalysePhotoRelais implements AnalysePhoto {
           AlimentEstime(
             nom: (a['nom'] as String).trim(),
             grammes: (a['grammes'] as num).toDouble(),
+            confiance: (a['confiance'] as num?)?.toDouble(),
             macros: Macros(
               kcal: (a['kcal'] as num).toDouble(),
               proteines: (a['proteines'] as num?)?.toDouble() ?? 0,
@@ -118,12 +140,17 @@ class AnalysePhotoRelais implements AnalysePhoto {
   }
 }
 
-/// Prend une photo avec l'appareil ; null si l'utilisateur annule.
-typedef PrisePhoto = Future<Uint8List?> Function();
+/// D'où vient la photo.
+enum SourcePhoto { appareil, galerie }
 
-Future<Uint8List?> prisePhotoCamera() async {
+/// Prend ou choisit une photo ; null si l'utilisateur annule.
+typedef PrisePhoto = Future<Uint8List?> Function(SourcePhoto source);
+
+Future<Uint8List?> prisePhotoCamera(SourcePhoto source) async {
   final f = await ImagePicker().pickImage(
-    source: ImageSource.camera,
+    source: source == SourcePhoto.appareil
+        ? ImageSource.camera
+        : ImageSource.gallery,
     maxWidth: 1024,
     imageQuality: 80,
   );

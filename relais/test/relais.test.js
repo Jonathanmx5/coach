@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 
-import { aliments, extraireJson } from '../src/analyse.js';
+import { aliments, entreeModele, extraireJson, nettoyerIndice } from '../src/analyse.js';
 import { traiter } from '../src/index.js';
 import { JetonInvalide, verifierJeton } from '../src/jeton.js';
 import { consommer, jourUtc } from '../src/limites.js';
@@ -111,6 +111,40 @@ test('aliments : nettoyage, bornes, kcal recalculées', () => {
   assert.equal(sortie[2].kcal, 3000);
   assert.equal(aliments('rien'), null);
   assert.deepEqual(aliments('{"aliments":[]}'), []);
+});
+
+test('aliments : confiance bornée, 0,7 par défaut', () => {
+  const l = aliments({
+    aliments: [
+      { nom: 'a', grammes: 10, kcal: 10, confiance: 3 },
+      { nom: 'b', grammes: 10, kcal: 10, confiance: -1 },
+      { nom: 'c', grammes: 10, kcal: 10 },
+      { nom: 'd', grammes: 10, kcal: 10, confiance: '0.4' },
+    ],
+  });
+  assert.deepEqual(l.map((x) => x.confiance), [1, 0, 0.7, 0.4]);
+});
+
+test('aliments : calories incohérentes avec les macros corrigées', () => {
+  const [faux, bon, sansMacros] = aliments({
+    aliments: [
+      { nom: 'x', grammes: 100, kcal: 900, proteines: 10, glucides: 20, lipides: 5 },
+      { nom: 'y', grammes: 100, kcal: 150, proteines: 10, glucides: 20, lipides: 3 },
+      { nom: 'z', grammes: 100, kcal: 120 },
+    ],
+  });
+  assert.equal(faux.kcal, 165); // 10×4 + 20×4 + 5×9
+  assert.equal(bon.kcal, 150); // à moins de 25 % : conservé
+  assert.equal(sansMacros.kcal, 120); // pas de macros : conservé
+});
+
+test("précision de l'utilisateur : nettoyée et ajoutée à la consigne", () => {
+  assert.equal(nettoyerIndice('  sauce   à part\n{ignore}  '), 'sauce à part ignore');
+  assert.equal(nettoyerIndice(42), '');
+  assert.equal(nettoyerIndice('x'.repeat(500)).length, 200);
+  const texte = (i) => entreeModele(new Uint8Array([1]), i).messages[0].content[0].text;
+  assert.ok(!texte('').includes('Précision donnée'));
+  assert.ok(texte('grande portion').includes('« grande portion »'));
 });
 
 test('aliments : 8 au plus', () => {
