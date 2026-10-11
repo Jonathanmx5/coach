@@ -1402,6 +1402,78 @@ abstract class AppLocalizations {
   /// **'Hors-ligne : tes saisies sont gardées et seront envoyées au retour du réseau.'**
   String get horsLigne;
 
+  /// No description provided for @menuPhoto.
+  ///
+  /// In fr, this message translates to:
+  /// **'Photo du repas'**
+  String get menuPhoto;
+
+  /// No description provided for @analyseEnCours.
+  ///
+  /// In fr, this message translates to:
+  /// **'Analyse de ton repas…'**
+  String get analyseEnCours;
+
+  /// No description provided for @analyseReseau.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pas de connexion pour analyser la photo. Réessaie quand le réseau revient, ou saisis le repas à la main.'**
+  String get analyseReseau;
+
+  /// No description provided for @analyseAuth.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ta session a expiré. Reconnecte-toi pour analyser une photo.'**
+  String get analyseAuth;
+
+  /// No description provided for @analyseQuota.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tu as atteint la limite de photos analysées pour aujourd\'hui (ou le service est très sollicité). Saisis le repas à la main, ou réessaie demain.'**
+  String get analyseQuota;
+
+  /// No description provided for @analyseIllisible.
+  ///
+  /// In fr, this message translates to:
+  /// **'Je n\'ai pas réussi à lire cette photo. Essaie avec plus de lumière, ou saisis le repas à la main.'**
+  String get analyseIllisible;
+
+  /// No description provided for @analyseIndisponible.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le service d\'analyse est indisponible pour le moment.'**
+  String get analyseIndisponible;
+
+  /// No description provided for @reessayer.
+  ///
+  /// In fr, this message translates to:
+  /// **'Réessayer'**
+  String get reessayer;
+
+  /// No description provided for @saisirALaMain.
+  ///
+  /// In fr, this message translates to:
+  /// **'Saisir à la main'**
+  String get saisirALaMain;
+
+  /// No description provided for @aucunAliment.
+  ///
+  /// In fr, this message translates to:
+  /// **'Je ne vois pas d\'aliment sur cette photo.'**
+  String get aucunAliment;
+
+  /// No description provided for @estimationAVerifier.
+  ///
+  /// In fr, this message translates to:
+  /// **'Estimation par IA, à vérifier : décoche ce qui est faux et corrige les portions.'**
+  String get estimationAVerifier;
+
+  /// No description provided for @changerPortion.
+  ///
+  /// In fr, this message translates to:
+  /// **'Changer la portion'**
+  String get changerPortion;
+
   /// No description provided for @courbePoids.
   ///
   /// In fr, this message translates to:

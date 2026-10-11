@@ -4,6 +4,7 @@ import 'bienetre/rappels.dart';
 import 'compte/auth_service.dart';
 import 'entrainement/entrainement_repository.dart';
 import 'entrainement/voix.dart';
+import 'journal/analyse_photo.dart';
 import 'journal/catalogue.dart';
 import 'journal/journal_repository.dart';
 import 'poids/mensurations_repository.dart';
@@ -28,6 +29,7 @@ class Services {
     required this.meteo,
     required this.rappels,
     required this.reseau,
+    required this.analyse,
     required this.journal,
     required this.catalogue,
     required this.sante,
@@ -44,6 +46,7 @@ class Services {
   final Meteo meteo;
   final Rappels rappels;
   final Reseau reseau;
+  final AnalysePhoto analyse;
   final JournalRepository journal;
   final CatalogueProduits catalogue;
   final SanteService sante;

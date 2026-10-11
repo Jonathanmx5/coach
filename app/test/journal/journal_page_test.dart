@@ -1,3 +1,7 @@
+import 'package:coach/journal/analyse_photo.dart';
+
+import 'dart:typed_data';
+
 import 'package:coach/app.dart';
 import 'package:coach/compte/auth_service.dart';
 import 'package:coach/journal/catalogue.dart';
@@ -46,6 +50,8 @@ class Banc {
   final FauxCatalogue? catalogue;
   final String? code;
   final Suivi suivi;
+  final analyse = FausseAnalyse();
+  Uint8List? photo = Uint8List.fromList([1, 2, 3]);
 
   Future<void> monter(WidgetTester tester) async {
     await tester.pumpWidget(
@@ -61,6 +67,8 @@ class Banc {
           suivi: suivi,
           horloge: () => maintenant,
           lecteurCode: (_) async => code,
+          analyse: analyse,
+          prise: () async => photo,
         ),
       ),
     );
@@ -317,5 +325,103 @@ void main() {
     await taper(tester, 'Enregistrer');
 
     expect(banc.journal.repasDe('u1').single.date, DateTime(2026, 10, 8, 12));
+  });
+
+  const riz = AlimentEstime(
+    nom: 'Riz',
+    grammes: 100,
+    macros: Macros(kcal: 130, proteines: 3, glucides: 28, lipides: 0),
+  );
+  const poulet = AlimentEstime(
+    nom: 'Poulet',
+    grammes: 100,
+    macros: Macros(kcal: 165, proteines: 31, glucides: 0, lipides: 4),
+  );
+
+  testWidgets('photo : fonction masquée sans relais', (tester) async {
+    final banc = Banc();
+    banc.analyse.disponible = false;
+    await banc.monter(tester);
+
+    await tester.tap(find.byType(FloatingActionButton));
+    await tester.pumpAndSettle();
+    expect(find.text('Photo du repas'), findsNothing);
+    expect(find.text('Scanner un produit'), findsOneWidget);
+  });
+
+  testWidgets('photo : on décoche, on corrige la portion, on enregistre', (
+    tester,
+  ) async {
+    final banc = Banc();
+    banc.analyse.aliments = [riz, poulet];
+    await banc.monter(tester);
+
+    await menu(tester, 'Photo du repas');
+    expect(banc.analyse.appels, 1);
+    expect(find.textContaining('Estimation par IA'), findsOneWidget);
+    expect(find.text('295 kcal · 34 g · 28 g · 4 g'), findsOneWidget);
+
+    await tester.tap(find.byTooltip('Changer la portion').first);
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byType(TextField), '200');
+    await taper(tester, 'Enregistrer');
+    expect(find.textContaining('425 kcal'), findsOneWidget);
+
+    await tester.tap(find.text('Poulet'));
+    await tester.pump();
+    await taper(tester, 'Enregistrer');
+
+    final r = banc.journal.repasDe('u1').single;
+    expect(r.nom, 'Riz');
+    expect(r.macros.kcal, 260);
+    expect(r.source, SourceRepas.photo);
+  });
+
+  testWidgets('photo : annulée, rien n\'est analysé', (tester) async {
+    final banc = Banc();
+    banc.photo = null;
+    await banc.monter(tester);
+
+    await menu(tester, 'Photo du repas');
+
+    expect(banc.analyse.appels, 0);
+    expect(banc.journal.repasDe('u1'), isEmpty);
+    expect(find.text('Photo du repas'), findsNothing);
+  });
+
+  testWidgets('photo : échec réseau puis réessai', (tester) async {
+    final banc = Banc();
+    banc.analyse.echec = CauseAnalyse.reseau;
+    banc.analyse.aliments = [riz];
+    await banc.monter(tester);
+
+    await menu(tester, 'Photo du repas');
+    expect(
+      find.textContaining('Pas de connexion pour analyser'),
+      findsOneWidget,
+    );
+
+    banc.analyse.echec = null;
+    await taper(tester, 'Réessayer');
+    expect(find.text('Riz'), findsOneWidget);
+    expect(banc.analyse.appels, 2);
+  });
+
+  testWidgets('photo : quota atteint, pas de réessai', (tester) async {
+    final banc = Banc();
+    banc.analyse.echec = CauseAnalyse.quota;
+    await banc.monter(tester);
+
+    await menu(tester, 'Photo du repas');
+    expect(find.textContaining('limite de photos'), findsOneWidget);
+    expect(find.text('Réessayer'), findsNothing);
+  });
+
+  testWidgets('photo : aucun aliment reconnu', (tester) async {
+    final banc = Banc();
+    await banc.monter(tester);
+
+    await menu(tester, 'Photo du repas');
+    expect(find.textContaining('Je ne vois pas d\'aliment'), findsOneWidget);
   });
 }

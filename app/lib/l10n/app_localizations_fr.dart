@@ -738,6 +738,48 @@ class AppLocalizationsFr extends AppLocalizations {
       'Hors-ligne : tes saisies sont gardées et seront envoyées au retour du réseau.';
 
   @override
+  String get menuPhoto => 'Photo du repas';
+
+  @override
+  String get analyseEnCours => 'Analyse de ton repas…';
+
+  @override
+  String get analyseReseau =>
+      'Pas de connexion pour analyser la photo. Réessaie quand le réseau revient, ou saisis le repas à la main.';
+
+  @override
+  String get analyseAuth =>
+      'Ta session a expiré. Reconnecte-toi pour analyser une photo.';
+
+  @override
+  String get analyseQuota =>
+      'Tu as atteint la limite de photos analysées pour aujourd\'hui (ou le service est très sollicité). Saisis le repas à la main, ou réessaie demain.';
+
+  @override
+  String get analyseIllisible =>
+      'Je n\'ai pas réussi à lire cette photo. Essaie avec plus de lumière, ou saisis le repas à la main.';
+
+  @override
+  String get analyseIndisponible =>
+      'Le service d\'analyse est indisponible pour le moment.';
+
+  @override
+  String get reessayer => 'Réessayer';
+
+  @override
+  String get saisirALaMain => 'Saisir à la main';
+
+  @override
+  String get aucunAliment => 'Je ne vois pas d\'aliment sur cette photo.';
+
+  @override
+  String get estimationAVerifier =>
+      'Estimation par IA, à vérifier : décoche ce qui est faux et corrige les portions.';
+
+  @override
+  String get changerPortion => 'Changer la portion';
+
+  @override
   String get courbePoids => 'Évolution du poids';
 
   @override

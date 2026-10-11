@@ -17,6 +17,7 @@ import 'poids/mensurations_repository.dart';
 import 'poids/pesees_repository.dart';
 import 'poids/photos.dart';
 import 'entrainement/entrainement_repository.dart';
+import 'journal/analyse_photo.dart';
 import 'entrainement/voix.dart';
 import 'firebase_options.dart';
 import 'profil/profil_repository.dart';
@@ -42,11 +43,12 @@ Future<void> main() async {
     return true;
   };
 
+  final auth = FirebaseAuthService();
   runApp(
     CoachApp(
       accueil: Racine(
         services: Services(
-          auth: FirebaseAuthService(),
+          auth: auth,
           depot: FirestoreProfilRepository(),
           pesees: FirestorePeseesRepository(),
           mensurations: FirestoreMensurationsRepository(),
@@ -57,6 +59,10 @@ Future<void> main() async {
           meteo: MeteoOpenMeteo(),
           rappels: RappelsLocaux(),
           reseau: ReseauReel(),
+          analyse: AnalysePhotoRelais(
+            url: const String.fromEnvironment('RELAIS_URL'),
+            jeton: auth.jeton,
+          ),
           journal: FirestoreJournalRepository(),
           catalogue: CatalogueOpenFoodFacts(),
           sante: HealthSanteService(),

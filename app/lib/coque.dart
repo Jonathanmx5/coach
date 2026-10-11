@@ -80,6 +80,7 @@ class _CoqueState extends State<Coque> {
             enregistre: widget.enregistre,
             journal: _s.journal,
             catalogue: _s.catalogue,
+            analyse: _s.analyse,
             suivi: _suivi,
             horloge: widget.horloge,
           ),

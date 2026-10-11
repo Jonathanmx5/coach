@@ -59,6 +59,7 @@ Future<void> monter(
           meteo: FausseMeteo(),
           rappels: FauxRappels(),
           reseau: reseau ?? FauxReseau(),
+          analyse: FausseAnalyse(),
           catalogue: FauxCatalogue(),
         ),
         horloge: () => maintenant,

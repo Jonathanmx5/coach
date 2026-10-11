@@ -25,6 +25,9 @@ abstract class AuthService {
   /// Renvoie `null` si l'utilisateur annule, lève [ConnexionEchouee] sinon.
   Future<Utilisateur?> connecterGoogle();
   Future<void> deconnecter();
+
+  /// Jeton d'identité pour le relais (null si non connecté).
+  Future<String?> jeton();
 }
 
 /// Identifiant OAuth « Web » du projet Firebase (client_type 3 de
@@ -80,6 +83,9 @@ class FirebaseAuthService implements AuthService {
       throw ConnexionEchouee(e);
     }
   }
+
+  @override
+  Future<String?> jeton() async => _auth.currentUser?.getIdToken();
 
   @override
   Future<void> deconnecter() async {

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:typed_data';
 
 import 'package:coach/bienetre/bienetre_repository.dart';
 import 'package:coach/bienetre/complements.dart';
@@ -9,6 +10,7 @@ import 'package:coach/compte/auth_service.dart';
 import 'package:coach/entrainement/entrainement_repository.dart';
 import 'package:coach/entrainement/modele.dart';
 import 'package:coach/entrainement/voix.dart';
+import 'package:coach/journal/analyse_photo.dart';
 import 'package:coach/journal/catalogue.dart';
 import 'package:coach/journal/journal_repository.dart';
 import 'package:coach/journal/modele.dart';
@@ -50,6 +52,9 @@ class FauxAuth implements AuthService {
     }
     return u;
   }
+
+  @override
+  Future<String?> jeton() async => _actuel == null ? null : 'jeton-test';
 
   @override
   Future<void> deconnecter() async {
@@ -161,6 +166,24 @@ class FauxPesees implements PeseesRepository {
         if (p.id != id) p,
     ];
     _flux.add(uid);
+  }
+}
+
+/// Analyse photo pilotée par le test.
+class FausseAnalyse implements AnalysePhoto {
+  FausseAnalyse({this.disponible = true, this.aliments = const []});
+
+  @override
+  bool disponible;
+  List<AlimentEstime> aliments;
+  CauseAnalyse? echec;
+  int appels = 0;
+
+  @override
+  Future<List<AlimentEstime>> analyser(Uint8List jpeg) async {
+    appels++;
+    if (echec != null) throw AnalyseEchouee(echec!);
+    return aliments;
   }
 }
 

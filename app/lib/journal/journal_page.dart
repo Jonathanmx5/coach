@@ -9,11 +9,13 @@ import '../profil/besoins.dart';
 import '../profil/profil_repository.dart';
 import '../sante/suivi.dart';
 import '../theme.dart';
+import 'analyse_photo.dart';
 import 'calculs.dart';
 import 'catalogue.dart';
 import 'formulaires.dart';
 import 'journal_repository.dart';
 import 'modele.dart';
+import 'photo_repas_page.dart';
 import 'scanner_page.dart';
 
 /// Lit un code-barres (caméra par défaut) ; null si l'utilisateur annule.
@@ -33,7 +35,9 @@ class JournalPage extends StatefulWidget {
     required this.catalogue,
     required this.suivi,
     required this.horloge,
+    required this.analyse,
     this.lecteurCode = lecteurCodeCamera,
+    this.prise = prisePhotoCamera,
   });
 
   final Utilisateur utilisateur;
@@ -43,6 +47,8 @@ class JournalPage extends StatefulWidget {
   final Suivi suivi;
   final DateTime Function() horloge;
   final LecteurCode lecteurCode;
+  final AnalysePhoto analyse;
+  final PrisePhoto prise;
 
   @override
   State<JournalPage> createState() => _JournalPageState();
@@ -102,6 +108,12 @@ class _JournalPageState extends State<JournalPage> {
               title: Text(t.menuRepas),
               onTap: () => Navigator.of(context).pop('repas'),
             ),
+            if (widget.analyse.disponible)
+              ListTile(
+                leading: const Icon(Icons.photo_camera_outlined),
+                title: Text(t.menuPhoto),
+                onTap: () => Navigator.of(context).pop('photo'),
+              ),
             ListTile(
               leading: const Icon(Icons.qr_code_scanner),
               title: Text(t.menuScanner),
@@ -120,6 +132,8 @@ class _JournalPageState extends State<JournalPage> {
     switch (choix) {
       case 'repas':
         await _ajouterRepas();
+      case 'photo':
+        await _photo();
       case 'scan':
         await _scanner();
       case 'activite':
@@ -130,6 +144,19 @@ class _JournalPageState extends State<JournalPage> {
   Future<void> _ajouterRepas() async {
     final repas = await Navigator.of(context).push<Repas>(
       MaterialPageRoute(builder: (_) => AjoutRepasPage(date: _dateAjout)),
+    );
+    if (repas != null) unawaited(widget.journal.ajouterRepas(_uid, repas));
+  }
+
+  Future<void> _photo() async {
+    final repas = await Navigator.of(context).push<Repas>(
+      MaterialPageRoute(
+        builder: (_) => PhotoRepasPage(
+          date: _dateAjout,
+          analyse: widget.analyse,
+          prise: widget.prise,
+        ),
+      ),
     );
     if (repas != null) unawaited(widget.journal.ajouterRepas(_uid, repas));
   }
