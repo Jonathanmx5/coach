@@ -38,4 +38,4 @@ Pour activer la photo de repas, déployer le relais puis compiler avec `--dart-d
 
 ## Licence
 
-À définir par l'auteur avant la publication.
+Aucune licence : le code est visible, mais tous droits sont réservés. Pour le réutiliser, demander l'accord de l'auteur.
