@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 import 'app.dart';
 import 'bienetre/bienetre_repository.dart';
 import 'bienetre/meteo.dart';
+import 'bienetre/rappels.dart';
 import 'compte/auth_service.dart';
 import 'journal/catalogue.dart';
 import 'journal/journal_repository.dart';
@@ -53,6 +54,7 @@ Future<void> main() async {
           voix: VoixTts(),
           bienetre: FirestoreBienEtreRepository(),
           meteo: MeteoOpenMeteo(),
+          rappels: RappelsLocaux(),
           journal: FirestoreJournalRepository(),
           catalogue: CatalogueOpenFoodFacts(),
           sante: HealthSanteService(),

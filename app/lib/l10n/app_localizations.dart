@@ -1300,6 +1300,72 @@ abstract class AppLocalizations {
   /// **'Utilise ta position approximative pour la température du jour. Elle n\'est pas enregistrée.'**
   String get meteoAide;
 
+  /// No description provided for @annuler.
+  ///
+  /// In fr, this message translates to:
+  /// **'Annuler'**
+  String get annuler;
+
+  /// No description provided for @complementsTitre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Compléments'**
+  String get complementsTitre;
+
+  /// No description provided for @complementsAide.
+  ///
+  /// In fr, this message translates to:
+  /// **'Un rappel par jour pour ne pas oublier. Coach ne conseille aucune dose : demande à ton médecin ou à ton pharmacien.'**
+  String get complementsAide;
+
+  /// No description provided for @ajouterComplement.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ajouter un complément'**
+  String get ajouterComplement;
+
+  /// No description provided for @nomComplement.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nom (ex. vitamine D)'**
+  String get nomComplement;
+
+  /// No description provided for @rappelA.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rappel à {heure}'**
+  String rappelA(String heure);
+
+  /// No description provided for @rappelDesactive.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rappel désactivé'**
+  String get rappelDesactive;
+
+  /// No description provided for @optionsComplement.
+  ///
+  /// In fr, this message translates to:
+  /// **'Options'**
+  String get optionsComplement;
+
+  /// No description provided for @activerRappel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Activer le rappel'**
+  String get activerRappel;
+
+  /// No description provided for @desactiverRappel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Désactiver le rappel'**
+  String get desactiverRappel;
+
+  /// No description provided for @supprimerComplement.
+  ///
+  /// In fr, this message translates to:
+  /// **'Supprimer'**
+  String get supprimerComplement;
+
   /// No description provided for @courbePoids.
   ///
   /// In fr, this message translates to:

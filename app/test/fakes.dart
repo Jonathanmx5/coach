@@ -4,6 +4,7 @@ import 'package:coach/bienetre/bienetre_repository.dart';
 import 'package:coach/bienetre/complements.dart';
 import 'package:coach/bienetre/hydratation.dart';
 import 'package:coach/bienetre/meteo.dart';
+import 'package:coach/bienetre/rappels.dart';
 import 'package:coach/compte/auth_service.dart';
 import 'package:coach/entrainement/entrainement_repository.dart';
 import 'package:coach/entrainement/modele.dart';
@@ -160,6 +161,23 @@ class FauxPesees implements PeseesRepository {
     ];
     _flux.add(uid);
   }
+}
+
+/// Rappels qui notent la dernière planification.
+class FauxRappels implements Rappels {
+  bool accord = true;
+  int autorisations = 0;
+  final planifications = <List<Complement>>[];
+
+  @override
+  Future<bool> autoriser() async {
+    autorisations++;
+    return accord;
+  }
+
+  @override
+  Future<void> planifier(List<Complement> complements) async =>
+      planifications.add(complements);
 }
 
 /// Météo à température fixe (null = position refusée).

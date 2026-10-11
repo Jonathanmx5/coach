@@ -9,8 +9,11 @@ import '../l10n/app_localizations.dart';
 import '../profil/profil_repository.dart';
 import '../theme.dart';
 import 'bienetre_repository.dart';
+import 'carte_complements.dart';
+import 'complements.dart';
 import 'hydratation.dart';
 import 'meteo.dart';
+import 'rappels.dart';
 
 /// Onglet Bien-être : hydratation, compléments et séries.
 class BienEtrePage extends StatefulWidget {
@@ -21,6 +24,7 @@ class BienEtrePage extends StatefulWidget {
     required this.bienetre,
     required this.journal,
     required this.meteo,
+    required this.rappels,
     required this.horloge,
   });
 
@@ -29,6 +33,7 @@ class BienEtrePage extends StatefulWidget {
   final BienEtreRepository bienetre;
   final JournalRepository journal;
   final Meteo meteo;
+  final Rappels rappels;
   final DateTime Function() horloge;
 
   @override
@@ -42,6 +47,35 @@ class _BienEtrePageState extends State<BienEtrePage> {
   String get _uid => widget.utilisateur.uid;
 
   late final Stream<bool> _meteoActive = widget.bienetre.meteoActive(_uid);
+  late final Stream<List<Complement>> _complements = widget.bienetre
+      .complements(_uid);
+  Stream<Set<String>>? _prises;
+  StreamSubscription<List<Complement>>? _rappels;
+
+  @override
+  void initState() {
+    super.initState();
+    // Les rappels suivent la liste (même hors-ligne, avec les identifiants).
+    _rappels = widget.bienetre
+        .complements(_uid)
+        .listen((l) => unawaited(widget.rappels.planifier(l)));
+  }
+
+  @override
+  void dispose() {
+    _rappels?.cancel();
+    super.dispose();
+  }
+
+  void _ajouterComplement(String nom, int minutes) {
+    unawaited(widget.rappels.autoriser());
+    unawaited(
+      widget.bienetre.ajouterComplement(
+        _uid,
+        Complement(nom: nom, minutes: minutes),
+      ),
+    );
+  }
 
   DateTime _jourFlux = DateTime(0);
   Stream<List<EntreeEau>>? _eau;
@@ -54,6 +88,7 @@ class _BienEtrePageState extends State<BienEtrePage> {
     _jourFlux = jour;
     final demain = DateTime(jour.year, jour.month, jour.day + 1);
     _eau = widget.bienetre.eau(_uid, jour, demain);
+    _prises = widget.bienetre.prises(_uid, jour);
     _activites = widget.journal.activites(_uid, jour, demain);
   }
 
@@ -123,6 +158,36 @@ class _BienEtrePageState extends State<BienEtrePage> {
                           onMeteo: _basculerMeteo,
                         );
                       },
+                    ),
+              ),
+              const SizedBox(height: 16),
+              StreamBuilder<List<Complement>>(
+                stream: _complements,
+                builder: (context, snapComplements) =>
+                    StreamBuilder<Set<String>>(
+                      stream: _prises,
+                      builder: (context, snapPrises) => CarteComplements(
+                        complements: snapComplements.data ?? const [],
+                        prises: snapPrises.data ?? const {},
+                        onPris: (c, pris) => unawaited(
+                          widget.bienetre.marquerPris(
+                            _uid,
+                            widget.horloge(),
+                            c.id!,
+                            pris,
+                          ),
+                        ),
+                        onAjouter: _ajouterComplement,
+                        onBasculer: (c) => unawaited(
+                          widget.bienetre.modifierComplement(
+                            _uid,
+                            c.copyWith(actif: !c.actif),
+                          ),
+                        ),
+                        onSupprimer: (c) => unawaited(
+                          widget.bienetre.supprimerComplement(_uid, c.id!),
+                        ),
+                      ),
                     ),
               ),
             ],

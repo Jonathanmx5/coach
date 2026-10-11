@@ -364,6 +364,24 @@
   "annulerDernier": "Annuler le dernier",
   "adapterMeteo": "Adapter à la météo",
   "meteoAide": "Utilise ta position approximative pour la température du jour. Elle n'est pas enregistrée.",
+  "annuler": "Annuler",
+  "complementsTitre": "Compléments",
+  "complementsAide": "Un rappel par jour pour ne pas oublier. Coach ne conseille aucune dose : demande à ton médecin ou à ton pharmacien.",
+  "ajouterComplement": "Ajouter un complément",
+  "nomComplement": "Nom (ex. vitamine D)",
+  "rappelA": "Rappel à {heure}",
+  "@rappelA": {
+    "placeholders": {
+      "heure": {
+        "type": "String"
+      }
+    }
+  },
+  "rappelDesactive": "Rappel désactivé",
+  "optionsComplement": "Options",
+  "activerRappel": "Activer le rappel",
+  "desactiverRappel": "Désactiver le rappel",
+  "supprimerComplement": "Supprimer",
   "courbePoids": "Évolution du poids",
   "periode90": "90 jours",
   "periode1an": "1 an",

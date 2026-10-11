@@ -1,5 +1,6 @@
 import 'bienetre/bienetre_repository.dart';
 import 'bienetre/meteo.dart';
+import 'bienetre/rappels.dart';
 import 'compte/auth_service.dart';
 import 'entrainement/entrainement_repository.dart';
 import 'entrainement/voix.dart';
@@ -24,6 +25,7 @@ class Services {
     required this.voix,
     required this.bienetre,
     required this.meteo,
+    required this.rappels,
     required this.journal,
     required this.catalogue,
     required this.sante,
@@ -38,6 +40,7 @@ class Services {
   final Voix voix;
   final BienEtreRepository bienetre;
   final Meteo meteo;
+  final Rappels rappels;
   final JournalRepository journal;
   final CatalogueProduits catalogue;
   final SanteService sante;

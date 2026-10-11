@@ -674,6 +674,42 @@ class AppLocalizationsFr extends AppLocalizations {
       'Utilise ta position approximative pour la température du jour. Elle n\'est pas enregistrée.';
 
   @override
+  String get annuler => 'Annuler';
+
+  @override
+  String get complementsTitre => 'Compléments';
+
+  @override
+  String get complementsAide =>
+      'Un rappel par jour pour ne pas oublier. Coach ne conseille aucune dose : demande à ton médecin ou à ton pharmacien.';
+
+  @override
+  String get ajouterComplement => 'Ajouter un complément';
+
+  @override
+  String get nomComplement => 'Nom (ex. vitamine D)';
+
+  @override
+  String rappelA(String heure) {
+    return 'Rappel à $heure';
+  }
+
+  @override
+  String get rappelDesactive => 'Rappel désactivé';
+
+  @override
+  String get optionsComplement => 'Options';
+
+  @override
+  String get activerRappel => 'Activer le rappel';
+
+  @override
+  String get desactiverRappel => 'Désactiver le rappel';
+
+  @override
+  String get supprimerComplement => 'Supprimer';
+
+  @override
   String get courbePoids => 'Évolution du poids';
 
   @override

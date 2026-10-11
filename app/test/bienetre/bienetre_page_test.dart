@@ -1,3 +1,4 @@
+import 'package:coach/bienetre/complements.dart';
 import 'package:flutter/material.dart';
 import 'package:coach/app.dart';
 import 'package:coach/bienetre/bienetre_page.dart';
@@ -33,6 +34,7 @@ class Banc {
   final bienetre = FauxBienEtre();
   final journal = FauxJournal();
   final meteo = FausseMeteo(31);
+  final rappels = FauxRappels();
 
   Future<void> monter(WidgetTester tester) async {
     await tester.pumpWidget(
@@ -46,6 +48,7 @@ class Banc {
           bienetre: bienetre,
           journal: journal,
           meteo: meteo,
+          rappels: rappels,
           horloge: () => maintenant,
         ),
       ),
@@ -138,5 +141,52 @@ void main() {
     banc.bienetre.meteo['u1'] = true;
     await banc.monter(tester);
     expect(find.text('0,00 L sur 2,00 L'), findsOneWidget);
+  });
+
+  testWidgets('compléments : ajout, rappel planifié, pris, désactivation', (
+    tester,
+  ) async {
+    final banc = Banc();
+    await banc.monter(tester);
+
+    await taper(tester, 'Ajouter un complément');
+    await tester.enterText(find.byType(TextField), 'Vitamine D');
+    await tester.pump();
+    await taper(tester, 'Enregistrer');
+
+    final c = banc.bienetre.complementsDe('u1').single;
+    expect(c.nom, 'Vitamine D');
+    expect(c.minutes, 480);
+    expect(banc.rappels.autorisations, 1);
+    expect(banc.rappels.planifications.last.single.nom, 'Vitamine D');
+    expect(find.text('Rappel à 08h00'), findsOneWidget);
+
+    await tester.tap(find.byType(Checkbox));
+    await tester.pumpAndSettle();
+    expect(banc.bienetre.prisesDe('u1', maintenant), {c.id});
+
+    await tester.tap(find.byTooltip('Options'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Désactiver le rappel'));
+    await tester.pumpAndSettle();
+    expect(banc.bienetre.complementsDe('u1').single.actif, isFalse);
+    expect(banc.rappels.planifications.last.single.actif, isFalse);
+    expect(find.text('Rappel désactivé'), findsOneWidget);
+  });
+
+  testWidgets('compléments : supprimer retire le rappel', (tester) async {
+    final banc = Banc();
+    banc.bienetre.complementsParUid['u1'] = const [
+      Complement(id: 'x', nom: 'Magnésium', minutes: 1290),
+    ];
+    await banc.monter(tester);
+    expect(find.text('Rappel à 21h30'), findsOneWidget);
+
+    await tester.tap(find.byTooltip('Options'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Supprimer'));
+    await tester.pumpAndSettle();
+    expect(banc.bienetre.complementsDe('u1'), isEmpty);
+    expect(banc.rappels.planifications.last, isEmpty);
   });
 }
