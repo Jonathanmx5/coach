@@ -53,6 +53,7 @@ class Banc {
   final planning = FauxPlanning();
   Uint8List? photo = Uint8List.fromList([1, 2, 3]);
   final sources = <SourcePhoto>[];
+  final photosRepas = FausPhotosRepas();
 
   Future<void> monter(WidgetTester tester) async {
     // Grand écran : le résultat de la photo est long, tout doit être construit.
@@ -74,6 +75,7 @@ class Banc {
           planning: planning,
           avis: FauxAvis(),
           consentements: consentements,
+          photosRepas: photosRepas,
           prise: (source) async {
             sources.add(source);
             return photo;
@@ -333,6 +335,17 @@ void main() {
     expect(find.textContaining('Poulet au riz'), findsWidgets);
     expect(find.text('Le verdict du coach'), findsOneWidget);
     expect(find.text('100 g · 165 kcal'), findsOneWidget);
+    expect(enregistre.photoId, isNotNull);
+    expect(banc.photosRepas.photos, hasLength(1));
+    expect(find.byType(Image), findsOneWidget);
+
+    // Supprimer le repas efface aussi sa photo.
+    await tester.tap(find.byType(BackButton));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byTooltip('Supprimer'));
+    await tester.pumpAndSettle();
+    expect(banc.journal.repasDe('u1'), isEmpty);
+    expect(banc.photosRepas.photos, isEmpty);
   });
 
   testWidgets('un repas saisi à la main : résumé sans analyse', (tester) async {

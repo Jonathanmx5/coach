@@ -9,6 +9,7 @@ import 'journal/analyse_photo.dart';
 import 'journal/journal_repository.dart';
 import 'poids/mensurations_repository.dart';
 import 'poids/pesees_repository.dart';
+import 'journal/photos_repas.dart';
 import 'poids/photos.dart';
 import 'profil/profil_repository.dart';
 import 'recettes/avis_repository.dart';
@@ -28,6 +29,7 @@ class Services {
     required this.pesees,
     required this.mensurations,
     required this.photos,
+    required this.photosRepas,
     required this.entrainement,
     required this.voix,
     required this.bienetre,
@@ -52,6 +54,7 @@ class Services {
   final PeseesRepository pesees;
   final MensurationsRepository mensurations;
   final PhotosProgres photos;
+  final PhotosRepas photosRepas;
   final EntrainementRepository entrainement;
   final Voix voix;
   final BienEtreRepository bienetre;

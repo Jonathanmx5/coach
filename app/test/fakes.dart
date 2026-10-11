@@ -17,6 +17,7 @@ import 'package:coach/journal/modele.dart';
 import 'package:coach/poids/mensurations.dart';
 import 'package:coach/poids/mensurations_repository.dart';
 import 'package:coach/poids/pesees.dart';
+import 'package:coach/journal/photos_repas.dart';
 import 'package:coach/poids/photos.dart';
 import 'package:coach/poids/pesees_repository.dart';
 import 'package:coach/profil/besoins.dart';
@@ -554,6 +555,28 @@ class FauxEntrainement implements EntrainementRepository {
   }
 }
 
+/// Photos de repas en mémoire.
+class FausPhotosRepas implements PhotosRepas {
+  final photos = <String, Uint8List>{};
+  var _n = 0;
+
+  @override
+  Future<String> enregistrer(Uint8List octets) async {
+    final id = '${_n++}';
+    photos[id] = octets;
+    return id;
+  }
+
+  @override
+  Future<Uint8List?> lire(String id) async => photos[id];
+
+  @override
+  Future<void> supprimer(String id) async => photos.remove(id);
+
+  @override
+  Future<void> toutSupprimer() async => photos.clear();
+}
+
 /// Photos de progression en mémoire (aucun fichier réel).
 class FausPhotos implements PhotosProgres {
   final liste = <PhotoProgres>[];
@@ -662,6 +685,7 @@ class FauxJournal implements JournalRepository {
         source: repas.source,
         description: repas.description,
         aliments: repas.aliments,
+        photoId: repas.photoId,
       ),
     ];
     _flux.add(null);

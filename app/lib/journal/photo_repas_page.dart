@@ -10,6 +10,7 @@ import 'calculs.dart';
 import 'formulaires.dart';
 import '../profil/modele.dart';
 import 'modele.dart';
+import 'photos_repas.dart';
 import 'verdict.dart';
 
 /// Résultat de [PhotoRepasPage] quand l'utilisateur préfère tout saisir à la
@@ -27,6 +28,7 @@ class PhotoRepasPage extends StatefulWidget {
     required this.date,
     required this.analyse,
     required this.prise,
+    required this.photos,
     this.dejaMange = Macros.zero,
     this.cibles,
     this.objectif = Objectif.forme,
@@ -35,6 +37,7 @@ class PhotoRepasPage extends StatefulWidget {
   final DateTime date;
   final AnalysePhoto analyse;
   final PrisePhoto prise;
+  final PhotosRepas photos;
 
   /// Ce qui est déjà noté aujourd'hui et les objectifs du jour, pour montrer
   /// l'effet du repas ; sans [cibles], cette ligne n'est pas affichée.
@@ -136,8 +139,15 @@ class _PhotoRepasPageState extends State<PhotoRepasPage> {
     });
   }
 
-  void _valider() {
+  Future<void> _valider() async {
     final gardes = _retenus;
+    // La photo reste sur le téléphone ; si elle ne peut pas être gardée, le
+    // repas est enregistré quand même.
+    String? photoId;
+    try {
+      photoId = await widget.photos.enregistrer(_image!);
+    } catch (_) {}
+    if (!mounted) return;
     Navigator.of(context).pop(
       Repas(
         date: widget.date,
@@ -147,6 +157,7 @@ class _PhotoRepasPageState extends State<PhotoRepasPage> {
         source: SourceRepas.photo,
         description: _description,
         aliments: gardes,
+        photoId: photoId,
       ),
     );
   }

@@ -67,6 +67,7 @@ class Repas {
     required this.source,
     this.description = '',
     this.aliments = const [],
+    this.photoId,
   });
 
   final String? id;
@@ -81,6 +82,9 @@ class Repas {
   final String description;
   final List<AlimentEstime> aliments;
 
+  /// Référence de la photo gardée sur ce téléphone, s'il y en a une.
+  final String? photoId;
+
   Map<String, Object?> toMap() => {
     'date': date.millisecondsSinceEpoch,
     'moment': moment.name,
@@ -88,6 +92,7 @@ class Repas {
     'macros': macros.toMap(),
     'source': source.name,
     if (description.isNotEmpty) 'description': description,
+    if (photoId != null) 'photoId': photoId,
     if (aliments.isNotEmpty) 'aliments': [for (final a in aliments) a.toMap()],
   };
 
@@ -99,6 +104,7 @@ class Repas {
     macros: Macros.fromMap((m['macros']! as Map).cast<String, Object?>()),
     source: SourceRepas.values.asNameMap()[m['source']] ?? SourceRepas.manuel,
     description: m['description'] as String? ?? '',
+    photoId: m['photoId'] as String?,
     aliments: [
       for (final a in (m['aliments'] as List?) ?? const [])
         AlimentEstime.fromMap((a as Map).cast<String, Object?>()),

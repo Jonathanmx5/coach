@@ -17,6 +17,7 @@ import 'compte/donnees_compte.dart';
 import 'journal/journal_repository.dart';
 import 'poids/mensurations_repository.dart';
 import 'poids/pesees_repository.dart';
+import 'journal/photos_repas.dart';
 import 'poids/photos.dart';
 import 'entrainement/entrainement_repository.dart';
 import 'journal/analyse_photo.dart';
@@ -62,6 +63,7 @@ Future<void> main() async {
           pesees: FirestorePeseesRepository(),
           mensurations: FirestoreMensurationsRepository(),
           photos: PhotosProgresLocales(),
+          photosRepas: PhotosRepasLocales(),
           entrainement: FirestoreEntrainementRepository(),
           voix: VoixTts(),
           bienetre: FirestoreBienEtreRepository(),

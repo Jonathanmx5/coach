@@ -117,6 +117,7 @@ class _ReglagesPageState extends State<ReglagesPage> {
       for (final p in await _s.photos.lister()) {
         await _s.photos.supprimer(p);
       }
+      await _s.photosRepas.toutSupprimer();
       await _s.rappels.planifier(const []);
       await _s.auth.supprimerCompte();
       if (mounted) Navigator.of(context).pop();

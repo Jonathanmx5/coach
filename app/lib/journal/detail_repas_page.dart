@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -9,6 +11,7 @@ import 'calculs.dart';
 import 'formulaires.dart';
 import 'modele.dart';
 import 'photo_repas_page.dart';
+import 'photos_repas.dart';
 import 'verdict.dart';
 
 /// Un repas du journal : l'analyse telle qu'elle avait été enregistrée
@@ -21,6 +24,7 @@ class DetailRepasPage extends StatelessWidget {
     required this.dejaMange,
     required this.cibles,
     required this.objectif,
+    required this.photos,
   });
 
   final Repas repas;
@@ -29,6 +33,7 @@ class DetailRepasPage extends StatelessWidget {
   final Macros dejaMange;
   final CiblesJour cibles;
   final Objectif objectif;
+  final PhotosRepas photos;
 
   @override
   Widget build(BuildContext context) {
@@ -50,6 +55,27 @@ class DetailRepasPage extends StatelessWidget {
             style: textes.bodySmall?.copyWith(color: CouleursCoach.texteDoux),
           ),
           const SizedBox(height: 12),
+          if (repas.photoId != null)
+            FutureBuilder<Uint8List?>(
+              future: photos.lire(repas.photoId!),
+              builder: (_, snap) {
+                final octets = snap.data;
+                if (octets == null) return const SizedBox.shrink();
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 12),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(rayonCarte),
+                    child: Image.memory(
+                      octets,
+                      height: 220,
+                      width: double.infinity,
+                      fit: BoxFit.cover,
+                      errorBuilder: (_, _, _) => const SizedBox.shrink(),
+                    ),
+                  ),
+                );
+              },
+            ),
           if (aliments.isEmpty) ...[
             Text(repas.nom, style: textes.titleLarge),
             const SizedBox(height: 8),

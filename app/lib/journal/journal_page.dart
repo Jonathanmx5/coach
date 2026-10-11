@@ -16,6 +16,7 @@ import 'formulaires.dart';
 import 'journal_repository.dart';
 import 'modele.dart';
 import 'photo_repas_page.dart';
+import 'photos_repas.dart';
 import '../recettes/avis_repository.dart';
 import '../recettes/idees_page.dart';
 import 'detail_repas_page.dart';
@@ -35,6 +36,7 @@ class JournalPage extends StatefulWidget {
     required this.planning,
     required this.avis,
     required this.consentements,
+    required this.photosRepas,
     this.prise = prisePhotoCamera,
   });
 
@@ -47,6 +49,7 @@ class JournalPage extends StatefulWidget {
   final PlanningRepository planning;
   final AvisRepository avis;
   final ConsentementsRepository consentements;
+  final PhotosRepas photosRepas;
   final PrisePhoto prise;
 
   @override
@@ -110,6 +113,7 @@ class _JournalPageState extends State<JournalPage> {
           ),
           cibles: cibles,
           objectif: widget.enregistre.profil.objectif,
+          photos: widget.photosRepas,
         ),
       ),
     );
@@ -146,6 +150,7 @@ class _JournalPageState extends State<JournalPage> {
           date: _dateAjout,
           analyse: widget.analyse,
           prise: widget.prise,
+          photos: widget.photosRepas,
           dejaMange: _macrosDuJour,
           cibles: _ciblesDuJour,
           objectif: widget.enregistre.profil.objectif,
@@ -298,7 +303,12 @@ class _JournalPageState extends State<JournalPage> {
               onTap: () => _ouvrirDetail(r, cibles, macros),
               onSupprimer: r.id == null
                   ? null
-                  : () => unawaited(widget.journal.supprimerRepas(_uid, r.id!)),
+                  : () {
+                      unawaited(widget.journal.supprimerRepas(_uid, r.id!));
+                      if (r.photoId != null) {
+                        unawaited(widget.photosRepas.supprimer(r.photoId!));
+                      }
+                    },
             ),
       ],
     );
