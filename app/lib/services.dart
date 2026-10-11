@@ -1,3 +1,5 @@
+import 'bienetre/bienetre_repository.dart';
+import 'bienetre/meteo.dart';
 import 'compte/auth_service.dart';
 import 'entrainement/entrainement_repository.dart';
 import 'entrainement/voix.dart';
@@ -20,6 +22,8 @@ class Services {
     required this.photos,
     required this.entrainement,
     required this.voix,
+    required this.bienetre,
+    required this.meteo,
     required this.journal,
     required this.catalogue,
     required this.sante,
@@ -32,6 +36,8 @@ class Services {
   final PhotosProgres photos;
   final EntrainementRepository entrainement;
   final Voix voix;
+  final BienEtreRepository bienetre;
+  final Meteo meteo;
   final JournalRepository journal;
   final CatalogueProduits catalogue;
   final SanteService sante;

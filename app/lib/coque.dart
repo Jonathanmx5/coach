@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'accueil/accueil_page.dart';
+import 'bienetre/bienetre_page.dart';
 import 'compte/auth_service.dart';
 import 'entrainement/entrainement_page.dart';
 import 'journal/journal_page.dart';
@@ -89,6 +90,14 @@ class _CoqueState extends State<Coque> {
             suivi: _suivi,
             horloge: widget.horloge,
           ),
+          BienEtrePage(
+            utilisateur: widget.utilisateur,
+            enregistre: widget.enregistre,
+            bienetre: _s.bienetre,
+            journal: _s.journal,
+            meteo: _s.meteo,
+            horloge: widget.horloge,
+          ),
           PoidsPage(
             utilisateur: widget.utilisateur,
             enregistre: widget.enregistre,
@@ -120,6 +129,11 @@ class _CoqueState extends State<Coque> {
             icon: const Icon(Icons.fitness_center_outlined),
             selectedIcon: const Icon(Icons.fitness_center),
             label: t.tabEntrainement,
+          ),
+          NavigationDestination(
+            icon: const Icon(Icons.spa_outlined),
+            selectedIcon: const Icon(Icons.spa),
+            label: t.tabBienEtre,
           ),
           NavigationDestination(
             icon: const Icon(Icons.monitor_weight_outlined),

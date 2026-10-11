@@ -54,6 +54,8 @@ Future<void> monter(
           photos: FausPhotos(),
           entrainement: FauxEntrainement(),
           voix: FausseVoix(),
+          bienetre: FauxBienEtre(),
+          meteo: FausseMeteo(),
           catalogue: FauxCatalogue(),
         ),
         horloge: () => maintenant,

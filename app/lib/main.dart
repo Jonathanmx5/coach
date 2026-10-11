@@ -7,6 +7,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import 'app.dart';
+import 'bienetre/bienetre_repository.dart';
+import 'bienetre/meteo.dart';
 import 'compte/auth_service.dart';
 import 'journal/catalogue.dart';
 import 'journal/journal_repository.dart';
@@ -49,6 +51,8 @@ Future<void> main() async {
           photos: PhotosProgresLocales(),
           entrainement: FirestoreEntrainementRepository(),
           voix: VoixTts(),
+          bienetre: FirestoreBienEtreRepository(),
+          meteo: MeteoOpenMeteo(),
           journal: FirestoreJournalRepository(),
           catalogue: CatalogueOpenFoodFacts(),
           sante: HealthSanteService(),

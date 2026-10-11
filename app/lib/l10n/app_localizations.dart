@@ -1240,6 +1240,66 @@ abstract class AppLocalizations {
   /// **'Conseillé maintenant'**
   String get conseilleMaintenant;
 
+  /// No description provided for @tabBienEtre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Bien-être'**
+  String get tabBienEtre;
+
+  /// No description provided for @hydratationTitre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Hydratation'**
+  String get hydratationTitre;
+
+  /// No description provided for @eauBueSur.
+  ///
+  /// In fr, this message translates to:
+  /// **'{bu} L sur {objectif} L'**
+  String eauBueSur(String bu, String objectif);
+
+  /// No description provided for @eauBaseProfil.
+  ///
+  /// In fr, this message translates to:
+  /// **'Selon ton poids'**
+  String get eauBaseProfil;
+
+  /// No description provided for @eauEffort.
+  ///
+  /// In fr, this message translates to:
+  /// **'{minutes} min d\'effort'**
+  String eauEffort(int minutes);
+
+  /// No description provided for @eauChaleur.
+  ///
+  /// In fr, this message translates to:
+  /// **'{degres} °C aujourd\'hui'**
+  String eauChaleur(int degres);
+
+  /// No description provided for @ajouterEau.
+  ///
+  /// In fr, this message translates to:
+  /// **'+ {ml} ml'**
+  String ajouterEau(int ml);
+
+  /// No description provided for @annulerDernier.
+  ///
+  /// In fr, this message translates to:
+  /// **'Annuler le dernier'**
+  String get annulerDernier;
+
+  /// No description provided for @adapterMeteo.
+  ///
+  /// In fr, this message translates to:
+  /// **'Adapter à la météo'**
+  String get adapterMeteo;
+
+  /// No description provided for @meteoAide.
+  ///
+  /// In fr, this message translates to:
+  /// **'Utilise ta position approximative pour la température du jour. Elle n\'est pas enregistrée.'**
+  String get meteoAide;
+
   /// No description provided for @courbePoids.
   ///
   /// In fr, this message translates to:

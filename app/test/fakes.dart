@@ -1,5 +1,9 @@
 import 'dart:async';
 
+import 'package:coach/bienetre/bienetre_repository.dart';
+import 'package:coach/bienetre/complements.dart';
+import 'package:coach/bienetre/hydratation.dart';
+import 'package:coach/bienetre/meteo.dart';
 import 'package:coach/compte/auth_service.dart';
 import 'package:coach/entrainement/entrainement_repository.dart';
 import 'package:coach/entrainement/modele.dart';
@@ -155,6 +159,133 @@ class FauxPesees implements PeseesRepository {
         if (p.id != id) p,
     ];
     _flux.add(uid);
+  }
+}
+
+/// Météo à température fixe (null = position refusée).
+class FausseMeteo implements Meteo {
+  FausseMeteo([this.temp]);
+
+  double? temp;
+  int appels = 0;
+
+  @override
+  Future<double?> temperatureMax() async {
+    appels++;
+    return temp;
+  }
+}
+
+/// Eau, compléments et prises en mémoire.
+class FauxBienEtre implements BienEtreRepository {
+  final eauParUid = <String, List<EntreeEau>>{};
+  final complementsParUid = <String, List<Complement>>{};
+  final prisesParCle = <String, Set<String>>{};
+  final meteo = <String, bool>{};
+  final _flux = StreamController<void>.broadcast();
+  var _compteur = 0;
+
+  List<EntreeEau> eauDe(String uid) => eauParUid[uid] ?? const [];
+  List<Complement> complementsDe(String uid) =>
+      complementsParUid[uid] ?? const [];
+  Set<String> prisesDe(String uid, DateTime j) =>
+      prisesParCle['$uid/${cleJour(j)}'] ?? const {};
+
+  Stream<T> _suivre<T>(T Function() lire) async* {
+    yield lire();
+    yield* _flux.stream.map((_) => lire());
+  }
+
+  @override
+  Stream<List<EntreeEau>> eau(String uid, DateTime debut, DateTime fin) =>
+      _suivre(
+        () => [
+          for (final e in eauDe(uid))
+            if (!e.date.isBefore(debut) && e.date.isBefore(fin)) e,
+        ]..sort((a, b) => a.date.compareTo(b.date)),
+      );
+
+  @override
+  Stream<bool> meteoActive(String uid) => _suivre(() => meteo[uid] ?? false);
+
+  @override
+  Stream<List<Complement>> complements(String uid) => _suivre(
+    () =>
+        [...complementsDe(uid)]..sort((a, b) => a.minutes.compareTo(b.minutes)),
+  );
+
+  @override
+  Stream<Set<String>> prises(String uid, DateTime jour) =>
+      _suivre(() => {...prisesDe(uid, jour)});
+
+  @override
+  Future<void> ajouterEau(String uid, EntreeEau e) async {
+    eauParUid[uid] = [
+      ...eauDe(uid),
+      EntreeEau(id: 'e${_compteur++}', date: e.date, ml: e.ml),
+    ];
+    _flux.add(null);
+  }
+
+  @override
+  Future<void> supprimerEau(String uid, String id) async {
+    eauParUid[uid] = [
+      for (final e in eauDe(uid))
+        if (e.id != id) e,
+    ];
+    _flux.add(null);
+  }
+
+  @override
+  Future<void> activerMeteo(String uid, bool actif) async {
+    meteo[uid] = actif;
+    _flux.add(null);
+  }
+
+  @override
+  Future<void> ajouterComplement(String uid, Complement c) async {
+    complementsParUid[uid] = [
+      ...complementsDe(uid),
+      Complement(
+        id: 'c${_compteur++}',
+        nom: c.nom,
+        minutes: c.minutes,
+        actif: c.actif,
+      ),
+    ];
+    _flux.add(null);
+  }
+
+  @override
+  Future<void> modifierComplement(String uid, Complement c) async {
+    complementsParUid[uid] = [
+      for (final x in complementsDe(uid))
+        if (x.id == c.id) c else x,
+    ];
+    _flux.add(null);
+  }
+
+  @override
+  Future<void> supprimerComplement(String uid, String id) async {
+    complementsParUid[uid] = [
+      for (final x in complementsDe(uid))
+        if (x.id != id) x,
+    ];
+    _flux.add(null);
+  }
+
+  @override
+  Future<void> marquerPris(
+    String uid,
+    DateTime jour,
+    String id,
+    bool pris,
+  ) async {
+    final cle = '$uid/${cleJour(jour)}';
+    final ids = {...prisesDe(uid, jour)};
+    pris ? ids.add(id) : ids.remove(id);
+    prisesParCle[cle] = ids;
+    _flux.add(null);
   }
 }
 

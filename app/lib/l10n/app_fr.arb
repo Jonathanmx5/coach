@@ -323,6 +323,47 @@
   "routineReveil": "Réveil articulaire (5 min)",
   "routineRecuperation": "Récupération douce (8 min)",
   "conseilleMaintenant": "Conseillé maintenant",
+  "tabBienEtre": "Bien-être",
+  "hydratationTitre": "Hydratation",
+  "eauBueSur": "{bu} L sur {objectif} L",
+  "@eauBueSur": {
+    "placeholders": {
+      "bu": {
+        "type": "String"
+      },
+      "objectif": {
+        "type": "String"
+      }
+    }
+  },
+  "eauBaseProfil": "Selon ton poids",
+  "eauEffort": "{minutes} min d'effort",
+  "@eauEffort": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "eauChaleur": "{degres} °C aujourd'hui",
+  "@eauChaleur": {
+    "placeholders": {
+      "degres": {
+        "type": "int"
+      }
+    }
+  },
+  "ajouterEau": "+ {ml} ml",
+  "@ajouterEau": {
+    "placeholders": {
+      "ml": {
+        "type": "int"
+      }
+    }
+  },
+  "annulerDernier": "Annuler le dernier",
+  "adapterMeteo": "Adapter à la météo",
+  "meteoAide": "Utilise ta position approximative pour la température du jour. Elle n'est pas enregistrée.",
   "courbePoids": "Évolution du poids",
   "periode90": "90 jours",
   "periode1an": "1 an",

@@ -635,6 +635,45 @@ class AppLocalizationsFr extends AppLocalizations {
   String get conseilleMaintenant => 'Conseillé maintenant';
 
   @override
+  String get tabBienEtre => 'Bien-être';
+
+  @override
+  String get hydratationTitre => 'Hydratation';
+
+  @override
+  String eauBueSur(String bu, String objectif) {
+    return '$bu L sur $objectif L';
+  }
+
+  @override
+  String get eauBaseProfil => 'Selon ton poids';
+
+  @override
+  String eauEffort(int minutes) {
+    return '$minutes min d\'effort';
+  }
+
+  @override
+  String eauChaleur(int degres) {
+    return '$degres °C aujourd\'hui';
+  }
+
+  @override
+  String ajouterEau(int ml) {
+    return '+ $ml ml';
+  }
+
+  @override
+  String get annulerDernier => 'Annuler le dernier';
+
+  @override
+  String get adapterMeteo => 'Adapter à la météo';
+
+  @override
+  String get meteoAide =>
+      'Utilise ta position approximative pour la température du jour. Elle n\'est pas enregistrée.';
+
+  @override
   String get courbePoids => 'Évolution du poids';
 
   @override
