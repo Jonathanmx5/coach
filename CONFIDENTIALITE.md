@@ -31,7 +31,6 @@ Ces données servent à :
 - **Journal, entraînement, eau, compléments, mensurations** : enregistrés dans votre compte (Firestore, Europe), visibles de vous seul. Crunch & Go ne donne aucune dose de complément.
 - **Photos de progression** : conservées **uniquement sur votre téléphone**, jamais envoyées.
 - **Localisation approximative** (optionnelle) : si vous activez « Adapter à la météo », votre position, arrondie à environ 10 km, est envoyée au service Open-Meteo pour obtenir la température du jour. Elle n'est pas enregistrée.
-- **Codes-barres** : le code d'un produit scanné est envoyé à Open Food Facts pour retrouver ses valeurs nutritionnelles.
 - **Photo d'un repas** (optionnelle) : la photo est envoyée à un relais Crunch & Go hébergé chez Cloudflare, qui la transmet à un modèle d'IA de Cloudflare Workers AI pour estimer les aliments. Elle n'est ni enregistrée ni conservée ; seul le résultat que vous validez est ajouté à votre journal. Quinze photos au plus par jour et par personne.
 - **Notifications** (optionnelles) : rappels de compléments programmés sur votre téléphone.
 

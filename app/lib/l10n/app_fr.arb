@@ -568,6 +568,51 @@
       }
     }
   },
+  "cartonVert": "C'est un carton vert !",
+  "cartonOrange": "C'est un carton orange !",
+  "cartonRouge": "C'est un carton rouge !",
+  "ilSagit": "Il s'agit de : {nom}",
+  "@ilSagit": {
+    "placeholders": {
+      "nom": {
+        "type": "String"
+      }
+    }
+  },
+  "verdictCoach": "Le verdict du coach",
+  "tuileCalories": "Calories",
+  "tuileProteines": "Protéines",
+  "tuileGlucides": "Glucides",
+  "tuileLipides": "Lipides",
+  "dontSucres": "dont {s} g de sucres",
+  "@dontSucres": {
+    "placeholders": {
+      "s": {
+        "type": "int"
+      }
+    }
+  },
+  "dontSatures": "dont {s} g de saturés",
+  "@dontSatures": {
+    "placeholders": {
+      "s": {
+        "type": "int"
+      }
+    }
+  },
+  "recapTitre": "Total de la journée",
+  "recapTotal": "Total",
+  "recapValeur": "{kcal} kcal · {p} g de protéines",
+  "@recapValeur": {
+    "placeholders": {
+      "kcal": {
+        "type": "int"
+      },
+      "p": {
+        "type": "int"
+      }
+    }
+  },
   "courbePoids": "Évolution du poids",
   "periode90": "90 jours",
   "periode1an": "1 an",

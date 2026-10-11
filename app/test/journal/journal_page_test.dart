@@ -5,7 +5,6 @@ import 'dart:typed_data';
 
 import 'package:coach/app.dart';
 import 'package:coach/compte/auth_service.dart';
-import 'package:coach/journal/catalogue.dart';
 import 'package:coach/journal/journal_page.dart';
 import 'package:coach/journal/modele.dart';
 import 'package:coach/profil/besoins.dart';
@@ -39,7 +38,7 @@ const profil = Profil(
 );
 
 class Banc {
-  Banc({this.catalogue, this.code, Suivi? suivi})
+  Banc({Suivi? suivi})
     : suivi =
           suivi ??
           Suivi(
@@ -48,8 +47,6 @@ class Banc {
           );
 
   final journal = FauxJournal();
-  final FauxCatalogue? catalogue;
-  final String? code;
   final Suivi suivi;
   final analyse = FausseAnalyse();
   final consentements = FauxConsentements({Consentement.photo});
@@ -58,6 +55,10 @@ class Banc {
   final sources = <SourcePhoto>[];
 
   Future<void> monter(WidgetTester tester) async {
+    // Grand écran : le résultat de la photo est long, tout doit être construit.
+    tester.view.physicalSize = const Size(1080, 4200);
+    tester.view.devicePixelRatio = 2.75;
+    addTearDown(tester.view.reset);
     await tester.pumpWidget(
       CoachApp(
         accueil: JournalPage(
@@ -67,10 +68,8 @@ class Banc {
             reperes: calculerReperes(profil, maintenant: maintenant),
           ),
           journal: journal,
-          catalogue: catalogue ?? FauxCatalogue(),
           suivi: suivi,
           horloge: () => maintenant,
-          lecteurCode: (_) async => code,
           analyse: analyse,
           planning: planning,
           avis: FauxAvis(),
@@ -111,32 +110,27 @@ class Banc {
 String texteDe(WidgetTester tester, String cle) =>
     tester.widget<Text>(find.byKey(ValueKey(cle))).data!;
 
-Future<void> menu(WidgetTester tester, String entree) async {
+/// Le bouton de l'onglet Repas ouvre directement « Photo du repas ».
+Future<void> ouvrirPhoto(WidgetTester tester) async {
   await tester.tap(find.byType(FloatingActionButton));
   await tester.pumpAndSettle();
-  await taper(tester, entree);
 }
 
 /// Le repas se saisit à la main depuis l'écran « Photo du repas ».
 Future<void> saisieManuelle(WidgetTester tester) async {
-  await menu(tester, 'Photo du repas');
+  await ouvrirPhoto(tester);
   await taper(tester, 'Saisir à la main');
 }
 
 /// Photo prise, précision facultative, analyse lancée.
 Future<void> analyserUnePhoto(WidgetTester tester, {String? precision}) async {
-  await menu(tester, 'Photo du repas');
+  await ouvrirPhoto(tester);
   await taper(tester, 'Prendre une photo');
   if (precision != null) {
     await saisir(tester, 'Une précision ? (facultatif)', precision);
   }
   await taper(tester, 'Analyser ce repas');
 }
-
-const produit = ProduitOff(
-  nom: 'Muesli',
-  pour100g: Macros(kcal: 400, proteines: 10, glucides: 60, lipides: 12),
-);
 
 void main() {
   testWidgets('bilan : mangé, dépensé et solde', (tester) async {
@@ -220,84 +214,6 @@ void main() {
     expect(banc.journal.repasDe('u1'), isEmpty);
   });
 
-  testWidgets('scanner un produit : macros selon la quantité', (tester) async {
-    final catalogue = FauxCatalogue(produit: produit);
-    final banc = Banc(catalogue: catalogue, code: '3017620422003');
-    await banc.monter(tester);
-
-    await menu(tester, 'Scanner un produit');
-    expect(find.text('Muesli'), findsOneWidget);
-    await saisir(tester, 'Quantité (g)', '200');
-    await taper(tester, 'Enregistrer');
-
-    expect(catalogue.recherches, ['3017620422003']);
-    final r = banc.journal.repasDe('u1').single;
-    expect(r.nom, 'Muesli');
-    expect(r.macros.kcal, 800);
-    expect(r.macros.glucides, 120);
-    expect(r.source, SourceRepas.codeBarres);
-  });
-
-  testWidgets('produit introuvable : message', (tester) async {
-    final banc = Banc(catalogue: FauxCatalogue(), code: '0000');
-    await banc.monter(tester);
-
-    await menu(tester, 'Scanner un produit');
-
-    expect(find.textContaining('Produit introuvable'), findsOneWidget);
-    expect(banc.journal.repasDe('u1'), isEmpty);
-  });
-
-  testWidgets('hors-ligne : message clair', (tester) async {
-    final banc = Banc(catalogue: FauxCatalogue(erreur: true), code: '1');
-    await banc.monter(tester);
-
-    await menu(tester, 'Scanner un produit');
-
-    expect(
-      find.textContaining('Impossible de joindre Open Food Facts'),
-      findsOneWidget,
-    );
-  });
-
-  testWidgets('scan annulé : rien ne se passe', (tester) async {
-    final catalogue = FauxCatalogue(produit: produit);
-    final banc = Banc(catalogue: catalogue, code: null);
-    await banc.monter(tester);
-
-    await menu(tester, 'Scanner un produit');
-
-    expect(catalogue.recherches, isEmpty);
-  });
-
-  testWidgets('ajouter une activité : calories estimées', (tester) async {
-    final banc = Banc();
-    await banc.monter(tester);
-
-    await menu(tester, 'Ajouter une activité');
-    await taper(tester, 'MMA');
-    await saisir(tester, 'Durée (min)', '90');
-    await taper(tester, 'Intense');
-    expect(find.text('≈ 1440 kcal brûlées'), findsOneWidget);
-    await taper(tester, 'Enregistrer');
-
-    final a = banc.journal.activitesDe('u1').single;
-    expect(a.type, TypeActivite.mma);
-    expect(a.minutes, 90);
-    expect(a.intensite, Intensite.intense);
-    expect(a.kcal, closeTo(1440, 1e-9));
-  });
-
-  testWidgets('activité sans durée : refusée', (tester) async {
-    final banc = Banc();
-    await banc.monter(tester);
-
-    await menu(tester, 'Ajouter une activité');
-    await taper(tester, 'Enregistrer');
-
-    expect(banc.journal.activitesDe('u1'), isEmpty);
-  });
-
   testWidgets('supprimer un repas', (tester) async {
     final banc = Banc();
     await banc.repas(600);
@@ -366,26 +282,12 @@ void main() {
     confiance: 0.8,
   );
 
-  testWidgets("le menu ne propose plus d'ajouter un repas à la main", (
-    tester,
-  ) async {
-    final banc = Banc();
-    await banc.monter(tester);
-
-    await tester.tap(find.byType(FloatingActionButton));
-    await tester.pumpAndSettle();
-    expect(find.text('Ajouter un repas'), findsNothing);
-    expect(find.text('Photo du repas'), findsOneWidget);
-    expect(find.text('Scanner un produit'), findsOneWidget);
-    expect(find.text('Ajouter une activité'), findsOneWidget);
-  });
-
   testWidgets('sans relais : la saisie à la main s\'ouvre', (tester) async {
     final banc = Banc();
     banc.analyse.disponible = false;
     await banc.monter(tester);
 
-    await menu(tester, 'Photo du repas');
+    await ouvrirPhoto(tester);
 
     expect(find.textContaining('Sans analyse par IA'), findsOneWidget);
     expect(find.text('Calories (kcal)'), findsOneWidget);
@@ -399,7 +301,7 @@ void main() {
     banc.analyse.aliments = [riz];
     await banc.monter(tester);
 
-    await menu(tester, 'Photo du repas');
+    await ouvrirPhoto(tester);
     await taper(tester, 'Choisir dans la galerie');
     expect(banc.sources, [SourcePhoto.galerie]);
     expect(find.text('Analyser ce repas'), findsOneWidget);
@@ -415,7 +317,7 @@ void main() {
     banc.photo = null;
     await banc.monter(tester);
 
-    await menu(tester, 'Photo du repas');
+    await ouvrirPhoto(tester);
     await taper(tester, 'Prendre une photo');
 
     expect(banc.analyse.appels, 0);
@@ -453,7 +355,8 @@ void main() {
 
     await analyserUnePhoto(tester);
     expect(find.textContaining('Estimation par IA'), findsOneWidget);
-    expect(find.textContaining('295 kcal · 34 g de protéines'), findsOneWidget);
+    expect(find.text('295 kcal'), findsOneWidget);
+    expect(find.text('34 g'), findsOneWidget);
 
     await tester.tap(find.byType(Checkbox).last);
     await tester.pump();
@@ -535,7 +438,8 @@ void main() {
     await taper(tester, 'Enregistrer');
 
     expect(find.text('50 g · 130 kcal'), findsOneWidget);
-    expect(find.textContaining('260 kcal · 7 g de protéines'), findsOneWidget);
+    expect(find.text('260 kcal'), findsOneWidget);
+    expect(find.text('7 g'), findsOneWidget);
     await taper(tester, 'Enregistrer');
     final r = banc.journal.repasDe('u1').single;
     expect(r.nom, 'Riz, Pain');
@@ -605,11 +509,9 @@ void main() {
     await banc.monter(tester);
     await analyserUnePhoto(tester);
 
-    // Objectif du jour : 2080 kcal, 128 g de protéines (voir plus haut).
-    expect(
-      find.text('Après ce repas : 630 / 2080 kcal · 23 / 128 g de protéines'),
-      findsOneWidget,
-    );
+    // Objectif du jour : 2080 kcal, 128 g de protéines.
+    expect(find.text('Le verdict du coach'), findsOneWidget);
+    expect(find.textContaining('Il te resterait 1450 kcal'), findsOneWidget);
   });
 
   testWidgets('photo : « Saisir à la main » depuis le résultat', (
@@ -681,7 +583,7 @@ void main() {
     banc.analyse.aliments = [riz];
     await banc.monter(tester);
 
-    await menu(tester, 'Photo du repas');
+    await ouvrirPhoto(tester);
     expect(find.text("Envoyer la photo pour l'analyse ?"), findsOneWidget);
     await taper(tester, 'Refuser');
 
@@ -696,7 +598,7 @@ void main() {
     banc.analyse.aliments = [riz];
     await banc.monter(tester);
 
-    await menu(tester, 'Photo du repas');
+    await ouvrirPhoto(tester);
     await taper(tester, 'Accepter');
     await taper(tester, 'Prendre une photo');
     await taper(tester, 'Analyser ce repas');
@@ -704,5 +606,133 @@ void main() {
     expect(banc.consentements.accordesMaintenant, {Consentement.photo});
     expect(banc.analyse.appels, 1);
     expect(find.text('Riz'), findsOneWidget);
+  });
+
+  testWidgets('le bouton + ouvre directement la photo, sans menu', (
+    tester,
+  ) async {
+    final banc = Banc();
+    await banc.monter(tester);
+
+    await ouvrirPhoto(tester);
+
+    expect(find.text('Prendre une photo'), findsOneWidget);
+    expect(find.text('Scanner un produit'), findsNothing);
+    expect(find.text('Ajouter une activité'), findsNothing);
+    expect(find.text('Ajouter un repas'), findsNothing);
+  });
+
+  testWidgets('un produit protéiné : carton vert, description et apports', (
+    tester,
+  ) async {
+    final banc = Banc();
+    banc.analyse.description = 'Gâteau de semoule protéiné Aldi';
+    banc.analyse.aliments = [
+      const AlimentEstime(
+        nom: 'Gâteau de semoule protéiné',
+        grammes: 250,
+        macros: Macros(kcal: 202, proteines: 20, glucides: 22, lipides: 3.75),
+        sucres: 11.5,
+        satures: 2.5,
+        confiance: 0.9,
+      ),
+    ];
+    await banc.monter(tester);
+    await analyserUnePhoto(tester, precision: 'la moitié du pot');
+
+    expect(banc.analyse.indices, ['la moitié du pot']);
+    expect(find.text("C'est un carton vert !"), findsOneWidget);
+    expect(
+      find.text('Il s\'agit de : Gâteau de semoule protéiné Aldi'),
+      findsOneWidget,
+    );
+    expect(find.text('202 kcal'), findsOneWidget);
+    expect(find.text('20 g'), findsOneWidget);
+    expect(find.text('dont 12 g de sucres'), findsOneWidget);
+    expect(find.text('dont 3 g de saturés'), findsOneWidget);
+    expect(
+      find.textContaining('20 g de protéines pour 202 kcal'),
+      findsOneWidget,
+    );
+    expect(find.textContaining('Validé !'), findsOneWidget);
+  });
+
+  testWidgets('beaucoup de sucre : carton rouge', (tester) async {
+    final banc = Banc();
+    banc.analyse.aliments = [
+      const AlimentEstime(
+        nom: 'Bonbons',
+        grammes: 100,
+        macros: Macros(kcal: 350, proteines: 2, glucides: 85, lipides: 0.5),
+        sucres: 60,
+      ),
+    ];
+    await banc.monter(tester);
+    await analyserUnePhoto(tester);
+
+    expect(find.text("C'est un carton rouge !"), findsOneWidget);
+    expect(find.textContaining('60 g de sucres'), findsWidgets);
+  });
+
+  testWidgets('le verdict suit les aliments gardés', (tester) async {
+    final banc = Banc();
+    banc.analyse.aliments = [
+      const AlimentEstime(
+        nom: 'Skyr',
+        grammes: 150,
+        macros: Macros(kcal: 100, proteines: 17, glucides: 6, lipides: 0.5),
+      ),
+      const AlimentEstime(
+        nom: 'Bonbons',
+        grammes: 100,
+        macros: Macros(kcal: 350, proteines: 2, glucides: 85, lipides: 0.5),
+        sucres: 60,
+      ),
+    ];
+    await banc.monter(tester);
+    await analyserUnePhoto(tester);
+    expect(find.text("C'est un carton rouge !"), findsOneWidget);
+
+    await tester.tap(find.byType(Checkbox).last);
+    await tester.pumpAndSettle();
+    expect(find.text("C'est un carton vert !"), findsOneWidget);
+  });
+
+  testWidgets('total de la journée : petit-déjeuner, midi, soir additionnés', (
+    tester,
+  ) async {
+    final banc = Banc();
+    Future<void> ajouter(Moment moment, double kcal, double p) =>
+        banc.journal.ajouterRepas(
+          'u1',
+          Repas(
+            date: DateTime(2026, 10, 9, 12),
+            moment: moment,
+            nom: 'x',
+            macros: Macros(kcal: kcal, proteines: p),
+            source: SourceRepas.photo,
+          ),
+        );
+    await ajouter(Moment.petitDejeuner, 400, 20);
+    await ajouter(Moment.dejeuner, 600, 40);
+    await ajouter(Moment.diner, 500, 30);
+    await ajouter(Moment.diner, 100, 5);
+    await banc.monter(tester);
+
+    await defilerJusqua(tester, find.text('Total de la journée'));
+    expect(find.text('400 kcal · 20 g de protéines'), findsOneWidget);
+    expect(find.text('600 kcal · 40 g de protéines'), findsOneWidget);
+    expect(find.text('600 kcal · 35 g de protéines'), findsWidgets);
+    expect(find.byKey(const Key('recap-total')), findsOneWidget);
+    expect(
+      tester.widget<Text>(find.byKey(const Key('recap-total'))).data,
+      '1600 kcal · 95 g de protéines',
+    );
+  });
+
+  testWidgets('sans repas, pas de total de la journée', (tester) async {
+    final banc = Banc();
+    await banc.monter(tester);
+    expect(find.text('Total de la journée'), findsNothing);
   });
 }

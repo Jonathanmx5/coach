@@ -65,9 +65,10 @@ void main() {
     expect(vue.url.toString(), 'https://relais.test/analyse');
     expect(vue.headers['authorization'], 'Bearer tok');
     expect(vue.bodyBytes, [1, 2, 3]);
-    expect(liste.map((a) => a.nom), ['Œuf dur', 'Pain']);
-    expect(liste.first.macros.proteines, 13);
-    expect(liste.last.macros.glucides, 0);
+    expect(liste.description, '');
+    expect(liste.aliments.map((a) => a.nom), ['Œuf dur', 'Pain']);
+    expect(liste.aliments.first.macros.proteines, 13);
+    expect(liste.aliments.last.macros.glucides, 0);
   });
 
   test("la précision de l'utilisateur part en paramètre", () async {
@@ -96,7 +97,7 @@ void main() {
         ],
       }),
     );
-    final l = await c.analyser(image);
+    final l = (await c.analyser(image)).aliments;
     expect(l.map((a) => a.confiance), [0.9, 0.4, null]);
     expect(l.map((a) => a.aVerifier), [false, true, false]);
     // La portion changée garde la confiance et le nom reste modifiable.

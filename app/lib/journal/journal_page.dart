@@ -12,7 +12,6 @@ import '../sante/suivi.dart';
 import '../theme.dart';
 import 'analyse_photo.dart';
 import 'calculs.dart';
-import 'catalogue.dart';
 import 'formulaires.dart';
 import 'journal_repository.dart';
 import 'modele.dart';
@@ -21,14 +20,6 @@ import '../recettes/avis_repository.dart';
 import '../recettes/idees_page.dart';
 import '../recettes/planning_page.dart';
 import '../recettes/planning_repository.dart';
-import 'scanner_page.dart';
-
-/// Lit un code-barres (caméra par défaut) ; null si l'utilisateur annule.
-typedef LecteurCode = Future<String?> Function(BuildContext context);
-
-Future<String?> lecteurCodeCamera(BuildContext context) =>
-    Navigator.of(context)
-        .push<String>(MaterialPageRoute(builder: (_) => const ScannerPage()));
 
 /// Onglet Journal : repas, activités et bilan énergétique du jour.
 class JournalPage extends StatefulWidget {
@@ -37,24 +28,20 @@ class JournalPage extends StatefulWidget {
     required this.utilisateur,
     required this.enregistre,
     required this.journal,
-    required this.catalogue,
     required this.suivi,
     required this.horloge,
     required this.analyse,
     required this.planning,
     required this.avis,
     required this.consentements,
-    this.lecteurCode = lecteurCodeCamera,
     this.prise = prisePhotoCamera,
   });
 
   final Utilisateur utilisateur;
   final ProfilEnregistre enregistre;
   final JournalRepository journal;
-  final CatalogueProduits catalogue;
   final Suivi suivi;
   final DateTime Function() horloge;
-  final LecteurCode lecteurCode;
   final AnalysePhoto analyse;
   final PlanningRepository planning;
   final AvisRepository avis;
@@ -109,45 +96,6 @@ class _JournalPageState extends State<JournalPage> {
       ..showSnackBar(SnackBar(content: Text(texte)));
   }
 
-  Future<void> _ouvrirMenu() async {
-    final t = AppLocalizations.of(context)!;
-    final choix = await showModalBottomSheet<String>(
-      context: context,
-      showDragHandle: true,
-      builder: (_) => SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            ListTile(
-              leading: const Icon(Icons.photo_camera_outlined),
-              title: Text(t.menuPhoto),
-              onTap: () => Navigator.of(context).pop('photo'),
-            ),
-            ListTile(
-              leading: const Icon(Icons.qr_code_scanner),
-              title: Text(t.menuScanner),
-              onTap: () => Navigator.of(context).pop('scan'),
-            ),
-            ListTile(
-              leading: const Icon(Icons.directions_run),
-              title: Text(t.menuActivite),
-              onTap: () => Navigator.of(context).pop('activite'),
-            ),
-          ],
-        ),
-      ),
-    );
-    if (!mounted) return;
-    switch (choix) {
-      case 'photo':
-        await _photo();
-      case 'scan':
-        await _scanner();
-      case 'activite':
-        await _ajouterActivite();
-    }
-  }
-
   Future<void> _ajouterRepas() async {
     final repas = await Navigator.of(context).push<Repas>(
       MaterialPageRoute(builder: (_) => AjoutRepasPage(date: _dateAjout)),
@@ -181,6 +129,7 @@ class _JournalPageState extends State<JournalPage> {
           prise: widget.prise,
           dejaMange: _macrosDuJour,
           cibles: _ciblesDuJour,
+          objectif: widget.enregistre.profil.objectif,
         ),
       ),
     );
@@ -188,43 +137,6 @@ class _JournalPageState extends State<JournalPage> {
       unawaited(widget.journal.ajouterRepas(_uid, resultat));
     } else if (resultat is SaisieManuelle && mounted) {
       await _ajouterRepas();
-    }
-  }
-
-  Future<void> _scanner() async {
-    final t = AppLocalizations.of(context)!;
-    final code = await widget.lecteurCode(context);
-    if (code == null || !mounted) return;
-    try {
-      final produit = await widget.catalogue.chercher(code);
-      if (!mounted) return;
-      if (produit == null) {
-        _message(t.produitIntrouvable);
-        return;
-      }
-      final repas = await showModalBottomSheet<Repas>(
-        context: context,
-        isScrollControlled: true,
-        showDragHandle: true,
-        builder: (_) => FeuilleProduit(produit: produit, date: _dateAjout),
-      );
-      if (repas != null) unawaited(widget.journal.ajouterRepas(_uid, repas));
-    } on ErreurCatalogue {
-      if (mounted) _message(t.erreurReseauProduit);
-    }
-  }
-
-  Future<void> _ajouterActivite() async {
-    final activite = await Navigator.of(context).push<Activite>(
-      MaterialPageRoute(
-        builder: (_) => AjoutActivitePage(
-          date: _dateAjout,
-          poidsKg: widget.enregistre.profil.poidsKg,
-        ),
-      ),
-    );
-    if (activite != null) {
-      unawaited(widget.journal.ajouterActivite(_uid, activite));
     }
   }
 
@@ -270,9 +182,9 @@ class _JournalPageState extends State<JournalPage> {
       ),
       floatingActionButton: FloatingActionButton(
         heroTag: 'fab-journal',
-        tooltip: t.ajouter,
-        onPressed: _ouvrirMenu,
-        child: const Icon(Icons.add),
+        tooltip: t.menuPhoto,
+        onPressed: _photo,
+        child: const Icon(Icons.photo_camera_outlined),
       ),
       body: ListenableBuilder(
         listenable: widget.suivi,
@@ -347,6 +259,10 @@ class _JournalPageState extends State<JournalPage> {
         ),
         const SizedBox(height: 16),
         _CarteMacros(macros: macros, cibles: cibles),
+        if (repas.isNotEmpty) ...[
+          const SizedBox(height: 16),
+          _CarteRecap(repas: repas),
+        ],
         const SizedBox(height: 24),
         Text(t.repasTitre, style: Theme.of(context).textTheme.titleLarge),
         const SizedBox(height: 8),
@@ -384,6 +300,72 @@ class _JournalPageState extends State<JournalPage> {
                     ),
             ),
       ],
+    );
+  }
+}
+
+/// Les repas de la journée additionnés : un total par moment (petit-déjeuner,
+/// midi, soir, collation) puis le total de la journée.
+class _CarteRecap extends StatelessWidget {
+  const _CarteRecap({required this.repas});
+
+  final List<Repas> repas;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
+    final textes = Theme.of(context).textTheme;
+    final parMoment = {
+      for (final m in Moment.values)
+        m: totalMacros(repas.where((r) => r.moment == m)),
+    };
+    final total = totalMacros(repas);
+    String valeur(Macros m) =>
+        t.recapValeur(m.kcal.round(), m.proteines.round());
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(t.recapTitre, style: textes.titleMedium),
+            const SizedBox(height: 8),
+            for (final m in Moment.values)
+              if (repas.any((r) => r.moment == m))
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 3),
+                  child: Row(
+                    children: [
+                      Text(libelleMoment(t, m)),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Text(
+                          valeur(parMoment[m]!),
+                          textAlign: TextAlign.end,
+                          style: textes.bodyMedium,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+            const Divider(),
+            Row(
+              children: [
+                Text(t.recapTotal, style: textes.titleSmall),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    valeur(total),
+                    key: const Key('recap-total'),
+                    textAlign: TextAlign.end,
+                    style: textes.titleSmall,
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

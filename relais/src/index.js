@@ -1,4 +1,4 @@
-import { aliments, entreeModele } from './analyse.js';
+import { analyse, entreeModele } from './analyse.js';
 import { clesGoogle, JetonInvalide, verifierJeton } from './jeton.js';
 import { consommer } from './limites.js';
 
@@ -51,12 +51,12 @@ export async function traiter(request, env, deps = {}) {
       env.MODELE,
       entreeModele(octets, url.searchParams.get('indice') ?? ''),
     );
-    sortie = aliments(brut?.response ?? brut);
+    sortie = analyse(brut?.response ?? brut);
   } catch {
     return reponse({ erreur: 'ia' }, 502);
   }
   if (sortie === null) return reponse({ erreur: 'illisible' }, 422);
-  return reponse({ aliments: sortie });
+  return reponse(sortie);
 }
 
 export default {

@@ -18,6 +18,8 @@ class AlimentEstime {
     required this.grammes,
     required this.macros,
     this.confiance,
+    this.sucres,
+    this.satures,
   });
 
   final String nom;
@@ -29,22 +31,44 @@ class AlimentEstime {
   /// Certitude de l'IA, de 0 à 1 ; null pour un aliment ajouté à la main.
   final double? confiance;
 
+  /// Part des glucides qui est du sucre, et part des lipides saturée, pour
+  /// [grammes] ; null si inconnues.
+  final double? sucres;
+  final double? satures;
+
   bool get aVerifier => confiance != null && confiance! < seuilConfiance;
 
-  /// Même aliment avec une autre portion (macros proportionnelles).
-  AlimentEstime avecGrammes(double g) => AlimentEstime(
-    nom: nom,
-    grammes: g,
-    confiance: confiance,
-    macros: grammes <= 0 ? macros : macros.multiplie(g / grammes),
-  );
+  /// Même aliment avec une autre portion (apports proportionnels).
+  AlimentEstime avecGrammes(double g) {
+    final f = grammes <= 0 ? 1.0 : g / grammes;
+    return AlimentEstime(
+      nom: nom,
+      grammes: g,
+      confiance: confiance,
+      sucres: sucres == null ? null : sucres! * f,
+      satures: satures == null ? null : satures! * f,
+      macros: grammes <= 0 ? macros : macros.multiplie(f),
+    );
+  }
 
   AlimentEstime avecNom(String n) => AlimentEstime(
     nom: n,
     grammes: grammes,
     macros: macros,
     confiance: confiance,
+    sucres: sucres,
+    satures: satures,
   );
+}
+
+/// Ce que l'IA a compris de la photo : de quoi il s'agit (plat, produit et
+/// marque) et les aliments avec leurs apports.
+@immutable
+class ResultatAnalyse {
+  const ResultatAnalyse({required this.description, required this.aliments});
+
+  final String description;
+  final List<AlimentEstime> aliments;
 }
 
 enum CauseAnalyse { reseau, auth, quota, illisible, indisponible }
@@ -64,7 +88,7 @@ abstract class AnalysePhoto {
 
   /// [indice] : précision libre de l'utilisateur (« sauce à part »…).
   /// Lève [AnalyseEchouee].
-  Future<List<AlimentEstime>> analyser(Uint8List jpeg, {String? indice});
+  Future<ResultatAnalyse> analyser(Uint8List jpeg, {String? indice});
 }
 
 /// Appelle le relais Cloudflare (dossier `relais/`) avec le jeton Firebase.
@@ -83,7 +107,7 @@ class AnalysePhotoRelais implements AnalysePhoto {
   bool get disponible => url.isNotEmpty;
 
   @override
-  Future<List<AlimentEstime>> analyser(Uint8List jpeg, {String? indice}) async {
+  Future<ResultatAnalyse> analyser(Uint8List jpeg, {String? indice}) async {
     final token = await jeton();
     if (token == null) throw const AnalyseEchouee(CauseAnalyse.auth);
     final precision = indice?.trim() ?? '';
@@ -120,20 +144,25 @@ class AnalysePhotoRelais implements AnalysePhoto {
     }
     try {
       final json = jsonDecode(utf8.decode(r.bodyBytes)) as Map<String, dynamic>;
-      return [
-        for (final a in json['aliments'] as List)
-          AlimentEstime(
-            nom: (a['nom'] as String).trim(),
-            grammes: (a['grammes'] as num).toDouble(),
-            confiance: (a['confiance'] as num?)?.toDouble(),
-            macros: Macros(
-              kcal: (a['kcal'] as num).toDouble(),
-              proteines: (a['proteines'] as num?)?.toDouble() ?? 0,
-              glucides: (a['glucides'] as num?)?.toDouble() ?? 0,
-              lipides: (a['lipides'] as num?)?.toDouble() ?? 0,
+      return ResultatAnalyse(
+        description: ((json['description'] as String?) ?? '').trim(),
+        aliments: [
+          for (final a in json['aliments'] as List)
+            AlimentEstime(
+              nom: (a['nom'] as String).trim(),
+              grammes: (a['grammes'] as num).toDouble(),
+              confiance: (a['confiance'] as num?)?.toDouble(),
+              sucres: (a['sucres'] as num?)?.toDouble(),
+              satures: (a['satures'] as num?)?.toDouble(),
+              macros: Macros(
+                kcal: (a['kcal'] as num).toDouble(),
+                proteines: (a['proteines'] as num?)?.toDouble() ?? 0,
+                glucides: (a['glucides'] as num?)?.toDouble() ?? 0,
+                lipides: (a['lipides'] as num?)?.toDouble() ?? 0,
+              ),
             ),
-          ),
-      ];
+        ],
+      );
     } catch (_) {
       throw const AnalyseEchouee(CauseAnalyse.illisible);
     }

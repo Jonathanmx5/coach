@@ -6,7 +6,6 @@ import 'compte/donnees_compte.dart';
 import 'entrainement/entrainement_repository.dart';
 import 'entrainement/voix.dart';
 import 'journal/analyse_photo.dart';
-import 'journal/catalogue.dart';
 import 'journal/journal_repository.dart';
 import 'poids/mensurations_repository.dart';
 import 'poids/pesees_repository.dart';
@@ -43,7 +42,6 @@ class Services {
     required this.donnees,
     required this.consentements,
     required this.journal,
-    required this.catalogue,
     required this.sante,
   });
 
@@ -67,6 +65,5 @@ class Services {
   final DonneesCompte donnees;
   final ConsentementsRepository consentements;
   final JournalRepository journal;
-  final CatalogueProduits catalogue;
   final SanteService sante;
 }

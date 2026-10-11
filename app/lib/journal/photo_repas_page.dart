@@ -8,7 +8,9 @@ import '../theme.dart';
 import 'analyse_photo.dart';
 import 'calculs.dart';
 import 'formulaires.dart';
+import '../profil/modele.dart';
 import 'modele.dart';
+import 'verdict.dart';
 
 /// Résultat de [PhotoRepasPage] quand l'utilisateur préfère tout saisir à la
 /// main (ou que l'analyse est impossible).
@@ -27,6 +29,7 @@ class PhotoRepasPage extends StatefulWidget {
     required this.prise,
     this.dejaMange = Macros.zero,
     this.cibles,
+    this.objectif = Objectif.forme,
   });
 
   final DateTime date;
@@ -37,6 +40,7 @@ class PhotoRepasPage extends StatefulWidget {
   /// l'effet du repas ; sans [cibles], cette ligne n'est pas affichée.
   final Macros dejaMange;
   final CiblesJour? cibles;
+  final Objectif objectif;
 
   @override
   State<PhotoRepasPage> createState() => _PhotoRepasPageState();
@@ -49,6 +53,7 @@ class _PhotoRepasPageState extends State<PhotoRepasPage> {
   Uint8List? _image;
   CauseAnalyse? _cause;
   List<AlimentEstime> _aliments = const [];
+  String _description = '';
   final _gardes = <int>{};
   final _precision = TextEditingController();
   late Moment _moment = momentPourHeure(widget.date);
@@ -71,12 +76,14 @@ class _PhotoRepasPageState extends State<PhotoRepasPage> {
   Future<void> _analyser() async {
     setState(() => _phase = _Phase.analyse);
     try {
-      final liste = await widget.analyse.analyser(
+      final analyse = await widget.analyse.analyser(
         _image!,
         indice: _precision.text,
       );
       if (!mounted) return;
+      final liste = analyse.aliments;
       setState(() {
+        _description = analyse.description;
         _aliments = liste;
         _gardes
           ..clear()
@@ -97,8 +104,6 @@ class _PhotoRepasPageState extends State<PhotoRepasPage> {
   List<AlimentEstime> get _retenus => [
     for (final i in _gardes.toList()..sort()) _aliments[i],
   ];
-
-  Macros get _total => totalAliments(_retenus);
 
   /// ±10 % de la portion, arrondi à 5 g.
   void _ajuster(int i, double facteur) {
@@ -289,9 +294,13 @@ class _PhotoRepasPageState extends State<PhotoRepasPage> {
 
   Widget _resultat(AppLocalizations t) {
     final textes = Theme.of(context).textTheme;
-    final total = _total;
+    final retenus = _retenus;
     final cibles = widget.cibles;
-    final apres = widget.dejaMange + total;
+    double? somme(double? Function(AlimentEstime) f) {
+      final valeurs = [for (final a in retenus) f(a)].whereType<double>();
+      return valeurs.isEmpty ? null : valeurs.fold<double>(0, (s, v) => s + v);
+    }
+
     return ListView(
       padding: const EdgeInsets.all(20),
       children: [
@@ -299,11 +308,28 @@ class _PhotoRepasPageState extends State<PhotoRepasPage> {
         const SizedBox(height: 12),
         if (_aliments.isEmpty)
           Text(t.aucunAliment, style: textes.bodyLarge)
-        else
+        else if (retenus.isNotEmpty && cibles != null)
+          _CarteVerdict(
+            description: _description,
+            repas: totalAliments(retenus),
+            sucres: somme((a) => a.sucres),
+            satures: somme((a) => a.satures),
+            verdict: verdictRepas(
+              repas: totalAliments(retenus),
+              sucres: somme((a) => a.sucres),
+              satures: somme((a) => a.satures),
+              dejaMange: widget.dejaMange,
+              cibles: cibles,
+              objectif: widget.objectif,
+            ),
+          ),
+        if (_aliments.isNotEmpty) ...[
+          const SizedBox(height: 12),
           Text(
             t.estimationAVerifier,
             style: textes.bodySmall?.copyWith(color: CouleursCoach.texteDoux),
           ),
+        ],
         for (var i = 0; i < _aliments.length; i++) _ligne(t, i),
         OutlinedButton.icon(
           onPressed: _ajouter,
@@ -322,28 +348,6 @@ class _PhotoRepasPageState extends State<PhotoRepasPage> {
               ),
           ],
         ),
-        const SizedBox(height: 12),
-        Text(
-          t.ceRepas(
-            total.kcal.round(),
-            total.proteines.round(),
-            total.glucides.round(),
-            total.lipides.round(),
-          ),
-          style: textes.titleMedium,
-        ),
-        if (cibles != null) ...[
-          const SizedBox(height: 4),
-          Text(
-            t.apresRepas(
-              apres.kcal.round(),
-              cibles.kcal.round(),
-              apres.proteines.round(),
-              cibles.proteines.round(),
-            ),
-            style: textes.bodyMedium?.copyWith(color: CouleursCoach.texteDoux),
-          ),
-        ],
         const SizedBox(height: 12),
         FilledButton(
           onPressed: _gardes.isEmpty ? null : _valider,
@@ -410,6 +414,129 @@ class _PhotoRepasPageState extends State<PhotoRepasPage> {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+/// Carton du coach : couleur, ce que c'est, les apports et le verdict détaillé.
+class _CarteVerdict extends StatelessWidget {
+  const _CarteVerdict({
+    required this.description,
+    required this.repas,
+    required this.sucres,
+    required this.satures,
+    required this.verdict,
+  });
+
+  final String description;
+  final Macros repas;
+  final double? sucres;
+  final double? satures;
+  final Verdict verdict;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
+    final textes = Theme.of(context).textTheme;
+    final (couleur, fond, titre) = switch (verdict.feu) {
+      Feu.vert => (
+        CouleursCoach.vertMoyen,
+        CouleursCoach.vertClair,
+        t.cartonVert,
+      ),
+      Feu.orange => (
+        CouleursCoach.orange,
+        CouleursCoach.orangeClair,
+        t.cartonOrange,
+      ),
+      Feu.rouge => (
+        const Color(0xFFE24B4A),
+        const Color(0xFFFCE8E8),
+        t.cartonRouge,
+      ),
+    };
+    Widget tuile(String libelle, String valeur, String? detail) => Expanded(
+      child: Container(
+        margin: const EdgeInsets.only(right: 6),
+        padding: const EdgeInsets.all(10),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(libelle, style: textes.labelSmall),
+            Text(valeur, style: textes.titleMedium),
+            if (detail != null)
+              Text(
+                detail,
+                style: textes.labelSmall?.copyWith(
+                  color: CouleursCoach.texteDoux,
+                ),
+              ),
+          ],
+        ),
+      ),
+    );
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: fond,
+        borderRadius: BorderRadius.circular(rayonCarte),
+        border: Border.all(color: couleur, width: 2),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(Icons.circle, color: couleur, size: 22),
+              const SizedBox(width: 10),
+              Expanded(child: Text(titre, style: textes.titleLarge)),
+            ],
+          ),
+          if (description.isNotEmpty) ...[
+            const SizedBox(height: 6),
+            Text(t.ilSagit(description), style: textes.bodyMedium),
+          ],
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              tuile(t.tuileCalories, '${repas.kcal.round()} kcal', null),
+              tuile(t.tuileProteines, '${repas.proteines.round()} g', null),
+            ],
+          ),
+          const SizedBox(height: 6),
+          Row(
+            children: [
+              tuile(
+                t.tuileGlucides,
+                '${repas.glucides.round()} g',
+                sucres == null ? null : t.dontSucres(sucres!.round()),
+              ),
+              tuile(
+                t.tuileLipides,
+                '${repas.lipides.round()} g',
+                satures == null ? null : t.dontSatures(satures!.round()),
+              ),
+            ],
+          ),
+          const SizedBox(height: 14),
+          Text(t.verdictCoach, style: textes.titleMedium),
+          const SizedBox(height: 4),
+          for (final p in verdict.points)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 4),
+              child: Text('• $p', style: textes.bodyMedium),
+            ),
+          const SizedBox(height: 6),
+          Text(
+            verdict.conclusion,
+            style: textes.titleSmall?.copyWith(fontWeight: FontWeight.w700),
+          ),
+        ],
       ),
     );
   }

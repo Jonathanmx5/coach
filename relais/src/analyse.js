@@ -1,8 +1,10 @@
-export const CONSIGNE = `Tu es un diététicien. Regarde la photo et liste uniquement les aliments ou plats que tu vois réellement, avec une estimation de la quantité en grammes et des apports pour cette quantité.
+export const CONSIGNE = `Tu es un diététicien sportif. La photo montre soit un plat ou des aliments, soit un produit emballé (avec parfois son tableau de valeurs nutritionnelles).
+- Plat : liste les aliments vus, avec la quantité estimée en grammes et les apports pour cette quantité.
+- Produit emballé : donne son nom (et sa marque si elle est lisible) dans "description". Si le tableau nutritionnel est lisible, utilise ses valeurs pour 100 g. La quantité est celle que la personne indique (par exemple "la moitié du pot") ; sans précision, c'est tout le contenu de l'emballage. Calcule les apports pour cette quantité.
 Réponds UNIQUEMENT avec du JSON de cette forme :
-{"aliments":[{"nom":"<nom en français>","grammes":<nombre>,"kcal":<nombre>,"proteines":<nombre>,"glucides":<nombre>,"lipides":<nombre>,"confiance":<nombre entre 0 et 1>}]}
-"confiance" : ta certitude sur l'aliment et sa quantité (1 = sûr ; moins de 0,5 pour un plat mélangé, caché ou à la portion difficile à estimer).
-Si la photo ne montre aucun aliment ni aucun plat (objet, paysage, logo, image floue…), réponds exactement {"aliments":[]}. N'invente rien. Au plus 8 aliments, les plus importants.`;
+{"description":"<ce que c'est, en une phrase courte>","aliments":[{"nom":"<nom en français>","grammes":<nombre>,"kcal":<nombre>,"proteines":<nombre>,"glucides":<nombre>,"sucres":<nombre>,"lipides":<nombre>,"satures":<nombre>,"confiance":<nombre entre 0 et 1>}]}
+"sucres" = part des glucides qui est du sucre ; "satures" = part des lipides qui est saturée (0 si inconnu). "confiance" : ta certitude sur l'aliment et sa quantité (1 = sûr ; moins de 0,5 pour un plat mélangé, caché ou à la portion difficile à estimer).
+Si la photo ne montre aucun aliment ni aucun produit alimentaire (objet, paysage, logo, image floue...), réponds exactement {"description":"","aliments":[]}. N'invente rien. Au plus 8 aliments, les plus importants.`;
 
 const borne = (v, min, max) => Math.min(max, Math.max(min, v));
 const nombre = (v) => (typeof v === 'number' && Number.isFinite(v) ? v : Number.parseFloat(v));
@@ -43,6 +45,8 @@ export function aliments(texteOuObjet) {
     const p = borne(nombre(a.proteines) || 0, 0, 500);
     const g = borne(nombre(a.glucides) || 0, 0, 1000);
     const l = borne(nombre(a.lipides) || 0, 0, 500);
+    const sucres = borne(nombre(a.sucres) || 0, 0, g);
+    const satures = borne(nombre(a.satures) || 0, 0, l);
     const depuisMacros = p * 4 + g * 4 + l * 9;
     let kcal = nombre(a.kcal);
     if (!Number.isFinite(kcal) || kcal <= 0) kcal = depuisMacros;
@@ -57,11 +61,30 @@ export function aliments(texteOuObjet) {
       proteines: Math.round(p * 10) / 10,
       glucides: Math.round(g * 10) / 10,
       lipides: Math.round(l * 10) / 10,
+      sucres: Math.round(sucres * 10) / 10,
+      satures: Math.round(satures * 10) / 10,
       confiance: Math.round(confiance * 100) / 100,
     });
     if (sortie.length === 8) break;
   }
   return sortie;
+}
+
+/** Phrase de description : une ligne, 120 caractères. */
+export function nettoyerDescription(d) {
+  if (typeof d !== 'string') return '';
+  return d.replace(/\s+/g, ' ').trim().slice(0, 120);
+}
+
+/**
+ * Réponse complète : description du plat ou du produit et aliments nettoyés,
+ * ou null si le modèle n'a rien renvoyé d'exploitable.
+ */
+export function analyse(texteOuObjet) {
+  const json = typeof texteOuObjet === 'string' ? extraireJson(texteOuObjet) : texteOuObjet;
+  const liste = aliments(json);
+  if (liste === null) return null;
+  return { description: nettoyerDescription(json.description), aliments: liste };
 }
 
 export function versBase64(octets) {

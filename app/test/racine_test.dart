@@ -74,7 +74,6 @@ Future<void> monter(
             liensOuverts.add(u);
             return true;
           },
-          catalogue: FauxCatalogue(),
         ),
         horloge: () => maintenant,
       ),

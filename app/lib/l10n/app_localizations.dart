@@ -1996,6 +1996,90 @@ abstract class AppLocalizations {
   /// **'Après ce repas : {kcal} / {cible} kcal · {p} / {pc} g de protéines'**
   String apresRepas(int kcal, int cible, int p, int pc);
 
+  /// No description provided for @cartonVert.
+  ///
+  /// In fr, this message translates to:
+  /// **'C\'est un carton vert !'**
+  String get cartonVert;
+
+  /// No description provided for @cartonOrange.
+  ///
+  /// In fr, this message translates to:
+  /// **'C\'est un carton orange !'**
+  String get cartonOrange;
+
+  /// No description provided for @cartonRouge.
+  ///
+  /// In fr, this message translates to:
+  /// **'C\'est un carton rouge !'**
+  String get cartonRouge;
+
+  /// No description provided for @ilSagit.
+  ///
+  /// In fr, this message translates to:
+  /// **'Il s\'agit de : {nom}'**
+  String ilSagit(String nom);
+
+  /// No description provided for @verdictCoach.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le verdict du coach'**
+  String get verdictCoach;
+
+  /// No description provided for @tuileCalories.
+  ///
+  /// In fr, this message translates to:
+  /// **'Calories'**
+  String get tuileCalories;
+
+  /// No description provided for @tuileProteines.
+  ///
+  /// In fr, this message translates to:
+  /// **'Protéines'**
+  String get tuileProteines;
+
+  /// No description provided for @tuileGlucides.
+  ///
+  /// In fr, this message translates to:
+  /// **'Glucides'**
+  String get tuileGlucides;
+
+  /// No description provided for @tuileLipides.
+  ///
+  /// In fr, this message translates to:
+  /// **'Lipides'**
+  String get tuileLipides;
+
+  /// No description provided for @dontSucres.
+  ///
+  /// In fr, this message translates to:
+  /// **'dont {s} g de sucres'**
+  String dontSucres(int s);
+
+  /// No description provided for @dontSatures.
+  ///
+  /// In fr, this message translates to:
+  /// **'dont {s} g de saturés'**
+  String dontSatures(int s);
+
+  /// No description provided for @recapTitre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Total de la journée'**
+  String get recapTitre;
+
+  /// No description provided for @recapTotal.
+  ///
+  /// In fr, this message translates to:
+  /// **'Total'**
+  String get recapTotal;
+
+  /// No description provided for @recapValeur.
+  ///
+  /// In fr, this message translates to:
+  /// **'{kcal} kcal · {p} g de protéines'**
+  String recapValeur(int kcal, int p);
+
   /// No description provided for @courbePoids.
   ///
   /// In fr, this message translates to:

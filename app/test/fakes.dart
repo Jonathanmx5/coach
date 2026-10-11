@@ -12,7 +12,6 @@ import 'package:coach/entrainement/entrainement_repository.dart';
 import 'package:coach/entrainement/modele.dart';
 import 'package:coach/entrainement/voix.dart';
 import 'package:coach/journal/analyse_photo.dart';
-import 'package:coach/journal/catalogue.dart';
 import 'package:coach/journal/journal_repository.dart';
 import 'package:coach/journal/modele.dart';
 import 'package:coach/poids/mensurations.dart';
@@ -188,21 +187,26 @@ class FauxPesees implements PeseesRepository {
 
 /// Analyse photo pilotée par le test.
 class FausseAnalyse implements AnalysePhoto {
-  FausseAnalyse({this.disponible = true, this.aliments = const []});
+  FausseAnalyse({
+    this.disponible = true,
+    this.aliments = const [],
+    this.description = '',
+  });
 
   @override
   bool disponible;
   List<AlimentEstime> aliments;
+  String description;
   CauseAnalyse? echec;
   int appels = 0;
   final indices = <String?>[];
 
   @override
-  Future<List<AlimentEstime>> analyser(Uint8List jpeg, {String? indice}) async {
+  Future<ResultatAnalyse> analyser(Uint8List jpeg, {String? indice}) async {
     appels++;
     indices.add(indice);
     if (echec != null) throw AnalyseEchouee(echec!);
-    return aliments;
+    return ResultatAnalyse(description: description, aliments: aliments);
   }
 }
 
@@ -665,21 +669,5 @@ class FauxJournal implements JournalRepository {
         if (a.id != id) a,
     ];
     _flux.add(null);
-  }
-}
-
-/// Catalogue de produits programmable.
-class FauxCatalogue implements CatalogueProduits {
-  FauxCatalogue({this.produit, this.erreur = false});
-
-  ProduitOff? produit;
-  bool erreur;
-  final recherches = <String>[];
-
-  @override
-  Future<ProduitOff?> chercher(String codeBarres) async {
-    recherches.add(codeBarres);
-    if (erreur) throw const ErreurCatalogue('hors-ligne');
-    return produit;
   }
 }

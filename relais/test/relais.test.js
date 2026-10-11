@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 
-import { aliments, entreeModele, extraireJson, nettoyerIndice } from '../src/analyse.js';
+import { aliments, analyse, entreeModele, extraireJson, nettoyerIndice } from '../src/analyse.js';
 import { traiter } from '../src/index.js';
 import { JetonInvalide, verifierJeton } from '../src/jeton.js';
 import { consommer, jourUtc } from '../src/limites.js';
@@ -171,12 +171,30 @@ function env(ia) {
   };
 }
 
+test('produit emballé : description, sucres et saturés bornés', () => {
+  const r = analyse(
+    '{"description":"  Gâteau de semoule protéiné Aldi  ","aliments":[{"nom":"Gâteau de semoule","grammes":250,"kcal":202,"proteines":20,"glucides":22,"sucres":11.5,"lipides":3.75,"satures":2.5,"confiance":0.9}]}',
+  );
+  assert.equal(r.description, 'Gâteau de semoule protéiné Aldi');
+  const a = r.aliments[0];
+  assert.equal(a.sucres, 11.5);
+  assert.equal(a.satures, 2.5);
+  assert.equal(a.kcal, 202);
+  // Sucres et saturés ne dépassent jamais glucides et lipides.
+  const b = analyse({ aliments: [{ nom: 'x', grammes: 10, glucides: 5, sucres: 50, lipides: 1, satures: 9 }] }).aliments[0];
+  assert.equal(b.sucres, 5);
+  assert.equal(b.satures, 1);
+  assert.equal(analyse({ aliments: [] }).description, '');
+  assert.equal(analyse('rien'), null);
+});
+
 test('relais : parcours complet', async () => {
   const { cles, jeton } = await fabrique();
   const r = await traiter(requete({ jeton: await jeton() }), env(), { cles, maintenant: MAINTENANT });
   assert.equal(r.status, 200);
   const j = await r.json();
   assert.equal(j.aliments[0].nom, 'pomme');
+  assert.equal(typeof j.description, 'string');
 });
 
 test('relais : sans jeton 401, mauvaise route 404, mauvaise méthode 405', async () => {

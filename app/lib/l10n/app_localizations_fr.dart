@@ -1070,6 +1070,56 @@ class AppLocalizationsFr extends AppLocalizations {
   }
 
   @override
+  String get cartonVert => 'C\'est un carton vert !';
+
+  @override
+  String get cartonOrange => 'C\'est un carton orange !';
+
+  @override
+  String get cartonRouge => 'C\'est un carton rouge !';
+
+  @override
+  String ilSagit(String nom) {
+    return 'Il s\'agit de : $nom';
+  }
+
+  @override
+  String get verdictCoach => 'Le verdict du coach';
+
+  @override
+  String get tuileCalories => 'Calories';
+
+  @override
+  String get tuileProteines => 'Protéines';
+
+  @override
+  String get tuileGlucides => 'Glucides';
+
+  @override
+  String get tuileLipides => 'Lipides';
+
+  @override
+  String dontSucres(int s) {
+    return 'dont $s g de sucres';
+  }
+
+  @override
+  String dontSatures(int s) {
+    return 'dont $s g de saturés';
+  }
+
+  @override
+  String get recapTitre => 'Total de la journée';
+
+  @override
+  String get recapTotal => 'Total';
+
+  @override
+  String recapValeur(int kcal, int p) {
+    return '$kcal kcal · $p g de protéines';
+  }
+
+  @override
   String get courbePoids => 'Évolution du poids';
 
   @override

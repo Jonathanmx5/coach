@@ -13,7 +13,6 @@ import 'bienetre/meteo.dart';
 import 'bienetre/rappels.dart';
 import 'compte/auth_service.dart';
 import 'compte/donnees_compte.dart';
-import 'journal/catalogue.dart';
 import 'journal/journal_repository.dart';
 import 'poids/mensurations_repository.dart';
 import 'poids/pesees_repository.dart';
@@ -76,7 +75,6 @@ Future<void> main() async {
             jeton: auth.jeton,
           ),
           journal: FirestoreJournalRepository(),
-          catalogue: CatalogueOpenFoodFacts(),
           sante: HealthSanteService(),
         ),
         horloge: DateTime.now,
