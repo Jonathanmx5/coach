@@ -91,6 +91,12 @@ test('extraction JSON : avec texte et balises', () => {
   assert.equal(extraireJson('{cassé'), null);
 });
 
+test('extraction JSON : réponse coupée en plein milieu', () => {
+  const coupee = '{"aliments":[{"nom":"Pain","grammes":50,"kcal":130},{"nom":"Fromage","grammes":30,"kcal":1';
+  assert.deepEqual(aliments(coupee).map((a) => a.nom), ['Pain']);
+  assert.equal(extraireJson('{"aliments":[{"nom":"x'), null);
+});
+
 test('aliments : nettoyage, bornes, kcal recalculées', () => {
   const sortie = aliments(
     '{"aliments":[{"nom":" Riz ","grammes":150,"kcal":195,"proteines":4,"glucides":42,"lipides":0.5},' +

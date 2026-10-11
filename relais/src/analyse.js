@@ -1,7 +1,7 @@
-export const CONSIGNE = `Tu es un diététicien. Regarde la photo du repas et liste chaque aliment visible avec une estimation de sa quantité et de ses apports.
-Réponds UNIQUEMENT avec du JSON, sans texte autour, sous cette forme :
-{"aliments":[{"nom":"riz blanc cuit","grammes":150,"kcal":195,"proteines":4,"glucides":42,"lipides":0.5}]}
-Les noms sont en français. Si la photo ne montre pas de nourriture, réponds {"aliments":[]}.`;
+export const CONSIGNE = `Tu es un diététicien. Regarde la photo et liste uniquement les aliments ou plats que tu vois réellement, avec une estimation de la quantité en grammes et des apports pour cette quantité.
+Réponds UNIQUEMENT avec du JSON de cette forme :
+{"aliments":[{"nom":"<nom en français>","grammes":<nombre>,"kcal":<nombre>,"proteines":<nombre>,"glucides":<nombre>,"lipides":<nombre>}]}
+Si la photo ne montre aucun aliment ni aucun plat (objet, paysage, logo, image floue…), réponds exactement {"aliments":[]}. N'invente rien. Au plus 8 aliments, les plus importants.`;
 
 const borne = (v, min, max) => Math.min(max, Math.max(min, v));
 const nombre = (v) => (typeof v === 'number' && Number.isFinite(v) ? v : Number.parseFloat(v));
@@ -15,6 +15,15 @@ export function extraireJson(texte) {
   try {
     return JSON.parse(texte.slice(debut, fin + 1));
   } catch {
+    // Réponse coupée (limite de longueur) : on garde les aliments complets.
+    for (let p = fin; p > debut; p = texte.lastIndexOf('}', p - 1)) {
+      try {
+        const json = JSON.parse(`${texte.slice(debut, p + 1)}]}`);
+        if (Array.isArray(json.aliments)) return json;
+      } catch {
+        // essai suivant, plus court
+      }
+    }
     return null;
   }
 }
@@ -68,7 +77,7 @@ export function entreeModele(octets) {
         ],
       },
     ],
-    max_tokens: 700,
+    max_tokens: 900,
     temperature: 0.2,
   };
 }

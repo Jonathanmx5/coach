@@ -14,7 +14,7 @@ flutter build apk --release --split-per-abi    # un APK par processeur (arm64 po
 flutter build appbundle --release              # .aab pour le Play Store
 ```
 
-Ajouter `--dart-define=RELAIS_URL=https://…` pour activer la photo de repas.
+Ajouter `--dart-define=RELAIS_URL=https://coach-relais.coach-relais.workers.dev` pour activer la photo de repas.
 
 ## Version GitHub
 

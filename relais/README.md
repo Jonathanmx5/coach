@@ -4,7 +4,7 @@ Reçoit la photo d'un repas depuis l'application, vérifie le jeton Firebase de 
 
 - `POST /analyse` — corps : image JPEG (1,5 Mo max) ; `Authorization: Bearer <jeton Firebase>`.
 - Réponse : `{"aliments":[{"nom","grammes","kcal","proteines","glucides","lipides"}]}` ou `{"erreur":"auth|quota|taille|illisible|ia"}` (401, 429, 413, 422, 502).
-- Plafonds (par jour UTC) : 15 photos par utilisateur et 150 au total, pour rester dans le quota gratuit de Workers AI (environ 10 000 neurones par jour). Réglables dans `wrangler.toml`.
+- Plafonds (par jour UTC) : 15 photos par utilisateur et 500 au total (une photo coûte environ 10 neurones, le quota gratuit de Workers AI est de 10 000 par jour). Réglables dans `wrangler.toml`.
 - Le modèle est interchangeable (`MODELE`). Le format de l'entrée est dans `src/analyse.js` (`entreeModele`).
 
 ## Tests
@@ -24,7 +24,7 @@ npx wrangler kv namespace create LIMITES     # copier l'id dans wrangler.toml
 npx wrangler deploy
 ```
 
-Puis compiler l'application avec l'adresse obtenue :
+Adresse actuelle : `https://coach-relais.coach-relais.workers.dev`. Compiler l'application avec :
 
 ```bash
 flutter build apk --dart-define=RELAIS_URL=https://coach-relais.<compte>.workers.dev

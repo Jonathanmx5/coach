@@ -8,7 +8,7 @@ binding = "AI"
 # Compteurs d'usage : npx wrangler kv namespace create LIMITES, puis coller l'id.
 [[kv_namespaces]]
 binding = "LIMITES"
-id = "A_REMPLACER"
+id = "ca1b497c69f844df9fe098c9d5e66c4a"
 
 [vars]
 PROJECT_ID = "coach-jonathanmx5"
@@ -16,4 +16,4 @@ MODELE = "@cf/meta/llama-3.2-11b-vision-instruct"
 # Photos analysées par jour : par utilisateur, et pour tout le monde (garde le
 # quota gratuit de Workers AI).
 PLAFOND_UTILISATEUR = "15"
-PLAFOND_GLOBAL = "150"
+PLAFOND_GLOBAL = "500"
