@@ -382,6 +382,18 @@
   "activerRappel": "Activer le rappel",
   "desactiverRappel": "Désactiver le rappel",
   "supprimerComplement": "Supprimer",
+  "seriesTitre": "Tes séries",
+  "serieJournal": "Journal tenu",
+  "serieEntrainement": "Séance faite",
+  "serieEau": "Objectif d'eau atteint",
+  "nbJours": "{n, plural, =0{0 jour} =1{1 jour} other{{n} jours}}",
+  "@nbJours": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
   "courbePoids": "Évolution du poids",
   "periode90": "90 jours",
   "periode1an": "1 an",

@@ -1,3 +1,4 @@
+import 'package:coach/entrainement/modele.dart';
 import 'package:coach/bienetre/complements.dart';
 import 'package:flutter/material.dart';
 import 'package:coach/app.dart';
@@ -35,6 +36,7 @@ class Banc {
   final journal = FauxJournal();
   final meteo = FausseMeteo(31);
   final rappels = FauxRappels();
+  final entrainement = FauxEntrainement();
 
   Future<void> monter(WidgetTester tester) async {
     await tester.pumpWidget(
@@ -49,6 +51,7 @@ class Banc {
           journal: journal,
           meteo: meteo,
           rappels: rappels,
+          entrainement: entrainement,
           horloge: () => maintenant,
         ),
       ),
@@ -159,6 +162,7 @@ void main() {
     expect(c.minutes, 480);
     expect(banc.rappels.autorisations, 1);
     expect(banc.rappels.planifications.last.single.nom, 'Vitamine D');
+    await defilerJusqua(tester, find.text('Rappel à 08h00'));
     expect(find.text('Rappel à 08h00'), findsOneWidget);
 
     await tester.tap(find.byType(Checkbox));
@@ -180,6 +184,7 @@ void main() {
       Complement(id: 'x', nom: 'Magnésium', minutes: 1290),
     ];
     await banc.monter(tester);
+    await defilerJusqua(tester, find.text('Rappel à 21h30'));
     expect(find.text('Rappel à 21h30'), findsOneWidget);
 
     await tester.tap(find.byTooltip('Options'));
@@ -188,5 +193,34 @@ void main() {
     await tester.pumpAndSettle();
     expect(banc.bienetre.complementsDe('u1'), isEmpty);
     expect(banc.rappels.planifications.last, isEmpty);
+  });
+
+  testWidgets('séries : journal, séance et eau comptés', (tester) async {
+    final banc = Banc();
+    Repas repas(int jour) => Repas(
+      date: DateTime(2026, 10, jour, 12),
+      moment: Moment.dejeuner,
+      nom: 'x',
+      macros: const Macros(kcal: 500),
+      source: SourceRepas.manuel,
+    );
+    banc.journal.repasParUid['u1'] = [repas(7), repas(8), repas(9)];
+    banc.entrainement.seancesParUid['u1'] = [
+      SeanceFaite(
+        date: DateTime(2026, 10, 8, 18),
+        lieu: Lieu.maison,
+        minutes: 30,
+      ),
+    ];
+    banc.bienetre.eauParUid['u1'] = [
+      EntreeEau(date: DateTime(2026, 10, 8, 10), ml: 2000),
+      EntreeEau(date: DateTime(2026, 10, 9, 10), ml: 2000),
+    ];
+    await banc.monter(tester);
+
+    await defilerJusqua(tester, find.text('Tes séries'));
+    expect(find.text('3 jours'), findsOneWidget); // journal
+    expect(find.text('1 jour'), findsOneWidget); // séance d'hier
+    expect(find.text('2 jours'), findsOneWidget); // eau
   });
 }

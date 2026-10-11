@@ -1366,6 +1366,36 @@ abstract class AppLocalizations {
   /// **'Supprimer'**
   String get supprimerComplement;
 
+  /// No description provided for @seriesTitre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tes séries'**
+  String get seriesTitre;
+
+  /// No description provided for @serieJournal.
+  ///
+  /// In fr, this message translates to:
+  /// **'Journal tenu'**
+  String get serieJournal;
+
+  /// No description provided for @serieEntrainement.
+  ///
+  /// In fr, this message translates to:
+  /// **'Séance faite'**
+  String get serieEntrainement;
+
+  /// No description provided for @serieEau.
+  ///
+  /// In fr, this message translates to:
+  /// **'Objectif d\'eau atteint'**
+  String get serieEau;
+
+  /// No description provided for @nbJours.
+  ///
+  /// In fr, this message translates to:
+  /// **'{n, plural, =0{0 jour} =1{1 jour} other{{n} jours}}'**
+  String nbJours(int n);
+
   /// No description provided for @courbePoids.
   ///
   /// In fr, this message translates to:

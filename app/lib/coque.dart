@@ -97,6 +97,7 @@ class _CoqueState extends State<Coque> {
             journal: _s.journal,
             meteo: _s.meteo,
             rappels: _s.rappels,
+            entrainement: _s.entrainement,
             horloge: widget.horloge,
           ),
           PoidsPage(

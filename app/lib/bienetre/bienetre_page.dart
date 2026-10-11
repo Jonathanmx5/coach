@@ -8,7 +8,9 @@ import '../journal/modele.dart';
 import '../l10n/app_localizations.dart';
 import '../profil/profil_repository.dart';
 import '../theme.dart';
+import '../entrainement/entrainement_repository.dart';
 import 'bienetre_repository.dart';
+import 'bloc_series.dart';
 import 'carte_complements.dart';
 import 'complements.dart';
 import 'hydratation.dart';
@@ -25,6 +27,7 @@ class BienEtrePage extends StatefulWidget {
     required this.journal,
     required this.meteo,
     required this.rappels,
+    required this.entrainement,
     required this.horloge,
   });
 
@@ -34,6 +37,7 @@ class BienEtrePage extends StatefulWidget {
   final JournalRepository journal;
   final Meteo meteo;
   final Rappels rappels;
+  final EntrainementRepository entrainement;
   final DateTime Function() horloge;
 
   @override
@@ -159,6 +163,16 @@ class _BienEtrePageState extends State<BienEtrePage> {
                         );
                       },
                     ),
+              ),
+              const SizedBox(height: 16),
+              BlocSeries(
+                key: ValueKey(_jourFlux),
+                uid: _uid,
+                poidsKg: widget.enregistre.profil.poidsKg,
+                maintenant: maintenant,
+                journal: widget.journal,
+                entrainement: widget.entrainement,
+                bienetre: widget.bienetre,
               ),
               const SizedBox(height: 16),
               StreamBuilder<List<Complement>>(

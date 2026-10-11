@@ -710,6 +710,30 @@ class AppLocalizationsFr extends AppLocalizations {
   String get supprimerComplement => 'Supprimer';
 
   @override
+  String get seriesTitre => 'Tes séries';
+
+  @override
+  String get serieJournal => 'Journal tenu';
+
+  @override
+  String get serieEntrainement => 'Séance faite';
+
+  @override
+  String get serieEau => 'Objectif d\'eau atteint';
+
+  @override
+  String nbJours(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$n jours',
+      one: '1 jour',
+      zero: '0 jour',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String get courbePoids => 'Évolution du poids';
 
   @override
