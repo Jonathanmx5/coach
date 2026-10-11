@@ -45,7 +45,7 @@ void main() {
     expect(p.pour100g.glucides, 62);
     expect(p.pour100g.lipides, 13.2);
     expect(requete.url.path, contains('3017620422003'));
-    expect(requete.headers['User-Agent'], contains('Coach'));
+    expect(requete.headers['User-Agent'], contains('CrunchAndGo'));
   });
 
   test('kcal absentes : calculées depuis les kJ', () async {

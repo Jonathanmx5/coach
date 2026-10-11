@@ -1,6 +1,6 @@
-# Coach
+# Crunch & Go
 
-Application Android de coaching sportif et alimentaire pour débutants. Nom de travail : « Coach ». Français uniquement.
+Application Android de coaching sportif et alimentaire pour débutants. Nom de l'application : « Crunch & Go » (le dépôt et le code s'appellent encore `coach`). Français uniquement.
 
 ## Ce que fait l'application
 

@@ -1,4 +1,4 @@
-# Publier Coach
+# Publier Crunch & Go
 
 ## Signature (déjà faite sur la machine de développement)
 
@@ -25,7 +25,7 @@ Ajouter `--dart-define=RELAIS_URL=https://coach-relais.coach-relais.workers.dev`
 
 À faire dans la Play Console (compte développeur payant, une seule fois) :
 
-1. Créer l'application ; choisir le nom définitif (« Coach » est un nom de travail, probablement déjà pris sur le Play Store).
+1. Créer l'application ; vérifier que « Crunch & Go » est libre (nom du Play Store, marque, domaine) ; icône 512 px prête dans `app/assets/icone/play-store-512.png`.
 2. Activer **Play App Signing** : Google re-signe l'application avec sa propre clé. **Ajouter alors l'empreinte SHA-1 de la clé de signature d'application** (Console → Intégrité de l'application) dans Firebase (Paramètres du projet → application Android → Ajouter une empreinte), sinon la connexion Google échoue pour les utilisateurs du Play Store.
 3. Importer le `.aab`. Premier test en « test interne », puis « test fermé » (les comptes personnels récents doivent faire 12 testeurs pendant 14 jours avant la production).
 4. Fiche : description, captures d'écran, icône 512 px, image de présentation.

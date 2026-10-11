@@ -1,8 +1,8 @@
-# Politique de confidentialité de Coach
+# Politique de confidentialité de Crunch & Go
 
 Dernière mise à jour : 9 octobre 2026.
 
-Coach est une application Android de coaching sportif et alimentaire. Cette page explique quelles données elle utilise, pourquoi, et où elles sont conservées.
+Crunch & Go est une application Android de coaching sportif et alimentaire. Cette page explique quelles données elle utilise, pourquoi, et où elles sont conservées.
 
 ## Données de compte et de profil
 
@@ -11,7 +11,7 @@ Coach est une application Android de coaching sportif et alimentaire. Cette page
 
 ## Données de santé (Health Connect)
 
-Si vous l'autorisez, Coach **lit** dans Health Connect :
+Si vous l'autorisez, Crunch & Go **lit** dans Health Connect :
 
 - activité : pas, distance, étages, calories actives et totales, séances d'exercice ;
 - sommeil : durée et phases (léger, profond, paradoxal, éveil) ;
@@ -24,18 +24,18 @@ Ces données servent à :
 - ajuster vos repères caloriques avec les calories réellement brûlées ;
 - mettre à jour votre poids dans votre profil.
 
-**Elles restent sur votre téléphone.** Coach ne les copie pas sur un serveur. Seul le poids importé est enregistré dans votre profil, comme une saisie manuelle. Coach n'écrit rien dans Health Connect.
+**Elles restent sur votre téléphone.** Crunch & Go ne les copie pas sur un serveur. Seul le poids importé est enregistré dans votre profil, comme une saisie manuelle. Crunch & Go n'écrit rien dans Health Connect.
 
 ## Autres données
 
-- **Journal, entraînement, eau, compléments, mensurations** : enregistrés dans votre compte (Firestore, Europe), visibles de vous seul. Coach ne donne aucune dose de complément.
+- **Journal, entraînement, eau, compléments, mensurations** : enregistrés dans votre compte (Firestore, Europe), visibles de vous seul. Crunch & Go ne donne aucune dose de complément.
 - **Photos de progression** : conservées **uniquement sur votre téléphone**, jamais envoyées.
 - **Localisation approximative** (optionnelle) : si vous activez « Adapter à la météo », votre position, arrondie à environ 10 km, est envoyée au service Open-Meteo pour obtenir la température du jour. Elle n'est pas enregistrée.
 - **Codes-barres** : le code d'un produit scanné est envoyé à Open Food Facts pour retrouver ses valeurs nutritionnelles.
-- **Photo d'un repas** (optionnelle) : la photo est envoyée à un relais Coach hébergé chez Cloudflare, qui la transmet à un modèle d'IA de Cloudflare Workers AI pour estimer les aliments. Elle n'est ni enregistrée ni conservée ; seul le résultat que vous validez est ajouté à votre journal. Quinze photos au plus par jour et par personne.
+- **Photo d'un repas** (optionnelle) : la photo est envoyée à un relais Crunch & Go hébergé chez Cloudflare, qui la transmet à un modèle d'IA de Cloudflare Workers AI pour estimer les aliments. Elle n'est ni enregistrée ni conservée ; seul le résultat que vous validez est ajouté à votre journal. Quinze photos au plus par jour et par personne.
 - **Notifications** (optionnelles) : rappels de compléments programmés sur votre téléphone.
 
-## Ce que Coach ne fait pas
+## Ce que Crunch & Go ne fait pas
 
 - Aucune vente, location ou cession de vos données.
 - Aucune publicité, aucun traçage publicitaire.
@@ -47,4 +47,4 @@ Ces données servent à :
 - Vous pouvez modifier votre profil dans l'application et demander la suppression de votre compte et de toutes vos données.
 - Contact : via la page GitHub du projet, https://github.com/Jonathanmx5/coach.
 
-Coach ne remplace pas un avis médical.
+Crunch & Go ne remplace pas un avis médical.

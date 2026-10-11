@@ -10,7 +10,7 @@ class AppLocalizationsFr extends AppLocalizations {
   AppLocalizationsFr([String locale = 'fr']) : super(locale);
 
   @override
-  String get appTitre => 'Coach';
+  String get appTitre => 'Crunch & Go';
 
   @override
   String get bienvenueTitre => 'Ton coach sport et alimentation';
@@ -156,7 +156,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get messageMineur =>
-      'Coach est réservé aux personnes de 18 ans et plus. Les besoins des adolescents sont différents : parles-en à ton médecin.';
+      'Crunch & Go est réservé aux personnes de 18 ans et plus. Les besoins des adolescents sont différents : parles-en à ton médecin.';
 
   @override
   String get messagePerteImc =>
@@ -181,7 +181,7 @@ class AppLocalizationsFr extends AppLocalizations {
       'La connexion a échoué. Vérifie ta connexion internet et réessaie.';
 
   @override
-  String get mentionMedicale => 'Coach ne remplace pas un avis médical.';
+  String get mentionMedicale => 'Crunch & Go ne remplace pas un avis médical.';
 
   @override
   String accueilBonjour(String prenom) {
@@ -250,7 +250,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get montreAide =>
-      'Coach pourra lire ton activité, ton sommeil et ton cœur via Health Connect, sans rien envoyer sur internet.';
+      'Crunch & Go pourra lire ton activité, ton sommeil et ton cœur via Health Connect, sans rien envoyer sur internet.';
 
   @override
   String get qAppMontre => 'Quelle application l\'accompagne ?';
@@ -294,15 +294,15 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get hcIndisponible =>
-      'Health Connect n\'est pas disponible sur ce téléphone. Coach utilisera des estimations.';
+      'Health Connect n\'est pas disponible sur ce téléphone. Crunch & Go utilisera des estimations.';
 
   @override
   String get accesAccorde =>
-      'Accès autorisé : Coach lira les données de ta montre.';
+      'Accès autorisé : Crunch & Go lira les données de ta montre.';
 
   @override
   String get accesRefuse =>
-      'Accès non autorisé. Pas de souci : Coach utilisera des estimations, et tu pourras réessayer plus tard.';
+      'Accès non autorisé. Pas de souci : Crunch & Go utilisera des estimations, et tu pourras réessayer plus tard.';
 
   @override
   String get sourceMesure => 'Mesuré par ta montre';
@@ -687,7 +687,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get complementsAide =>
-      'Un rappel par jour pour ne pas oublier. Coach ne conseille aucune dose : demande à ton médecin ou à ton pharmacien.';
+      'Un rappel par jour pour ne pas oublier. Crunch & Go ne conseille aucune dose : demande à ton médecin ou à ton pharmacien.';
 
   @override
   String get ajouterComplement => 'Ajouter un complément';

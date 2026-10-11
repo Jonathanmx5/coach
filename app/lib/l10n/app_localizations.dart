@@ -97,7 +97,7 @@ abstract class AppLocalizations {
   /// No description provided for @appTitre.
   ///
   /// In fr, this message translates to:
-  /// **'Coach'**
+  /// **'Crunch & Go'**
   String get appTitre;
 
   /// No description provided for @bienvenueTitre.
@@ -379,7 +379,7 @@ abstract class AppLocalizations {
   /// No description provided for @messageMineur.
   ///
   /// In fr, this message translates to:
-  /// **'Coach est réservé aux personnes de 18 ans et plus. Les besoins des adolescents sont différents : parles-en à ton médecin.'**
+  /// **'Crunch & Go est réservé aux personnes de 18 ans et plus. Les besoins des adolescents sont différents : parles-en à ton médecin.'**
   String get messageMineur;
 
   /// No description provided for @messagePerteImc.
@@ -421,7 +421,7 @@ abstract class AppLocalizations {
   /// No description provided for @mentionMedicale.
   ///
   /// In fr, this message translates to:
-  /// **'Coach ne remplace pas un avis médical.'**
+  /// **'Crunch & Go ne remplace pas un avis médical.'**
   String get mentionMedicale;
 
   /// No description provided for @accueilBonjour.
@@ -541,7 +541,7 @@ abstract class AppLocalizations {
   /// No description provided for @montreAide.
   ///
   /// In fr, this message translates to:
-  /// **'Coach pourra lire ton activité, ton sommeil et ton cœur via Health Connect, sans rien envoyer sur internet.'**
+  /// **'Crunch & Go pourra lire ton activité, ton sommeil et ton cœur via Health Connect, sans rien envoyer sur internet.'**
   String get montreAide;
 
   /// No description provided for @qAppMontre.
@@ -619,19 +619,19 @@ abstract class AppLocalizations {
   /// No description provided for @hcIndisponible.
   ///
   /// In fr, this message translates to:
-  /// **'Health Connect n\'est pas disponible sur ce téléphone. Coach utilisera des estimations.'**
+  /// **'Health Connect n\'est pas disponible sur ce téléphone. Crunch & Go utilisera des estimations.'**
   String get hcIndisponible;
 
   /// No description provided for @accesAccorde.
   ///
   /// In fr, this message translates to:
-  /// **'Accès autorisé : Coach lira les données de ta montre.'**
+  /// **'Accès autorisé : Crunch & Go lira les données de ta montre.'**
   String get accesAccorde;
 
   /// No description provided for @accesRefuse.
   ///
   /// In fr, this message translates to:
-  /// **'Accès non autorisé. Pas de souci : Coach utilisera des estimations, et tu pourras réessayer plus tard.'**
+  /// **'Accès non autorisé. Pas de souci : Crunch & Go utilisera des estimations, et tu pourras réessayer plus tard.'**
   String get accesRefuse;
 
   /// No description provided for @sourceMesure.
@@ -1327,7 +1327,7 @@ abstract class AppLocalizations {
   /// No description provided for @complementsAide.
   ///
   /// In fr, this message translates to:
-  /// **'Un rappel par jour pour ne pas oublier. Coach ne conseille aucune dose : demande à ton médecin ou à ton pharmacien.'**
+  /// **'Un rappel par jour pour ne pas oublier. Crunch & Go ne conseille aucune dose : demande à ton médecin ou à ton pharmacien.'**
   String get complementsAide;
 
   /// No description provided for @ajouterComplement.
