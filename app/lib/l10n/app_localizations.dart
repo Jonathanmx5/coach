@@ -1678,6 +1678,84 @@ abstract class AppLocalizations {
   /// **'Idées de repas'**
   String get menuIdees;
 
+  /// No description provided for @reglagesTitre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Réglages'**
+  String get reglagesTitre;
+
+  /// No description provided for @reglagesInfobulle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Réglages'**
+  String get reglagesInfobulle;
+
+  /// No description provided for @versionNumero.
+  ///
+  /// In fr, this message translates to:
+  /// **'Version {v}'**
+  String versionNumero(String v);
+
+  /// No description provided for @majDisponible.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nouvelle version {v} disponible'**
+  String majDisponible(String v);
+
+  /// No description provided for @majTelecharger.
+  ///
+  /// In fr, this message translates to:
+  /// **'Télécharger la mise à jour'**
+  String get majTelecharger;
+
+  /// No description provided for @majAJour.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tu as la dernière version.'**
+  String get majAJour;
+
+  /// No description provided for @majAideVerifier.
+  ///
+  /// In fr, this message translates to:
+  /// **'Touche le bouton pour chercher une nouvelle version.'**
+  String get majAideVerifier;
+
+  /// No description provided for @majVerifier.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vérifier les mises à jour'**
+  String get majVerifier;
+
+  /// No description provided for @partagerTitre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Partager l\'application'**
+  String get partagerTitre;
+
+  /// No description provided for @partagerAide.
+  ///
+  /// In fr, this message translates to:
+  /// **'Fais scanner ce code à un ami pour qu\'il puisse installer l\'application.'**
+  String get partagerAide;
+
+  /// No description provided for @copierLien.
+  ///
+  /// In fr, this message translates to:
+  /// **'Copier le lien'**
+  String get copierLien;
+
+  /// No description provided for @lienCopie.
+  ///
+  /// In fr, this message translates to:
+  /// **'Lien copié.'**
+  String get lienCopie;
+
+  /// No description provided for @confidentialite.
+  ///
+  /// In fr, this message translates to:
+  /// **'Politique de confidentialité'**
+  String get confidentialite;
+
   /// No description provided for @courbePoids.
   ///
   /// In fr, this message translates to:

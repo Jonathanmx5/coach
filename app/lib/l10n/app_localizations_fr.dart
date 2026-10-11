@@ -893,6 +893,51 @@ class AppLocalizationsFr extends AppLocalizations {
   String get menuIdees => 'Idées de repas';
 
   @override
+  String get reglagesTitre => 'Réglages';
+
+  @override
+  String get reglagesInfobulle => 'Réglages';
+
+  @override
+  String versionNumero(String v) {
+    return 'Version $v';
+  }
+
+  @override
+  String majDisponible(String v) {
+    return 'Nouvelle version $v disponible';
+  }
+
+  @override
+  String get majTelecharger => 'Télécharger la mise à jour';
+
+  @override
+  String get majAJour => 'Tu as la dernière version.';
+
+  @override
+  String get majAideVerifier =>
+      'Touche le bouton pour chercher une nouvelle version.';
+
+  @override
+  String get majVerifier => 'Vérifier les mises à jour';
+
+  @override
+  String get partagerTitre => 'Partager l\'application';
+
+  @override
+  String get partagerAide =>
+      'Fais scanner ce code à un ami pour qu\'il puisse installer l\'application.';
+
+  @override
+  String get copierLien => 'Copier le lien';
+
+  @override
+  String get lienCopie => 'Lien copié.';
+
+  @override
+  String get confidentialite => 'Politique de confidentialité';
+
+  @override
   String get courbePoids => 'Évolution du poids';
 
   @override

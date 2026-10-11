@@ -137,7 +137,10 @@ void main() {
     await remplirJusquaSante(tester, sante: true);
 
     expect(find.textContaining('Parles-en à ton médecin'), findsOneWidget);
-    expect(find.text('Crunch & Go ne remplace pas un avis médical.'), findsOneWidget);
+    expect(
+      find.text('Crunch & Go ne remplace pas un avis médical.'),
+      findsOneWidget,
+    );
   });
 
   testWidgets("indique l'étape en cours sur le total", (tester) async {

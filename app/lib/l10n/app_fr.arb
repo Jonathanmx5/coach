@@ -469,6 +469,33 @@
   "aucuneEnvie": "Aucune envie pour l'instant. Balaie une carte vers la droite pour garder une recette pour une prochaine fois.",
   "retirerEnvie": "Retirer de mes envies",
   "menuIdees": "Idées de repas",
+  "reglagesTitre": "Réglages",
+  "reglagesInfobulle": "Réglages",
+  "versionNumero": "Version {v}",
+  "@versionNumero": {
+    "placeholders": {
+      "v": {
+        "type": "String"
+      }
+    }
+  },
+  "majDisponible": "Nouvelle version {v} disponible",
+  "@majDisponible": {
+    "placeholders": {
+      "v": {
+        "type": "String"
+      }
+    }
+  },
+  "majTelecharger": "Télécharger la mise à jour",
+  "majAJour": "Tu as la dernière version.",
+  "majAideVerifier": "Touche le bouton pour chercher une nouvelle version.",
+  "majVerifier": "Vérifier les mises à jour",
+  "partagerTitre": "Partager l'application",
+  "partagerAide": "Fais scanner ce code à un ami pour qu'il puisse installer l'application.",
+  "copierLien": "Copier le lien",
+  "lienCopie": "Lien copié.",
+  "confidentialite": "Politique de confidentialité",
   "courbePoids": "Évolution du poids",
   "periode90": "90 jours",
   "periode1an": "1 an",

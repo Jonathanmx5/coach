@@ -16,6 +16,7 @@ import 'fakes.dart';
 import 'parcours.dart';
 
 final maintenant = DateTime(2026, 10, 9, 20);
+final liensOuverts = <Uri>[];
 
 const lea = Utilisateur(uid: 'u1', prenom: 'Léa');
 
@@ -41,6 +42,7 @@ Future<void> monter(
   SanteService? sante,
   FauxPesees? pesees,
   FauxReseau? reseau,
+  FausseMiseAJour? miseAJour,
 }) async {
   await tester.pumpWidget(
     CoachApp(
@@ -62,6 +64,12 @@ Future<void> monter(
           analyse: FausseAnalyse(),
           planning: FauxPlanning(),
           avis: FauxAvis(),
+          miseAJour: miseAJour ?? FausseMiseAJour(),
+          versionAppli: FausseVersion(),
+          ouvrirLien: (u) async {
+            liensOuverts.add(u);
+            return true;
+          },
           catalogue: FauxCatalogue(),
         ),
         horloge: () => maintenant,
@@ -128,8 +136,9 @@ void main() {
   testWidgets('se déconnecter : retour à la bienvenue', (tester) async {
     await monter(tester, FauxAuth(connecte: lea), depotAvecProfil());
 
-    await tester.tap(find.byTooltip('Se déconnecter'));
+    await tester.tap(find.byTooltip('Réglages'));
     await tester.pumpAndSettle();
+    await taper(tester, 'Se déconnecter');
 
     expect(find.text('Commencer'), findsOneWidget);
   });
@@ -285,13 +294,7 @@ void main() {
 
   testWidgets('les 5 onglets sont présents', (tester) async {
     await monter(tester, FauxAuth(connecte: lea), depotAvecProfil());
-    for (final nom in [
-      'Accueil',
-      'Repas',
-      'Sport',
-      'Bien-être',
-      'Poids',
-    ]) {
+    for (final nom in ['Accueil', 'Repas', 'Sport', 'Bien-être', 'Poids']) {
       expect(
         find.descendant(
           of: find.byType(NavigationBar),

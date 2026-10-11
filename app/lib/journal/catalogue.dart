@@ -38,7 +38,8 @@ class CatalogueOpenFoodFacts implements CatalogueProduits {
 
   final http.Client _client;
 
-  static const _agent = 'CrunchAndGo/0.9 (https://github.com/Jonathanmx5/coach)';
+  static const _agent =
+      'CrunchAndGo/0.9 (https://github.com/Jonathanmx5/coach)';
 
   @override
   Future<ProduitOff?> chercher(String codeBarres) async {

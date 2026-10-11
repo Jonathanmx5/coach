@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -11,6 +12,7 @@ import '../profil/profil_repository.dart';
 import '../profil/questionnaire/controleur.dart';
 import '../profil/questionnaire/etapes.dart';
 import '../profil/questionnaire/questionnaire_page.dart';
+import '../reglages/mises_a_jour.dart';
 import '../sante/ajustements.dart';
 import '../sante/carte_journee.dart';
 import '../sante/mes_donnees_page.dart';
@@ -30,6 +32,8 @@ class AccueilPage extends StatefulWidget {
     required this.horloge,
     required this.onProgramme,
     required this.onIdees,
+    required this.miseAJour,
+    required this.onReglages,
   });
 
   final Utilisateur utilisateur;
@@ -45,6 +49,12 @@ class AccueilPage extends StatefulWidget {
 
   /// Ouvre les idées de repas.
   final VoidCallback onIdees;
+
+  /// Mise à jour proposée : un point orange s'affiche sur l'engrenage.
+  final ValueListenable<InfoMiseAJour?> miseAJour;
+
+  /// Ouvre les réglages.
+  final VoidCallback onReglages;
 
   @override
   State<AccueilPage> createState() => _AccueilPageState();
@@ -144,8 +154,9 @@ class _AccueilPageState extends State<AccueilPage> {
                       libelleObjectif(t, _profil.objectif).toLowerCase(),
                     ),
                     initiale: prenom?.substring(0, 1).toUpperCase(),
-                    tooltipDeconnexion: t.boutonDeconnexion,
-                    onDeconnexion: widget.auth.deconnecter,
+                    tooltipReglages: t.reglagesInfobulle,
+                    miseAJour: widget.miseAJour,
+                    onReglages: widget.onReglages,
                   ),
                   Padding(
                     padding: const EdgeInsets.fromLTRB(20, 24, 20, 24),
@@ -247,15 +258,17 @@ class _EnTete extends StatelessWidget {
     required this.salutation,
     required this.objectif,
     required this.initiale,
-    required this.tooltipDeconnexion,
-    required this.onDeconnexion,
+    required this.tooltipReglages,
+    required this.miseAJour,
+    required this.onReglages,
   });
 
   final String salutation;
   final String objectif;
   final String? initiale;
-  final String tooltipDeconnexion;
-  final VoidCallback onDeconnexion;
+  final String tooltipReglages;
+  final ValueListenable<InfoMiseAJour?> miseAJour;
+  final VoidCallback onReglages;
 
   @override
   Widget build(BuildContext context) {
@@ -313,11 +326,19 @@ class _EnTete extends StatelessWidget {
                   ],
                 ),
               ),
-              IconButton(
-                tooltip: tooltipDeconnexion,
-                onPressed: onDeconnexion,
-                color: Colors.white,
-                icon: const Icon(Icons.logout),
+              ValueListenableBuilder<InfoMiseAJour?>(
+                valueListenable: miseAJour,
+                builder: (context, maj, _) => IconButton(
+                  tooltip: tooltipReglages,
+                  onPressed: onReglages,
+                  color: Colors.white,
+                  icon: Badge(
+                    smallSize: 10,
+                    backgroundColor: CouleursCoach.orange,
+                    isLabelVisible: maj != null,
+                    child: const Icon(Icons.settings_outlined),
+                  ),
+                ),
               ),
             ],
           ),

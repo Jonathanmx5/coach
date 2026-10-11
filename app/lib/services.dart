@@ -13,6 +13,8 @@ import 'poids/photos.dart';
 import 'profil/profil_repository.dart';
 import 'recettes/avis_repository.dart';
 import 'recettes/planning_repository.dart';
+import 'reglages/mises_a_jour.dart';
+import 'reglages/reglages_page.dart';
 import 'reseau.dart';
 import 'sante/sante_service.dart';
 
@@ -34,6 +36,9 @@ class Services {
     required this.analyse,
     required this.planning,
     required this.avis,
+    required this.miseAJour,
+    required this.versionAppli,
+    required this.ouvrirLien,
     required this.journal,
     required this.catalogue,
     required this.sante,
@@ -53,6 +58,9 @@ class Services {
   final AnalysePhoto analyse;
   final PlanningRepository planning;
   final AvisRepository avis;
+  final MisesAJour miseAJour;
+  final VersionAppli versionAppli;
+  final OuvreurLien ouvrirLien;
   final JournalRepository journal;
   final CatalogueProduits catalogue;
   final SanteService sante;

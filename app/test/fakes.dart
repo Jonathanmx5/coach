@@ -26,6 +26,7 @@ import 'package:coach/recettes/avis.dart';
 import 'package:coach/recettes/avis_repository.dart';
 import 'package:coach/recettes/planning.dart';
 import 'package:coach/recettes/planning_repository.dart';
+import 'package:coach/reglages/mises_a_jour.dart';
 import 'package:coach/reseau.dart';
 import 'package:coach/sante/modele.dart';
 import 'package:coach/sante/sante_service.dart';
@@ -230,6 +231,25 @@ class FauxPlanning implements PlanningRepository {
   Future<void> enregistrer(String uid, Planning p) async {
     parSemaine[_cle(uid, p.lundi)] = p;
     _flux.add(null);
+  }
+}
+
+/// Version installée et mise à jour proposée, pilotées par le test.
+class FausseVersion implements VersionAppli {
+  @override
+  Future<String> version() async => '0.9.0';
+}
+
+class FausseMiseAJour implements MisesAJour {
+  FausseMiseAJour([this.info]);
+
+  InfoMiseAJour? info;
+  int verifications = 0;
+
+  @override
+  Future<InfoMiseAJour?> verifier(String versionActuelle) async {
+    verifications++;
+    return info;
   }
 }
 

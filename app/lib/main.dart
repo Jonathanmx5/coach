@@ -5,6 +5,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import 'app.dart';
 import 'bienetre/bienetre_repository.dart';
@@ -24,6 +25,7 @@ import 'profil/profil_repository.dart';
 import 'racine.dart';
 import 'recettes/avis_repository.dart';
 import 'recettes/planning_repository.dart';
+import 'reglages/mises_a_jour.dart';
 import 'reseau.dart';
 import 'sante/sante_service.dart';
 import 'services.dart';
@@ -63,6 +65,9 @@ Future<void> main() async {
           reseau: ReseauReel(),
           planning: FirestorePlanningRepository(),
           avis: FirestoreAvisRepository(),
+          miseAJour: MisesAJourGithub(),
+          versionAppli: VersionAppliReelle(),
+          ouvrirLien: (u) => launchUrl(u, mode: LaunchMode.externalApplication),
           analyse: AnalysePhotoRelais(
             url: const String.fromEnvironment('RELAIS_URL'),
             jeton: auth.jeton,

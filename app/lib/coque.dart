@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 import 'accueil/accueil_page.dart';
@@ -9,6 +11,8 @@ import 'journal/journal_page.dart';
 import 'l10n/app_localizations.dart';
 import 'poids/poids_page.dart';
 import 'profil/profil_repository.dart';
+import 'reglages/mises_a_jour.dart';
+import 'reglages/reglages_page.dart';
 import 'services.dart';
 import 'theme.dart';
 import 'sante/suivi.dart';
@@ -36,6 +40,26 @@ class Coque extends StatefulWidget {
 
 class _CoqueState extends State<Coque> {
   int _onglet = 0;
+  final ValueNotifier<InfoMiseAJour?> _maj = ValueNotifier(null);
+  late final Future<String> _version = _s.versionAppli.version();
+
+  Future<void> _verifierMaj() async {
+    final info = await _s.miseAJour.verifier(await _version);
+    if (mounted) _maj.value = info;
+  }
+
+  void _ouvrirReglages() => Navigator.of(context).push<void>(
+    MaterialPageRoute(
+      builder: (_) => ReglagesPage(
+        utilisateur: widget.utilisateur,
+        auth: _s.auth,
+        version: _version,
+        miseAJour: _maj,
+        reverifier: _verifierMaj,
+        ouvrirLien: _s.ouvrirLien,
+      ),
+    ),
+  );
   Services get _s => widget.services;
   late final Stream<bool> _enLigne = _s.reseau.enLigne;
   late final Suivi _suivi = Suivi(sante: _s.sante, horloge: widget.horloge);
@@ -44,6 +68,7 @@ class _CoqueState extends State<Coque> {
   void initState() {
     super.initState();
     _suivi.charger(montre: widget.enregistre.profil.montre);
+    unawaited(_verifierMaj());
   }
 
   @override
@@ -57,6 +82,7 @@ class _CoqueState extends State<Coque> {
   @override
   void dispose() {
     _suivi.dispose();
+    _maj.dispose();
     super.dispose();
   }
 
@@ -76,6 +102,8 @@ class _CoqueState extends State<Coque> {
             suivi: _suivi,
             horloge: widget.horloge,
             onProgramme: () => setState(() => _onglet = 2),
+            miseAJour: _maj,
+            onReglages: _ouvrirReglages,
             onIdees: () => Navigator.of(context).push<void>(
               MaterialPageRoute(
                 builder: (_) => IdeesPage(
