@@ -3,6 +3,7 @@ import 'package:coach/bienetre/complements.dart';
 import 'package:flutter/material.dart';
 import 'package:coach/app.dart';
 import 'package:coach/bienetre/bienetre_page.dart';
+import 'package:coach/bienetre/suivi_meteo.dart';
 import 'package:coach/compte/donnees_compte.dart';
 import 'package:coach/bienetre/hydratation.dart';
 import 'package:coach/compte/auth_service.dart';
@@ -36,6 +37,11 @@ class Banc {
   final bienetre = FauxBienEtre();
   final journal = FauxJournal();
   final meteo = FausseMeteo(31);
+  late final meteoSuivi = SuiviMeteo(
+    meteo: meteo,
+    bienetre: bienetre,
+    uid: 'u1',
+  );
   final rappels = FauxRappels();
   final entrainement = FauxEntrainement();
   final consentements = FauxConsentements({Consentement.meteo});
@@ -51,7 +57,7 @@ class Banc {
           ),
           bienetre: bienetre,
           journal: journal,
-          meteo: meteo,
+          meteoSuivi: meteoSuivi,
           rappels: rappels,
           entrainement: entrainement,
           consentements: consentements,

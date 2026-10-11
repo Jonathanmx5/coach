@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 import 'accueil/accueil_page.dart';
 import 'bienetre/bienetre_page.dart';
+import 'bienetre/suivi_meteo.dart';
 import 'compte/auth_service.dart';
 import 'entrainement/entrainement_page.dart';
 import 'recettes/idees_page.dart';
@@ -40,6 +41,11 @@ class Coque extends StatefulWidget {
 
 class _CoqueState extends State<Coque> {
   int _onglet = 0;
+  late final SuiviMeteo _meteoSuivi = SuiviMeteo(
+    meteo: _s.meteo,
+    bienetre: _s.bienetre,
+    uid: widget.utilisateur.uid,
+  );
   final ValueNotifier<InfoMiseAJour?> _maj = ValueNotifier(null);
   late final Future<String> _version = _s.versionAppli.version();
 
@@ -82,6 +88,7 @@ class _CoqueState extends State<Coque> {
   void dispose() {
     _suivi.dispose();
     _maj.dispose();
+    _meteoSuivi.dispose();
     super.dispose();
   }
 
@@ -100,7 +107,10 @@ class _CoqueState extends State<Coque> {
             sante: _s.sante,
             suivi: _suivi,
             horloge: widget.horloge,
-            onProgramme: () => setState(() => _onglet = 2),
+            onOnglet: (i) => setState(() => _onglet = i),
+            journal: _s.journal,
+            bienetre: _s.bienetre,
+            meteoSuivi: _meteoSuivi,
             miseAJour: _maj,
             onReglages: _ouvrirReglages,
             onIdees: () => Navigator.of(context).push<void>(
@@ -141,7 +151,7 @@ class _CoqueState extends State<Coque> {
             enregistre: widget.enregistre,
             bienetre: _s.bienetre,
             journal: _s.journal,
-            meteo: _s.meteo,
+            meteoSuivi: _meteoSuivi,
             rappels: _s.rappels,
             entrainement: _s.entrainement,
             consentements: _s.consentements,

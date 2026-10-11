@@ -131,9 +131,12 @@ void main() {
   testWidgets("repères affichés directement sur l'accueil", (tester) async {
     await monter(tester, FauxAuth(connecte: lea), depotAvecProfil());
 
-    expect(find.text('2080'), findsOneWidget);
-    expect(find.text('kcal par jour'), findsOneWidget);
-    expect(find.text('128 g'), findsOneWidget);
+    expect(find.text("Aujourd'hui"), findsOneWidget);
+    expect(
+      find.textContaining('/ 2080 kcal', findRichText: true),
+      findsOneWidget,
+    );
+    expect(find.textContaining('/ 128 g', findRichText: true), findsOneWidget);
     expect(find.text('Objectif : perdre du poids'), findsOneWidget);
   });
 
@@ -180,8 +183,10 @@ void main() {
       sante: FauxSante(points: semaineType()),
     );
 
-    expect(find.text('Mesuré par ta montre'), findsOneWidget);
-    expect(find.text('2210'), findsOneWidget);
+    expect(
+      find.textContaining('/ 2210 kcal', findRichText: true),
+      findsOneWidget,
+    );
     await defilerJusqua(tester, find.text('6500'));
     expect(find.text('6500'), findsOneWidget);
     expect(find.text('7 h 00'), findsOneWidget);
@@ -195,8 +200,14 @@ void main() {
       sante: FauxSante(dispo: DispoSante.indisponible),
     );
 
-    expect(find.text('Estimé'), findsOneWidget);
-    expect(find.text('2080'), findsOneWidget);
+    expect(
+      find.textContaining('Estimé jusqu', findRichText: true),
+      findsOneWidget,
+    );
+    expect(
+      find.textContaining('/ 2080 kcal', findRichText: true),
+      findsOneWidget,
+    );
   });
 
   testWidgets('pesée plus récente : poids du profil mis à jour', (

@@ -989,6 +989,27 @@ class AppLocalizationsFr extends AppLocalizations {
       'La suppression a échoué. Réessaie ; si besoin, reconnecte-toi puis recommence.';
 
   @override
+  String get anneauxTitre => 'Aujourd\'hui';
+
+  @override
+  String get libBrule => 'Calories brûlées';
+
+  @override
+  String get libMange => 'Calories mangées';
+
+  @override
+  String get libProteines => 'Protéines';
+
+  @override
+  String get libEau => 'Hydratation';
+
+  @override
+  String get objectifDuJour => 'Objectif du jour';
+
+  @override
+  String get sourceEstimeJusqua => 'Estimé jusqu\'à maintenant';
+
+  @override
   String get courbePoids => 'Évolution du poids';
 
   @override

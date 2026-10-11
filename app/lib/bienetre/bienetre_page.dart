@@ -15,7 +15,7 @@ import 'bloc_series.dart';
 import 'carte_complements.dart';
 import 'complements.dart';
 import 'hydratation.dart';
-import 'meteo.dart';
+import 'suivi_meteo.dart';
 import 'rappels.dart';
 
 /// Onglet Bien-être : hydratation, compléments et séries.
@@ -26,7 +26,7 @@ class BienEtrePage extends StatefulWidget {
     required this.enregistre,
     required this.bienetre,
     required this.journal,
-    required this.meteo,
+    required this.meteoSuivi,
     required this.rappels,
     required this.entrainement,
     required this.consentements,
@@ -37,7 +37,7 @@ class BienEtrePage extends StatefulWidget {
   final ProfilEnregistre enregistre;
   final BienEtreRepository bienetre;
   final JournalRepository journal;
-  final Meteo meteo;
+  final SuiviMeteo meteoSuivi;
   final Rappels rappels;
   final EntrainementRepository entrainement;
   final ConsentementsRepository consentements;
@@ -48,9 +48,6 @@ class BienEtrePage extends StatefulWidget {
 }
 
 class _BienEtrePageState extends State<BienEtrePage> {
-  double? _temp;
-  bool _meteoDemandee = false;
-
   String get _uid => widget.utilisateur.uid;
 
   late final Stream<bool> _meteoActive = widget.bienetre.meteoActive(_uid);
@@ -99,11 +96,6 @@ class _BienEtrePageState extends State<BienEtrePage> {
     _activites = widget.journal.activites(_uid, jour, demain);
   }
 
-  Future<void> _chargerMeteo() async {
-    final t = await widget.meteo.temperatureMax();
-    if (mounted) setState(() => _temp = t);
-  }
-
   Future<void> _basculerMeteo(bool actif) async {
     if (actif) {
       final accord = await assurerConsentement(
@@ -115,7 +107,6 @@ class _BienEtrePageState extends State<BienEtrePage> {
       if (!accord || !mounted) return;
     }
     unawaited(widget.bienetre.activerMeteo(_uid, actif));
-    if (!actif) setState(() => _temp = null);
   }
 
   void _boire(int ml) => unawaited(
@@ -133,12 +124,6 @@ class _BienEtrePageState extends State<BienEtrePage> {
         stream: _meteoActive,
         builder: (context, snapMeteo) {
           final meteoActive = snapMeteo.data ?? false;
-          if (meteoActive && !_meteoDemandee) {
-            _meteoDemandee = true;
-            WidgetsBinding.instance.addPostFrameCallback(
-              (_) => _chargerMeteo(),
-            );
-          }
           return ListView(
             padding: const EdgeInsets.fromLTRB(20, 8, 20, 32),
             children: [
@@ -152,26 +137,29 @@ class _BienEtrePageState extends State<BienEtrePage> {
                             (snapActivites.data ?? const <Activite>[])
                                 .fold<int>(0, (s, a) => s + a.minutes);
                         final entrees = snapEau.data ?? const <EntreeEau>[];
-                        return _CarteHydratation(
-                          objectifMl: objectifEauMl(
-                            poidsKg: widget.enregistre.profil.poidsKg,
+                        return ListenableBuilder(
+                          listenable: widget.meteoSuivi,
+                          builder: (context, _) => _CarteHydratation(
+                            objectifMl: objectifEauMl(
+                              poidsKg: widget.enregistre.profil.poidsKg,
+                              minutesEffort: minutes,
+                              tempMaxC: widget.meteoSuivi.temperature,
+                            ),
+                            bu: totalEauMl(entrees),
                             minutesEffort: minutes,
-                            tempMaxC: meteoActive ? _temp : null,
-                          ),
-                          bu: totalEauMl(entrees),
-                          minutesEffort: minutes,
-                          temperature: meteoActive ? _temp : null,
-                          meteoActive: meteoActive,
-                          onBoire: _boire,
-                          onAnnuler: entrees.isEmpty
-                              ? null
-                              : () => unawaited(
-                                  widget.bienetre.supprimerEau(
-                                    _uid,
-                                    entrees.last.id!,
+                            temperature: widget.meteoSuivi.temperature,
+                            meteoActive: meteoActive,
+                            onBoire: _boire,
+                            onAnnuler: entrees.isEmpty
+                                ? null
+                                : () => unawaited(
+                                    widget.bienetre.supprimerEau(
+                                      _uid,
+                                      entrees.last.id!,
+                                    ),
                                   ),
-                                ),
-                          onMeteo: _basculerMeteo,
+                            onMeteo: _basculerMeteo,
+                          ),
                         );
                       },
                     ),

@@ -1846,6 +1846,48 @@ abstract class AppLocalizations {
   /// **'La suppression a échoué. Réessaie ; si besoin, reconnecte-toi puis recommence.'**
   String get supprimerEchec;
 
+  /// No description provided for @anneauxTitre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aujourd\'hui'**
+  String get anneauxTitre;
+
+  /// No description provided for @libBrule.
+  ///
+  /// In fr, this message translates to:
+  /// **'Calories brûlées'**
+  String get libBrule;
+
+  /// No description provided for @libMange.
+  ///
+  /// In fr, this message translates to:
+  /// **'Calories mangées'**
+  String get libMange;
+
+  /// No description provided for @libProteines.
+  ///
+  /// In fr, this message translates to:
+  /// **'Protéines'**
+  String get libProteines;
+
+  /// No description provided for @libEau.
+  ///
+  /// In fr, this message translates to:
+  /// **'Hydratation'**
+  String get libEau;
+
+  /// No description provided for @objectifDuJour.
+  ///
+  /// In fr, this message translates to:
+  /// **'Objectif du jour'**
+  String get objectifDuJour;
+
+  /// No description provided for @sourceEstimeJusqua.
+  ///
+  /// In fr, this message translates to:
+  /// **'Estimé jusqu\'à maintenant'**
+  String get sourceEstimeJusqua;
+
   /// No description provided for @courbePoids.
   ///
   /// In fr, this message translates to:

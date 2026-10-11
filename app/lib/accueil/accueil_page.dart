@@ -5,7 +5,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../compte/auth_service.dart';
+import '../bienetre/bienetre_repository.dart';
+import '../bienetre/suivi_meteo.dart';
+import '../journal/journal_repository.dart';
 import '../l10n/app_localizations.dart';
+import 'anneaux.dart';
 import '../profil/besoins.dart';
 import '../profil/modele.dart';
 import '../profil/profil_repository.dart';
@@ -30,7 +34,10 @@ class AccueilPage extends StatefulWidget {
     required this.sante,
     required this.suivi,
     required this.horloge,
-    required this.onProgramme,
+    required this.onOnglet,
+    required this.journal,
+    required this.bienetre,
+    required this.meteoSuivi,
     required this.onIdees,
     required this.miseAJour,
     required this.onReglages,
@@ -44,8 +51,11 @@ class AccueilPage extends StatefulWidget {
   final Suivi suivi;
   final DateTime Function() horloge;
 
-  /// Ouvre l'onglet Entraînement.
-  final VoidCallback onProgramme;
+  /// Ouvre un onglet de la barre du bas (1 Repas, 2 Sport, 3 Bien-être).
+  final ValueChanged<int> onOnglet;
+  final JournalRepository journal;
+  final BienEtreRepository bienetre;
+  final SuiviMeteo meteoSuivi;
 
   /// Ouvre les idées de repas.
   final VoidCallback onIdees;
@@ -126,21 +136,13 @@ class _AccueilPageState extends State<AccueilPage> {
   @override
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context)!;
-    final textes = Theme.of(context).textTheme;
     final prenom = widget.utilisateur.prenom;
-    final doux = textes.bodySmall?.copyWith(color: CouleursCoach.texteDoux);
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: SystemUiOverlayStyle.light,
       child: Scaffold(
         body: ListenableBuilder(
           listenable: _suivi,
           builder: (context, _) {
-            // Repères recalculés en direct avec le maintien mesuré.
-            final reperes = calculerReperes(
-              _profil,
-              maintenant: widget.horloge(),
-              maintienMesure: _suivi.maintien,
-            );
             return RefreshIndicator(
               onRefresh: _charger,
               child: ListView(
@@ -163,41 +165,17 @@ class _AccueilPageState extends State<AccueilPage> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        Text(t.reperesTitre, style: textes.titleLarge),
-                        const SizedBox(height: 12),
-                        IntrinsicHeight(
-                          child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            children: [
-                              Expanded(
-                                child: _TuileRepere(
-                                  icone: Icons.local_fire_department_outlined,
-                                  valeur: '${reperes.kcalCible}',
-                                  libelle: t.reperesKcalLabel,
-                                  note: reperes.source == SourceMaintien.mesure
-                                      ? t.sourceMesure
-                                      : t.sourceEstime,
-                                  fond: CouleursCoach.orangeClair,
-                                  couleur: CouleursCoach.orangeFonce,
-                                ),
-                              ),
-                              const SizedBox(width: 12),
-                              Expanded(
-                                child: _TuileRepere(
-                                  icone: Icons.egg_outlined,
-                                  valeur: t.reperesProteinesValeur(
-                                    reperes.proteinesG,
-                                  ),
-                                  libelle: t.reperesProteinesLabel,
-                                  fond: CouleursCoach.vertClair,
-                                  couleur: CouleursCoach.vertFonce,
-                                ),
-                              ),
-                            ],
-                          ),
+                        CarteAujourdhui(
+                          key: ValueKey(widget.horloge().day),
+                          uid: widget.utilisateur.uid,
+                          profil: _profil,
+                          suivi: _suivi,
+                          journal: widget.journal,
+                          bienetre: widget.bienetre,
+                          meteoSuivi: widget.meteoSuivi,
+                          horloge: widget.horloge,
+                          onOnglet: widget.onOnglet,
                         ),
-                        const SizedBox(height: 8),
-                        Text(t.reperesEstimation, style: doux),
                         const SizedBox(height: 24),
                         CarteJournee(
                           suivi: _suivi,
@@ -217,7 +195,7 @@ class _AccueilPageState extends State<AccueilPage> {
                           sousTitre: t.carteProgrammeSous,
                           fond: CouleursCoach.vertClair,
                           couleur: CouleursCoach.vert,
-                          onTap: widget.onProgramme,
+                          onTap: () => widget.onOnglet(2),
                         ),
                         const SizedBox(height: 12),
                         _CarteAction(
@@ -238,7 +216,8 @@ class _AccueilPageState extends State<AccueilPage> {
                         Text(
                           t.mentionMedicale,
                           textAlign: TextAlign.center,
-                          style: doux,
+                          style: Theme.of(context).textTheme.bodySmall
+                              ?.copyWith(color: CouleursCoach.texteDoux),
                         ),
                       ],
                     ),
@@ -343,49 +322,6 @@ class _EnTete extends StatelessWidget {
             ],
           ),
         ),
-      ),
-    );
-  }
-}
-
-class _TuileRepere extends StatelessWidget {
-  const _TuileRepere({
-    required this.icone,
-    required this.valeur,
-    required this.libelle,
-    this.note,
-    required this.fond,
-    required this.couleur,
-  });
-
-  final IconData icone;
-  final String valeur;
-  final String libelle;
-  final String? note;
-  final Color fond;
-  final Color couleur;
-
-  @override
-  Widget build(BuildContext context) {
-    final textes = Theme.of(context).textTheme;
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: fond,
-        borderRadius: BorderRadius.circular(rayonCarte),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Icon(icone, color: couleur),
-          const SizedBox(height: 10),
-          Text(valeur, style: textes.headlineMedium?.copyWith(color: couleur)),
-          Text(libelle, style: textes.bodyMedium?.copyWith(color: couleur)),
-          if (note != null) ...[
-            const SizedBox(height: 6),
-            Text(note!, style: textes.labelSmall?.copyWith(color: couleur)),
-          ],
-        ],
       ),
     );
   }
