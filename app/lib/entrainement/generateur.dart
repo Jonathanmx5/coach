@@ -119,6 +119,7 @@ Seance genererRenforcement({
           consigne: e.exercice.consigne,
           secondes: e.secondes,
           reps: e.reps,
+          exerciceId: e.exercice.id,
         ),
       );
       final derniere = i == choisis.length - 1 && s == e.series;

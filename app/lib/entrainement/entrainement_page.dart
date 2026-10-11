@@ -14,6 +14,7 @@ import '../recuperation/recuperation.dart';
 import '../sante/suivi.dart';
 import '../theme.dart';
 import '../journal/formulaires.dart';
+import 'animation_exercice.dart';
 import 'carte_mobilite.dart';
 import 'entrainement_repository.dart';
 import 'generateur.dart';
@@ -409,6 +410,15 @@ class _CarteSeance extends StatelessWidget {
               for (final e in seance.exercices)
                 ListTile(
                   contentPadding: EdgeInsets.zero,
+                  leading: exercicesAnimes.contains(e.exercice.id)
+                      ? SizedBox(
+                          width: 84,
+                          child: AnimationExercice(
+                            exerciceId: e.exercice.id,
+                            arrondi: 10,
+                          ),
+                        )
+                      : null,
                   title: Text(e.exercice.nom),
                   subtitle: Text(
                     [

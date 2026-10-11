@@ -82,6 +82,7 @@ class Etape {
     this.secondes = 0,
     this.reps = 0,
     this.repos = false,
+    this.exerciceId,
   });
 
   final String titre;
@@ -91,6 +92,10 @@ class Etape {
   final int secondes;
   final int reps;
   final bool repos;
+
+  /// Exercice montré à l'écran (animation) ; null pour un repos ou un
+  /// échauffement.
+  final String? exerciceId;
 }
 
 @immutable

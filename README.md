@@ -39,3 +39,8 @@ Pour activer la photo de repas, déployer le relais puis compiler avec `--dart-d
 ## Licence
 
 Aucune licence : le code est visible, mais tous droits sont réservés. Pour le réutiliser, demander l'accord de l'auteur.
+
+## Crédits
+
+- Photos de démonstration des exercices (`app/assets/exercices/`) : jeu libre de droits [free-exercise-db](https://github.com/yuhonas/free-exercise-db) (licence Unlicense, domaine public), réduites à 480 px. Le script `app/tool/telecharger_exercices.mjs` les récupère.
+- Photos des recettes (`app/assets/recettes/`) : illustrations générées par IA (modèle flux-1-schnell, licence Apache 2.0).

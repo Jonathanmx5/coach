@@ -5,6 +5,7 @@ import 'package:wakelock_plus/wakelock_plus.dart';
 
 import '../l10n/app_localizations.dart';
 import '../theme.dart';
+import 'animation_exercice.dart';
 import 'modele.dart';
 import 'voix.dart';
 
@@ -150,38 +151,57 @@ class _SeanceGuideePageState extends State<SeanceGuideePage> {
                 color: CouleursCoach.texteDoux,
               ),
             ),
-            const Spacer(),
-            Text(
-              e.titre,
-              textAlign: TextAlign.center,
-              style: textes.headlineSmall?.copyWith(
-                color: e.repos ? CouleursCoach.orange : CouleursCoach.vert,
+            Expanded(
+              child: Center(
+                child: SingleChildScrollView(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      if (e.exerciceId != null && !e.repos) ...[
+                        AnimationExercice(
+                          key: ValueKey('anim${e.exerciceId}'),
+                          exerciceId: e.exerciceId!,
+                        ),
+                        const SizedBox(height: 16),
+                      ],
+                      Text(
+                        e.titre,
+                        textAlign: TextAlign.center,
+                        style: textes.headlineSmall?.copyWith(
+                          color: e.repos
+                              ? CouleursCoach.orange
+                              : CouleursCoach.vert,
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      if (e.secondes > 0)
+                        Text(
+                          _horloge(_restant < 0 ? 0 : _restant),
+                          textAlign: TextAlign.center,
+                          style: textes.displayLarge?.copyWith(
+                            fontWeight: FontWeight.w700,
+                          ),
+                        )
+                      else
+                        Text(
+                          t.repetitions(e.reps),
+                          textAlign: TextAlign.center,
+                          style: textes.displayMedium?.copyWith(
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      const SizedBox(height: 16),
+                      Text(
+                        e.consigne,
+                        textAlign: TextAlign.center,
+                        style: textes.bodyLarge,
+                      ),
+                    ],
+                  ),
+                ),
               ),
             ),
-            const SizedBox(height: 16),
-            if (e.secondes > 0)
-              Text(
-                _horloge(_restant < 0 ? 0 : _restant),
-                textAlign: TextAlign.center,
-                style: textes.displayLarge?.copyWith(
-                  fontWeight: FontWeight.w700,
-                ),
-              )
-            else
-              Text(
-                t.repetitions(e.reps),
-                textAlign: TextAlign.center,
-                style: textes.displayMedium?.copyWith(
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-            const SizedBox(height: 16),
-            Text(
-              e.consigne,
-              textAlign: TextAlign.center,
-              style: textes.bodyLarge,
-            ),
-            const Spacer(),
             if (e.secondes > 0)
               Row(
                 children: [
