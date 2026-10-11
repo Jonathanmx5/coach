@@ -938,6 +938,57 @@ class AppLocalizationsFr extends AppLocalizations {
   String get confidentialite => 'Politique de confidentialité';
 
   @override
+  String get accepter => 'Accepter';
+
+  @override
+  String get refuser => 'Refuser';
+
+  @override
+  String get consentPhotoTitre => 'Envoyer la photo pour l\'analyse ?';
+
+  @override
+  String get consentPhotoTexte =>
+      'La photo de ton repas est envoyée à un service d\'IA hébergé par Cloudflare pour estimer les aliments. Elle n\'est ni enregistrée ni conservée : seul le résultat que tu valides est ajouté à tes repas. Tu peux retirer ton accord à tout moment dans les Réglages.';
+
+  @override
+  String get consentMeteoTitre => 'Utiliser ta position ?';
+
+  @override
+  String get consentMeteoTexte =>
+      'Ta position approximative (arrondie à environ 10 km) est envoyée au service Open-Meteo pour connaître la température du jour. Elle n\'est pas enregistrée.';
+
+  @override
+  String get consentPhotoReglage => 'Photo de repas analysée par IA';
+
+  @override
+  String get consentPhotoReglageAide =>
+      'Autorise l\'envoi de tes photos de repas au service d\'analyse.';
+
+  @override
+  String get supprimerCompte => 'Supprimer mon compte et mes données';
+
+  @override
+  String get supprimerCompteTitre => 'Supprimer définitivement ton compte ?';
+
+  @override
+  String get supprimerCompteTexte =>
+      'Ton profil, tes repas, ton poids, tes séances, ton eau et tes compléments seront effacés pour toujours, ainsi que les photos de progression de ce téléphone. Cette action est irréversible.';
+
+  @override
+  String get supprimerConfirmer => 'Tout supprimer';
+
+  @override
+  String get supprimerEnCours => 'Suppression en cours…';
+
+  @override
+  String get supprimerHorsLigne =>
+      'Connecte-toi à internet pour supprimer ton compte.';
+
+  @override
+  String get supprimerEchec =>
+      'La suppression a échoué. Réessaie ; si besoin, reconnecte-toi puis recommence.';
+
+  @override
   String get courbePoids => 'Évolution du poids';
 
   @override

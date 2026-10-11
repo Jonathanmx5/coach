@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 import '../compte/auth_service.dart';
+import '../compte/donnees_compte.dart';
 import '../l10n/app_localizations.dart';
 import '../profil/besoins.dart';
 import '../profil/profil_repository.dart';
@@ -42,6 +43,7 @@ class JournalPage extends StatefulWidget {
     required this.analyse,
     required this.planning,
     required this.avis,
+    required this.consentements,
     this.lecteurCode = lecteurCodeCamera,
     this.prise = prisePhotoCamera,
   });
@@ -56,6 +58,7 @@ class JournalPage extends StatefulWidget {
   final AnalysePhoto analyse;
   final PlanningRepository planning;
   final AvisRepository avis;
+  final ConsentementsRepository consentements;
   final PrisePhoto prise;
 
   @override
@@ -157,6 +160,13 @@ class _JournalPageState extends State<JournalPage> {
   }
 
   Future<void> _photo() async {
+    final accord = await assurerConsentement(
+      context,
+      widget.consentements,
+      _uid,
+      Consentement.photo,
+    );
+    if (!accord || !mounted) return;
     final repas = await Navigator.of(context).push<Repas>(
       MaterialPageRoute(
         builder: (_) => PhotoRepasPage(
@@ -280,7 +290,11 @@ class _JournalPageState extends State<JournalPage> {
         .where((j) => j.jour == _jour)
         .firstOrNull;
 
-    final kcalManuelles = activites.fold<double>(0, (s, a) => s + a.kcal);
+    // Une activité que la montre a déjà mesurée n'est pas comptée deux fois.
+    final kcalManuelles = kcalActivitesNonComptees(
+      activites,
+      jourSante?.seances ?? const [],
+    );
     final kcalSeancesMontre = jourSante == null
         ? 0.0
         : (jourSante.kcalActives ??

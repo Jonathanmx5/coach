@@ -29,7 +29,7 @@ Ajouter `--dart-define=RELAIS_URL=https://coach-relais.coach-relais.workers.dev`
 2. Activer **Play App Signing** : Google re-signe l'application avec sa propre clé. **Ajouter alors l'empreinte SHA-1 de la clé de signature d'application** (Console → Intégrité de l'application) dans Firebase (Paramètres du projet → application Android → Ajouter une empreinte), sinon la connexion Google échoue pour les utilisateurs du Play Store.
 3. Importer le `.aab`. Premier test en « test interne », puis « test fermé » (les comptes personnels récents doivent faire 12 testeurs pendant 14 jours avant la production).
 4. Fiche : description, captures d'écran, icône 512 px, image de présentation.
-5. Politique de confidentialité : adresse publique de `CONFIDENTIALITE.md` (par exemple sa page sur GitHub).
+5. Politique de confidentialité : adresse publique de `CONFIDENTIALITE.md` (par exemple sa page sur GitHub). Suppression de compte : l'option est dans l'application (Réglages) ; la Play Console demande aussi une adresse web pour demander la suppression sans l'application : utiliser la section « Vos droits » de la même page.
 6. Formulaire « Sécurité des données » : données collectées = compte Google (identifiant), santé et forme (poids, mensurations, repas, activités, eau, compléments), photos (repas envoyées pour analyse, non conservées), localisation approximative (météo, optionnelle). Chiffrées en transit ; suppression possible sur demande.
 7. Déclaration **Health Connect** : l'application lit les données de santé ; la Play Console demande de justifier chaque autorisation (voir la liste dans `AndroidManifest.xml`).
 8. Classification du contenu et public cible (adultes uniquement : l'application refuse les moins de 18 ans).

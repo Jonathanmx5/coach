@@ -1,4 +1,5 @@
 import '../profil/besoins.dart';
+import '../sante/modele.dart' as sante;
 import 'modele.dart';
 
 /// Équivalents métaboliques (MET) usuels par type d'effort.
@@ -129,4 +130,24 @@ List<double> soldesRecents({
         ),
       ),
   ];
+}
+
+/// Calories des activités saisies que la montre n'a pas déjà comptées. Le
+/// total de la montre (et ses séances) inclut déjà ce qu'elle a mesuré : une
+/// activité qui chevauche une séance de la montre (à la durée près, avant ou
+/// après) serait comptée deux fois. Sans séance de la montre, tout compte.
+double kcalActivitesNonComptees(
+  List<Activite> activites,
+  List<sante.Seance> seancesMontre,
+) {
+  var total = 0.0;
+  for (final a in activites) {
+    final debut = a.date.subtract(Duration(minutes: a.minutes));
+    final fin = a.date.add(Duration(minutes: a.minutes));
+    final dejaCompte = seancesMontre.any(
+      (s) => s.debut.isBefore(fin) && s.debut.add(s.duree).isAfter(debut),
+    );
+    if (!dejaCompte) total += a.kcal;
+  }
+  return total;
 }

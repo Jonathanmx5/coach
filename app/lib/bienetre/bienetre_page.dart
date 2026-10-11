@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 
 import '../compte/auth_service.dart';
+import '../compte/donnees_compte.dart';
 import '../journal/journal_repository.dart';
 import '../journal/modele.dart';
 import '../l10n/app_localizations.dart';
@@ -28,6 +29,7 @@ class BienEtrePage extends StatefulWidget {
     required this.meteo,
     required this.rappels,
     required this.entrainement,
+    required this.consentements,
     required this.horloge,
   });
 
@@ -38,6 +40,7 @@ class BienEtrePage extends StatefulWidget {
   final Meteo meteo;
   final Rappels rappels;
   final EntrainementRepository entrainement;
+  final ConsentementsRepository consentements;
   final DateTime Function() horloge;
 
   @override
@@ -101,7 +104,16 @@ class _BienEtrePageState extends State<BienEtrePage> {
     if (mounted) setState(() => _temp = t);
   }
 
-  void _basculerMeteo(bool actif) {
+  Future<void> _basculerMeteo(bool actif) async {
+    if (actif) {
+      final accord = await assurerConsentement(
+        context,
+        widget.consentements,
+        _uid,
+        Consentement.meteo,
+      );
+      if (!accord || !mounted) return;
+    }
     unawaited(widget.bienetre.activerMeteo(_uid, actif));
     if (!actif) setState(() => _temp = null);
   }

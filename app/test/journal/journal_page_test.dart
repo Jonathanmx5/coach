@@ -1,3 +1,4 @@
+import 'package:coach/compte/donnees_compte.dart';
 import 'package:coach/journal/analyse_photo.dart';
 
 import 'dart:typed_data';
@@ -51,6 +52,7 @@ class Banc {
   final String? code;
   final Suivi suivi;
   final analyse = FausseAnalyse();
+  final consentements = FauxConsentements({Consentement.photo});
   final planning = FauxPlanning();
   Uint8List? photo = Uint8List.fromList([1, 2, 3]);
 
@@ -71,6 +73,7 @@ class Banc {
           analyse: analyse,
           planning: planning,
           avis: FauxAvis(),
+          consentements: consentements,
           prise: () async => photo,
         ),
       ),
@@ -426,5 +429,36 @@ void main() {
 
     await menu(tester, 'Photo du repas');
     expect(find.textContaining('Je ne vois pas d\'aliment'), findsOneWidget);
+  });
+
+  testWidgets('photo : accord demandé la première fois, refus respecté', (
+    tester,
+  ) async {
+    final banc = Banc();
+    await banc.consentements.definir('u1', Consentement.photo, false);
+    banc.analyse.aliments = [riz];
+    await banc.monter(tester);
+
+    await menu(tester, 'Photo du repas');
+    expect(find.text('Envoyer la photo pour l\'analyse ?'), findsOneWidget);
+    await taper(tester, 'Refuser');
+
+    expect(banc.analyse.appels, 0);
+    expect(banc.consentements.accordesMaintenant, isEmpty);
+    expect(find.text('Estimation par IA'), findsNothing);
+  });
+
+  testWidgets('photo : accord donné, enregistré, puis analyse', (tester) async {
+    final banc = Banc();
+    await banc.consentements.definir('u1', Consentement.photo, false);
+    banc.analyse.aliments = [riz];
+    await banc.monter(tester);
+
+    await menu(tester, 'Photo du repas');
+    await taper(tester, 'Accepter');
+
+    expect(banc.consentements.accordesMaintenant, {Consentement.photo});
+    expect(banc.analyse.appels, 1);
+    expect(find.text('Riz'), findsOneWidget);
   });
 }

@@ -1756,6 +1756,96 @@ abstract class AppLocalizations {
   /// **'Politique de confidentialité'**
   String get confidentialite;
 
+  /// No description provided for @accepter.
+  ///
+  /// In fr, this message translates to:
+  /// **'Accepter'**
+  String get accepter;
+
+  /// No description provided for @refuser.
+  ///
+  /// In fr, this message translates to:
+  /// **'Refuser'**
+  String get refuser;
+
+  /// No description provided for @consentPhotoTitre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Envoyer la photo pour l\'analyse ?'**
+  String get consentPhotoTitre;
+
+  /// No description provided for @consentPhotoTexte.
+  ///
+  /// In fr, this message translates to:
+  /// **'La photo de ton repas est envoyée à un service d\'IA hébergé par Cloudflare pour estimer les aliments. Elle n\'est ni enregistrée ni conservée : seul le résultat que tu valides est ajouté à tes repas. Tu peux retirer ton accord à tout moment dans les Réglages.'**
+  String get consentPhotoTexte;
+
+  /// No description provided for @consentMeteoTitre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Utiliser ta position ?'**
+  String get consentMeteoTitre;
+
+  /// No description provided for @consentMeteoTexte.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ta position approximative (arrondie à environ 10 km) est envoyée au service Open-Meteo pour connaître la température du jour. Elle n\'est pas enregistrée.'**
+  String get consentMeteoTexte;
+
+  /// No description provided for @consentPhotoReglage.
+  ///
+  /// In fr, this message translates to:
+  /// **'Photo de repas analysée par IA'**
+  String get consentPhotoReglage;
+
+  /// No description provided for @consentPhotoReglageAide.
+  ///
+  /// In fr, this message translates to:
+  /// **'Autorise l\'envoi de tes photos de repas au service d\'analyse.'**
+  String get consentPhotoReglageAide;
+
+  /// No description provided for @supprimerCompte.
+  ///
+  /// In fr, this message translates to:
+  /// **'Supprimer mon compte et mes données'**
+  String get supprimerCompte;
+
+  /// No description provided for @supprimerCompteTitre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Supprimer définitivement ton compte ?'**
+  String get supprimerCompteTitre;
+
+  /// No description provided for @supprimerCompteTexte.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton profil, tes repas, ton poids, tes séances, ton eau et tes compléments seront effacés pour toujours, ainsi que les photos de progression de ce téléphone. Cette action est irréversible.'**
+  String get supprimerCompteTexte;
+
+  /// No description provided for @supprimerConfirmer.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tout supprimer'**
+  String get supprimerConfirmer;
+
+  /// No description provided for @supprimerEnCours.
+  ///
+  /// In fr, this message translates to:
+  /// **'Suppression en cours…'**
+  String get supprimerEnCours;
+
+  /// No description provided for @supprimerHorsLigne.
+  ///
+  /// In fr, this message translates to:
+  /// **'Connecte-toi à internet pour supprimer ton compte.'**
+  String get supprimerHorsLigne;
+
+  /// No description provided for @supprimerEchec.
+  ///
+  /// In fr, this message translates to:
+  /// **'La suppression a échoué. Réessaie ; si besoin, reconnecte-toi puis recommence.'**
+  String get supprimerEchec;
+
   /// No description provided for @courbePoids.
   ///
   /// In fr, this message translates to:

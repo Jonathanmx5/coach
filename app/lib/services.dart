@@ -2,6 +2,7 @@ import 'bienetre/bienetre_repository.dart';
 import 'bienetre/meteo.dart';
 import 'bienetre/rappels.dart';
 import 'compte/auth_service.dart';
+import 'compte/donnees_compte.dart';
 import 'entrainement/entrainement_repository.dart';
 import 'entrainement/voix.dart';
 import 'journal/analyse_photo.dart';
@@ -39,6 +40,8 @@ class Services {
     required this.miseAJour,
     required this.versionAppli,
     required this.ouvrirLien,
+    required this.donnees,
+    required this.consentements,
     required this.journal,
     required this.catalogue,
     required this.sante,
@@ -61,6 +64,8 @@ class Services {
   final MisesAJour miseAJour;
   final VersionAppli versionAppli;
   final OuvreurLien ouvrirLien;
+  final DonneesCompte donnees;
+  final ConsentementsRepository consentements;
   final JournalRepository journal;
   final CatalogueProduits catalogue;
   final SanteService sante;

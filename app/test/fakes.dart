@@ -7,6 +7,7 @@ import 'package:coach/bienetre/hydratation.dart';
 import 'package:coach/bienetre/meteo.dart';
 import 'package:coach/bienetre/rappels.dart';
 import 'package:coach/compte/auth_service.dart';
+import 'package:coach/compte/donnees_compte.dart';
 import 'package:coach/entrainement/entrainement_repository.dart';
 import 'package:coach/entrainement/modele.dart';
 import 'package:coach/entrainement/voix.dart';
@@ -56,6 +57,17 @@ class FauxAuth implements AuthService {
       _flux.add(u);
     }
     return u;
+  }
+
+  bool compteSupprime = false;
+  Object? echecSuppression;
+
+  @override
+  Future<void> supprimerCompte() async {
+    if (echecSuppression != null) throw echecSuppression!;
+    compteSupprime = true;
+    _actuel = null;
+    _flux.add(null);
   }
 
   @override
@@ -250,6 +262,41 @@ class FausseMiseAJour implements MisesAJour {
   Future<InfoMiseAJour?> verifier(String versionActuelle) async {
     verifications++;
     return info;
+  }
+}
+
+/// Effacement des données piloté par le test.
+class FauxDonnees implements DonneesCompte {
+  final supprimes = <String>[];
+  bool echec = false;
+
+  @override
+  Future<void> supprimerTout(String uid) async {
+    if (echec) throw StateError('refusé');
+    supprimes.add(uid);
+  }
+}
+
+/// Consentements en mémoire.
+class FauxConsentements implements ConsentementsRepository {
+  FauxConsentements([Set<Consentement> accordes = const {}])
+    : _accordes = {...accordes};
+
+  final Set<Consentement> _accordes;
+  final _flux = StreamController<void>.broadcast();
+
+  Set<Consentement> get accordesMaintenant => {..._accordes};
+
+  @override
+  Stream<Set<Consentement>> accordes(String uid) async* {
+    yield {..._accordes};
+    yield* _flux.stream.map((_) => {..._accordes});
+  }
+
+  @override
+  Future<void> definir(String uid, Consentement c, bool accorde) async {
+    accorde ? _accordes.add(c) : _accordes.remove(c);
+    _flux.add(null);
   }
 }
 

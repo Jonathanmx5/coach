@@ -52,11 +52,10 @@ class _CoqueState extends State<Coque> {
     MaterialPageRoute(
       builder: (_) => ReglagesPage(
         utilisateur: widget.utilisateur,
-        auth: _s.auth,
+        services: _s,
         version: _version,
         miseAJour: _maj,
         reverifier: _verifierMaj,
-        ouvrirLien: _s.ouvrirLien,
       ),
     ),
   );
@@ -124,6 +123,7 @@ class _CoqueState extends State<Coque> {
             analyse: _s.analyse,
             planning: _s.planning,
             avis: _s.avis,
+            consentements: _s.consentements,
             suivi: _suivi,
             horloge: widget.horloge,
           ),
@@ -144,6 +144,7 @@ class _CoqueState extends State<Coque> {
             meteo: _s.meteo,
             rappels: _s.rappels,
             entrainement: _s.entrainement,
+            consentements: _s.consentements,
             horloge: widget.horloge,
           ),
           PoidsPage(

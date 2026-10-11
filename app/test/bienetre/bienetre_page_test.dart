@@ -3,6 +3,7 @@ import 'package:coach/bienetre/complements.dart';
 import 'package:flutter/material.dart';
 import 'package:coach/app.dart';
 import 'package:coach/bienetre/bienetre_page.dart';
+import 'package:coach/compte/donnees_compte.dart';
 import 'package:coach/bienetre/hydratation.dart';
 import 'package:coach/compte/auth_service.dart';
 import 'package:coach/journal/modele.dart';
@@ -37,6 +38,7 @@ class Banc {
   final meteo = FausseMeteo(31);
   final rappels = FauxRappels();
   final entrainement = FauxEntrainement();
+  final consentements = FauxConsentements({Consentement.meteo});
 
   Future<void> monter(WidgetTester tester) async {
     await tester.pumpWidget(
@@ -52,6 +54,7 @@ class Banc {
           meteo: meteo,
           rappels: rappels,
           entrainement: entrainement,
+          consentements: consentements,
           horloge: () => maintenant,
         ),
       ),
@@ -222,5 +225,24 @@ void main() {
     expect(find.text('3 jours'), findsOneWidget); // journal
     expect(find.text('1 jour'), findsOneWidget); // séance d'hier
     expect(find.text('2 jours'), findsOneWidget); // eau
+  });
+
+  testWidgets('météo : accord demandé la première fois', (tester) async {
+    final banc = Banc();
+    await banc.consentements.definir('u1', Consentement.meteo, false);
+    await banc.monter(tester);
+
+    await tester.tap(find.byType(Switch));
+    await tester.pumpAndSettle();
+    expect(find.text('Utiliser ta position ?'), findsOneWidget);
+    await taper(tester, 'Refuser');
+    expect(banc.bienetre.meteo['u1'], isNot(true));
+    expect(banc.meteo.appels, 0);
+
+    await tester.tap(find.byType(Switch));
+    await tester.pumpAndSettle();
+    await taper(tester, 'Accepter');
+    expect(banc.bienetre.meteo['u1'], isTrue);
+    expect(banc.consentements.accordesMaintenant, {Consentement.meteo});
   });
 }

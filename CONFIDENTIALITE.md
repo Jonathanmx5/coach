@@ -44,7 +44,9 @@ Ces données servent à :
 ## Vos droits
 
 - Vous pouvez retirer l'accès à Health Connect à tout moment dans les réglages de Health Connect.
-- Vous pouvez modifier votre profil dans l'application et demander la suppression de votre compte et de toutes vos données.
+- Vous pouvez modifier votre profil dans l'application.
+- **Suppression du compte et des données** : dans l'application, Réglages → « Supprimer mon compte et mes données ». Cela efface définitivement votre profil, vos repas, activités, pesées, mensurations, séances, eau, compléments, plannings et réglages (côté serveur), les photos de progression de votre téléphone et votre compte de connexion. Sans l'application (par exemple si elle est désinstallée), ouvrez une demande sur la page GitHub du projet en indiquant l'adresse e-mail de votre compte Google : vos données seront effacées.
+- **Consentements** : l'envoi d'une photo de repas à l'analyse et l'envoi de votre position approximative à Open-Meteo ne se font qu'après votre accord, demandé la première fois. Vous pouvez retirer l'accord pour les photos dans Réglages.
 - Contact : via la page GitHub du projet, https://github.com/Jonathanmx5/coach.
 
 Crunch & Go ne remplace pas un avis médical.

@@ -26,6 +26,10 @@ abstract class AuthService {
   Future<Utilisateur?> connecterGoogle();
   Future<void> deconnecter();
 
+  /// Supprime le compte d'authentification (après l'effacement des données).
+  /// Redemande une connexion Google si la dernière est trop ancienne.
+  Future<void> supprimerCompte();
+
   /// Jeton d'identité pour le relais (null si non connecté).
   Future<String?> jeton();
 }
@@ -81,6 +85,36 @@ class FirebaseAuthService implements AuthService {
       rethrow;
     } catch (e) {
       throw ConnexionEchouee(e);
+    }
+  }
+
+  @override
+  Future<void> supprimerCompte() async {
+    final u = _auth.currentUser;
+    if (u == null) return;
+    try {
+      await u.delete();
+    } on FirebaseAuthException catch (e) {
+      if (e.code != 'requires-recent-login') throw ConnexionEchouee(e);
+      try {
+        await _initialiser();
+        final compte = await _google.authenticate();
+        final idToken = compte.authentication.idToken;
+        if (idToken == null) throw const ConnexionEchouee('idToken absent');
+        await u.reauthenticateWithCredential(
+          GoogleAuthProvider.credential(idToken: idToken),
+        );
+        await u.delete();
+      } on ConnexionEchouee {
+        rethrow;
+      } catch (e) {
+        throw ConnexionEchouee(e);
+      }
+    }
+    try {
+      await _google.signOut();
+    } catch (_) {
+      // Le compte n'existe plus : la session Google locale est sans importance.
     }
   }
 

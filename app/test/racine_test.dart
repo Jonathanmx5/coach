@@ -43,6 +43,8 @@ Future<void> monter(
   FauxPesees? pesees,
   FauxReseau? reseau,
   FausseMiseAJour? miseAJour,
+  FauxDonnees? donnees,
+  FauxConsentements? consentements,
 }) async {
   await tester.pumpWidget(
     CoachApp(
@@ -64,6 +66,8 @@ Future<void> monter(
           analyse: FausseAnalyse(),
           planning: FauxPlanning(),
           avis: FauxAvis(),
+          donnees: donnees ?? FauxDonnees(),
+          consentements: consentements ?? FauxConsentements(),
           miseAJour: miseAJour ?? FausseMiseAJour(),
           versionAppli: FausseVersion(),
           ouvrirLien: (u) async {
