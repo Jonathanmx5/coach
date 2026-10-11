@@ -13,7 +13,7 @@ Application Android de coaching sportif et alimentaire pour débutants. Nom de l
 - **Bien-être** : hydratation (poids, effort, météo), rappels de compléments, séries de jours.
 - **Repas de la semaine** : recettes, planning selon la cible calorique, liste de courses par rayon.
 - **Widgets Android** : anneaux du jour avec ajout d'eau, hydratation (2x2), repas avec accès direct à la photo ; à ajouter depuis le sélecteur de widgets du téléphone.
-- **Confort** : thème clair ou sombre selon le téléphone, texte agrandi pris en charge, anneaux décrits aux lecteurs d'écran.
+- **Confort** : interface en verre givré (Liquid Glass), thème clair, sombre ou automatique au choix, texte agrandi pris en charge, anneaux décrits aux lecteurs d'écran.
 - **Hors-ligne** : les données sont gardées en cache et envoyées au retour du réseau.
 
 ## Organisation du dépôt
