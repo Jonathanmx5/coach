@@ -16,6 +16,8 @@ import 'formulaires.dart';
 import 'journal_repository.dart';
 import 'modele.dart';
 import 'photo_repas_page.dart';
+import '../recettes/avis_repository.dart';
+import '../recettes/idees_page.dart';
 import '../recettes/planning_page.dart';
 import '../recettes/planning_repository.dart';
 import 'scanner_page.dart';
@@ -39,6 +41,7 @@ class JournalPage extends StatefulWidget {
     required this.horloge,
     required this.analyse,
     required this.planning,
+    required this.avis,
     this.lecteurCode = lecteurCodeCamera,
     this.prise = prisePhotoCamera,
   });
@@ -52,6 +55,7 @@ class JournalPage extends StatefulWidget {
   final LecteurCode lecteurCode;
   final AnalysePhoto analyse;
   final PlanningRepository planning;
+  final AvisRepository avis;
   final PrisePhoto prise;
 
   @override
@@ -210,6 +214,21 @@ class _JournalPageState extends State<JournalPage> {
         title: Text(t.tabJournal),
         actions: [
           IconButton(
+            tooltip: t.menuIdees,
+            onPressed: () => Navigator.of(context).push(
+              MaterialPageRoute<void>(
+                builder: (_) => IdeesPage(
+                  utilisateur: widget.utilisateur,
+                  objectif: widget.enregistre.profil.objectif,
+                  kcalCible: widget.enregistre.reperes.kcalCible,
+                  avis: widget.avis,
+                  horloge: widget.horloge,
+                ),
+              ),
+            ),
+            icon: const Icon(Icons.swipe_outlined),
+          ),
+          IconButton(
             tooltip: t.menuPlanning,
             onPressed: () => Navigator.of(context).push(
               MaterialPageRoute<void>(
@@ -217,6 +236,7 @@ class _JournalPageState extends State<JournalPage> {
                   utilisateur: widget.utilisateur,
                   kcalCible: widget.enregistre.reperes.kcalCible,
                   planning: widget.planning,
+                  avis: widget.avis,
                   journal: widget.journal,
                   horloge: widget.horloge,
                 ),

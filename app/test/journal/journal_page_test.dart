@@ -70,6 +70,7 @@ class Banc {
           lecteurCode: (_) async => code,
           analyse: analyse,
           planning: planning,
+          avis: FauxAvis(),
           prise: () async => photo,
         ),
       ),

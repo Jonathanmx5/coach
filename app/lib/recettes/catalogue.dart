@@ -1,5 +1,6 @@
 import '../journal/modele.dart';
 import 'modele.dart';
+import 'recettes_supplementaires.dart';
 
 const _fl = Rayon.fruitsLegumes;
 const _bo = Rayon.boulangerie;
@@ -9,7 +10,7 @@ const _ep = Rayon.epicerie;
 
 /// Recettes simples pour débutants. Les apports sont approximatifs, pour une
 /// portion (valeurs usuelles des tables nutritionnelles).
-const catalogueRecettes = <Recette>[
+const _recettesDeBase = <Recette>[
   // Petits-déjeuners
   Recette(
     id: 'porridge_banane',
@@ -352,6 +353,12 @@ const catalogueRecettes = <Recette>[
     ],
     etapes: ['Taille les légumes en bâtonnets et trempe-les dans le houmous.'],
   ),
+];
+
+/// Toutes les recettes.
+const catalogueRecettes = <Recette>[
+  ..._recettesDeBase,
+  ...recettesSupplementaires,
 ];
 
 Recette recetteParId(String id) =>

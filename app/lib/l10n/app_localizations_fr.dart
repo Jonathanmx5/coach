@@ -841,6 +841,52 @@ class AppLocalizationsFr extends AppLocalizations {
   String get menuPlanning => 'Repas de la semaine';
 
   @override
+  String get ideesTitre => 'Idées de repas';
+
+  @override
+  String get mesEnvies => 'Mes envies';
+
+  @override
+  String get tousLesRepas => 'Tous';
+
+  @override
+  String get ideesTerminees =>
+      'Tu as fait le tour des idées pour ce choix ! Retrouve tes préférées dans « Mes envies », ou change de type de repas.';
+
+  @override
+  String get jeNaimePas => 'Je n\'aime pas';
+
+  @override
+  String get jAimePlusTard => 'J\'aime, pour une prochaine fois';
+
+  @override
+  String get photosIllustratives => 'Photos illustratives générées par IA.';
+
+  @override
+  String get etiquetteEnvie => 'ENVIE';
+
+  @override
+  String get etiquetteNon => 'NON';
+
+  @override
+  String pourToiKcal(int kcal) {
+    return '≈ $kcal kcal pour toi';
+  }
+
+  @override
+  String get vegetarienCourt => 'végé';
+
+  @override
+  String get aucuneEnvie =>
+      'Aucune envie pour l\'instant. Balaie une carte vers la droite pour garder une recette pour une prochaine fois.';
+
+  @override
+  String get retirerEnvie => 'Retirer de mes envies';
+
+  @override
+  String get menuIdees => 'Idées de repas';
+
+  @override
   String get courbePoids => 'Évolution du poids';
 
   @override

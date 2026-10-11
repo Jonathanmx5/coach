@@ -25,6 +25,7 @@ class Banc {
           utilisateur: lea,
           kcalCible: 2000,
           planning: planning,
+          avis: FauxAvis(),
           journal: journal,
           horloge: () => maintenant,
         ),

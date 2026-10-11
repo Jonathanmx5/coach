@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import 'package:flutter/foundation.dart';
 
 import '../journal/modele.dart';
+import 'avis.dart';
 import 'catalogue.dart';
 import 'modele.dart';
 
@@ -110,6 +111,37 @@ List<Recette> recettesPour(Moment moment, {required bool vegetarien}) => [
     if (r.moment == moment && (!vegetarien || r.vegetarien)) r,
 ];
 
+/// Recettes d'un moment pour le planning : les refusées sont écartées (tant
+/// qu'il en reste au moins deux autres) et les aimées reviennent plus souvent,
+/// intercalées entre les autres.
+List<Recette> recettesSelonAvis(
+  Moment moment, {
+  required bool vegetarien,
+  required Map<String, Avis> avis,
+}) {
+  final toutes = recettesPour(moment, vegetarien: vegetarien);
+  final sansRefus = [
+    for (final r in toutes)
+      if (avis[r.id] != Avis.refuse) r,
+  ];
+  final base = sansRefus.length >= 2 ? sansRefus : toutes;
+  final aimees = [
+    for (final r in base)
+      if (avis[r.id] == Avis.aime) r,
+  ];
+  final autres = [
+    for (final r in base)
+      if (avis[r.id] != Avis.aime) r,
+  ];
+  if (aimees.isEmpty || autres.length < 2) return base;
+  final liste = <Recette>[];
+  for (var i = 0; i < autres.length; i++) {
+    liste.add(autres[i]);
+    if (i.isOdd) liste.add(aimees[(i ~/ 2) % aimees.length]);
+  }
+  return liste;
+}
+
 /// Une semaine de repas qui vise [kcalCible] par jour. Les recettes tournent
 /// d'un jour à l'autre et d'une semaine à l'autre.
 Planning genererPlanning({
@@ -117,13 +149,18 @@ Planning genererPlanning({
   required double kcalCible,
   bool vegetarien = false,
   Set<String> coches = const {},
+  Map<String, Avis> avis = const {},
 }) {
   final graine = lundi.difference(DateTime(2024)).inDays ~/ 7;
   final jours = <int, Map<Moment, RepasPlanifie>>{};
   for (var j = 0; j < 7; j++) {
     final repas = <Moment, RepasPlanifie>{};
     for (final e in partsDuJour.entries) {
-      final liste = recettesPour(e.key, vegetarien: vegetarien);
+      final liste = recettesSelonAvis(
+        e.key,
+        vegetarien: vegetarien,
+        avis: avis,
+      );
       final r = liste[(graine + j) % liste.length];
       repas[e.key] = RepasPlanifie(r.id, portionsPour(r, kcalCible * e.value));
     }

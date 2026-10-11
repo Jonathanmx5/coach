@@ -61,6 +61,7 @@ Future<void> monter(
           reseau: reseau ?? FauxReseau(),
           analyse: FausseAnalyse(),
           planning: FauxPlanning(),
+          avis: FauxAvis(),
           catalogue: FauxCatalogue(),
         ),
         horloge: () => maintenant,

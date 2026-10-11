@@ -9,6 +9,7 @@ import '../journal/journal_repository.dart';
 import '../journal/modele.dart';
 import '../l10n/app_localizations.dart';
 import '../theme.dart';
+import 'avis_repository.dart';
 import 'catalogue.dart';
 import 'courses_page.dart';
 import 'modele.dart';
@@ -23,6 +24,7 @@ class PlanningPage extends StatefulWidget {
     required this.utilisateur,
     required this.kcalCible,
     required this.planning,
+    required this.avis,
     required this.journal,
     required this.horloge,
   });
@@ -30,6 +32,7 @@ class PlanningPage extends StatefulWidget {
   final Utilisateur utilisateur;
   final int kcalCible;
   final PlanningRepository planning;
+  final AvisRepository avis;
   final JournalRepository journal;
   final DateTime Function() horloge;
 
@@ -46,21 +49,27 @@ class _PlanningPageState extends State<PlanningPage> {
   void _enregistrer(Planning p) =>
       unawaited(widget.planning.enregistrer(_uid, p));
 
-  void _creerSiAbsent() {
-    if (_creation) return;
-    _creation = true;
+  /// Génère la semaine en tenant compte des recettes aimées et refusées.
+  Future<void> _generer({bool vegetarien = false}) async {
+    final avis = await widget.avis.avis(_uid).first;
     _enregistrer(
-      genererPlanning(lundi: _lundi, kcalCible: widget.kcalCible.toDouble()),
+      genererPlanning(
+        lundi: _lundi,
+        kcalCible: widget.kcalCible.toDouble(),
+        vegetarien: vegetarien,
+        avis: avis,
+      ),
     );
   }
 
-  void _basculerVegetarien(Planning p, bool v) => _enregistrer(
-    genererPlanning(
-      lundi: _lundi,
-      kcalCible: widget.kcalCible.toDouble(),
-      vegetarien: v,
-    ),
-  );
+  void _creerSiAbsent() {
+    if (_creation) return;
+    _creation = true;
+    unawaited(_generer());
+  }
+
+  void _basculerVegetarien(Planning p, bool v) =>
+      unawaited(_generer(vegetarien: v));
 
   DateTime _dateDuRepas(int jour, Moment m) {
     final heure = switch (m) {

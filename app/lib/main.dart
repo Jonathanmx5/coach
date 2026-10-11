@@ -22,6 +22,7 @@ import 'entrainement/voix.dart';
 import 'firebase_options.dart';
 import 'profil/profil_repository.dart';
 import 'racine.dart';
+import 'recettes/avis_repository.dart';
 import 'recettes/planning_repository.dart';
 import 'reseau.dart';
 import 'sante/sante_service.dart';
@@ -61,6 +62,7 @@ Future<void> main() async {
           rappels: RappelsLocaux(),
           reseau: ReseauReel(),
           planning: FirestorePlanningRepository(),
+          avis: FirestoreAvisRepository(),
           analyse: AnalysePhotoRelais(
             url: const String.fromEnvironment('RELAIS_URL'),
             jeton: auth.jeton,

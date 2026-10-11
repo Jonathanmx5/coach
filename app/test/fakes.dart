@@ -22,6 +22,8 @@ import 'package:coach/poids/pesees_repository.dart';
 import 'package:coach/profil/besoins.dart';
 import 'package:coach/profil/modele.dart';
 import 'package:coach/profil/profil_repository.dart';
+import 'package:coach/recettes/avis.dart';
+import 'package:coach/recettes/avis_repository.dart';
 import 'package:coach/recettes/planning.dart';
 import 'package:coach/recettes/planning_repository.dart';
 import 'package:coach/reseau.dart';
@@ -186,6 +188,28 @@ class FausseAnalyse implements AnalysePhoto {
     appels++;
     if (echec != null) throw AnalyseEchouee(echec!);
     return aliments;
+  }
+}
+
+/// Avis sur les recettes en mémoire.
+class FauxAvis implements AvisRepository {
+  final parUid = <String, Map<String, Avis>>{};
+  final _flux = StreamController<void>.broadcast();
+
+  Map<String, Avis> de(String uid) => parUid[uid] ?? const {};
+
+  @override
+  Stream<Map<String, Avis>> avis(String uid) async* {
+    yield de(uid);
+    yield* _flux.stream.map((_) => de(uid));
+  }
+
+  @override
+  Future<void> noter(String uid, String recetteId, Avis? avis) async {
+    final copie = {...de(uid)};
+    avis == null ? copie.remove(recetteId) : copie[recetteId] = avis;
+    parUid[uid] = copie;
+    _flux.add(null);
   }
 }
 

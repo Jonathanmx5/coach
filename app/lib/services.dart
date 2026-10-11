@@ -11,6 +11,7 @@ import 'poids/mensurations_repository.dart';
 import 'poids/pesees_repository.dart';
 import 'poids/photos.dart';
 import 'profil/profil_repository.dart';
+import 'recettes/avis_repository.dart';
 import 'recettes/planning_repository.dart';
 import 'reseau.dart';
 import 'sante/sante_service.dart';
@@ -32,6 +33,7 @@ class Services {
     required this.reseau,
     required this.analyse,
     required this.planning,
+    required this.avis,
     required this.journal,
     required this.catalogue,
     required this.sante,
@@ -50,6 +52,7 @@ class Services {
   final Reseau reseau;
   final AnalysePhoto analyse;
   final PlanningRepository planning;
+  final AvisRepository avis;
   final JournalRepository journal;
   final CatalogueProduits catalogue;
   final SanteService sante;

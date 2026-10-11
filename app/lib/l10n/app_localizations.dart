@@ -1582,6 +1582,90 @@ abstract class AppLocalizations {
   /// **'Repas de la semaine'**
   String get menuPlanning;
 
+  /// No description provided for @ideesTitre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Idées de repas'**
+  String get ideesTitre;
+
+  /// No description provided for @mesEnvies.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mes envies'**
+  String get mesEnvies;
+
+  /// No description provided for @tousLesRepas.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tous'**
+  String get tousLesRepas;
+
+  /// No description provided for @ideesTerminees.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tu as fait le tour des idées pour ce choix ! Retrouve tes préférées dans « Mes envies », ou change de type de repas.'**
+  String get ideesTerminees;
+
+  /// No description provided for @jeNaimePas.
+  ///
+  /// In fr, this message translates to:
+  /// **'Je n\'aime pas'**
+  String get jeNaimePas;
+
+  /// No description provided for @jAimePlusTard.
+  ///
+  /// In fr, this message translates to:
+  /// **'J\'aime, pour une prochaine fois'**
+  String get jAimePlusTard;
+
+  /// No description provided for @photosIllustratives.
+  ///
+  /// In fr, this message translates to:
+  /// **'Photos illustratives générées par IA.'**
+  String get photosIllustratives;
+
+  /// No description provided for @etiquetteEnvie.
+  ///
+  /// In fr, this message translates to:
+  /// **'ENVIE'**
+  String get etiquetteEnvie;
+
+  /// No description provided for @etiquetteNon.
+  ///
+  /// In fr, this message translates to:
+  /// **'NON'**
+  String get etiquetteNon;
+
+  /// No description provided for @pourToiKcal.
+  ///
+  /// In fr, this message translates to:
+  /// **'≈ {kcal} kcal pour toi'**
+  String pourToiKcal(int kcal);
+
+  /// No description provided for @vegetarienCourt.
+  ///
+  /// In fr, this message translates to:
+  /// **'végé'**
+  String get vegetarienCourt;
+
+  /// No description provided for @aucuneEnvie.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucune envie pour l\'instant. Balaie une carte vers la droite pour garder une recette pour une prochaine fois.'**
+  String get aucuneEnvie;
+
+  /// No description provided for @retirerEnvie.
+  ///
+  /// In fr, this message translates to:
+  /// **'Retirer de mes envies'**
+  String get retirerEnvie;
+
+  /// No description provided for @menuIdees.
+  ///
+  /// In fr, this message translates to:
+  /// **'Idées de repas'**
+  String get menuIdees;
+
   /// No description provided for @courbePoids.
   ///
   /// In fr, this message translates to:
