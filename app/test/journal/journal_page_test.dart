@@ -51,6 +51,7 @@ class Banc {
   final String? code;
   final Suivi suivi;
   final analyse = FausseAnalyse();
+  final planning = FauxPlanning();
   Uint8List? photo = Uint8List.fromList([1, 2, 3]);
 
   Future<void> monter(WidgetTester tester) async {
@@ -68,6 +69,7 @@ class Banc {
           horloge: () => maintenant,
           lecteurCode: (_) async => code,
           analyse: analyse,
+          planning: planning,
           prise: () async => photo,
         ),
       ),

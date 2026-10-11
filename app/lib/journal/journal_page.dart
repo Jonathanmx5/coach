@@ -16,6 +16,8 @@ import 'formulaires.dart';
 import 'journal_repository.dart';
 import 'modele.dart';
 import 'photo_repas_page.dart';
+import '../recettes/planning_page.dart';
+import '../recettes/planning_repository.dart';
 import 'scanner_page.dart';
 
 /// Lit un code-barres (caméra par défaut) ; null si l'utilisateur annule.
@@ -36,6 +38,7 @@ class JournalPage extends StatefulWidget {
     required this.suivi,
     required this.horloge,
     required this.analyse,
+    required this.planning,
     this.lecteurCode = lecteurCodeCamera,
     this.prise = prisePhotoCamera,
   });
@@ -48,6 +51,7 @@ class JournalPage extends StatefulWidget {
   final DateTime Function() horloge;
   final LecteurCode lecteurCode;
   final AnalysePhoto analyse;
+  final PlanningRepository planning;
   final PrisePhoto prise;
 
   @override
@@ -202,7 +206,26 @@ class _JournalPageState extends State<JournalPage> {
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context)!;
     return Scaffold(
-      appBar: AppBar(title: Text(t.tabJournal)),
+      appBar: AppBar(
+        title: Text(t.tabJournal),
+        actions: [
+          IconButton(
+            tooltip: t.menuPlanning,
+            onPressed: () => Navigator.of(context).push(
+              MaterialPageRoute<void>(
+                builder: (_) => PlanningPage(
+                  utilisateur: widget.utilisateur,
+                  kcalCible: widget.enregistre.reperes.kcalCible,
+                  planning: widget.planning,
+                  journal: widget.journal,
+                  horloge: widget.horloge,
+                ),
+              ),
+            ),
+            icon: const Icon(Icons.calendar_month_outlined),
+          ),
+        ],
+      ),
       floatingActionButton: FloatingActionButton(
         heroTag: 'fab-journal',
         tooltip: t.ajouter,

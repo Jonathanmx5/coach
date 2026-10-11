@@ -407,6 +407,45 @@
   "aucunAliment": "Je ne vois pas d'aliment sur cette photo.",
   "estimationAVerifier": "Estimation par IA, à vérifier : décoche ce qui est faux et corrige les portions.",
   "changerPortion": "Changer la portion",
+  "planningTitre": "Repas de la semaine",
+  "planningAide": "Des repas simples qui visent tes {kcal} kcal par jour. Touche un repas pour voir la recette.",
+  "@planningAide": {
+    "placeholders": {
+      "kcal": {
+        "type": "int"
+      }
+    }
+  },
+  "sansViande": "Sans viande ni poisson",
+  "nbPortions": "{n} portion(s)",
+  "@nbPortions": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "minutesValeur": "{n} min",
+  "@minutesValeur": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "ingredientsTitre": "Ingrédients",
+  "preparationTitre": "Préparation",
+  "ajouterAuJournal": "Ajouter au journal",
+  "changerRecette": "Changer de recette",
+  "repasAjoute": "Repas ajouté au journal.",
+  "coursesTitre": "Liste de courses",
+  "coursesAide": "Tout ce qu'il faut pour la semaine, rangé par rayon.",
+  "rayonFruitsLegumes": "Fruits et légumes",
+  "rayonBoulangerie": "Boulangerie",
+  "rayonViandePoisson": "Viandes et poissons",
+  "rayonCremerie": "Crèmerie et œufs",
+  "rayonEpicerie": "Épicerie",
+  "menuPlanning": "Repas de la semaine",
   "courbePoids": "Évolution du poids",
   "periode90": "90 jours",
   "periode1an": "1 an",

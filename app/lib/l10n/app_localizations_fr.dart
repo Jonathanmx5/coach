@@ -780,6 +780,67 @@ class AppLocalizationsFr extends AppLocalizations {
   String get changerPortion => 'Changer la portion';
 
   @override
+  String get planningTitre => 'Repas de la semaine';
+
+  @override
+  String planningAide(int kcal) {
+    return 'Des repas simples qui visent tes $kcal kcal par jour. Touche un repas pour voir la recette.';
+  }
+
+  @override
+  String get sansViande => 'Sans viande ni poisson';
+
+  @override
+  String nbPortions(String n) {
+    return '$n portion(s)';
+  }
+
+  @override
+  String minutesValeur(int n) {
+    return '$n min';
+  }
+
+  @override
+  String get ingredientsTitre => 'Ingrédients';
+
+  @override
+  String get preparationTitre => 'Préparation';
+
+  @override
+  String get ajouterAuJournal => 'Ajouter au journal';
+
+  @override
+  String get changerRecette => 'Changer de recette';
+
+  @override
+  String get repasAjoute => 'Repas ajouté au journal.';
+
+  @override
+  String get coursesTitre => 'Liste de courses';
+
+  @override
+  String get coursesAide =>
+      'Tout ce qu\'il faut pour la semaine, rangé par rayon.';
+
+  @override
+  String get rayonFruitsLegumes => 'Fruits et légumes';
+
+  @override
+  String get rayonBoulangerie => 'Boulangerie';
+
+  @override
+  String get rayonViandePoisson => 'Viandes et poissons';
+
+  @override
+  String get rayonCremerie => 'Crèmerie et œufs';
+
+  @override
+  String get rayonEpicerie => 'Épicerie';
+
+  @override
+  String get menuPlanning => 'Repas de la semaine';
+
+  @override
   String get courbePoids => 'Évolution du poids';
 
   @override

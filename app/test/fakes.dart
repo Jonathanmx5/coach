@@ -22,6 +22,8 @@ import 'package:coach/poids/pesees_repository.dart';
 import 'package:coach/profil/besoins.dart';
 import 'package:coach/profil/modele.dart';
 import 'package:coach/profil/profil_repository.dart';
+import 'package:coach/recettes/planning.dart';
+import 'package:coach/recettes/planning_repository.dart';
 import 'package:coach/reseau.dart';
 import 'package:coach/sante/modele.dart';
 import 'package:coach/sante/sante_service.dart';
@@ -184,6 +186,26 @@ class FausseAnalyse implements AnalysePhoto {
     appels++;
     if (echec != null) throw AnalyseEchouee(echec!);
     return aliments;
+  }
+}
+
+/// Planning en mémoire.
+class FauxPlanning implements PlanningRepository {
+  final parSemaine = <String, Planning>{};
+  final _flux = StreamController<void>.broadcast();
+
+  String _cle(String uid, DateTime lundi) => '$uid/$lundi';
+
+  @override
+  Stream<Planning?> planning(String uid, DateTime lundi) async* {
+    yield parSemaine[_cle(uid, lundi)];
+    yield* _flux.stream.map((_) => parSemaine[_cle(uid, lundi)]);
+  }
+
+  @override
+  Future<void> enregistrer(String uid, Planning p) async {
+    parSemaine[_cle(uid, p.lundi)] = p;
+    _flux.add(null);
   }
 }
 

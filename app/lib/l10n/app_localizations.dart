@@ -1474,6 +1474,114 @@ abstract class AppLocalizations {
   /// **'Changer la portion'**
   String get changerPortion;
 
+  /// No description provided for @planningTitre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Repas de la semaine'**
+  String get planningTitre;
+
+  /// No description provided for @planningAide.
+  ///
+  /// In fr, this message translates to:
+  /// **'Des repas simples qui visent tes {kcal} kcal par jour. Touche un repas pour voir la recette.'**
+  String planningAide(int kcal);
+
+  /// No description provided for @sansViande.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sans viande ni poisson'**
+  String get sansViande;
+
+  /// No description provided for @nbPortions.
+  ///
+  /// In fr, this message translates to:
+  /// **'{n} portion(s)'**
+  String nbPortions(String n);
+
+  /// No description provided for @minutesValeur.
+  ///
+  /// In fr, this message translates to:
+  /// **'{n} min'**
+  String minutesValeur(int n);
+
+  /// No description provided for @ingredientsTitre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ingrédients'**
+  String get ingredientsTitre;
+
+  /// No description provided for @preparationTitre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Préparation'**
+  String get preparationTitre;
+
+  /// No description provided for @ajouterAuJournal.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ajouter au journal'**
+  String get ajouterAuJournal;
+
+  /// No description provided for @changerRecette.
+  ///
+  /// In fr, this message translates to:
+  /// **'Changer de recette'**
+  String get changerRecette;
+
+  /// No description provided for @repasAjoute.
+  ///
+  /// In fr, this message translates to:
+  /// **'Repas ajouté au journal.'**
+  String get repasAjoute;
+
+  /// No description provided for @coursesTitre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Liste de courses'**
+  String get coursesTitre;
+
+  /// No description provided for @coursesAide.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tout ce qu\'il faut pour la semaine, rangé par rayon.'**
+  String get coursesAide;
+
+  /// No description provided for @rayonFruitsLegumes.
+  ///
+  /// In fr, this message translates to:
+  /// **'Fruits et légumes'**
+  String get rayonFruitsLegumes;
+
+  /// No description provided for @rayonBoulangerie.
+  ///
+  /// In fr, this message translates to:
+  /// **'Boulangerie'**
+  String get rayonBoulangerie;
+
+  /// No description provided for @rayonViandePoisson.
+  ///
+  /// In fr, this message translates to:
+  /// **'Viandes et poissons'**
+  String get rayonViandePoisson;
+
+  /// No description provided for @rayonCremerie.
+  ///
+  /// In fr, this message translates to:
+  /// **'Crèmerie et œufs'**
+  String get rayonCremerie;
+
+  /// No description provided for @rayonEpicerie.
+  ///
+  /// In fr, this message translates to:
+  /// **'Épicerie'**
+  String get rayonEpicerie;
+
+  /// No description provided for @menuPlanning.
+  ///
+  /// In fr, this message translates to:
+  /// **'Repas de la semaine'**
+  String get menuPlanning;
+
   /// No description provided for @courbePoids.
   ///
   /// In fr, this message translates to:
