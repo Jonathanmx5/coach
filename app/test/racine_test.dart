@@ -51,6 +51,7 @@ Future<void> monter(
           pesees: pesees ?? FauxPesees(),
           journal: FauxJournal(),
           mensurations: FauxMensurations(),
+          photos: FausPhotos(),
           catalogue: FauxCatalogue(),
         ),
         horloge: () => maintenant,

@@ -23,6 +23,8 @@ import '../theme.dart';
 import 'mensurations_repository.dart';
 import 'mensurations_section.dart';
 import 'pesees.dart';
+import 'photos.dart';
+import 'photos_section.dart';
 import 'pesees_repository.dart';
 
 /// Onglet Poids : poids actuel, IMC, courbe et historique des pesées.
@@ -35,6 +37,7 @@ class PoidsPage extends StatefulWidget {
     required this.pesees,
     required this.journal,
     required this.mensurations,
+    required this.photos,
     required this.sante,
     required this.horloge,
   });
@@ -45,6 +48,7 @@ class PoidsPage extends StatefulWidget {
   final PeseesRepository pesees;
   final JournalRepository journal;
   final MensurationsRepository mensurations;
+  final PhotosProgres photos;
   final SanteService sante;
   final DateTime Function() horloge;
 
@@ -193,6 +197,8 @@ class _PoidsPageState extends State<PoidsPage> {
                 uid: _uid,
                 horloge: widget.horloge,
               ),
+              const SizedBox(height: 16),
+              PhotosSection(photos: widget.photos, horloge: widget.horloge),
               const SizedBox(height: 24),
               Text(t.historiquePoids, style: textes.titleLarge),
               const SizedBox(height: 8),

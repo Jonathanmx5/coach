@@ -1,3 +1,5 @@
+import 'package:coach/poids/photos.dart';
+import 'package:flutter/material.dart';
 import 'package:coach/poids/mensurations.dart';
 import 'package:coach/journal/modele.dart';
 import 'package:coach/app.dart';
@@ -52,6 +54,7 @@ class Banc {
   final pesees = FauxPesees();
   final journal = FauxJournal();
   final mensurations = FauxMensurations();
+  final photos = FausPhotos();
   late final FauxSante sante;
 
   Profil get profil => depot.donnees['u1']!.profil;
@@ -66,6 +69,7 @@ class Banc {
           pesees: pesees,
           journal: journal,
           mensurations: mensurations,
+          photos: photos,
           sante: sante,
           horloge: () => maintenant,
         ),
@@ -283,5 +287,36 @@ void main() {
     await defilerJusqua(tester, find.text('88,5 cm'));
     expect(find.text('88,5 cm'), findsOneWidget);
     expect(find.text('22,0 %'), findsOneWidget);
+  });
+
+  testWidgets('photos : prise, annulation, comparaison et suppression', (
+    tester,
+  ) async {
+    final banc = Banc();
+    banc.photos.liste.add(
+      PhotoProgres(chemin: '/faux/1.jpg', date: DateTime(2026, 9, 9)),
+    );
+    await banc.monter(tester);
+
+    await defilerJusqua(tester, find.text('Prendre une photo'));
+    expect(find.text('Comparer'), findsNothing);
+
+    banc.photos.annule = true;
+    await taper(tester, 'Prendre une photo');
+    expect(banc.photos.liste, hasLength(1));
+
+    banc.photos.annule = false;
+    await taper(tester, 'Prendre une photo');
+    expect(banc.photos.liste, hasLength(2));
+
+    await taper(tester, 'Comparer');
+    expect(find.byType(Slider), findsOneWidget);
+    expect(find.text('Avant'), findsOneWidget);
+    await tester.tap(find.byType(BackButton));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byTooltip('Supprimer la photo').first);
+    await tester.pumpAndSettle();
+    expect(banc.photos.liste, hasLength(1));
   });
 }

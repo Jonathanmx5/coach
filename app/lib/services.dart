@@ -3,6 +3,7 @@ import 'journal/catalogue.dart';
 import 'journal/journal_repository.dart';
 import 'poids/mensurations_repository.dart';
 import 'poids/pesees_repository.dart';
+import 'poids/photos.dart';
 import 'profil/profil_repository.dart';
 import 'sante/sante_service.dart';
 
@@ -14,6 +15,7 @@ class Services {
     required this.depot,
     required this.pesees,
     required this.mensurations,
+    required this.photos,
     required this.journal,
     required this.catalogue,
     required this.sante,
@@ -23,6 +25,7 @@ class Services {
   final ProfilRepository depot;
   final PeseesRepository pesees;
   final MensurationsRepository mensurations;
+  final PhotosProgres photos;
   final JournalRepository journal;
   final CatalogueProduits catalogue;
   final SanteService sante;

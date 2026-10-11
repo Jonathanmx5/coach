@@ -480,6 +480,28 @@ class AppLocalizationsFr extends AppLocalizations {
   String get erreurMesures => 'Entre au moins une mesure.';
 
   @override
+  String get photosTitre => 'Photos de progression';
+
+  @override
+  String get photosAide =>
+      'Une photo par mois, de face et dans la même lumière. Elles restent sur ton téléphone, rien n\'est envoyé.';
+
+  @override
+  String get prendrePhoto => 'Prendre une photo';
+
+  @override
+  String get comparerPhotos => 'Comparer';
+
+  @override
+  String get supprimerPhoto => 'Supprimer la photo';
+
+  @override
+  String get photoAvant => 'Avant';
+
+  @override
+  String get photoApres => 'Après';
+
+  @override
   String get courbePoids => 'Évolution du poids';
 
   @override

@@ -12,6 +12,7 @@ import 'journal/catalogue.dart';
 import 'journal/journal_repository.dart';
 import 'poids/mensurations_repository.dart';
 import 'poids/pesees_repository.dart';
+import 'poids/photos.dart';
 import 'firebase_options.dart';
 import 'profil/profil_repository.dart';
 import 'racine.dart';
@@ -43,6 +44,7 @@ Future<void> main() async {
           depot: FirestoreProfilRepository(),
           pesees: FirestorePeseesRepository(),
           mensurations: FirestoreMensurationsRepository(),
+          photos: PhotosProgresLocales(),
           journal: FirestoreJournalRepository(),
           catalogue: CatalogueOpenFoodFacts(),
           sante: HealthSanteService(),

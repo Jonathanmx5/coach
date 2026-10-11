@@ -7,6 +7,7 @@ import 'package:coach/journal/modele.dart';
 import 'package:coach/poids/mensurations.dart';
 import 'package:coach/poids/mensurations_repository.dart';
 import 'package:coach/poids/pesees.dart';
+import 'package:coach/poids/photos.dart';
 import 'package:coach/poids/pesees_repository.dart';
 import 'package:coach/profil/besoins.dart';
 import 'package:coach/profil/modele.dart';
@@ -152,6 +153,29 @@ class FauxPesees implements PeseesRepository {
     ];
     _flux.add(uid);
   }
+}
+
+/// Photos de progression en mémoire (aucun fichier réel).
+class FausPhotos implements PhotosProgres {
+  final liste = <PhotoProgres>[];
+  var annule = false;
+
+  @override
+  Future<List<PhotoProgres>> lister() async => [...liste];
+
+  @override
+  Future<PhotoProgres?> prendre(DateTime date) async {
+    if (annule) return null;
+    final p = PhotoProgres(
+      chemin: '/faux/${date.millisecondsSinceEpoch}.jpg',
+      date: date,
+    );
+    liste.add(p);
+    return p;
+  }
+
+  @override
+  Future<void> supprimer(PhotoProgres photo) async => liste.remove(photo);
 }
 
 /// Mensurations en mémoire.

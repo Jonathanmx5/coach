@@ -958,6 +958,48 @@ abstract class AppLocalizations {
   /// **'Entre au moins une mesure.'**
   String get erreurMesures;
 
+  /// No description provided for @photosTitre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Photos de progression'**
+  String get photosTitre;
+
+  /// No description provided for @photosAide.
+  ///
+  /// In fr, this message translates to:
+  /// **'Une photo par mois, de face et dans la même lumière. Elles restent sur ton téléphone, rien n\'est envoyé.'**
+  String get photosAide;
+
+  /// No description provided for @prendrePhoto.
+  ///
+  /// In fr, this message translates to:
+  /// **'Prendre une photo'**
+  String get prendrePhoto;
+
+  /// No description provided for @comparerPhotos.
+  ///
+  /// In fr, this message translates to:
+  /// **'Comparer'**
+  String get comparerPhotos;
+
+  /// No description provided for @supprimerPhoto.
+  ///
+  /// In fr, this message translates to:
+  /// **'Supprimer la photo'**
+  String get supprimerPhoto;
+
+  /// No description provided for @photoAvant.
+  ///
+  /// In fr, this message translates to:
+  /// **'Avant'**
+  String get photoAvant;
+
+  /// No description provided for @photoApres.
+  ///
+  /// In fr, this message translates to:
+  /// **'Après'**
+  String get photoApres;
+
   /// No description provided for @courbePoids.
   ///
   /// In fr, this message translates to:
