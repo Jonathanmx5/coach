@@ -904,6 +904,12 @@ abstract class AppLocalizations {
   /// **'L\'IMC est un repère général : il ne tient pas compte de ta masse musculaire.'**
   String get imcAide;
 
+  /// No description provided for @projectionLegende.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pointillés : projection sur 5 jours d\'après ton journal des 7 derniers jours.'**
+  String get projectionLegende;
+
   /// No description provided for @courbePoids.
   ///
   /// In fr, this message translates to:

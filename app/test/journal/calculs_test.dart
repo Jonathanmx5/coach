@@ -35,6 +35,7 @@ Repas repas(double kcal, {double p = 0, double g = 0, double l = 0}) => Repas(
 );
 
 void main() {
+  soldesTests();
   group('calories d\'une activité (MET × kg × heures)', () {
     test('1 h de vélo modéré à 80 kg : 7,5 × 80 = 600', () {
       expect(
@@ -135,6 +136,51 @@ void main() {
 
     test('aucun jour renseigné : pas de projection', () {
       expect(projeterPoids(poidsKg: 80, soldes: const []), isNull);
+    });
+  });
+}
+
+void soldesTests() {
+  group('soldesRecents', () {
+    Repas le(int jour, double kcal) => Repas(
+      date: DateTime(2026, 10, jour, 12),
+      moment: Moment.dejeuner,
+      nom: 'x',
+      macros: Macros(kcal: kcal),
+      source: SourceRepas.manuel,
+    );
+
+    test('un solde par jour avec repas, jours vides ignorés', () {
+      final soldes = soldesRecents(
+        repas: [le(5, 1000), le(5, 1000), le(7, 2000)],
+        activites: [
+          Activite(
+            date: DateTime(2026, 10, 7, 8),
+            type: TypeActivite.course,
+            minutes: 30,
+            intensite: Intensite.moderee,
+            kcal: 300,
+          ),
+        ],
+        depenseBase: 1000,
+        debut: DateTime(2026, 10, 3),
+        fin: DateTime(2026, 10, 9),
+      );
+      // Jour 5 : 2000 − 1200 ; jour 7 : 2000 − 1500.
+      expect(soldes..sort(), [500, 800]);
+    });
+
+    test('hors fenêtre ignoré', () {
+      expect(
+        soldesRecents(
+          repas: [le(9, 1000)],
+          activites: const [],
+          depenseBase: 1000,
+          debut: DateTime(2026, 10, 3),
+          fin: DateTime(2026, 10, 9),
+        ),
+        isEmpty,
+      );
     });
   });
 }

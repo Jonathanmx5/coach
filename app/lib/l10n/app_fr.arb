@@ -224,6 +224,7 @@
   "imcSurpoids": "Surpoids",
   "imcObesite": "Obésité",
   "imcAide": "L'IMC est un repère général : il ne tient pas compte de ta masse musculaire.",
+  "projectionLegende": "Pointillés : projection sur 5 jours d'après ton journal des 7 derniers jours.",
   "courbePoids": "Évolution du poids",
   "periode90": "90 jours",
   "periode1an": "1 an",

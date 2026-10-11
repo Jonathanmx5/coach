@@ -452,6 +452,10 @@ class AppLocalizationsFr extends AppLocalizations {
       'L\'IMC est un repère général : il ne tient pas compte de ta masse musculaire.';
 
   @override
+  String get projectionLegende =>
+      'Pointillés : projection sur 5 jours d\'après ton journal des 7 derniers jours.';
+
+  @override
   String get courbePoids => 'Évolution du poids';
 
   @override

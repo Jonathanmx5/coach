@@ -6,6 +6,9 @@ import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 
 import '../compte/auth_service.dart';
+import '../journal/calculs.dart';
+import '../journal/journal_repository.dart';
+import '../journal/modele.dart';
 import '../l10n/app_localizations.dart';
 import '../profil/besoins.dart';
 import '../profil/garde_fous.dart';
@@ -28,6 +31,7 @@ class PoidsPage extends StatefulWidget {
     required this.enregistre,
     required this.depot,
     required this.pesees,
+    required this.journal,
     required this.sante,
     required this.horloge,
   });
@@ -36,6 +40,7 @@ class PoidsPage extends StatefulWidget {
   final ProfilEnregistre enregistre;
   final ProfilRepository depot;
   final PeseesRepository pesees;
+  final JournalRepository journal;
   final SanteService sante;
   final DateTime Function() horloge;
 
@@ -170,7 +175,14 @@ class _PoidsPageState extends State<PoidsPage> {
                 onSelectionChanged: (s) => setState(() => _jours = s.first),
               ),
               const SizedBox(height: 12),
-              _Courbe(pesees: visibles, debut: debut),
+              _CourbeAvecProjection(
+                journal: widget.journal,
+                uid: _uid,
+                depenseBase: widget.enregistre.reperes.depenseBase,
+                maintenant: maintenant,
+                pesees: visibles,
+                debut: debut,
+              ),
               const SizedBox(height: 24),
               Text(t.historiquePoids, style: textes.titleLarge),
               const SizedBox(height: 8),
@@ -330,65 +342,175 @@ class _CarteImc extends StatelessWidget {
   }
 }
 
-class _Courbe extends StatelessWidget {
-  const _Courbe({required this.pesees, required this.debut});
+/// Courbe + projection à 5 jours d'après le solde moyen des 7 derniers jours
+/// renseignés dans le journal (aujourd'hui exclu : journée incomplète).
+class _CourbeAvecProjection extends StatelessWidget {
+  const _CourbeAvecProjection({
+    required this.journal,
+    required this.uid,
+    required this.depenseBase,
+    required this.maintenant,
+    required this.pesees,
+    required this.debut,
+  });
 
+  final JournalRepository journal;
+  final String uid;
+  final int depenseBase;
+  final DateTime maintenant;
   final List<Pesee> pesees;
   final DateTime debut;
 
   @override
-  Widget build(BuildContext context) => Card(
-    child: Padding(
-      padding: const EdgeInsets.fromLTRB(8, 16, 16, 8),
-      child: SizedBox(
-        height: 200,
-        child: pesees.isEmpty
-            ? const SizedBox.shrink()
-            : LineChart(
-                LineChartData(
-                  gridData: const FlGridData(drawVerticalLine: false),
-                  borderData: FlBorderData(show: false),
-                  titlesData: FlTitlesData(
-                    topTitles: const AxisTitles(),
-                    rightTitles: const AxisTitles(),
-                    bottomTitles: const AxisTitles(),
-                    leftTitles: AxisTitles(
-                      sideTitles: SideTitles(
-                        showTitles: true,
-                        reservedSize: 40,
-                        getTitlesWidget: (v, meta) => Text(
-                          v.toStringAsFixed(0),
-                          style: Theme.of(context).textTheme.bodySmall,
+  Widget build(BuildContext context) {
+    final aujourdhui = DateTime(
+      maintenant.year,
+      maintenant.month,
+      maintenant.day,
+    );
+    final depart = DateTime(
+      aujourdhui.year,
+      aujourdhui.month,
+      aujourdhui.day - 7,
+    );
+    return StreamBuilder<List<Repas>>(
+      stream: journal.repas(uid, depart, aujourdhui),
+      builder: (context, repas) => StreamBuilder<List<Activite>>(
+        stream: journal.activites(uid, depart, aujourdhui),
+        builder: (context, activites) {
+          List<double>? projection;
+          if (pesees.isNotEmpty && repas.hasData) {
+            projection = projeterPoids(
+              poidsKg: pesees.last.kg,
+              soldes: soldesRecents(
+                repas: repas.data!,
+                activites: activites.data ?? const [],
+                depenseBase: depenseBase,
+                debut: depart,
+                fin: aujourdhui,
+              ),
+            );
+          }
+          return _Courbe(
+            pesees: pesees,
+            debut: debut,
+            projection: projection,
+            aujourdhui: aujourdhui,
+          );
+        },
+      ),
+    );
+  }
+}
+
+class _Courbe extends StatelessWidget {
+  const _Courbe({
+    required this.pesees,
+    required this.debut,
+    this.projection,
+    required this.aujourdhui,
+  });
+
+  final List<Pesee> pesees;
+  final DateTime debut;
+  final List<double>? projection;
+  final DateTime aujourdhui;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(8, 16, 16, 8),
+        child: Column(
+          children: [
+            SizedBox(
+              height: 200,
+              child: pesees.isEmpty
+                  ? const SizedBox.shrink()
+                  : LineChart(
+                      LineChartData(
+                        gridData: const FlGridData(drawVerticalLine: false),
+                        borderData: FlBorderData(show: false),
+                        titlesData: FlTitlesData(
+                          topTitles: const AxisTitles(),
+                          rightTitles: const AxisTitles(),
+                          bottomTitles: const AxisTitles(),
+                          leftTitles: AxisTitles(
+                            sideTitles: SideTitles(
+                              showTitles: true,
+                              reservedSize: 40,
+                              getTitlesWidget: (v, meta) => Text(
+                                v.toStringAsFixed(0),
+                                style: Theme.of(context).textTheme.bodySmall,
+                              ),
+                            ),
+                          ),
                         ),
+                        lineBarsData: [
+                          LineChartBarData(
+                            isCurved: true,
+                            color: CouleursCoach.vert,
+                            barWidth: 3,
+                            spots: [
+                              for (final p in pesees)
+                                FlSpot(
+                                  p.date.difference(debut).inHours / 24,
+                                  p.kg,
+                                ),
+                            ],
+                            dotData: FlDotData(
+                              getDotPainter: (spot, _, _, i) =>
+                                  FlDotCirclePainter(
+                                    radius: 4,
+                                    color:
+                                        pesees[i].source == SourcePesee.montre
+                                        ? CouleursCoach.orange
+                                        : CouleursCoach.vert,
+                                    strokeColor: Colors.white,
+                                    strokeWidth: 1.5,
+                                  ),
+                            ),
+                          ),
+                          if (projection != null)
+                            LineChartBarData(
+                              color: CouleursCoach.texteDoux,
+                              barWidth: 2,
+                              dashArray: [6, 5],
+                              dotData: const FlDotData(show: false),
+                              spots: [
+                                FlSpot(
+                                  pesees.last.date.difference(debut).inHours /
+                                      24,
+                                  pesees.last.kg,
+                                ),
+                                for (var i = 0; i < projection!.length; i++)
+                                  FlSpot(
+                                    aujourdhui.difference(debut).inDays +
+                                        i +
+                                        1.0,
+                                    projection![i],
+                                  ),
+                              ],
+                            ),
+                        ],
                       ),
                     ),
-                  ),
-                  lineBarsData: [
-                    LineChartBarData(
-                      isCurved: true,
-                      color: CouleursCoach.vert,
-                      barWidth: 3,
-                      spots: [
-                        for (final p in pesees)
-                          FlSpot(p.date.difference(debut).inHours / 24, p.kg),
-                      ],
-                      dotData: FlDotData(
-                        getDotPainter: (spot, _, _, i) => FlDotCirclePainter(
-                          radius: 4,
-                          color: pesees[i].source == SourcePesee.montre
-                              ? CouleursCoach.orange
-                              : CouleursCoach.vert,
-                          strokeColor: Colors.white,
-                          strokeWidth: 1.5,
-                        ),
-                      ),
-                    ),
-                  ],
+            ),
+            if (projection != null)
+              Padding(
+                padding: const EdgeInsets.only(top: 8, left: 8),
+                child: Text(
+                  t.projectionLegende,
+                  style: Theme.of(context).textTheme.bodySmall
+                      ?.copyWith(color: CouleursCoach.texteDoux),
                 ),
               ),
+          ],
+        ),
       ),
-    ),
-  );
+    );
+  }
 }
 
 class _LignePesee extends StatelessWidget {

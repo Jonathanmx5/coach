@@ -93,3 +93,40 @@ List<double>? projeterPoids({
   final parJour = moyenne / kcalParKg;
   return [for (var i = 1; i <= jours; i++) poidsKg + parJour * i];
 }
+
+/// Solde (mangé − dépensé) de chaque jour entre [debut] (inclus) et [fin]
+/// (exclu) où au moins un repas est noté ; les jours sans repas sont ignorés
+/// (journal oublié, pas jeûne). Dépense = base × 1,2 + activités saisies.
+List<double> soldesRecents({
+  required List<Repas> repas,
+  required List<Activite> activites,
+  required int depenseBase,
+  required DateTime debut,
+  required DateTime fin,
+}) {
+  DateTime jour(DateTime d) => DateTime(d.year, d.month, d.day);
+  final mange = <DateTime, double>{};
+  for (final r in repas) {
+    if (r.date.isBefore(debut) || !r.date.isBefore(fin)) continue;
+    mange.update(
+      jour(r.date),
+      (v) => v + r.macros.kcal,
+      ifAbsent: () => r.macros.kcal,
+    );
+  }
+  final sport = <DateTime, double>{};
+  for (final a in activites) {
+    sport.update(jour(a.date), (v) => v + a.kcal, ifAbsent: () => a.kcal);
+  }
+  return [
+    for (final e in mange.entries)
+      solde(
+        mange: e.value,
+        depense: depenseDuJour(
+          depenseBase: depenseBase,
+          kcalMontre: null,
+          kcalActivites: sport[e.key] ?? 0,
+        ),
+      ),
+  ];
+}

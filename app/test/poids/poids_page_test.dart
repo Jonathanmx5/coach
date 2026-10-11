@@ -1,3 +1,4 @@
+import 'package:coach/journal/modele.dart';
 import 'package:coach/app.dart';
 import 'package:coach/compte/auth_service.dart';
 import 'package:coach/poids/poids_page.dart';
@@ -48,6 +49,7 @@ class Banc {
 
   final depot = FauxDepot();
   final pesees = FauxPesees();
+  final journal = FauxJournal();
   late final FauxSante sante;
 
   Profil get profil => depot.donnees['u1']!.profil;
@@ -60,6 +62,7 @@ class Banc {
           enregistre: depot.donnees['u1']!,
           depot: depot,
           pesees: pesees,
+          journal: journal,
           sante: sante,
           horloge: () => maintenant,
         ),
@@ -212,5 +215,38 @@ void main() {
     expect(pointsDeLaCourbe(tester), 2);
     await taper(tester, '1 an');
     expect(pointsDeLaCourbe(tester), 3);
+  });
+
+  testWidgets('projection en pointillés selon le journal, sinon rien', (
+    tester,
+  ) async {
+    final banc = Banc();
+    await banc.ajouterEnBase(62, DateTime(2026, 10, 1));
+    await banc.monter(tester);
+    expect(find.textContaining('projection sur 5 jours'), findsNothing);
+    expect(
+      tester.widget<LineChart>(find.byType(LineChart)).data.lineBarsData,
+      hasLength(1),
+    );
+
+    banc.journal.repasParUid['u1'] = [
+      Repas(
+        date: DateTime(2026, 10, 8, 12),
+        moment: Moment.dejeuner,
+        nom: 'x',
+        macros: const Macros(kcal: 3000),
+        source: SourceRepas.manuel,
+      ),
+    ];
+    await banc.monter(tester);
+    final courbes = tester
+        .widget<LineChart>(find.byType(LineChart))
+        .data
+        .lineBarsData;
+    expect(courbes, hasLength(2));
+    expect(courbes.last.dashArray, isNotNull);
+    expect(courbes.last.spots, hasLength(6));
+    expect(courbes.last.spots.last.y, greaterThan(62));
+    expect(find.textContaining('projection sur 5 jours'), findsOneWidget);
   });
 }
