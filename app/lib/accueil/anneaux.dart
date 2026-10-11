@@ -15,14 +15,14 @@ import '../profil/modele.dart';
 import '../sante/suivi.dart';
 import '../theme.dart';
 
-/// Couleurs des anneaux, celles de l'application : vert pour le sport (menthe
-/// pour les calories brûlées, vert vif pour les protéines, qui font le muscle),
-/// orange pour l'assiette, bleu pour l'eau ; fond vert profond comme l'en-tête.
-const _cBrule = CouleursCoach.vertPale;
+/// Couleurs des anneaux, celles de l'application, sur un fond vert très clair :
+/// vert pour le sport (vert profond pour les calories brûlées, vert moyen pour
+/// les protéines, qui font le muscle), orange pour l'assiette, bleu pour l'eau.
+const _cBrule = CouleursCoach.vert;
 const _cMange = CouleursCoach.orange;
-const _cProteines = CouleursCoach.vertVif;
-const _cEau = CouleursCoach.bleuClair;
-const _fond = CouleursCoach.vertFonce;
+const _cProteines = CouleursCoach.vertMoyen;
+const _cEau = CouleursCoach.bleu;
+const _fond = CouleursCoach.vertClair;
 
 /// Quatre anneaux concentriques : de l'extérieur vers l'intérieur, calories
 /// brûlées, calories mangées, protéines, eau. Chaque valeur va de 0 à 1 ;
@@ -69,7 +69,7 @@ class _AnneauxPainter extends CustomPainter {
       final piste = Paint()
         ..style = PaintingStyle.stroke
         ..strokeWidth = epaisseur
-        ..color = couleurs[i].withValues(alpha: 0.3);
+        ..color = couleurs[i].withValues(alpha: 0.22);
       canvas.drawCircle(centre, rayon, piste);
       if (valeurs[i] <= 0) continue;
       final trait = Paint()
@@ -244,8 +244,10 @@ class _CarteAujourdhuiState extends State<CarteAujourdhui> {
             alignment: Alignment.centerLeft,
             child: Text(
               t.anneauxTitre,
-              style: Theme.of(context).textTheme.titleLarge
-                  ?.copyWith(color: Colors.white, fontWeight: FontWeight.w700),
+              style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                color: CouleursCoach.texte,
+                fontWeight: FontWeight.w700,
+              ),
             ),
           ),
           const SizedBox(height: 16),
@@ -348,11 +350,15 @@ class _Ligne extends StatelessWidget {
                 children: [
                   Text(
                     libelle,
-                    style: textes.titleSmall?.copyWith(color: Colors.white),
+                    style: textes.titleSmall?.copyWith(
+                      color: CouleursCoach.texte,
+                    ),
                   ),
                   Text(
                     sous,
-                    style: textes.bodySmall?.copyWith(color: Colors.white54),
+                    style: textes.bodySmall?.copyWith(
+                      color: CouleursCoach.texteDoux,
+                    ),
                   ),
                 ],
               ),
@@ -369,7 +375,9 @@ class _Ligne extends StatelessWidget {
                   ),
                   TextSpan(
                     text: ' / $objectif $unite',
-                    style: textes.bodyMedium?.copyWith(color: Colors.white70),
+                    style: textes.bodyMedium?.copyWith(
+                      color: CouleursCoach.texteDoux,
+                    ),
                   ),
                 ],
               ),
