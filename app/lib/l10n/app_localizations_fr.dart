@@ -502,6 +502,93 @@ class AppLocalizationsFr extends AppLocalizations {
   String get photoApres => 'Après';
 
   @override
+  String get tabEntrainement => 'Entraînement';
+
+  @override
+  String get lieuMaison => 'Maison';
+
+  @override
+  String get lieuSalle => 'Salle';
+
+  @override
+  String get lieuCourse => 'Course à pied';
+
+  @override
+  String get lieuMarche => 'Marche';
+
+  @override
+  String get materielHalteres => 'Haltères';
+
+  @override
+  String get materielElastiques => 'Élastiques';
+
+  @override
+  String get materielBarre => 'Barre de traction';
+
+  @override
+  String get materielKettlebell => 'Kettlebell';
+
+  @override
+  String get materielBanc => 'Banc';
+
+  @override
+  String get materielCorde => 'Corde à sauter';
+
+  @override
+  String get monMateriel => 'Mon matériel';
+
+  @override
+  String get materielAide =>
+      'Coche ce que tu as chez toi : sans matériel, on remplace par un exercice au poids du corps.';
+
+  @override
+  String get commencerSeance => 'Commencer la séance';
+
+  @override
+  String get seanceTerminee => 'Séance terminée, bravo !';
+
+  @override
+  String get terminer => 'Terminer';
+
+  @override
+  String get couperVoix => 'Couper la voix';
+
+  @override
+  String get activerVoix => 'Activer la voix';
+
+  @override
+  String get reprendre => 'Reprendre';
+
+  @override
+  String get pause => 'Pause';
+
+  @override
+  String get passer => 'Passer';
+
+  @override
+  String get fait => 'Fait';
+
+  @override
+  String seancesSemaine(int faites, int prevues) {
+    return 'Cette semaine : $faites séance(s) sur $prevues';
+  }
+
+  @override
+  String dureeEstimee(int minutes) {
+    return 'Environ $minutes min';
+  }
+
+  @override
+  String remplace(String nom) {
+    return 'remplace $nom';
+  }
+
+  @override
+  String repetitions(int n) {
+    return '$n répétitions';
+  }
+
+  @override
   String get courbePoids => 'Évolution du poids';
 
   @override

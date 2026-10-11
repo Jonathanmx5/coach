@@ -13,6 +13,8 @@ import 'journal/journal_repository.dart';
 import 'poids/mensurations_repository.dart';
 import 'poids/pesees_repository.dart';
 import 'poids/photos.dart';
+import 'entrainement/entrainement_repository.dart';
+import 'entrainement/voix.dart';
 import 'firebase_options.dart';
 import 'profil/profil_repository.dart';
 import 'racine.dart';
@@ -45,6 +47,8 @@ Future<void> main() async {
           pesees: FirestorePeseesRepository(),
           mensurations: FirestoreMensurationsRepository(),
           photos: PhotosProgresLocales(),
+          entrainement: FirestoreEntrainementRepository(),
+          voix: VoixTts(),
           journal: FirestoreJournalRepository(),
           catalogue: CatalogueOpenFoodFacts(),
           sante: HealthSanteService(),

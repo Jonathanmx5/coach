@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'accueil/accueil_page.dart';
 import 'compte/auth_service.dart';
+import 'entrainement/entrainement_page.dart';
 import 'journal/journal_page.dart';
 import 'l10n/app_localizations.dart';
 import 'poids/poids_page.dart';
@@ -79,6 +80,14 @@ class _CoqueState extends State<Coque> {
             suivi: _suivi,
             horloge: widget.horloge,
           ),
+          EntrainementPage(
+            utilisateur: widget.utilisateur,
+            enregistre: widget.enregistre,
+            entrainement: _s.entrainement,
+            journal: _s.journal,
+            voix: _s.voix,
+            horloge: widget.horloge,
+          ),
           PoidsPage(
             utilisateur: widget.utilisateur,
             enregistre: widget.enregistre,
@@ -105,6 +114,11 @@ class _CoqueState extends State<Coque> {
             icon: const Icon(Icons.restaurant_outlined),
             selectedIcon: const Icon(Icons.restaurant),
             label: t.tabJournal,
+          ),
+          NavigationDestination(
+            icon: const Icon(Icons.fitness_center_outlined),
+            selectedIcon: const Icon(Icons.fitness_center),
+            label: t.tabEntrainement,
           ),
           NavigationDestination(
             icon: const Icon(Icons.monitor_weight_outlined),

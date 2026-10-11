@@ -1,6 +1,9 @@
 import 'dart:async';
 
 import 'package:coach/compte/auth_service.dart';
+import 'package:coach/entrainement/entrainement_repository.dart';
+import 'package:coach/entrainement/modele.dart';
+import 'package:coach/entrainement/voix.dart';
 import 'package:coach/journal/catalogue.dart';
 import 'package:coach/journal/journal_repository.dart';
 import 'package:coach/journal/modele.dart';
@@ -152,6 +155,51 @@ class FauxPesees implements PeseesRepository {
         if (p.id != id) p,
     ];
     _flux.add(uid);
+  }
+}
+
+/// Voix qui note ce qu'elle aurait dit.
+class FausseVoix implements Voix {
+  final dits = <String>[];
+
+  @override
+  Future<void> dire(String texte) async => dits.add(texte);
+
+  @override
+  Future<void> arreter() async {}
+}
+
+/// Réglages et séances d'entraînement en mémoire.
+class FauxEntrainement implements EntrainementRepository {
+  final reglagesParUid = <String, Reglages>{};
+  final seancesParUid = <String, List<SeanceFaite>>{};
+  final _flux = StreamController<void>.broadcast();
+
+  Reglages reglagesDe(String uid) => reglagesParUid[uid] ?? const Reglages();
+  List<SeanceFaite> seancesDe(String uid) => seancesParUid[uid] ?? const [];
+
+  @override
+  Stream<Reglages> reglages(String uid) async* {
+    yield reglagesDe(uid);
+    yield* _flux.stream.map((_) => reglagesDe(uid));
+  }
+
+  @override
+  Stream<List<SeanceFaite>> seances(String uid) async* {
+    yield seancesDe(uid);
+    yield* _flux.stream.map((_) => seancesDe(uid));
+  }
+
+  @override
+  Future<void> enregistrerReglages(String uid, Reglages r) async {
+    reglagesParUid[uid] = r;
+    _flux.add(null);
+  }
+
+  @override
+  Future<void> ajouterSeance(String uid, SeanceFaite s) async {
+    seancesParUid[uid] = [...seancesDe(uid), s];
+    _flux.add(null);
   }
 }
 

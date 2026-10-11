@@ -1000,6 +1000,162 @@ abstract class AppLocalizations {
   /// **'Après'**
   String get photoApres;
 
+  /// No description provided for @tabEntrainement.
+  ///
+  /// In fr, this message translates to:
+  /// **'Entraînement'**
+  String get tabEntrainement;
+
+  /// No description provided for @lieuMaison.
+  ///
+  /// In fr, this message translates to:
+  /// **'Maison'**
+  String get lieuMaison;
+
+  /// No description provided for @lieuSalle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Salle'**
+  String get lieuSalle;
+
+  /// No description provided for @lieuCourse.
+  ///
+  /// In fr, this message translates to:
+  /// **'Course à pied'**
+  String get lieuCourse;
+
+  /// No description provided for @lieuMarche.
+  ///
+  /// In fr, this message translates to:
+  /// **'Marche'**
+  String get lieuMarche;
+
+  /// No description provided for @materielHalteres.
+  ///
+  /// In fr, this message translates to:
+  /// **'Haltères'**
+  String get materielHalteres;
+
+  /// No description provided for @materielElastiques.
+  ///
+  /// In fr, this message translates to:
+  /// **'Élastiques'**
+  String get materielElastiques;
+
+  /// No description provided for @materielBarre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Barre de traction'**
+  String get materielBarre;
+
+  /// No description provided for @materielKettlebell.
+  ///
+  /// In fr, this message translates to:
+  /// **'Kettlebell'**
+  String get materielKettlebell;
+
+  /// No description provided for @materielBanc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Banc'**
+  String get materielBanc;
+
+  /// No description provided for @materielCorde.
+  ///
+  /// In fr, this message translates to:
+  /// **'Corde à sauter'**
+  String get materielCorde;
+
+  /// No description provided for @monMateriel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mon matériel'**
+  String get monMateriel;
+
+  /// No description provided for @materielAide.
+  ///
+  /// In fr, this message translates to:
+  /// **'Coche ce que tu as chez toi : sans matériel, on remplace par un exercice au poids du corps.'**
+  String get materielAide;
+
+  /// No description provided for @commencerSeance.
+  ///
+  /// In fr, this message translates to:
+  /// **'Commencer la séance'**
+  String get commencerSeance;
+
+  /// No description provided for @seanceTerminee.
+  ///
+  /// In fr, this message translates to:
+  /// **'Séance terminée, bravo !'**
+  String get seanceTerminee;
+
+  /// No description provided for @terminer.
+  ///
+  /// In fr, this message translates to:
+  /// **'Terminer'**
+  String get terminer;
+
+  /// No description provided for @couperVoix.
+  ///
+  /// In fr, this message translates to:
+  /// **'Couper la voix'**
+  String get couperVoix;
+
+  /// No description provided for @activerVoix.
+  ///
+  /// In fr, this message translates to:
+  /// **'Activer la voix'**
+  String get activerVoix;
+
+  /// No description provided for @reprendre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Reprendre'**
+  String get reprendre;
+
+  /// No description provided for @pause.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pause'**
+  String get pause;
+
+  /// No description provided for @passer.
+  ///
+  /// In fr, this message translates to:
+  /// **'Passer'**
+  String get passer;
+
+  /// No description provided for @fait.
+  ///
+  /// In fr, this message translates to:
+  /// **'Fait'**
+  String get fait;
+
+  /// No description provided for @seancesSemaine.
+  ///
+  /// In fr, this message translates to:
+  /// **'Cette semaine : {faites} séance(s) sur {prevues}'**
+  String seancesSemaine(int faites, int prevues);
+
+  /// No description provided for @dureeEstimee.
+  ///
+  /// In fr, this message translates to:
+  /// **'Environ {minutes} min'**
+  String dureeEstimee(int minutes);
+
+  /// No description provided for @remplace.
+  ///
+  /// In fr, this message translates to:
+  /// **'remplace {nom}'**
+  String remplace(String nom);
+
+  /// No description provided for @repetitions.
+  ///
+  /// In fr, this message translates to:
+  /// **'{n} répétitions'**
+  String repetitions(int n);
+
   /// No description provided for @courbePoids.
   ///
   /// In fr, this message translates to:

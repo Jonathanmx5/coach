@@ -241,6 +241,74 @@
   "supprimerPhoto": "Supprimer la photo",
   "photoAvant": "Avant",
   "photoApres": "Après",
+  "tabEntrainement": "Entraînement",
+  "lieuMaison": "Maison",
+  "lieuSalle": "Salle",
+  "lieuCourse": "Course à pied",
+  "lieuMarche": "Marche",
+  "materielHalteres": "Haltères",
+  "materielElastiques": "Élastiques",
+  "materielBarre": "Barre de traction",
+  "materielKettlebell": "Kettlebell",
+  "materielBanc": "Banc",
+  "materielCorde": "Corde à sauter",
+  "monMateriel": "Mon matériel",
+  "materielAide": "Coche ce que tu as chez toi : sans matériel, on remplace par un exercice au poids du corps.",
+  "commencerSeance": "Commencer la séance",
+  "seanceTerminee": "Séance terminée, bravo !",
+  "terminer": "Terminer",
+  "couperVoix": "Couper la voix",
+  "activerVoix": "Activer la voix",
+  "reprendre": "Reprendre",
+  "pause": "Pause",
+  "passer": "Passer",
+  "fait": "Fait",
+  "seancesSemaine": "Cette semaine : {faites} séance(s) sur {prevues}",
+  "@seancesSemaine": {
+    "placeholders": {
+      "faites": {
+        "type": "int"
+      },
+      "prevues": {
+        "type": "int"
+      }
+    }
+  },
+  "dureeEstimee": "Environ {minutes} min",
+  "@dureeEstimee": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "remplace": "remplace {nom}",
+  "@remplace": {
+    "placeholders": {
+      "nom": {
+        "type": "String"
+      }
+    }
+  },
+  "etapeSur": "Étape {n} sur {total}",
+  "@etapeSur": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "repetitions": "{n} répétitions",
+  "@repetitions": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
   "courbePoids": "Évolution du poids",
   "periode90": "90 jours",
   "periode1an": "1 an",
