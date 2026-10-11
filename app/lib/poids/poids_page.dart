@@ -419,6 +419,39 @@ class _CourbeAvecProjection extends StatelessWidget {
   }
 }
 
+/// Cadre du graphique : bornes et pas du quadrillage.
+typedef GrilleCourbe = ({
+  double maxX,
+  double pasJours,
+  double minY,
+  double maxY,
+  double pasKg,
+});
+
+/// Un trait vertical par semaine sur 30 jours, tous les 15 jours sur 90, tous
+/// les 2 mois sur un an ; un trait horizontal tous les 1, 2 ou 5 kg selon
+/// l'écart des pesées, avec 1 kg de marge en haut et en bas.
+GrilleCourbe grilleCourbe({
+  required int jours,
+  required List<double> poids,
+  required bool avecProjection,
+}) {
+  final pasJours = jours <= 31 ? 7.0 : (jours <= 92 ? 15.0 : 60.0);
+  final bas = poids.isEmpty ? 0.0 : poids.reduce((a, b) => a < b ? a : b);
+  final haut = poids.isEmpty ? 0.0 : poids.reduce((a, b) => a > b ? a : b);
+  final ecart = haut - bas;
+  final pasKg = ecart <= 6 ? 1.0 : (ecart <= 15 ? 2.0 : 5.0);
+  final minY = ((bas - 1) / pasKg).floorToDouble() * pasKg;
+  final maxY = ((haut + 1) / pasKg).ceilToDouble() * pasKg;
+  return (
+    maxX: jours + (avecProjection ? 5.0 : 1.0),
+    pasJours: pasJours,
+    minY: minY,
+    maxY: maxY,
+    pasKg: pasKg,
+  );
+}
+
 class _Courbe extends StatelessWidget {
   const _Courbe({
     required this.pesees,
@@ -435,27 +468,65 @@ class _Courbe extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context)!;
+    final textes = Theme.of(context).textTheme;
+    final g = grilleCourbe(
+      jours: aujourdhui.difference(debut).inDays,
+      poids: [for (final p in pesees) p.kg, ...?projection],
+      avecProjection: projection != null,
+    );
+    const trait = FlLine(color: CouleursCoach.bordure, strokeWidth: 0.8);
     return Card(
       child: Padding(
         padding: const EdgeInsets.fromLTRB(8, 16, 16, 8),
         child: Column(
           children: [
             SizedBox(
-              height: 200,
+              height: 230,
               child: pesees.isEmpty
                   ? const SizedBox.shrink()
                   : LineChart(
                       LineChartData(
-                        gridData: const FlGridData(drawVerticalLine: false),
-                        borderData: FlBorderData(show: false),
+                        minX: 0,
+                        maxX: g.maxX,
+                        minY: g.minY,
+                        maxY: g.maxY,
+                        gridData: FlGridData(
+                          horizontalInterval: g.pasKg,
+                          verticalInterval: g.pasJours,
+                          getDrawingHorizontalLine: (_) => trait,
+                          getDrawingVerticalLine: (_) => trait,
+                        ),
+                        borderData: FlBorderData(
+                          border: Border.all(color: CouleursCoach.bordure),
+                        ),
                         titlesData: FlTitlesData(
                           topTitles: const AxisTitles(),
                           rightTitles: const AxisTitles(),
-                          bottomTitles: const AxisTitles(),
+                          bottomTitles: AxisTitles(
+                            sideTitles: SideTitles(
+                              showTitles: true,
+                              reservedSize: 26,
+                              interval: g.pasJours,
+                              getTitlesWidget: (v, meta) => Padding(
+                                padding: const EdgeInsets.only(top: 6),
+                                child: Text(
+                                  DateFormat('d/M', 'fr').format(
+                                    DateTime(
+                                      debut.year,
+                                      debut.month,
+                                      debut.day + v.round(),
+                                    ),
+                                  ),
+                                  style: textes.labelSmall,
+                                ),
+                              ),
+                            ),
+                          ),
                           leftTitles: AxisTitles(
                             sideTitles: SideTitles(
                               showTitles: true,
                               reservedSize: 40,
+                              interval: g.pasKg,
                               getTitlesWidget: (v, meta) => Text(
                                 v.toStringAsFixed(0),
                                 style: Theme.of(context).textTheme.bodySmall,

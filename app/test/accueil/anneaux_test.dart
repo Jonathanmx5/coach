@@ -302,6 +302,6 @@ void main() {
     await tester.tap(find.text('Protéines'));
     await tester.tap(find.text('Hydratation'));
 
-    expect(banc.onglets, [2, 1, 1, 3]);
+    expect(banc.onglets, [2, 1, 1, 4]);
   });
 }

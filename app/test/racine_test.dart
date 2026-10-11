@@ -306,18 +306,28 @@ void main() {
     expect(find.textContaining('Hors-ligne'), findsOneWidget);
   });
 
-  testWidgets('les 5 onglets sont présents', (tester) async {
+  testWidgets('les 5 onglets, dans l\'ordre : Poids avant Bien-être', (
+    tester,
+  ) async {
     await monter(tester, FauxAuth(connecte: lea), depotAvecProfil());
-    for (final nom in ['Accueil', 'Repas', 'Sport', 'Bien-être', 'Poids']) {
-      expect(
-        find.descendant(
-          of: find.byType(NavigationBar),
-          matching: find.text(nom),
-        ),
-        findsOneWidget,
-        reason: nom,
-      );
-    }
+    final noms = tester
+        .widgetList<NavigationDestination>(find.byType(NavigationDestination))
+        .map((d) => d.label)
+        .toList();
+    expect(noms, ['Accueil', 'Repas', 'Sport', 'Poids', 'Bien-être']);
+
+    // Le 4e bouton ouvre bien le Poids, le 5e le Bien-être.
+    await tester.tap(find.text('Poids'));
+    await tester.pumpAndSettle();
+    expect(find.text('Poids actuel'), findsOneWidget);
+    await tester.tap(
+      find.descendant(
+        of: find.byType(NavigationBar),
+        matching: find.text('Bien-être'),
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(find.text('Hydratation'), findsWidgets);
   });
 
   testWidgets('accueil : « Idées de repas » ouvre les cartes à balayer', (

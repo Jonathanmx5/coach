@@ -51,7 +51,7 @@ class AccueilPage extends StatefulWidget {
   final Suivi suivi;
   final DateTime Function() horloge;
 
-  /// Ouvre un onglet de la barre du bas (1 Repas, 2 Sport, 3 Bien-être).
+  /// Ouvre un onglet de la barre du bas (1 Repas, 2 Sport, 3 Poids, 4 Bien-être).
   final ValueChanged<int> onOnglet;
   final JournalRepository journal;
   final BienEtreRepository bienetre;

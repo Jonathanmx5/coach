@@ -319,4 +319,63 @@ void main() {
     await tester.pumpAndSettle();
     expect(banc.photos.liste, hasLength(1));
   });
+
+  test(
+    'quadrillage : pas des traits selon la période et l\'écart de poids',
+    () {
+      final mois = grilleCourbe(
+        jours: 30,
+        poids: [79.2, 80.4, 81],
+        avecProjection: false,
+      );
+      expect(mois.pasJours, 7);
+      expect(mois.pasKg, 1);
+      expect(mois.minY, 78);
+      expect(mois.maxY, 82);
+      expect(mois.maxX, 31);
+
+      final trimestre = grilleCourbe(
+        jours: 90,
+        poids: [70, 78],
+        avecProjection: true,
+      );
+      expect(trimestre.pasJours, 15);
+      expect(trimestre.pasKg, 2);
+      expect(trimestre.minY, 68);
+      expect(trimestre.maxY, 80);
+      expect(trimestre.maxX, 95);
+
+      final an = grilleCourbe(
+        jours: 365,
+        poids: [60, 90],
+        avecProjection: false,
+      );
+      expect(an.pasJours, 60);
+      expect(an.pasKg, 5);
+      expect(an.minY, 55);
+      expect(an.maxY, 95);
+    },
+  );
+
+  testWidgets('la courbe est tracée sur un quadrillage avec dates et kilos', (
+    tester,
+  ) async {
+    final banc = Banc();
+    await banc.ajouterEnBase(62, DateTime(2026, 9, 20));
+    await banc.ajouterEnBase(61, DateTime(2026, 10, 5));
+    await banc.monter(tester);
+
+    final data = tester.widget<LineChart>(find.byType(LineChart)).data;
+    expect(data.gridData.show, isTrue);
+    expect(data.gridData.drawHorizontalLine, isTrue);
+    expect(data.gridData.drawVerticalLine, isTrue);
+    expect(data.gridData.verticalInterval, 7);
+    expect(data.gridData.horizontalInterval, 1);
+    expect(data.borderData.show, isTrue);
+    expect(data.titlesData.bottomTitles.sideTitles.showTitles, isTrue);
+    expect(data.titlesData.leftTitles.sideTitles.showTitles, isTrue);
+    expect(data.minY, 60);
+    expect(data.maxY, 63);
+    expect(data.minX, 0);
+  });
 }
