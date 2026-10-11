@@ -305,4 +305,25 @@ void main() {
       );
     }
   });
+
+  testWidgets('accueil : « Idées de repas » ouvre les cartes à balayer', (
+    tester,
+  ) async {
+    await monter(tester, FauxAuth(connecte: lea), depotAvecProfil());
+
+    await taper(tester, 'Idées de repas');
+
+    expect(find.textContaining('kcal pour toi'), findsWidgets);
+    expect(find.byTooltip('Mes envies'), findsOneWidget);
+  });
+
+  testWidgets('accueil : « Ton programme » ouvre l\'onglet Sport', (
+    tester,
+  ) async {
+    await monter(tester, FauxAuth(connecte: lea), depotAvecProfil());
+
+    await taper(tester, 'Ton programme');
+
+    expect(find.text('Commencer la séance'), findsOneWidget);
+  });
 }

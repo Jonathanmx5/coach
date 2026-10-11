@@ -229,12 +229,15 @@ class _IdeesPageState extends State<IdeesPage> {
                     ],
                   ),
                 ),
-              Padding(
-                padding: const EdgeInsets.only(bottom: 8),
-                child: Text(
-                  t.photosIllustratives,
-                  style: textes.labelSmall?.copyWith(
-                    color: CouleursCoach.texteDoux,
+              SafeArea(
+                top: false,
+                child: Padding(
+                  padding: const EdgeInsets.only(bottom: 8),
+                  child: Text(
+                    t.photosIllustratives,
+                    style: textes.labelSmall?.copyWith(
+                      color: CouleursCoach.texteDoux,
+                    ),
                   ),
                 ),
               ),

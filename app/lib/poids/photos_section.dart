@@ -115,12 +115,18 @@ class _PhotosSectionState extends State<PhotosSection> {
               spacing: 8,
               children: [
                 OutlinedButton.icon(
+                  style: OutlinedButton.styleFrom(
+                    minimumSize: const Size(0, 48),
+                  ),
                   onPressed: _prendre,
                   icon: const Icon(Icons.photo_camera_outlined),
                   label: Text(t.prendrePhoto),
                 ),
                 if (_liste.length >= 2)
                   FilledButton.icon(
+                    style: FilledButton.styleFrom(
+                      minimumSize: const Size(0, 48),
+                    ),
                     onPressed: () => Navigator.of(context).push(
                       MaterialPageRoute<void>(
                         builder: (_) => ComparaisonPage(photos: _liste),

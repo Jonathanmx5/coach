@@ -412,36 +412,40 @@ class _CarteAction extends StatelessWidget {
   Widget build(BuildContext context) {
     final textes = Theme.of(context).textTheme;
     return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(14),
-        child: Row(
-          children: [
-            Container(
-              width: 48,
-              height: 48,
-              decoration: BoxDecoration(
-                color: fond,
-                borderRadius: BorderRadius.circular(14),
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.all(14),
+          child: Row(
+            children: [
+              Container(
+                width: 48,
+                height: 48,
+                decoration: BoxDecoration(
+                  color: fond,
+                  borderRadius: BorderRadius.circular(14),
+                ),
+                child: Icon(icone, color: couleur),
               ),
-              child: Icon(icone, color: couleur),
-            ),
-            const SizedBox(width: 14),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(titre, style: textes.titleMedium),
-                  Text(
-                    sousTitre,
-                    style: textes.bodyMedium?.copyWith(
-                      color: CouleursCoach.texteDoux,
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(titre, style: textes.titleMedium),
+                    Text(
+                      sousTitre,
+                      style: textes.bodyMedium?.copyWith(
+                        color: CouleursCoach.texteDoux,
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
-            const Icon(Icons.chevron_right, color: CouleursCoach.texteDoux),
-          ],
+              const Icon(Icons.chevron_right, color: CouleursCoach.texteDoux),
+            ],
+          ),
         ),
       ),
     );

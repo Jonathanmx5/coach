@@ -278,10 +278,12 @@ class _CarteHydratation extends StatelessWidget {
               spacing: 8,
               children: [
                 FilledButton.tonal(
+                  style: FilledButton.styleFrom(minimumSize: const Size(0, 48)),
                   onPressed: () => onBoire(250),
                   child: Text(t.ajouterEau(250)),
                 ),
                 FilledButton.tonal(
+                  style: FilledButton.styleFrom(minimumSize: const Size(0, 48)),
                   onPressed: () => onBoire(500),
                   child: Text(t.ajouterEau(500)),
                 ),
