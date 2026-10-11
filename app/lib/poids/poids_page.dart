@@ -507,19 +507,21 @@ class _Courbe extends StatelessWidget {
                               showTitles: true,
                               reservedSize: 26,
                               interval: g.pasJours,
-                              getTitlesWidget: (v, meta) => Padding(
-                                padding: const EdgeInsets.only(top: 6),
-                                child: Text(
-                                  DateFormat('d/M', 'fr').format(
-                                    DateTime(
-                                      debut.year,
-                                      debut.month,
-                                      debut.day + v.round(),
+                              getTitlesWidget: (v, meta) => v % g.pasJours != 0
+                                  ? const SizedBox.shrink()
+                                  : Padding(
+                                      padding: const EdgeInsets.only(top: 6),
+                                      child: Text(
+                                        DateFormat('d/M', 'fr').format(
+                                          DateTime(
+                                            debut.year,
+                                            debut.month,
+                                            debut.day + v.round(),
+                                          ),
+                                        ),
+                                        style: textes.labelSmall,
+                                      ),
                                     ),
-                                  ),
-                                  style: textes.labelSmall,
-                                ),
-                              ),
                             ),
                           ),
                           leftTitles: AxisTitles(
