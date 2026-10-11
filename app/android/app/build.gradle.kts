@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     id("com.android.application")
     // START: FlutterFire Configuration
@@ -6,6 +8,11 @@ plugins {
     // END: FlutterFire Configuration
     // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
     id("dev.flutter.flutter-gradle-plugin")
+}
+
+val cleSignature = Properties().apply {
+    val fichier = rootProject.file("key.properties")
+    if (fichier.exists()) fichier.inputStream().use { load(it) }
 }
 
 android {
@@ -34,11 +41,24 @@ android {
         versionName = flutter.versionName
     }
 
+    signingConfigs {
+        // La clé de publication reste hors du dépôt (key.properties est ignoré par git).
+        if (cleSignature.containsKey("storeFile")) {
+            create("publication") {
+                storeFile = file(cleSignature.getProperty("storeFile"))
+                storePassword = cleSignature.getProperty("storePassword")
+                keyAlias = cleSignature.getProperty("keyAlias")
+                keyPassword = cleSignature.getProperty("keyPassword")
+            }
+        }
+    }
+
     buildTypes {
         release {
-            // TODO: Add your own signing config for the release build.
-            // Signing with the debug keys for now, so `flutter run --release` works.
-            signingConfig = signingConfigs.getByName("debug")
+            // Sans key.properties (autre machine, intégration continue), la
+            // version « release » est signée avec la clé de débogage.
+            signingConfig = signingConfigs.findByName("publication")
+                ?: signingConfigs.getByName("debug")
         }
     }
 }
