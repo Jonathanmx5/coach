@@ -1156,6 +1156,90 @@ abstract class AppLocalizations {
   /// **'{n} répétitions'**
   String repetitions(int n);
 
+  /// No description provided for @recuperationTitre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Récupération'**
+  String get recuperationTitre;
+
+  /// No description provided for @recuperationVide.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pas encore de donnée de sommeil. Dis-nous comment tu te sens, ou connecte ta montre.'**
+  String get recuperationVide;
+
+  /// No description provided for @recuperationBon.
+  ///
+  /// In fr, this message translates to:
+  /// **'Feu vert : tu peux faire ta séance normalement.'**
+  String get recuperationBon;
+
+  /// No description provided for @recuperationMoyen.
+  ///
+  /// In fr, this message translates to:
+  /// **'Récupération correcte : écoute ton corps, évite de forcer sur l\'intensité.'**
+  String get recuperationMoyen;
+
+  /// No description provided for @recuperationFaible.
+  ///
+  /// In fr, this message translates to:
+  /// **'Corps fatigué : privilégie une marche, des étirements ou du repos aujourd\'hui.'**
+  String get recuperationFaible;
+
+  /// No description provided for @ressentiQuestion.
+  ///
+  /// In fr, this message translates to:
+  /// **'Comment te sens-tu ce matin ?'**
+  String get ressentiQuestion;
+
+  /// No description provided for @ressentiFatigue.
+  ///
+  /// In fr, this message translates to:
+  /// **'Fatigué'**
+  String get ressentiFatigue;
+
+  /// No description provided for @ressentiMoyen.
+  ///
+  /// In fr, this message translates to:
+  /// **'Moyen'**
+  String get ressentiMoyen;
+
+  /// No description provided for @ressentiForme.
+  ///
+  /// In fr, this message translates to:
+  /// **'En forme'**
+  String get ressentiForme;
+
+  /// No description provided for @mobiliteTitre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mobilité et étirements'**
+  String get mobiliteTitre;
+
+  /// No description provided for @routineApresEffort.
+  ///
+  /// In fr, this message translates to:
+  /// **'Étirements après l\'effort'**
+  String get routineApresEffort;
+
+  /// No description provided for @routineReveil.
+  ///
+  /// In fr, this message translates to:
+  /// **'Réveil articulaire (5 min)'**
+  String get routineReveil;
+
+  /// No description provided for @routineRecuperation.
+  ///
+  /// In fr, this message translates to:
+  /// **'Récupération douce (8 min)'**
+  String get routineRecuperation;
+
+  /// No description provided for @conseilleMaintenant.
+  ///
+  /// In fr, this message translates to:
+  /// **'Conseillé maintenant'**
+  String get conseilleMaintenant;
+
   /// No description provided for @courbePoids.
   ///
   /// In fr, this message translates to:

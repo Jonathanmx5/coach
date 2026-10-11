@@ -9,9 +9,14 @@ import '../journal/modele.dart';
 import '../l10n/app_localizations.dart';
 import '../profil/modele.dart';
 import '../profil/profil_repository.dart';
+import '../recuperation/carte_recuperation.dart';
+import '../recuperation/recuperation.dart';
+import '../sante/suivi.dart';
 import '../theme.dart';
+import 'carte_mobilite.dart';
 import 'entrainement_repository.dart';
 import 'generateur.dart';
+import 'mobilite.dart';
 import 'modele.dart';
 import 'seance_guidee_page.dart';
 import 'voix.dart';
@@ -68,6 +73,7 @@ class EntrainementPage extends StatefulWidget {
     required this.entrainement,
     required this.journal,
     required this.voix,
+    required this.suivi,
     required this.horloge,
   });
 
@@ -76,6 +82,7 @@ class EntrainementPage extends StatefulWidget {
   final EntrainementRepository entrainement;
   final JournalRepository journal;
   final Voix voix;
+  final Suivi suivi;
   final DateTime Function() horloge;
 
   @override
@@ -90,6 +97,27 @@ class _EntrainementPageState extends State<EntrainementPage> {
   late final Stream<List<SeanceFaite>> _faites = widget.entrainement.seances(
     widget.utilisateur.uid,
   );
+
+  DateTime? _jourRessenti;
+  Stream<int?>? _fluxRessenti;
+
+  /// Le ressenti est celui du jour : le flux change à minuit.
+  Stream<int?> _ressentiDuJour(DateTime maintenant) {
+    final jour = DateTime(maintenant.year, maintenant.month, maintenant.day);
+    if (_jourRessenti != jour) {
+      _jourRessenti = jour;
+      _fluxRessenti = widget.entrainement.ressenti(_uid, jour);
+    }
+    return _fluxRessenti!;
+  }
+
+  void _lancerRoutine(Routine r) {
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (_) => SeanceGuideePage(seance: routine(r), voix: widget.voix),
+      ),
+    );
+  }
 
   String get _uid => widget.utilisateur.uid;
   Profil get _profil => widget.enregistre.profil;
@@ -147,88 +175,145 @@ class _EntrainementPageState extends State<EntrainementPage> {
     final lieux = lieuxDuProfil(_profil);
     return Scaffold(
       appBar: AppBar(title: Text(t.tabEntrainement)),
-      body: StreamBuilder<Reglages>(
-        stream: _reglages,
-        builder: (context, snapReglages) => StreamBuilder<List<SeanceFaite>>(
-          stream: _faites,
-          builder: (context, snapFaites) {
-            final reglages = snapReglages.data ?? const Reglages();
-            final faites = snapFaites.data ?? const <SeanceFaite>[];
-            final seance = genererSeance(
-              lieu: _lieu,
-              materiel: reglages.materiel,
-              profil: _profil,
-              seancesFaites: seancesDuProgramme(faites, _lieu),
+      body: ListenableBuilder(
+        listenable: widget.suivi,
+        builder: (context, _) => StreamBuilder<int?>(
+          stream: _ressentiDuJour(widget.horloge()),
+          builder: (context, snapRessenti) {
+            final nuit = widget.suivi.aujourdhui;
+            final recuperation = calculerRecuperation(
+              nuit: nuit,
+              precedents: [
+                for (final j in widget.suivi.jours)
+                  if (nuit != null && j.jour.isBefore(nuit.jour)) j,
+              ],
+              ressenti: snapRessenti.data,
             );
-            final maintenant = widget.horloge();
-            final lundi = DateTime(
-              maintenant.year,
-              maintenant.month,
-              maintenant.day - (maintenant.weekday - 1),
-            );
-            final cetteSemaine = faites
-                .where((s) => !s.date.isBefore(lundi))
-                .length;
-            return ListView(
-              padding: const EdgeInsets.fromLTRB(20, 8, 20, 32),
-              children: [
-                Text(
-                  t.seancesSemaine(cetteSemaine, _profil.joursParSemaine),
-                  style: textes.titleMedium,
-                ),
-                const SizedBox(height: 12),
-                if (lieux.length > 1)
-                  Wrap(
-                    spacing: 8,
-                    children: [
-                      for (final l in lieux)
-                        ChoiceChip(
-                          label: Text(_libelleLieu(t, l)),
-                          selected: l == _lieu,
-                          onSelected: (_) => setState(() => _lieu = l),
-                        ),
-                    ],
-                  ),
-                if (_lieu == Lieu.maison) ...[
-                  const SizedBox(height: 16),
-                  Card(
-                    child: Padding(
-                      padding: const EdgeInsets.all(16),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+            return StreamBuilder<Reglages>(
+              stream: _reglages,
+              builder: (context, snapReglages) =>
+                  StreamBuilder<List<SeanceFaite>>(
+                    stream: _faites,
+                    builder: (context, snapFaites) {
+                      final reglages = snapReglages.data ?? const Reglages();
+                      final faites = snapFaites.data ?? const <SeanceFaite>[];
+                      final seance = genererSeance(
+                        lieu: _lieu,
+                        materiel: reglages.materiel,
+                        profil: _profil,
+                        seancesFaites: seancesDuProgramme(faites, _lieu),
+                      );
+                      final maintenant = widget.horloge();
+                      final lundi = DateTime(
+                        maintenant.year,
+                        maintenant.month,
+                        maintenant.day - (maintenant.weekday - 1),
+                      );
+                      final cetteSemaine = faites
+                          .where((s) => !s.date.isBefore(lundi))
+                          .length;
+                      return ListView(
+                        padding: const EdgeInsets.fromLTRB(20, 8, 20, 32),
                         children: [
-                          Text(t.monMateriel, style: textes.titleMedium),
-                          const SizedBox(height: 4),
                           Text(
-                            t.materielAide,
-                            style: textes.bodySmall?.copyWith(
-                              color: CouleursCoach.texteDoux,
+                            t.seancesSemaine(
+                              cetteSemaine,
+                              _profil.joursParSemaine,
+                            ),
+                            style: textes.titleMedium,
+                          ),
+                          const SizedBox(height: 12),
+                          CarteRecuperation(
+                            recuperation: recuperation,
+                            ressenti: snapRessenti.data,
+                            onRessenti: (v) => unawaited(
+                              widget.entrainement.noterRessenti(
+                                _uid,
+                                maintenant,
+                                v,
+                              ),
                             ),
                           ),
-                          const SizedBox(height: 8),
-                          Wrap(
-                            spacing: 8,
-                            children: [
-                              for (final m in Materiel.values)
-                                FilterChip(
-                                  label: Text(_libelleMateriel(t, m)),
-                                  selected: reglages.materiel.contains(m),
-                                  onSelected: (v) =>
-                                      _basculerMateriel(reglages, m, v),
+                          const SizedBox(height: 12),
+                          if (lieux.length > 1)
+                            Wrap(
+                              spacing: 8,
+                              children: [
+                                for (final l in lieux)
+                                  ChoiceChip(
+                                    label: Text(_libelleLieu(t, l)),
+                                    selected: l == _lieu,
+                                    onSelected: (_) =>
+                                        setState(() => _lieu = l),
+                                  ),
+                              ],
+                            ),
+                          if (_lieu == Lieu.maison) ...[
+                            const SizedBox(height: 16),
+                            Card(
+                              child: Padding(
+                                padding: const EdgeInsets.all(16),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      t.monMateriel,
+                                      style: textes.titleMedium,
+                                    ),
+                                    const SizedBox(height: 4),
+                                    Text(
+                                      t.materielAide,
+                                      style: textes.bodySmall?.copyWith(
+                                        color: CouleursCoach.texteDoux,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 8),
+                                    Wrap(
+                                      spacing: 8,
+                                      children: [
+                                        for (final m in Materiel.values)
+                                          FilterChip(
+                                            label: Text(_libelleMateriel(t, m)),
+                                            selected: reglages.materiel
+                                                .contains(m),
+                                            onSelected: (v) =>
+                                                _basculerMateriel(
+                                                  reglages,
+                                                  m,
+                                                  v,
+                                                ),
+                                          ),
+                                      ],
+                                    ),
+                                  ],
                                 ),
-                            ],
+                              ),
+                            ),
+                          ],
+                          const SizedBox(height: 16),
+                          _CarteSeance(
+                            seance: seance,
+                            onCommencer: () => _commencer(seance),
+                          ),
+                          const SizedBox(height: 16),
+                          CarteMobilite(
+                            conseillee: routineConseillee(
+                              seanceAujourdhui: faites.any(
+                                (s) =>
+                                    s.date.year == maintenant.year &&
+                                    s.date.month == maintenant.month &&
+                                    s.date.day == maintenant.day,
+                              ),
+                              recuperationFaible:
+                                  recuperation?.niveau ==
+                                  NiveauRecuperation.faible,
+                            ),
+                            onLancer: _lancerRoutine,
                           ),
                         ],
-                      ),
-                    ),
+                      );
+                    },
                   ),
-                ],
-                const SizedBox(height: 16),
-                _CarteSeance(
-                  seance: seance,
-                  onCommencer: () => _commencer(seance),
-                ),
-              ],
             );
           },
         ),

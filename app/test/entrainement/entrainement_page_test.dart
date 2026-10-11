@@ -1,15 +1,18 @@
+import 'package:flutter/material.dart';
 import 'package:coach/app.dart';
 import 'package:coach/compte/auth_service.dart';
 import 'package:coach/entrainement/entrainement_page.dart';
 import 'package:coach/entrainement/modele.dart';
 import 'package:coach/journal/modele.dart';
 import 'package:coach/profil/besoins.dart';
+import 'package:coach/sante/suivi.dart';
 import 'package:coach/profil/modele.dart';
 import 'package:coach/profil/profil_repository.dart';
 import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 import 'package:coach/entrainement/entrainement_repository.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import '../donnees_sante.dart';
 import '../fakes.dart';
 import '../parcours.dart';
 
@@ -31,13 +34,18 @@ Profil profilDe(Set<TypeEntrainement> types) => Profil(
 );
 
 class Banc {
-  Banc(Set<TypeEntrainement> types) : profil = profilDe(types);
+  Banc(Set<TypeEntrainement> types, {bool montre = false})
+    : profil = profilDe(types),
+      sante = FauxSante(points: montre ? semaineType() : []);
   final Profil profil;
+  final FauxSante sante;
+  late final suivi = Suivi(sante: sante, horloge: () => maintenant);
   final entrainement = FauxEntrainement();
   final journal = FauxJournal();
   final voix = FausseVoix();
 
   Future<void> monter(WidgetTester tester) async {
+    if (sante.points.isNotEmpty) await suivi.charger(montre: true);
     await tester.pumpWidget(
       CoachApp(
         accueil: EntrainementPage(
@@ -49,6 +57,7 @@ class Banc {
           entrainement: entrainement,
           journal: journal,
           voix: voix,
+          suivi: suivi,
           horloge: () => maintenant,
         ),
       ),
@@ -155,6 +164,8 @@ void main() {
     expect(activite.type, TypeActivite.marche);
     expect(activite.kcal, greaterThan(0));
     expect(find.text('Marche active · 25 min'), findsNothing);
+    await tester.drag(find.byType(ListView), const Offset(0, 2000));
+    await tester.pumpAndSettle();
     expect(find.text('Cette semaine : 1 séance(s) sur 3'), findsOneWidget);
   });
 
@@ -181,5 +192,45 @@ void main() {
     await tester.pump();
     await taper(tester, 'Passer');
     expect(banc.voix.dits.length, avant);
+  });
+
+  testWidgets('récupération : sans donnée, le ressenti donne un conseil', (
+    tester,
+  ) async {
+    final banc = Banc({TypeEntrainement.maison});
+    await banc.monter(tester);
+    expect(
+      find.textContaining('Pas encore de donnée de sommeil'),
+      findsOneWidget,
+    );
+
+    await taper(tester, 'Fatigué');
+    expect(find.textContaining('Corps fatigué'), findsOneWidget);
+    expect(find.text('25'), findsOneWidget);
+    expect(banc.entrainement.ressentis.values, [1]);
+    // Récupération faible : la routine douce passe en tête.
+    await defilerJusqua(tester, find.text('Conseillé maintenant'));
+    expect(find.text('Conseillé maintenant'), findsOneWidget);
+  });
+
+  testWidgets('récupération : nuit de 7 h de la montre = feu vert', (
+    tester,
+  ) async {
+    final banc = Banc({TypeEntrainement.maison}, montre: true);
+    await banc.monter(tester);
+    expect(find.text('100'), findsOneWidget);
+    expect(find.textContaining('Feu vert'), findsOneWidget);
+  });
+
+  testWidgets('mobilité : une routine se lance sans enregistrer de séance', (
+    tester,
+  ) async {
+    final banc = Banc({TypeEntrainement.maison});
+    await banc.monter(tester);
+
+    await taper(tester, 'Réveil articulaire (5 min)');
+    expect(find.text('Cercles de nuque'), findsOneWidget);
+    expect(banc.entrainement.seancesDe('u1'), isEmpty);
+    expect(banc.journal.activitesDe('u1'), isEmpty);
   });
 }

@@ -173,7 +173,22 @@ class FausseVoix implements Voix {
 class FauxEntrainement implements EntrainementRepository {
   final reglagesParUid = <String, Reglages>{};
   final seancesParUid = <String, List<SeanceFaite>>{};
+  final ressentis = <String, int>{};
   final _flux = StreamController<void>.broadcast();
+
+  String _cle(String uid, DateTime j) => '$uid/${j.year}-${j.month}-${j.day}';
+
+  @override
+  Stream<int?> ressenti(String uid, DateTime jour) async* {
+    yield ressentis[_cle(uid, jour)];
+    yield* _flux.stream.map((_) => ressentis[_cle(uid, jour)]);
+  }
+
+  @override
+  Future<void> noterRessenti(String uid, DateTime jour, int valeur) async {
+    ressentis[_cle(uid, jour)] = valeur;
+    _flux.add(null);
+  }
 
   Reglages reglagesDe(String uid) => reglagesParUid[uid] ?? const Reglages();
   List<SeanceFaite> seancesDe(String uid) => seancesParUid[uid] ?? const [];

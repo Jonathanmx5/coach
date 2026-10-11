@@ -589,6 +589,52 @@ class AppLocalizationsFr extends AppLocalizations {
   }
 
   @override
+  String get recuperationTitre => 'Récupération';
+
+  @override
+  String get recuperationVide =>
+      'Pas encore de donnée de sommeil. Dis-nous comment tu te sens, ou connecte ta montre.';
+
+  @override
+  String get recuperationBon =>
+      'Feu vert : tu peux faire ta séance normalement.';
+
+  @override
+  String get recuperationMoyen =>
+      'Récupération correcte : écoute ton corps, évite de forcer sur l\'intensité.';
+
+  @override
+  String get recuperationFaible =>
+      'Corps fatigué : privilégie une marche, des étirements ou du repos aujourd\'hui.';
+
+  @override
+  String get ressentiQuestion => 'Comment te sens-tu ce matin ?';
+
+  @override
+  String get ressentiFatigue => 'Fatigué';
+
+  @override
+  String get ressentiMoyen => 'Moyen';
+
+  @override
+  String get ressentiForme => 'En forme';
+
+  @override
+  String get mobiliteTitre => 'Mobilité et étirements';
+
+  @override
+  String get routineApresEffort => 'Étirements après l\'effort';
+
+  @override
+  String get routineReveil => 'Réveil articulaire (5 min)';
+
+  @override
+  String get routineRecuperation => 'Récupération douce (8 min)';
+
+  @override
+  String get conseilleMaintenant => 'Conseillé maintenant';
+
+  @override
   String get courbePoids => 'Évolution du poids';
 
   @override
