@@ -2222,6 +2222,30 @@ abstract class AppLocalizations {
     String bilan,
   );
 
+  /// No description provided for @apparence.
+  ///
+  /// In fr, this message translates to:
+  /// **'Apparence'**
+  String get apparence;
+
+  /// No description provided for @themeClair.
+  ///
+  /// In fr, this message translates to:
+  /// **'Clair'**
+  String get themeClair;
+
+  /// No description provided for @themeSombre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sombre'**
+  String get themeSombre;
+
+  /// No description provided for @themeAuto.
+  ///
+  /// In fr, this message translates to:
+  /// **'Auto'**
+  String get themeAuto;
+
   /// No description provided for @courbePoids.
   ///
   /// In fr, this message translates to:

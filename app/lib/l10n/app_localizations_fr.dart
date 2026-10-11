@@ -1210,6 +1210,18 @@ class AppLocalizationsFr extends AppLocalizations {
   }
 
   @override
+  String get apparence => 'Apparence';
+
+  @override
+  String get themeClair => 'Clair';
+
+  @override
+  String get themeSombre => 'Sombre';
+
+  @override
+  String get themeAuto => 'Auto';
+
+  @override
   String get courbePoids => 'Évolution du poids';
 
   @override

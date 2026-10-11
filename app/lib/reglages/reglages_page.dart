@@ -279,6 +279,34 @@ class _ReglagesPageState extends State<ReglagesPage> {
             ),
           ),
           const SizedBox(height: 16),
+          Text(t.apparence, style: Theme.of(context).textTheme.titleMedium),
+          const SizedBox(height: 8),
+          ValueListenableBuilder<ThemeMode>(
+            valueListenable: _s.theme.mode,
+            builder: (context, mode, _) => SegmentedButton<ThemeMode>(
+              showSelectedIcon: false,
+              segments: [
+                ButtonSegment(
+                  value: ThemeMode.light,
+                  icon: const Icon(Icons.light_mode_outlined),
+                  label: Text(t.themeClair),
+                ),
+                ButtonSegment(
+                  value: ThemeMode.dark,
+                  icon: const Icon(Icons.dark_mode_outlined),
+                  label: Text(t.themeSombre),
+                ),
+                ButtonSegment(
+                  value: ThemeMode.system,
+                  icon: const Icon(Icons.brightness_auto_outlined),
+                  label: Text(t.themeAuto),
+                ),
+              ],
+              selected: {mode},
+              onSelectionChanged: (s) => unawaited(_s.theme.definir(s.first)),
+            ),
+          ),
+          const SizedBox(height: 16),
           StreamBuilder<Set<Consentement>>(
             stream: _s.consentements.accordes(_uid),
             builder: (context, snap) => SwitchListTile(

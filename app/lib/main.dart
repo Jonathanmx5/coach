@@ -30,11 +30,21 @@ import 'racine.dart';
 import 'recettes/avis_repository.dart';
 import 'recettes/planning_repository.dart';
 import 'reglages/mises_a_jour.dart';
+import 'reglages/reglage_theme.dart';
 import 'reseau.dart';
 import 'widget/donnees_widget.dart';
 import 'widget/rappel_widget.dart';
 import 'sante/sante_service.dart';
 import 'services.dart';
+
+/// Le thème enregistré ; si le stockage échoue, celui du téléphone.
+Future<ReglageTheme> _chargerTheme() async {
+  try {
+    return await ReglageThemeLocal.charger();
+  } catch (_) {
+    return ReglageThemeFixe();
+  }
+}
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -66,8 +76,10 @@ Future<void> main() async {
   };
 
   final auth = FirebaseAuthService();
+  final theme = await _chargerTheme();
   runApp(
     CoachApp(
+      theme: theme.mode,
       accueil: Racine(
         services: Services(
           auth: auth,
@@ -77,6 +89,7 @@ Future<void> main() async {
           photos: PhotosProgresLocales(),
           catalogue: CatalogueOpenFoodFacts(),
           photosRepas: PhotosRepasLocales(),
+          theme: theme,
           entrainement: FirestoreEntrainementRepository(),
           voix: VoixTts(),
           bienetre: FirestoreBienEtreRepository(),

@@ -11,6 +11,7 @@ import 'poids/mensurations_repository.dart';
 import 'poids/pesees_repository.dart';
 import 'journal/catalogue.dart';
 import 'journal/photos_repas.dart';
+import 'reglages/reglage_theme.dart';
 import 'poids/photos.dart';
 import 'profil/profil_repository.dart';
 import 'recettes/avis_repository.dart';
@@ -32,6 +33,7 @@ class Services {
     required this.photos,
     required this.catalogue,
     required this.photosRepas,
+    required this.theme,
     required this.entrainement,
     required this.voix,
     required this.bienetre,
@@ -58,6 +60,7 @@ class Services {
   final PhotosProgres photos;
   final CatalogueProduits catalogue;
   final PhotosRepas photosRepas;
+  final ReglageTheme theme;
   final EntrainementRepository entrainement;
   final Voix voix;
   final BienEtreRepository bienetre;

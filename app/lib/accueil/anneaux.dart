@@ -21,6 +21,10 @@ import '../widget/donnees_widget.dart';
 /// vert pour le sport (vert profond pour les calories brûlées, vert moyen pour
 /// les protéines, qui font le muscle), orange pour l'assiette, bleu pour l'eau.
 const _cBrule = CouleursCoach.vert;
+
+/// Le vert profond des calories brûlées serait presque invisible sur fond
+/// sombre : on prend un vert plus clair.
+const _cBruleSombre = Color(0xFF6FD9B0);
 const _cMange = CouleursCoach.orange;
 const _cProteines = CouleursCoach.vertMoyen;
 const _cEau = CouleursCoach.bleu;
@@ -51,7 +55,12 @@ class Anneaux extends StatelessWidget {
   /// Description lue par le lecteur d'écran (les anneaux sont un dessin).
   final String? semantique;
 
-  static const couleurs = [_cBrule, _cMange, _cProteines, _cEau];
+  static List<Color> couleursPour(Brightness luminosite) => [
+    luminosite == Brightness.dark ? _cBruleSombre : _cBrule,
+    _cMange,
+    _cProteines,
+    _cEau,
+  ];
 
   @override
   Widget build(BuildContext context) => Semantics(
@@ -73,7 +82,7 @@ class Anneaux extends StatelessWidget {
               size: Size.square(taille),
               painter: _AnneauxPainter([
                 for (final p in progres) p.clamp(0.0, 1.0) * t,
-              ], couleurs),
+              ], couleursPour(Theme.of(context).brightness)),
             ),
           ),
           ?centre,
@@ -336,7 +345,7 @@ class _CarteAujourdhuiState extends State<CarteAujourdhui> {
           ),
           const SizedBox(height: 12),
           _Ligne(
-            couleur: _cBrule,
+            couleur: Anneaux.couleursPour(Theme.of(context).brightness).first,
             libelle: t.libBrule,
             sous: mesure ? t.sourceMesure : t.sourceEstimeJusqua,
             valeur: '${brulees.round()}',

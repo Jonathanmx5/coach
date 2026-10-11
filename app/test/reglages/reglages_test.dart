@@ -1,11 +1,13 @@
 import 'dart:convert';
 
 import 'package:coach/reglages/mises_a_jour.dart';
+import 'package:coach/reglages/reglage_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
 import '../fakes.dart';
@@ -162,6 +164,50 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('Tu as la dernière version.'), findsOneWidget);
     expect(find.textContaining('Nouvelle version'), findsNothing);
+  });
+
+  testWidgets('réglages : thème clair, sombre ou automatique', (tester) async {
+    final theme = ReglageThemeFixe();
+    await racine.monter(
+      tester,
+      FauxAuth(connecte: racine.lea),
+      racine.depotAvecProfil(),
+      theme: theme,
+    );
+    await tester.tap(find.byTooltip('Réglages'));
+    await tester.pumpAndSettle();
+    final contexte = tester.element(find.byType(Scaffold).first);
+    expect(Theme.of(contexte).brightness, Brightness.light);
+
+    await taper(tester, 'Sombre');
+    expect(theme.mode.value, ThemeMode.dark);
+    expect(
+      Theme.of(tester.element(find.byType(Scaffold).first)).brightness,
+      Brightness.dark,
+    );
+
+    await taper(tester, 'Clair');
+    expect(theme.mode.value, ThemeMode.light);
+    expect(
+      Theme.of(tester.element(find.byType(Scaffold).first)).brightness,
+      Brightness.light,
+    );
+
+    await taper(tester, 'Auto');
+    expect(theme.mode.value, ThemeMode.system);
+  });
+
+  test('le thème choisi est gardé sur le téléphone', () async {
+    SharedPreferences.setMockInitialValues({});
+    final premier = await ReglageThemeLocal.charger();
+    expect(premier.mode.value, ThemeMode.system);
+
+    await premier.definir(ThemeMode.dark);
+    final relance = await ReglageThemeLocal.charger();
+    expect(relance.mode.value, ThemeMode.dark);
+
+    SharedPreferences.setMockInitialValues({'theme': 'n-importe-quoi'});
+    expect((await ReglageThemeLocal.charger()).mode.value, ThemeMode.system);
   });
 
   testWidgets('réglages : politique de confidentialité', (tester) async {

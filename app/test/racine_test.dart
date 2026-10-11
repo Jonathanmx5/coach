@@ -6,6 +6,7 @@ import 'package:coach/profil/modele.dart';
 import 'package:coach/profil/profil_repository.dart';
 import 'package:coach/profil/questionnaire/questionnaire_page.dart';
 import 'package:coach/racine.dart';
+import 'package:coach/reglages/reglage_theme.dart';
 import 'package:coach/sante/sante_service.dart';
 import 'package:coach/services.dart';
 import 'package:flutter/material.dart';
@@ -46,9 +47,12 @@ Future<void> monter(
   FauxDonnees? donnees,
   FauxConsentements? consentements,
   FauxWidget? widgetAccueil,
+  ReglageTheme? theme,
 }) async {
+  final reglageTheme = theme ?? ReglageThemeFixe();
   await tester.pumpWidget(
     CoachApp(
+      theme: reglageTheme.mode,
       accueil: Racine(
         services: Services(
           auth: auth,
@@ -59,6 +63,7 @@ Future<void> monter(
           mensurations: FauxMensurations(),
           photos: FausPhotos(),
           photosRepas: FausPhotosRepas(),
+          theme: reglageTheme,
           catalogue: FauxCatalogue(),
           entrainement: FauxEntrainement(),
           voix: FausseVoix(),
