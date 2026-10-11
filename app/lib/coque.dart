@@ -2,14 +2,11 @@ import 'package:flutter/material.dart';
 
 import 'accueil/accueil_page.dart';
 import 'compte/auth_service.dart';
-import 'journal/catalogue.dart';
 import 'journal/journal_page.dart';
-import 'journal/journal_repository.dart';
 import 'l10n/app_localizations.dart';
-import 'poids/pesees_repository.dart';
 import 'poids/poids_page.dart';
 import 'profil/profil_repository.dart';
-import 'sante/sante_service.dart';
+import 'services.dart';
 import 'sante/suivi.dart';
 
 /// Barre d'onglets de l'appli (Accueil, Journal, Poids ; d'autres viendront).
@@ -20,23 +17,13 @@ class Coque extends StatefulWidget {
     super.key,
     required this.utilisateur,
     required this.enregistre,
-    required this.auth,
-    required this.depot,
-    required this.pesees,
-    required this.journal,
-    required this.catalogue,
-    required this.sante,
+    required this.services,
     required this.horloge,
   });
 
   final Utilisateur utilisateur;
   final ProfilEnregistre enregistre;
-  final AuthService auth;
-  final ProfilRepository depot;
-  final PeseesRepository pesees;
-  final JournalRepository journal;
-  final CatalogueProduits catalogue;
-  final SanteService sante;
+  final Services services;
   final DateTime Function() horloge;
 
   @override
@@ -45,7 +32,8 @@ class Coque extends StatefulWidget {
 
 class _CoqueState extends State<Coque> {
   int _onglet = 0;
-  late final Suivi _suivi = Suivi(sante: widget.sante, horloge: widget.horloge);
+  Services get _s => widget.services;
+  late final Suivi _suivi = Suivi(sante: _s.sante, horloge: widget.horloge);
 
   @override
   void initState() {
@@ -77,26 +65,26 @@ class _CoqueState extends State<Coque> {
           AccueilPage(
             utilisateur: widget.utilisateur,
             enregistre: widget.enregistre,
-            auth: widget.auth,
-            depot: widget.depot,
-            sante: widget.sante,
+            auth: _s.auth,
+            depot: _s.depot,
+            sante: _s.sante,
             suivi: _suivi,
             horloge: widget.horloge,
           ),
           JournalPage(
             utilisateur: widget.utilisateur,
             enregistre: widget.enregistre,
-            journal: widget.journal,
-            catalogue: widget.catalogue,
+            journal: _s.journal,
+            catalogue: _s.catalogue,
             suivi: _suivi,
             horloge: widget.horloge,
           ),
           PoidsPage(
             utilisateur: widget.utilisateur,
             enregistre: widget.enregistre,
-            depot: widget.depot,
-            pesees: widget.pesees,
-            sante: widget.sante,
+            depot: _s.depot,
+            pesees: _s.pesees,
+            sante: _s.sante,
             horloge: widget.horloge,
           ),
         ],

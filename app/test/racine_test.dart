@@ -7,6 +7,7 @@ import 'package:coach/profil/profil_repository.dart';
 import 'package:coach/profil/questionnaire/questionnaire_page.dart';
 import 'package:coach/racine.dart';
 import 'package:coach/sante/sante_service.dart';
+import 'package:coach/services.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -43,12 +44,14 @@ Future<void> monter(
   await tester.pumpWidget(
     CoachApp(
       accueil: Racine(
-        auth: auth,
-        depot: depot,
-        sante: sante ?? FauxSante(dispo: DispoSante.indisponible),
-        pesees: pesees ?? FauxPesees(),
-        journal: FauxJournal(),
-        catalogue: FauxCatalogue(),
+        services: Services(
+          auth: auth,
+          depot: depot,
+          sante: sante ?? FauxSante(dispo: DispoSante.indisponible),
+          pesees: pesees ?? FauxPesees(),
+          journal: FauxJournal(),
+          catalogue: FauxCatalogue(),
+        ),
         horloge: () => maintenant,
       ),
     ),

@@ -1,36 +1,19 @@
 import 'package:flutter/material.dart';
 
-import 'coque.dart';
 import 'accueil/bienvenue_page.dart';
 import 'compte/auth_service.dart';
-import 'journal/catalogue.dart';
-import 'journal/journal_repository.dart';
-import 'poids/pesees_repository.dart';
+import 'coque.dart';
 import 'profil/profil_repository.dart';
 import 'profil/questionnaire/controleur.dart';
 import 'profil/questionnaire/questionnaire_page.dart';
-import 'sante/sante_service.dart';
+import 'services.dart';
 
 /// Aiguillage : bienvenue, questionnaire ou accueil selon la connexion et le
 /// profil enregistré.
 class Racine extends StatefulWidget {
-  const Racine({
-    super.key,
-    required this.auth,
-    required this.depot,
-    required this.pesees,
-    required this.journal,
-    required this.catalogue,
-    required this.sante,
-    required this.horloge,
-  });
+  const Racine({super.key, required this.services, required this.horloge});
 
-  final AuthService auth;
-  final ProfilRepository depot;
-  final PeseesRepository pesees;
-  final JournalRepository journal;
-  final CatalogueProduits catalogue;
-  final SanteService sante;
+  final Services services;
   final DateTime Function() horloge;
 
   @override
@@ -38,7 +21,8 @@ class Racine extends StatefulWidget {
 }
 
 class _RacineState extends State<Racine> {
-  late final Stream<Utilisateur?> _utilisateur = widget.auth.changements;
+  Services get _s => widget.services;
+  late final Stream<Utilisateur?> _utilisateur = _s.auth.changements;
 
   void _commencer() {
     // Créé hors du builder : la route peut être reconstruite sans perdre
@@ -51,9 +35,9 @@ class _RacineState extends State<Racine> {
       MaterialPageRoute<void>(
         builder: (routeContext) => QuestionnairePage(
           controleur: controleur,
-          auth: widget.auth,
-          depot: widget.depot,
-          sante: widget.sante,
+          auth: _s.auth,
+          depot: _s.depot,
+          sante: _s.sante,
           horloge: widget.horloge,
           quandTermine: () =>
               Navigator.of(routeContext).popUntil((r) => r.isFirst),
@@ -71,17 +55,12 @@ class _RacineState extends State<Racine> {
       }
       final u = snap.data;
       if (u == null) {
-        return BienvenuePage(auth: widget.auth, onCommencer: _commencer);
+        return BienvenuePage(auth: _s.auth, onCommencer: _commencer);
       }
       return _ProfilUtilisateur(
         key: ValueKey(u.uid),
         utilisateur: u,
-        auth: widget.auth,
-        depot: widget.depot,
-        pesees: widget.pesees,
-        journal: widget.journal,
-        catalogue: widget.catalogue,
-        sante: widget.sante,
+        services: _s,
         horloge: widget.horloge,
       );
     },
@@ -92,22 +71,12 @@ class _ProfilUtilisateur extends StatefulWidget {
   const _ProfilUtilisateur({
     super.key,
     required this.utilisateur,
-    required this.auth,
-    required this.depot,
-    required this.pesees,
-    required this.journal,
-    required this.catalogue,
-    required this.sante,
+    required this.services,
     required this.horloge,
   });
 
   final Utilisateur utilisateur;
-  final AuthService auth;
-  final ProfilRepository depot;
-  final PeseesRepository pesees;
-  final JournalRepository journal;
-  final CatalogueProduits catalogue;
-  final SanteService sante;
+  final Services services;
   final DateTime Function() horloge;
 
   @override
@@ -115,7 +84,8 @@ class _ProfilUtilisateur extends StatefulWidget {
 }
 
 class _ProfilUtilisateurState extends State<_ProfilUtilisateur> {
-  late final Stream<ProfilEnregistre?> _profil = widget.depot.observer(
+  Services get _s => widget.services;
+  late final Stream<ProfilEnregistre?> _profil = _s.depot.observer(
     widget.utilisateur.uid,
   );
 
@@ -142,9 +112,9 @@ class _ProfilUtilisateurState extends State<_ProfilUtilisateur> {
       if (enregistre == null) {
         return QuestionnairePage(
           controleur: _controleur,
-          auth: widget.auth,
-          depot: widget.depot,
-          sante: widget.sante,
+          auth: _s.auth,
+          depot: _s.depot,
+          sante: _s.sante,
           horloge: widget.horloge,
           // Le flux du profil fait basculer vers l'accueil.
           quandTermine: () {},
@@ -153,12 +123,7 @@ class _ProfilUtilisateurState extends State<_ProfilUtilisateur> {
       return Coque(
         utilisateur: widget.utilisateur,
         enregistre: enregistre,
-        auth: widget.auth,
-        depot: widget.depot,
-        pesees: widget.pesees,
-        journal: widget.journal,
-        catalogue: widget.catalogue,
-        sante: widget.sante,
+        services: _s,
         horloge: widget.horloge,
       );
     },

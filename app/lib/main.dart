@@ -15,6 +15,7 @@ import 'firebase_options.dart';
 import 'profil/profil_repository.dart';
 import 'racine.dart';
 import 'sante/sante_service.dart';
+import 'services.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -36,12 +37,14 @@ Future<void> main() async {
   runApp(
     CoachApp(
       accueil: Racine(
-        auth: FirebaseAuthService(),
-        depot: FirestoreProfilRepository(),
-        pesees: FirestorePeseesRepository(),
-        journal: FirestoreJournalRepository(),
-        catalogue: CatalogueOpenFoodFacts(),
-        sante: HealthSanteService(),
+        services: Services(
+          auth: FirebaseAuthService(),
+          depot: FirestoreProfilRepository(),
+          pesees: FirestorePeseesRepository(),
+          journal: FirestoreJournalRepository(),
+          catalogue: CatalogueOpenFoodFacts(),
+          sante: HealthSanteService(),
+        ),
         horloge: DateTime.now,
       ),
     ),
