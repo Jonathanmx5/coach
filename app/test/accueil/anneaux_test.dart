@@ -82,6 +82,14 @@ class Banc {
 }
 
 void main() {
+  test('bilan : mangé moins brûlé, avec le signe', () {
+    expect(bilanTexte(0), '0');
+    expect(bilanTexte(0.4), '0');
+    expect(bilanTexte(120.2), '+120');
+    expect(bilanTexte(-58.4), '−58');
+    expect(bilanTexte(-1794), '−1794');
+  });
+
   test(
     'calories brûlées : total de la montre, sinon prorata de la journée',
     () {
@@ -152,6 +160,15 @@ void main() {
       find.textContaining('Estimé jusqu', findRichText: true),
       findsOneWidget,
     );
+    final brule = kcalBruleesJusquaMaintenant(
+      depenseBase: r.depenseBase,
+      kcalMontre: null,
+      kcalActivites: 0,
+      maintenant: maintenant,
+    );
+    // Rien mangé : le bilan est le déficit complet, au centre des anneaux.
+    expect(find.text(bilanTexte(-brule)), findsOneWidget);
+    expect(find.text('bilan kcal'), findsOneWidget);
     expect(banc.progres[1], 0);
     expect(banc.progres[2], 0);
     expect(banc.progres[3], 0);
@@ -208,6 +225,7 @@ void main() {
       maintenant: maintenant,
     );
     expect(banc.progres[0], closeTo(base / r.maintien, 1e-9));
+    expect(find.text(bilanTexte(1000 - base)), findsOneWidget);
   });
 
   testWidgets('montre : calories mesurées, activité déjà comptée ignorée', (

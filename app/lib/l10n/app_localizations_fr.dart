@@ -1010,6 +1010,9 @@ class AppLocalizationsFr extends AppLocalizations {
   String get sourceEstimeJusqua => 'Estimé jusqu\'à maintenant';
 
   @override
+  String get bilanCentre => 'bilan kcal';
+
+  @override
   String get courbePoids => 'Évolution du poids';
 
   @override

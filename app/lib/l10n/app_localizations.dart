@@ -1888,6 +1888,12 @@ abstract class AppLocalizations {
   /// **'Estimé jusqu\'à maintenant'**
   String get sourceEstimeJusqua;
 
+  /// No description provided for @bilanCentre.
+  ///
+  /// In fr, this message translates to:
+  /// **'bilan kcal'**
+  String get bilanCentre;
+
   /// No description provided for @courbePoids.
   ///
   /// In fr, this message translates to:

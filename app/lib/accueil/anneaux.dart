@@ -28,26 +28,41 @@ const _fond = CouleursCoach.vertClair;
 /// brûlées, calories mangées, protéines, eau. Chaque valeur va de 0 à 1 ;
 /// au-delà de 1 l'anneau reste fermé.
 class Anneaux extends StatelessWidget {
-  const Anneaux({super.key, required this.progres, this.taille = 210});
+  const Anneaux({
+    super.key,
+    required this.progres,
+    this.taille = 230,
+    this.centre,
+  });
 
   /// Dans l'ordre : brûlées, mangées, protéines, eau.
   final List<double> progres;
   final double taille;
+
+  /// Affiché au milieu des anneaux.
+  final Widget? centre;
 
   static const couleurs = [_cBrule, _cMange, _cProteines, _cEau];
 
   @override
   Widget build(BuildContext context) => SizedBox.square(
     dimension: taille,
-    child: TweenAnimationBuilder<double>(
-      tween: Tween(begin: 0, end: 1),
-      duration: const Duration(milliseconds: 900),
-      curve: Curves.easeOutCubic,
-      builder: (context, t, _) => CustomPaint(
-        painter: _AnneauxPainter([
-          for (final p in progres) p.clamp(0.0, 1.0) * t,
-        ], couleurs),
-      ),
+    child: Stack(
+      alignment: Alignment.center,
+      children: [
+        TweenAnimationBuilder<double>(
+          tween: Tween(begin: 0, end: 1),
+          duration: const Duration(milliseconds: 900),
+          curve: Curves.easeOutCubic,
+          builder: (context, t, _) => CustomPaint(
+            size: Size.square(taille),
+            painter: _AnneauxPainter([
+              for (final p in progres) p.clamp(0.0, 1.0) * t,
+            ], couleurs),
+          ),
+        ),
+        ?centre,
+      ],
     ),
   );
 }
@@ -60,8 +75,8 @@ class _AnneauxPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    const epaisseur = 20.0;
-    const ecart = 4.0;
+    const epaisseur = 16.0;
+    const ecart = 3.0;
     final centre = size.center(Offset.zero);
     for (var i = 0; i < valeurs.length; i++) {
       final rayon = size.width / 2 - epaisseur / 2 - i * (epaisseur + ecart);
@@ -252,6 +267,7 @@ class _CarteAujourdhuiState extends State<CarteAujourdhui> {
           ),
           const SizedBox(height: 16),
           Anneaux(
+            centre: _Bilan(net: macros.kcal - brulees),
             progres: [
               part(brulees, objectifBrule),
               part(macros.kcal, cibles.kcal),
@@ -300,6 +316,41 @@ class _CarteAujourdhuiState extends State<CarteAujourdhui> {
           ),
         ],
       ),
+    );
+  }
+}
+
+/// Calories mangées moins calories brûlées : négatif = déficit.
+String bilanTexte(double net) {
+  final n = net.round();
+  if (n == 0) return '0';
+  return n > 0 ? '+$n' : '\u2212${-n}';
+}
+
+class _Bilan extends StatelessWidget {
+  const _Bilan({required this.net});
+
+  final double net;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
+    final textes = Theme.of(context).textTheme;
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(
+          bilanTexte(net),
+          style: textes.titleLarge?.copyWith(
+            color: CouleursCoach.texte,
+            fontWeight: FontWeight.w800,
+          ),
+        ),
+        Text(
+          t.bilanCentre,
+          style: textes.labelSmall?.copyWith(color: CouleursCoach.texteDoux),
+        ),
+      ],
     );
   }
 }
