@@ -28,6 +28,50 @@ void main() {
     }
   });
 
+  test('catalogue : uniquement des recettes fitness et remise en forme', () {
+    expect(catalogueRecettes.length, greaterThanOrEqualTo(25));
+    for (final r in catalogueRecettes) {
+      final m = r.macros;
+      expect(recetteAdapteeFitness(r), isTrue, reason: r.id);
+      expect(
+        m.proteines * 4 / m.kcal,
+        greaterThanOrEqualTo(0.16),
+        reason: '${r.id} manque de protéines',
+      );
+      expect(
+        m.lipides * 9 / m.kcal,
+        lessThanOrEqualTo(0.42),
+        reason: '${r.id} est trop gras',
+      );
+      expect(m.kcal, inInclusiveRange(100, 650), reason: r.id);
+    }
+    // Les plats gras ou sucrés retirés ne reviennent pas par erreur.
+    for (final id in [
+      'tartine_avocat',
+      'curry_pois_chiches',
+      'galettes_cacahuete',
+    ]) {
+      expect(recetteOuNull(id), isNull, reason: id);
+    }
+  });
+
+  test('un planning enregistré avec une recette retirée est à refaire', () {
+    final p = Planning.fromMap(DateTime(2026, 10, 5), {
+      'repas': {
+        '0': {
+          'petitDejeuner': {'id': 'tartine_avocat', 'p': 1},
+        },
+      },
+    });
+    expect(estComplet(p), isFalse);
+    expect(
+      estComplet(
+        genererPlanning(lundi: DateTime(2026, 10, 5), kcalCible: 2000),
+      ),
+      isTrue,
+    );
+  });
+
   test('lundiDe', () {
     expect(lundiDe(DateTime(2026, 10, 11, 23)), DateTime(2026, 10, 5));
     expect(lundiDe(DateTime(2026, 10, 5)), DateTime(2026, 10, 5));
@@ -35,9 +79,9 @@ void main() {
   });
 
   test('portions : pas de 0,25 entre 0,5 et 2', () {
-    final r = recetteParId('porridge_banane'); // 380 kcal
-    expect(portionsPour(r, 380), 1);
-    expect(portionsPour(r, 560), 1.5);
+    final r = recetteParId('porridge_banane'); // 430 kcal
+    expect(portionsPour(r, 430), 1);
+    expect(portionsPour(r, 645), 1.5);
     expect(portionsPour(r, 50), 0.5);
     expect(portionsPour(r, 5000), 2);
   });
@@ -94,18 +138,19 @@ void main() {
       jours: {
         0: {Moment.dejeuner: const RepasPlanifie('poulet_riz_brocoli', 2)},
         1: {Moment.dejeuner: const RepasPlanifie('poulet_riz_brocoli', 1)},
-        2: {Moment.petitDejeuner: const RepasPlanifie('tartine_avocat', 1)},
-        3: {Moment.petitDejeuner: const RepasPlanifie('tartine_avocat', 1)},
-        4: {Moment.petitDejeuner: const RepasPlanifie('tartine_avocat', 1)},
+        2: {Moment.dejeuner: const RepasPlanifie('poke_bowl_saumon', 1)},
+        3: {Moment.dejeuner: const RepasPlanifie('poke_bowl_saumon', 1)},
+        4: {Moment.dejeuner: const RepasPlanifie('poke_bowl_saumon', 1)},
+        5: {Moment.petitDejeuner: const RepasPlanifie('omelette_pain', 1)},
       },
     );
     final l = listeCourses(p);
     LigneCourse ligne(String nom) => l.firstWhere((x) => x.nom == nom);
     expect(ligne('Blanc de poulet').quantiteTexte, '450 g');
-    expect(ligne('Riz').quantiteTexte, '210 g');
+    expect(ligne('Riz').quantiteTexte, '420 g');
     expect(ligne('Avocat').quantite, 1.5);
     expect(ligne('Avocat').quantiteTexte, '2');
-    expect(ligne('Œufs').quantiteTexte, '3');
+    expect(ligne('Œufs').quantiteTexte, '2');
     final rayons = l.map((x) => x.rayon.index).toList();
     expect([...rayons]..sort(), rayons);
   });

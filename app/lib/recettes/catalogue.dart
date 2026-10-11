@@ -14,18 +14,20 @@ const _recettesDeBase = <Recette>[
   // Petits-déjeuners
   Recette(
     id: 'porridge_banane',
-    nom: 'Porridge à la banane',
+    nom: 'Porridge protéiné à la banane',
     moment: Moment.petitDejeuner,
     minutes: 8,
     vegetarien: true,
-    macros: Macros(kcal: 380, proteines: 14, glucides: 65, lipides: 7),
+    macros: Macros(kcal: 430, proteines: 22, glucides: 69, lipides: 8),
     ingredients: [
       Ingredient('Flocons d\'avoine', 60, Unite.g, _ep),
       Ingredient('Lait', 200, Unite.ml, _cr),
       Ingredient('Banane', 1, Unite.piece, _fl),
+      Ingredient('Fromage blanc', 100, Unite.g, _cr),
     ],
     etapes: [
       'Chauffe le lait avec les flocons d\'avoine 5 minutes en remuant.',
+      'Hors du feu, incorpore le fromage blanc pour apporter des protéines.',
       'Coupe la banane en rondelles et ajoute-la sur le dessus.',
     ],
   ),
@@ -49,32 +51,15 @@ const _recettesDeBase = <Recette>[
     moment: Moment.petitDejeuner,
     minutes: 10,
     vegetarien: true,
-    macros: Macros(kcal: 360, proteines: 22, glucides: 28, lipides: 17),
+    macros: Macros(kcal: 340, proteines: 22, glucides: 28, lipides: 13),
     ingredients: [
       Ingredient('Œufs', 2, Unite.piece, _cr),
       Ingredient('Pain complet', 60, Unite.g, _bo),
       Ingredient('Tomate', 1, Unite.piece, _fl),
     ],
     etapes: [
-      'Bats les œufs, cuis-les à la poêle 3 minutes en remuant.',
+      'Bats les œufs, cuis-les à la poêle antiadhésive 3 minutes en remuant.',
       'Sers avec le pain grillé et la tomate coupée.',
-    ],
-  ),
-  Recette(
-    id: 'tartine_avocat',
-    nom: 'Tartines avocat et œuf',
-    moment: Moment.petitDejeuner,
-    minutes: 10,
-    vegetarien: true,
-    macros: Macros(kcal: 400, proteines: 14, glucides: 32, lipides: 24),
-    ingredients: [
-      Ingredient('Pain complet', 60, Unite.g, _bo),
-      Ingredient('Avocat', 0.5, Unite.piece, _fl),
-      Ingredient('Œufs', 1, Unite.piece, _cr),
-    ],
-    etapes: [
-      'Fais cuire l\'œuf 6 minutes à l\'eau bouillante, écale-le.',
-      'Écrase l\'avocat sur le pain grillé, ajoute l\'œuf coupé.',
     ],
   ),
   Recette(
@@ -83,11 +68,11 @@ const _recettesDeBase = <Recette>[
     moment: Moment.petitDejeuner,
     minutes: 2,
     vegetarien: true,
-    macros: Macros(kcal: 330, proteines: 20, glucides: 28, lipides: 15),
+    macros: Macros(kcal: 210, proteines: 18, glucides: 20, lipides: 7),
     ingredients: [
       Ingredient('Fromage blanc', 200, Unite.g, _cr),
       Ingredient('Miel', 15, Unite.g, _ep),
-      Ingredient('Noix', 20, Unite.g, _ep),
+      Ingredient('Noix', 10, Unite.g, _ep),
     ],
     etapes: ['Mélange le fromage blanc et le miel, parsème de noix.'],
   ),
@@ -241,20 +226,20 @@ const _recettesDeBase = <Recette>[
   ),
   Recette(
     id: 'omelette_champignons',
-    nom: 'Omelette aux champignons et salade',
+    nom: 'Omelette aux champignons, salade et pain complet',
     moment: Moment.diner,
     minutes: 15,
     vegetarien: true,
-    macros: Macros(kcal: 400, proteines: 27, glucides: 8, lipides: 28),
+    macros: Macros(kcal: 400, proteines: 27, glucides: 33, lipides: 16),
     ingredients: [
       Ingredient('Œufs', 3, Unite.piece, _cr),
       Ingredient('Champignons', 150, Unite.g, _fl),
       Ingredient('Salade', 60, Unite.g, _fl),
-      Ingredient('Huile d\'olive', 5, Unite.ml, _ep),
+      Ingredient('Pain complet', 60, Unite.g, _bo),
     ],
     etapes: [
-      'Fais sauter les champignons émincés 5 minutes avec l\'huile.',
-      'Verse les œufs battus, cuis 3 minutes et replie. Sers avec la salade.',
+      'Fais sauter les champignons émincés 5 minutes dans une poêle antiadhésive.',
+      'Verse les œufs battus, cuis 3 minutes et replie. Sers avec la salade et le pain.',
     ],
   ),
   Recette(
@@ -272,26 +257,6 @@ const _recettesDeBase = <Recette>[
       'Cuis les pommes de terre 20 minutes à l\'eau.',
       'Poêle le steak 3 minutes de chaque côté.',
       'Cuis les haricots verts 8 minutes.',
-    ],
-  ),
-  Recette(
-    id: 'curry_pois_chiches',
-    nom: 'Curry de pois chiches et épinards',
-    moment: Moment.diner,
-    minutes: 25,
-    vegetarien: true,
-    macros: Macros(kcal: 600, proteines: 20, glucides: 80, lipides: 22),
-    ingredients: [
-      Ingredient('Pois chiches (cuits)', 150, Unite.g, _ep),
-      Ingredient('Lait de coco', 100, Unite.ml, _ep),
-      Ingredient('Riz', 60, Unite.g, _ep),
-      Ingredient('Épinards', 100, Unite.g, _fl),
-      Ingredient('Tomates concassées', 150, Unite.g, _ep),
-    ],
-    etapes: [
-      'Cuis le riz.',
-      'Chauffe les tomates, le lait de coco, 1 cuillère de curry et les pois chiches 10 minutes.',
-      'Ajoute les épinards 2 minutes, sers sur le riz.',
     ],
   ),
   Recette(
@@ -314,19 +279,6 @@ const _recettesDeBase = <Recette>[
   ),
   // Collations
   Recette(
-    id: 'pomme_amandes',
-    nom: 'Pomme et amandes',
-    moment: Moment.collation,
-    minutes: 2,
-    vegetarien: true,
-    macros: Macros(kcal: 230, proteines: 6, glucides: 28, lipides: 12),
-    ingredients: [
-      Ingredient('Pomme', 1, Unite.piece, _fl),
-      Ingredient('Amandes', 25, Unite.g, _ep),
-    ],
-    etapes: ['Croque la pomme avec une poignée d\'amandes.'],
-  ),
-  Recette(
     id: 'skyr_banane',
     nom: 'Skyr et banane',
     moment: Moment.collation,
@@ -338,20 +290,6 @@ const _recettesDeBase = <Recette>[
       Ingredient('Banane', 1, Unite.piece, _fl),
     ],
     etapes: ['Coupe la banane sur le skyr.'],
-  ),
-  Recette(
-    id: 'houmous_legumes',
-    nom: 'Houmous et bâtonnets de légumes',
-    moment: Moment.collation,
-    minutes: 5,
-    vegetarien: true,
-    macros: Macros(kcal: 190, proteines: 7, glucides: 18, lipides: 10),
-    ingredients: [
-      Ingredient('Houmous', 60, Unite.g, _cr),
-      Ingredient('Carotte', 2, Unite.piece, _fl),
-      Ingredient('Concombre', 0.5, Unite.piece, _fl),
-    ],
-    etapes: ['Taille les légumes en bâtonnets et trempe-les dans le houmous.'],
   ),
 ];
 

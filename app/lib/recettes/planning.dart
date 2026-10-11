@@ -174,6 +174,13 @@ Planning genererPlanning({
   );
 }
 
+/// Tous les repas du jour 0 au jour 6 sont présents (un planning enregistré
+/// avec des recettes retirées du catalogue est à refaire).
+bool estComplet(Planning p) => [
+  for (var j = 0; j < 7; j++)
+    for (final m in Moment.values) p.jours[j]?[m],
+].every((r) => r != null);
+
 Macros macrosDuRepas(RepasPlanifie p) =>
     recetteParId(p.recetteId).macros.multiplie(p.portions);
 

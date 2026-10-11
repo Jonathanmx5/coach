@@ -53,3 +53,11 @@ class Recette {
   /// Sans viande ni poisson.
   final bool vegetarien;
 }
+
+/// Critères « fitness et remise en forme » : au moins 16 % des calories en
+/// protéines et au plus 42 % en lipides. Tout le catalogue les respecte (un
+/// test le vérifie) : l'application ne propose que ce type de recettes.
+bool recetteAdapteeFitness(Recette r) {
+  final m = r.macros;
+  return m.proteines * 4 / m.kcal >= 0.16 && m.lipides * 9 / m.kcal <= 0.42;
+}

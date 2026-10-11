@@ -62,10 +62,10 @@ class _PlanningPageState extends State<PlanningPage> {
     );
   }
 
-  void _creerSiAbsent() {
+  void _creerSiAbsent(Planning? existant) {
     if (_creation) return;
     _creation = true;
-    unawaited(_generer());
+    unawaited(_generer(vegetarien: existant?.vegetarien ?? false));
   }
 
   void _basculerVegetarien(Planning p, bool v) =>
@@ -142,8 +142,11 @@ class _PlanningPageState extends State<PlanningPage> {
       stream: _flux,
       builder: (context, snap) {
         final p = snap.data;
-        if (snap.connectionState != ConnectionState.waiting && p == null) {
-          WidgetsBinding.instance.addPostFrameCallback((_) => _creerSiAbsent());
+        if (snap.connectionState != ConnectionState.waiting &&
+            (p == null || !estComplet(p))) {
+          WidgetsBinding.instance.addPostFrameCallback(
+            (_) => _creerSiAbsent(p),
+          );
         }
         return Scaffold(
           appBar: AppBar(
