@@ -39,3 +39,13 @@ Rassembler une vingtaine de photos de vrais repas pesés (`x.jpg` + `x.json` ave
 ```bash
 RELAIS_URL=https://… JETON=<jeton Firebase> node eval/evaluer.js ./photos
 ```
+
+## App Check (preuve que l'appel vient de la vraie application)
+
+L'application envoie un jeton App Check (Play Integrity) dans l'en-tête `X-Firebase-AppCheck`. Le relais le vérifie selon `APP_CHECK` dans `wrangler.toml` :
+
+- `off` (défaut) : rien n'est vérifié ;
+- `observe` : les appels sans preuve valide sont notés dans les journaux (`wrangler tail`) mais acceptés ;
+- `enforce` : ils sont refusés (401).
+
+Mise en route : Console Firebase → App Check → enregistrer l'application Android avec Play Integrity ; renseigner `PROJECT_NUMBER` (numéro du projet, dans les paramètres du projet) ; passer `APP_CHECK` à `observe`, puis à `enforce` **seulement une fois l'application distribuée par le Play Store** : un APK installé à la main (GitHub) n'a pas de preuve Play Integrity et serait refusé.
