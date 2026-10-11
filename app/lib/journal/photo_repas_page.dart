@@ -3,10 +3,11 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 
 import '../l10n/app_localizations.dart';
-import '../profil/saisie.dart';
 import '../theme.dart';
 import 'analyse_photo.dart';
 import 'calculs.dart';
+import 'carte_verdict.dart';
+import 'dialogues_aliment.dart';
 import 'catalogue.dart';
 import 'scanner_page.dart';
 import 'formulaires.dart';
@@ -14,6 +15,10 @@ import '../profil/modele.dart';
 import 'modele.dart';
 import 'photos_repas.dart';
 import 'verdict.dart';
+
+// Réexportés : d'autres écrans s'en servent.
+export 'carte_verdict.dart';
+export 'dialogues_aliment.dart' show totalAliments;
 
 /// Résultat de [PhotoRepasPage] quand l'utilisateur préfère tout saisir à la
 /// main (ou que l'analyse est impossible).
@@ -117,7 +122,7 @@ class _PhotoRepasPageState extends State<PhotoRepasPage> {
     setState(() => _phase = _Phase.choix);
     final grammes = await showDialog<double>(
       context: context,
-      builder: (_) => _DialoguePortion(nom: produit!.nom),
+      builder: (_) => DialoguePortion(nom: produit!.nom),
     );
     if (!mounted) return;
     if (grammes == null) {
@@ -201,7 +206,7 @@ class _PhotoRepasPageState extends State<PhotoRepasPage> {
   Future<void> _modifier(int i) async {
     final a = await showDialog<AlimentEstime>(
       context: context,
-      builder: (_) => _DialogueAliment(modele: _aliments[i]),
+      builder: (_) => DialogueAliment(modele: _aliments[i]),
     );
     if (a != null) setState(() => _aliments = [..._aliments]..[i] = a);
   }
@@ -209,7 +214,7 @@ class _PhotoRepasPageState extends State<PhotoRepasPage> {
   Future<void> _ajouter() async {
     final a = await showDialog<AlimentEstime>(
       context: context,
-      builder: (_) => const _DialogueAliment(),
+      builder: (_) => const DialogueAliment(),
     );
     if (a == null) return;
     setState(() {
@@ -433,7 +438,7 @@ class _PhotoRepasPageState extends State<PhotoRepasPage> {
         if (_image != null &&
             (_aliments.isEmpty || _aliments.any((a) => a.aVerifier))) ...[
           const SizedBox(height: 12),
-          _CartePrecision(controleur: _precision, onReanalyser: _analyser),
+          CartePrecision(controleur: _precision, onReanalyser: _analyser),
         ],
         if (_aliments.isNotEmpty) ...[
           const SizedBox(height: 12),
@@ -527,348 +532,6 @@ class _PhotoRepasPageState extends State<PhotoRepasPage> {
           ],
         ),
       ),
-    );
-  }
-}
-
-/// Carton du coach : couleur, ce que c'est, les apports et le verdict détaillé.
-class CarteVerdict extends StatelessWidget {
-  const CarteVerdict({
-    super.key,
-    required this.description,
-    required this.repas,
-    required this.sucres,
-    required this.satures,
-    required this.verdict,
-  });
-
-  final String description;
-  final Macros repas;
-  final double? sucres;
-  final double? satures;
-  final Verdict verdict;
-
-  @override
-  Widget build(BuildContext context) {
-    final t = AppLocalizations.of(context)!;
-    final textes = Theme.of(context).textTheme;
-    final (couleur, fond, titre) = switch (verdict.feu) {
-      Feu.vert => (
-        CouleursCoach.vertMoyen,
-        CouleursCoach.vertClair,
-        t.cartonVert,
-      ),
-      Feu.orange => (
-        CouleursCoach.orange,
-        CouleursCoach.orangeClair,
-        t.cartonOrange,
-      ),
-      Feu.rouge => (
-        const Color(0xFFE24B4A),
-        const Color(0xFFFCE8E8),
-        t.cartonRouge,
-      ),
-    };
-    Widget tuile(String libelle, String valeur, String? detail) => Expanded(
-      child: Container(
-        margin: const EdgeInsets.only(right: 6),
-        padding: const EdgeInsets.all(10),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(libelle, style: textes.labelSmall),
-            Text(valeur, style: textes.titleMedium),
-            if (detail != null)
-              Text(
-                detail,
-                style: textes.labelSmall?.copyWith(
-                  color: CouleursCoach.texteDoux,
-                ),
-              ),
-          ],
-        ),
-      ),
-    );
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: fond,
-        borderRadius: BorderRadius.circular(rayonCarte),
-        border: Border.all(color: couleur, width: 2),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Icon(Icons.circle, color: couleur, size: 22),
-              const SizedBox(width: 10),
-              Expanded(child: Text(titre, style: textes.titleLarge)),
-            ],
-          ),
-          if (description.isNotEmpty) ...[
-            const SizedBox(height: 6),
-            Text(t.ilSagit(description), style: textes.bodyMedium),
-          ],
-          const SizedBox(height: 12),
-          Row(
-            children: [
-              tuile(t.tuileCalories, '${repas.kcal.round()} kcal', null),
-              tuile(t.tuileProteines, '${repas.proteines.round()} g', null),
-            ],
-          ),
-          const SizedBox(height: 6),
-          Row(
-            children: [
-              tuile(
-                t.tuileGlucides,
-                '${repas.glucides.round()} g',
-                sucres == null ? null : t.dontSucres(sucres!.round()),
-              ),
-              tuile(
-                t.tuileLipides,
-                '${repas.lipides.round()} g',
-                satures == null ? null : t.dontSatures(satures!.round()),
-              ),
-            ],
-          ),
-          const SizedBox(height: 14),
-          Text(t.verdictCoach, style: textes.titleMedium),
-          const SizedBox(height: 4),
-          for (final p in verdict.points)
-            Padding(
-              padding: const EdgeInsets.only(bottom: 4),
-              child: Text('• $p', style: textes.bodyMedium),
-            ),
-          const SizedBox(height: 6),
-          Text(
-            verdict.conclusion,
-            style: textes.titleSmall?.copyWith(fontWeight: FontWeight.w700),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-/// Quand l'IA doute : l'utilisateur dit ce que c'est et relance l'analyse.
-class _CartePrecision extends StatelessWidget {
-  const _CartePrecision({required this.controleur, required this.onReanalyser});
-
-  final TextEditingController controleur;
-  final VoidCallback onReanalyser;
-
-  @override
-  Widget build(BuildContext context) {
-    final t = AppLocalizations.of(context)!;
-    return Card(
-      color: CouleursCoach.orangeClair,
-      child: Padding(
-        padding: const EdgeInsets.all(14),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              t.analyseIncertaine,
-              style: Theme.of(context).textTheme.titleSmall,
-            ),
-            const SizedBox(height: 8),
-            TextField(
-              controller: controleur,
-              maxLength: 200,
-              decoration: InputDecoration(
-                labelText: t.precisionLabel,
-                hintText: t.precisionAide,
-              ),
-            ),
-            Align(
-              alignment: Alignment.centerRight,
-              child: OutlinedButton.icon(
-                onPressed: onReanalyser,
-                icon: const Icon(Icons.refresh),
-                label: Text(t.reanalyser),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-/// Combien de grammes du produit scanné ont été mangés.
-class _DialoguePortion extends StatefulWidget {
-  const _DialoguePortion({required this.nom});
-
-  final String nom;
-
-  @override
-  State<_DialoguePortion> createState() => _DialoguePortionState();
-}
-
-class _DialoguePortionState extends State<_DialoguePortion> {
-  final _grammes = TextEditingController(text: '100');
-
-  @override
-  void dispose() {
-    _grammes.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final t = AppLocalizations.of(context)!;
-    final valeur = double.tryParse(_grammes.text.replaceAll(',', '.'));
-    return AlertDialog(
-      title: Text(widget.nom),
-      content: TextField(
-        controller: _grammes,
-        keyboardType: const TextInputType.numberWithOptions(decimal: true),
-        decoration: InputDecoration(labelText: t.scanPortionLabel),
-        onChanged: (_) => setState(() {}),
-      ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.of(context).pop(),
-          child: Text(t.annuler),
-        ),
-        FilledButton(
-          onPressed: valeur == null || valeur <= 0 || valeur > 5000
-              ? null
-              : () => Navigator.of(context).pop(valeur),
-          child: Text(t.ajouter),
-        ),
-      ],
-    );
-  }
-}
-
-Macros totalAliments(Iterable<AlimentEstime> aliments) =>
-    aliments.fold(Macros.zero, (s, a) => s + a.macros);
-
-/// Modifie le nom et la portion d'un aliment estimé, ou en crée un nouveau
-/// (avec ses calories et macros) quand [modele] est null.
-class _DialogueAliment extends StatefulWidget {
-  const _DialogueAliment({this.modele});
-
-  final AlimentEstime? modele;
-
-  @override
-  State<_DialogueAliment> createState() => _DialogueAlimentState();
-}
-
-class _DialogueAlimentState extends State<_DialogueAliment> {
-  late final _nom = TextEditingController(text: widget.modele?.nom ?? '');
-  late final _grammes = TextEditingController(
-    text: widget.modele?.grammes.round().toString() ?? '',
-  );
-  final _kcal = TextEditingController();
-  final _prot = TextEditingController();
-  final _gluc = TextEditingController();
-  final _lip = TextEditingController();
-  String? _erreur;
-
-  bool get _creation => widget.modele == null;
-
-  @override
-  void dispose() {
-    for (final c in [_nom, _grammes, _kcal, _prot, _gluc, _lip]) {
-      c.dispose();
-    }
-    super.dispose();
-  }
-
-  void _valider(AppLocalizations t) {
-    final nom = _nom.text.trim();
-    final g = lireNombre(_grammes.text);
-    if (nom.isEmpty) {
-      setState(() => _erreur = t.erreurNomAliment);
-      return;
-    }
-    if (g == null || g <= 0 || g > 5000) {
-      setState(() => _erreur = t.erreurPlage(1, 5000));
-      return;
-    }
-    if (!_creation) {
-      final base = widget.modele!;
-      Navigator.of(context).pop(base.avecGrammes(g).avecNom(nom));
-      return;
-    }
-    final kcal = lireNombre(_kcal.text);
-    if (kcal == null || kcal < 0 || kcal > 5000) {
-      setState(() => _erreur = t.erreurPlage(0, 5000));
-      return;
-    }
-    double facultatif(TextEditingController c) =>
-        c.text.trim().isEmpty ? 0 : (lireNombre(c.text) ?? 0);
-    Navigator.of(context).pop(
-      AlimentEstime(
-        nom: nom,
-        grammes: g,
-        macros: Macros(
-          kcal: kcal,
-          proteines: facultatif(_prot),
-          glucides: facultatif(_gluc),
-          lipides: facultatif(_lip),
-        ),
-      ),
-    );
-  }
-
-  Widget _champ(TextEditingController c, String label, {bool texte = false}) =>
-      Padding(
-        padding: const EdgeInsets.only(bottom: 8),
-        child: TextField(
-          controller: c,
-          keyboardType: texte
-              ? TextInputType.text
-              : const TextInputType.numberWithOptions(decimal: true),
-          textCapitalization: texte
-              ? TextCapitalization.sentences
-              : TextCapitalization.none,
-          decoration: InputDecoration(labelText: label),
-          onChanged: (_) {
-            if (_erreur != null) setState(() => _erreur = null);
-          },
-        ),
-      );
-
-  @override
-  Widget build(BuildContext context) {
-    final t = AppLocalizations.of(context)!;
-    return AlertDialog(
-      title: Text(_creation ? t.ajouterAliment : t.modifierAliment),
-      content: SingleChildScrollView(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            _champ(_nom, t.nomAliment, texte: true),
-            _champ(_grammes, t.champQuantite),
-            if (_creation) ...[
-              _champ(_kcal, t.champKcal),
-              _champ(_prot, t.champProteines),
-              _champ(_gluc, t.champGlucides),
-              _champ(_lip, t.champLipides),
-            ],
-            if (_erreur != null)
-              Text(
-                _erreur!,
-                style: TextStyle(color: Theme.of(context).colorScheme.error),
-              ),
-          ],
-        ),
-      ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.of(context).pop(),
-          child: Text(t.annuler),
-        ),
-        FilledButton(onPressed: () => _valider(t), child: Text(t.enregistrer)),
-      ],
     );
   }
 }
