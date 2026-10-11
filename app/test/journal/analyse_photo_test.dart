@@ -42,6 +42,30 @@ void main() {
     expect(client((_) async => json({})).disponible, isTrue);
   });
 
+  test('App Check : la preuve part en en-tête quand elle existe', () async {
+    final vues = <http.Request>[];
+    Future<http.Response> ok(http.Request r) async {
+      vues.add(r);
+      return json({'aliments': []});
+    }
+
+    await AnalysePhotoRelais(
+      url: 'https://relais.test',
+      jeton: () async => 'tok',
+      preuve: () async => 'preuve-123',
+      client: MockClient(ok),
+    ).analyser(image);
+    await AnalysePhotoRelais(
+      url: 'https://relais.test',
+      jeton: () async => 'tok',
+      preuve: () async => null,
+      client: MockClient(ok),
+    ).analyser(image);
+
+    expect(vues[0].headers['x-firebase-appcheck'], 'preuve-123');
+    expect(vues[1].headers.containsKey('x-firebase-appcheck'), isFalse);
+  });
+
   test('envoie l\'image avec le jeton et lit les aliments', () async {
     late http.Request vue;
     final c = client((r) async {

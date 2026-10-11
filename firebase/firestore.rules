@@ -1,12 +1,53 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
+    function proprietaire(uid) {
+      return request.auth != null && request.auth.uid == uid;
+    }
+
+    // Un repas n'a que les champs que l'application écrit, de taille bornée :
+    // une base trop grosse ou truffée de n'importe quoi est refusée.
+    function repasValide(d) {
+      return d.keys().hasOnly([
+          'date', 'moment', 'nom', 'macros', 'source',
+          'description', 'aliments', 'photoId', 'verdict'
+        ])
+        && d.keys().hasAll(['date', 'moment', 'nom', 'macros', 'source'])
+        && d.date is number
+        && d.moment is string && d.moment.size() <= 20
+        && d.nom is string && d.nom.size() <= 400
+        && d.macros is map
+        && d.source is string && d.source.size() <= 20
+        && (!('description' in d) || (d.description is string && d.description.size() <= 800))
+        && (!('aliments' in d) || (d.aliments is list && d.aliments.size() <= 40))
+        && (!('photoId' in d) || (d.photoId is string && d.photoId.size() <= 30))
+        && (!('verdict' in d) || d.verdict is map);
+    }
+
     // Chaque utilisateur n'accède qu'à ses propres données.
     match /users/{uid} {
-      allow read, write: if request.auth != null && request.auth.uid == uid;
+      allow read, delete: if proprietaire(uid);
+      allow create, update: if proprietaire(uid)
+        && request.resource.data.size() <= 60;
 
-      match /{document=**} {
-        allow read, write: if request.auth != null && request.auth.uid == uid;
+      // Seules les collections de l'application existent, et les documents
+      // gardent une taille raisonnable.
+      match /{collection}/{chemin=**} {
+        allow read, delete: if proprietaire(uid) && collection in [
+          'repas', 'activites', 'pesees', 'mensurations', 'eau',
+          'complements', 'prises', 'seances', 'ressentis', 'planning',
+          'reglages'
+        ];
+        allow create, update: if proprietaire(uid)
+          && collection in [
+            'activites', 'pesees', 'mensurations', 'eau', 'complements',
+            'prises', 'seances', 'ressentis', 'planning', 'reglages'
+          ]
+          && request.resource.data.size() <= 60;
+      }
+
+      match /repas/{id} {
+        allow create, update: if proprietaire(uid) && repasValide(request.resource.data);
       }
     }
   }

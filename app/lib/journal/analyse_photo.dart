@@ -114,11 +114,15 @@ class AnalysePhotoRelais implements AnalysePhoto {
   AnalysePhotoRelais({
     required this.url,
     required this.jeton,
+    this.preuve,
     http.Client? client,
   }) : _client = client ?? http.Client();
 
   final String url;
   final Future<String?> Function() jeton;
+
+  /// Jeton App Check (preuve que l'appel vient de l'application), s'il existe.
+  final Future<String?> Function()? preuve;
   final http.Client _client;
 
   @override
@@ -128,6 +132,7 @@ class AnalysePhotoRelais implements AnalysePhoto {
   Future<ResultatAnalyse> analyser(Uint8List jpeg, {String? indice}) async {
     final token = await jeton();
     if (token == null) throw const AnalyseEchouee(CauseAnalyse.auth);
+    final preuveAppCheck = await preuve?.call();
     final precision = indice?.trim() ?? '';
     final http.Response r;
     try {
@@ -139,6 +144,8 @@ class AnalysePhotoRelais implements AnalysePhoto {
             headers: {
               'authorization': 'Bearer $token',
               'content-type': 'image/jpeg',
+              if (preuveAppCheck != null && preuveAppCheck.isNotEmpty)
+                'x-firebase-appcheck': preuveAppCheck,
             },
             body: jpeg,
           )

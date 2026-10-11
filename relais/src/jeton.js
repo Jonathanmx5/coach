@@ -3,6 +3,7 @@
 
 export const URL_CLES =
   'https://www.googleapis.com/service_accounts/v1/jwk/securetoken@system.gserviceaccount.com';
+export const URL_CLES_APP_CHECK = 'https://firebaseappcheck.googleapis.com/v1/jwks';
 
 export class JetonInvalide extends Error {}
 
@@ -20,12 +21,8 @@ function lireJson(partie) {
   }
 }
 
-/**
- * Renvoie l'uid de l'utilisateur ou lève JetonInvalide.
- * @param {string} jeton
- * @param {{projectId: string, cles: () => Promise<{keys: object[]}>, maintenant?: number}} options
- */
-export async function verifierJeton(jeton, { projectId, cles, maintenant = Date.now() }) {
+/** Vérifie format et signature RS256 ; rend la charge du jeton. */
+async function verifierSignature(jeton, cles) {
   const parties = (jeton ?? '').split('.');
   if (parties.length !== 3) throw new JetonInvalide('format');
   const entete = lireJson(parties[0]);
@@ -48,7 +45,16 @@ export async function verifierJeton(jeton, { projectId, cles, maintenant = Date.
     new TextEncoder().encode(`${parties[0]}.${parties[1]}`),
   );
   if (!valide) throw new JetonInvalide('signature');
+  return charge;
+}
 
+/**
+ * Renvoie l'uid de l'utilisateur ou lève JetonInvalide.
+ * @param {string} jeton
+ * @param {{projectId: string, cles: () => Promise<{keys: object[]}>, maintenant?: number}} options
+ */
+export async function verifierJeton(jeton, { projectId, cles, maintenant = Date.now() }) {
+  const charge = await verifierSignature(jeton, cles);
   const s = Math.floor(maintenant / 1000);
   if (charge.iss !== `https://securetoken.google.com/${projectId}`) throw new JetonInvalide('émetteur');
   if (charge.aud !== projectId) throw new JetonInvalide('audience');
@@ -58,7 +64,40 @@ export async function verifierJeton(jeton, { projectId, cles, maintenant = Date.
   return charge.sub;
 }
 
+/**
+ * Jeton App Check (prouve que l'appel vient de la vraie application) : rend
+ * l'identifiant de l'application ou lève JetonInvalide.
+ * @param {{projectId: string, projectNumber: string, cles: () => Promise<{keys: object[]}>, maintenant?: number}} options
+ */
+export async function verifierAppCheck(
+  jeton,
+  { projectId, projectNumber, cles, maintenant = Date.now() },
+) {
+  const charge = await verifierSignature(jeton, cles);
+  const s = Math.floor(maintenant / 1000);
+  if (charge.iss !== `https://firebaseappcheck.googleapis.com/${projectNumber}`) {
+    throw new JetonInvalide('émetteur');
+  }
+  const audiences = Array.isArray(charge.aud) ? charge.aud : [charge.aud];
+  if (!audiences.includes(`projects/${projectNumber}`) && !audiences.includes(`projects/${projectId}`)) {
+    throw new JetonInvalide('audience');
+  }
+  if (typeof charge.exp !== 'number' || charge.exp <= s) throw new JetonInvalide('expiré');
+  if (typeof charge.sub !== 'string' || charge.sub === '') throw new JetonInvalide('sujet');
+  return charge.sub;
+}
+
 let cache = { at: 0, valeur: null };
+let cacheAppCheck = { at: 0, valeur: null };
+
+/** Clés publiques d'App Check, gardées une heure. */
+export async function clesAppCheck(fetcher = fetch) {
+  if (cacheAppCheck.valeur && Date.now() - cacheAppCheck.at < 3_600_000) return cacheAppCheck.valeur;
+  const r = await fetcher(URL_CLES_APP_CHECK);
+  if (!r.ok) throw new Error('clés App Check indisponibles');
+  cacheAppCheck = { at: Date.now(), valeur: await r.json() };
+  return cacheAppCheck.valeur;
+}
 
 /** Clés publiques de Google, gardées une heure. */
 export async function clesGoogle(fetcher = fetch) {

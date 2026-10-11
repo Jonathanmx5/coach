@@ -3,7 +3,7 @@ import { test } from 'node:test';
 
 import { aliments, analyse, entreeModele, extraireJson, nettoyerIndice } from '../src/analyse.js';
 import { traiter } from '../src/index.js';
-import { JetonInvalide, verifierJeton } from '../src/jeton.js';
+import { JetonInvalide, verifierAppCheck, verifierJeton } from '../src/jeton.js';
 import { consommer, jourUtc } from '../src/limites.js';
 
 const PROJET = 'coach-test';
@@ -237,4 +237,59 @@ test('relais : IA en panne 502, réponse illisible 422', async () => {
   assert.equal((await traiter(requete({ jeton: t }), panne, deps)).status, 502);
   const charabia = env(async () => ({ response: 'désolé, je ne peux pas' }));
   assert.equal((await traiter(requete({ jeton: t }), charabia, deps)).status, 422);
+});
+
+const NUMERO = '123456789';
+
+async function jetonAppCheck(charge = {}) {
+  const { cles, jeton } = await fabrique();
+  return {
+    cles,
+    jeton: await jeton({
+      iss: `https://firebaseappcheck.googleapis.com/${NUMERO}`,
+      aud: [`projects/${NUMERO}`, `projects/${PROJET}`],
+      sub: '1:123456789:android:abc',
+      ...charge,
+    }),
+  };
+}
+
+test('App Check : jeton valide, refus du mauvais projet, de l\'expiré', async () => {
+  const options = (cles) => ({ projectId: PROJET, projectNumber: NUMERO, cles, maintenant: MAINTENANT });
+  const bon = await jetonAppCheck();
+  assert.equal(await verifierAppCheck(bon.jeton, options(bon.cles)), '1:123456789:android:abc');
+  const autre = await jetonAppCheck({ iss: 'https://firebaseappcheck.googleapis.com/999' });
+  await assert.rejects(verifierAppCheck(autre.jeton, options(autre.cles)), JetonInvalide);
+  const aud = await jetonAppCheck({ aud: ['projects/999'] });
+  await assert.rejects(verifierAppCheck(aud.jeton, options(aud.cles)), JetonInvalide);
+  const vieux = await jetonAppCheck({ exp: MAINTENANT / 1000 - 1 });
+  await assert.rejects(verifierAppCheck(vieux.jeton, options(vieux.cles)), JetonInvalide);
+});
+
+test('relais : App Check observe laisse passer, enforce refuse sans preuve', async () => {
+  const { cles, jeton } = await fabrique();
+  const preuve = await jetonAppCheck();
+  const deps = { cles, clesAppCheck: preuve.cles, maintenant: MAINTENANT };
+  const avec = (mode, enTete) => {
+    const r = requete({ jeton: null });
+    return new Request(r.url, {
+      method: 'POST',
+      headers: { authorization: `Bearer ${deps.jetonFirebase}`, ...enTete },
+      body: new Uint8Array([1, 2, 3]),
+    });
+  };
+  deps.jetonFirebase = await jeton();
+  const e = (mode) => ({ ...env(), APP_CHECK: mode, PROJECT_NUMBER: NUMERO });
+
+  assert.equal((await traiter(avec('off', {}), e('off'), deps)).status, 200);
+  assert.equal((await traiter(avec('observe', {}), e('observe'), deps)).status, 200);
+  assert.equal((await traiter(avec('enforce', {}), e('enforce'), deps)).status, 401);
+  assert.equal(
+    (await traiter(avec('enforce', { 'x-firebase-appcheck': 'faux' }), e('enforce'), deps)).status,
+    401,
+  );
+  assert.equal(
+    (await traiter(avec('enforce', { 'x-firebase-appcheck': preuve.jeton }), e('enforce'), deps)).status,
+    200,
+  );
 });

@@ -1,5 +1,5 @@
 import { analyse, entreeModele } from './analyse.js';
-import { clesGoogle, JetonInvalide, verifierJeton } from './jeton.js';
+import { clesAppCheck, clesGoogle, JetonInvalide, verifierAppCheck, verifierJeton } from './jeton.js';
 import { consommer } from './limites.js';
 
 const TAILLE_MAX = 1_500_000;
@@ -33,13 +33,36 @@ export async function traiter(request, env, deps = {}) {
     return reponse({ erreur: 'ia' }, 502);
   }
 
+  // App Check : « off » (défaut) ne regarde rien, « observe » note les appels
+  // sans preuve dans les journaux, « enforce » les refuse. Les APK installés
+  // hors Play Store n'ont pas de preuve : « enforce » attend le Play Store.
+  const modeAppCheck = env.APP_CHECK ?? 'off';
+  if (modeAppCheck !== 'off') {
+    let prouve = false;
+    try {
+      await verifierAppCheck(request.headers.get('x-firebase-appcheck') ?? '', {
+        projectId: env.PROJECT_ID,
+        projectNumber: env.PROJECT_NUMBER,
+        cles: deps.clesAppCheck ?? clesAppCheck,
+        maintenant: deps.maintenant,
+      });
+      prouve = true;
+    } catch {
+      // jeton absent, invalide, ou clés injoignables : même traitement
+    }
+    if (!prouve) {
+      if (modeAppCheck === 'enforce') return reponse({ erreur: 'auth' }, 401);
+      console.log('appcheck: appel sans preuve valide');
+    }
+  }
+
   const octets = new Uint8Array(await request.arrayBuffer());
   if (octets.length === 0 || octets.length > TAILLE_MAX) {
     return reponse({ erreur: 'taille' }, 413);
   }
 
   const limite = await consommer(env.LIMITES, uid, {
-    plafondUtilisateur: Number(env.PLAFOND_UTILISATEUR ?? 15),
+    plafondUtilisateur: Number(env.PLAFOND_UTILISATEUR ?? 8),
     plafondGlobal: Number(env.PLAFOND_GLOBAL ?? 150),
     maintenant: deps.maintenant,
   });

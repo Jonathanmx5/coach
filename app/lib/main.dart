@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_app_check/firebase_app_check.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/foundation.dart';
@@ -38,6 +39,16 @@ import 'services.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  // App Check : prouve que les appels viennent de la vraie application. Sans
+  // effet tant que la vérification n'est pas activée côté serveur, et jamais
+  // bloquant (APK installé hors Play Store, pas de réseau...).
+  try {
+    await FirebaseAppCheck.instance.activate(
+      providerAndroid: kDebugMode
+          ? const AndroidDebugProvider()
+          : const AndroidPlayIntegrityProvider(),
+    );
+  } catch (_) {}
   // Boutons d'eau du widget de l'écran d'accueil (application fermée).
   unawaited(HomeWidget.registerInteractivityCallback(rappelWidget));
 
@@ -83,6 +94,13 @@ Future<void> main() async {
           analyse: AnalysePhotoRelais(
             url: const String.fromEnvironment('RELAIS_URL'),
             jeton: auth.jeton,
+            preuve: () async {
+              try {
+                return await FirebaseAppCheck.instance.getToken();
+              } catch (_) {
+                return null;
+              }
+            },
           ),
           journal: FirestoreJournalRepository(),
           sante: HealthSanteService(),
