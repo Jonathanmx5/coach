@@ -631,6 +631,7 @@
   "photosRepasNettoyerAide": "Les repas et leur analyse restent dans ton journal ; seules les photos sont effacées de ce téléphone.",
   "photosRepasNettoyees": "{nombre} photo(s) supprimée(s).",
   "@photosRepasNettoyees": {"placeholders": {"nombre": {"type": "int"}}},
+  "enregistrerModifications": "Enregistrer les modifications",
   "courbePoids": "Évolution du poids",
   "periode90": "90 jours",
   "periode1an": "1 an",

@@ -694,6 +694,15 @@ class FauxJournal implements JournalRepository {
       );
 
   @override
+  Future<void> modifierRepas(String uid, Repas repas) async {
+    repasParUid[uid] = [
+      for (final r in repasDe(uid))
+        if (r.id == repas.id) repas else r,
+    ];
+    _flux.add(null);
+  }
+
+  @override
   Future<void> ajouterRepas(String uid, Repas repas) async {
     repasParUid[uid] = [
       ...repasDe(uid),

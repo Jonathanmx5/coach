@@ -16,8 +16,9 @@ import 'verdict.dart';
 
 /// Un repas du journal : l'analyse telle qu'elle avait été enregistrée
 /// (carton du coach, aliments et portions), ou un simple résumé pour un repas
-/// saisi à la main.
-class DetailRepasPage extends StatelessWidget {
+/// saisi à la main. On peut y corriger les portions et le moment du repas :
+/// les calories et le verdict sont alors recalculés.
+class DetailRepasPage extends StatefulWidget {
   const DetailRepasPage({
     super.key,
     required this.repas,
@@ -25,6 +26,7 @@ class DetailRepasPage extends StatelessWidget {
     required this.cibles,
     required this.objectif,
     required this.photos,
+    required this.onModifier,
   });
 
   final Repas repas;
@@ -35,18 +37,83 @@ class DetailRepasPage extends StatelessWidget {
   final Objectif objectif;
   final PhotosRepas photos;
 
+  /// Enregistre le repas corrigé.
+  final Future<void> Function(Repas repas) onModifier;
+
+  @override
+  State<DetailRepasPage> createState() => _DetailRepasPageState();
+}
+
+class _DetailRepasPageState extends State<DetailRepasPage> {
+  late List<AlimentEstime> _aliments = widget.repas.aliments;
+  late Moment _moment = widget.repas.moment;
+  bool _portionsChangees = false;
+
+  bool get _modifie => _portionsChangees || _moment != widget.repas.moment;
+
+  /// Les apports : recalculés si les portions ont bougé.
+  Macros get _macros =>
+      _portionsChangees ? totalAliments(_aliments) : widget.repas.macros;
+
+  static double? _somme(
+    List<AlimentEstime> l,
+    double? Function(AlimentEstime) f,
+  ) {
+    final valeurs = [for (final a in l) f(a)].whereType<double>();
+    return valeurs.isEmpty ? null : valeurs.fold<double>(0, (s, v) => s + v);
+  }
+
+  Verdict _calculerVerdict() => verdictRepas(
+    repas: _macros,
+    sucres: _somme(_aliments, (a) => a.sucres),
+    satures: _somme(_aliments, (a) => a.satures),
+    dejaMange: widget.dejaMange,
+    cibles: widget.cibles,
+    objectif: widget.objectif,
+  );
+
+  /// ±10 % de la portion, arrondi à 5 g.
+  void _ajuster(int i, double facteur) {
+    final g = _aliments[i].grammes;
+    final nouveau = ((g * facteur) / 5).round() * 5.0;
+    setState(() {
+      _aliments = [..._aliments]
+        ..[i] = _aliments[i].avecGrammes(nouveau < 5 ? 5 : nouveau);
+      _portionsChangees = true;
+    });
+  }
+
+  Future<void> _enregistrer() async {
+    final r = widget.repas;
+    await widget.onModifier(
+      Repas(
+        id: r.id,
+        date: r.date,
+        moment: _moment,
+        nom: _portionsChangees ? _aliments.map((a) => a.nom).join(', ') : r.nom,
+        macros: _macros,
+        source: r.source,
+        description: r.description,
+        aliments: _aliments,
+        photoId: r.photoId,
+        // Le jugement est refait seulement si les apports ont changé.
+        verdict: _portionsChangees && _aliments.isNotEmpty
+            ? _calculerVerdict()
+            : r.verdict,
+      ),
+    );
+    if (mounted) Navigator.of(context).pop();
+  }
+
   @override
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context)!;
     final textes = Theme.of(context).textTheme;
-    final aliments = repas.aliments;
-    double? somme(double? Function(AlimentEstime) f) {
-      final valeurs = [for (final a in aliments) f(a)].whereType<double>();
-      return valeurs.isEmpty ? null : valeurs.fold<double>(0, (s, v) => s + v);
-    }
+    final repas = widget.repas;
+    final aliments = _aliments;
 
     return Scaffold(
-      appBar: AppBar(title: Text(libelleMoment(t, repas.moment))),
+      appBar: AppBar(title: Text(libelleMoment(t, _moment))),
       body: ListView(
         padding: const EdgeInsets.all(20),
         children: [
@@ -57,7 +124,7 @@ class DetailRepasPage extends StatelessWidget {
           const SizedBox(height: 12),
           if (repas.photoId != null)
             FutureBuilder<Uint8List?>(
-              future: photos.lire(repas.photoId!),
+              future: widget.photos.lire(repas.photoId!),
               builder: (_, snap) {
                 final octets = snap.data;
                 if (octets == null) return const SizedBox.shrink();
@@ -94,42 +161,72 @@ class DetailRepasPage extends StatelessWidget {
           ] else ...[
             CarteVerdict(
               description: repas.description,
-              repas: repas.macros,
-              sucres: somme((a) => a.sucres),
-              satures: somme((a) => a.satures),
-              // Le jugement de l'époque ; à défaut (ancien repas), recalculé.
-              verdict:
-                  repas.verdict ??
-                  verdictRepas(
-                    repas: repas.macros,
-                    sucres: somme((a) => a.sucres),
-                    satures: somme((a) => a.satures),
-                    dejaMange: dejaMange,
-                    cibles: cibles,
-                    objectif: objectif,
-                  ),
+              repas: _macros,
+              sucres: _somme(aliments, (a) => a.sucres),
+              satures: _somme(aliments, (a) => a.satures),
+              // Le jugement de l'époque ; refait si on change les portions, ou
+              // pour un ancien repas qui n'en avait pas.
+              verdict: _portionsChangees
+                  ? _calculerVerdict()
+                  : (repas.verdict ?? _calculerVerdict()),
             ),
             const SizedBox(height: 20),
             Text(t.composition, style: textes.titleMedium),
-            for (final a in aliments)
+            for (var i = 0; i < aliments.length; i++)
               Card(
                 margin: const EdgeInsets.only(top: 8),
                 child: ListTile(
-                  title: Text(a.nom),
+                  title: Text(aliments[i].nom),
                   subtitle: Text(
-                    t.portionGrammes(a.grammes.round(), a.macros.kcal.round()),
+                    t.portionGrammes(
+                      aliments[i].grammes.round(),
+                      aliments[i].macros.kcal.round(),
+                    ),
                   ),
-                  trailing: a.aVerifier
-                      ? Text(
+                  trailing: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      if (aliments[i].aVerifier)
+                        Text(
                           t.aVerifier,
                           style: textes.labelSmall?.copyWith(
                             color: CouleursCoach.orangeFonce,
                             fontWeight: FontWeight.w700,
                           ),
-                        )
-                      : null,
+                        ),
+                      IconButton(
+                        tooltip: t.moinsPortion,
+                        onPressed: () => _ajuster(i, 1 / 1.1),
+                        icon: const Icon(Icons.remove_circle_outline),
+                      ),
+                      IconButton(
+                        tooltip: t.plusPortion,
+                        onPressed: () => _ajuster(i, 1.1),
+                        icon: const Icon(Icons.add_circle_outline),
+                      ),
+                    ],
+                  ),
                 ),
               ),
+          ],
+          const SizedBox(height: 20),
+          Wrap(
+            spacing: 8,
+            children: [
+              for (final m in Moment.values)
+                ChoiceChip(
+                  label: Text(libelleMoment(t, m)),
+                  selected: m == _moment,
+                  onSelected: (_) => setState(() => _moment = m),
+                ),
+            ],
+          ),
+          if (_modifie) ...[
+            const SizedBox(height: 16),
+            FilledButton(
+              onPressed: _enregistrer,
+              child: Text(t.enregistrerModifications),
+            ),
           ],
         ],
       ),

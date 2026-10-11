@@ -1174,6 +1174,9 @@ class AppLocalizationsFr extends AppLocalizations {
   }
 
   @override
+  String get enregistrerModifications => 'Enregistrer les modifications';
+
+  @override
   String get courbePoids => 'Évolution du poids';
 
   @override

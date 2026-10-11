@@ -114,6 +114,7 @@ class _JournalPageState extends State<JournalPage> {
           cibles: cibles,
           objectif: widget.enregistre.profil.objectif,
           photos: widget.photosRepas,
+          onModifier: (nouveau) => widget.journal.modifierRepas(_uid, nouveau),
         ),
       ),
     );

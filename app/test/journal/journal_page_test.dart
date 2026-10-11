@@ -349,6 +349,40 @@ void main() {
     expect(banc.photosRepas.photos, isEmpty);
   });
 
+  testWidgets('corriger un repas : portion et moment recalculés', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(1080, 3600);
+    tester.view.devicePixelRatio = 2.75;
+    addTearDown(tester.view.reset);
+    final banc = Banc();
+    banc.analyse.aliments = [riz, poulet];
+    await banc.monter(tester);
+    await analyserUnePhoto(tester);
+    await taper(tester, 'Enregistrer');
+    final avant = banc.journal.repasDe('u1').single;
+    expect(avant.macros.kcal, 295);
+
+    await tester.tap(find.text('Riz, Poulet'));
+    await tester.pumpAndSettle();
+    expect(find.text('Enregistrer les modifications'), findsNothing);
+
+    await tester.tap(find.byTooltip('Augmenter la portion').first);
+    await tester.pump();
+    await tester.tap(find.widgetWithText(ChoiceChip, 'Collation'));
+    await tester.pump();
+    await taper(tester, 'Enregistrer les modifications');
+
+    final apres = banc.journal.repasDe('u1').single;
+    expect(apres.id, avant.id);
+    expect(apres.macros.kcal, closeTo(143 + 165, 1));
+    expect(apres.aliments.first.grammes, 110);
+    expect(apres.moment, Moment.collation);
+    expect(apres.date, avant.date);
+    expect(apres.verdict, isNotNull);
+    expect(apres.photoId, avant.photoId);
+  });
+
   testWidgets('un repas saisi à la main : résumé sans analyse', (tester) async {
     final banc = Banc();
     await banc.repas(400, p: 20);

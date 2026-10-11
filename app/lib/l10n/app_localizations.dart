@@ -2170,6 +2170,12 @@ abstract class AppLocalizations {
   /// **'{nombre} photo(s) supprimée(s).'**
   String photosRepasNettoyees(int nombre);
 
+  /// No description provided for @enregistrerModifications.
+  ///
+  /// In fr, this message translates to:
+  /// **'Enregistrer les modifications'**
+  String get enregistrerModifications;
+
   /// No description provided for @courbePoids.
   ///
   /// In fr, this message translates to:

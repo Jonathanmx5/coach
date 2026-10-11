@@ -11,6 +11,9 @@ abstract class JournalRepository {
   /// Hors-ligne, ces Futures ne se terminent qu'à la synchronisation.
   Future<void> ajouterRepas(String uid, Repas repas);
   Future<void> supprimerRepas(String uid, String id);
+
+  /// Remplace le repas portant l'identifiant de [repas].
+  Future<void> modifierRepas(String uid, Repas repas);
   Future<void> ajouterActivite(String uid, Activite activite);
   Future<void> supprimerActivite(String uid, String id);
 }
@@ -56,6 +59,10 @@ class FirestoreJournalRepository implements JournalRepository {
   @override
   Future<void> ajouterRepas(String uid, Repas repas) =>
       _col(uid, 'repas').add(repas.toMap());
+
+  @override
+  Future<void> modifierRepas(String uid, Repas repas) =>
+      _col(uid, 'repas').doc(repas.id).set(repas.toMap());
 
   @override
   Future<void> supprimerRepas(String uid, String id) =>
