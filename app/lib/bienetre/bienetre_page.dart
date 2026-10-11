@@ -251,7 +251,9 @@ class _CarteHydratation extends StatelessWidget {
             Text(
               t.eauBueSur(_litres(bu), _litres(objectifMl)),
               style: textes.headlineSmall?.copyWith(
-                color: atteint ? CouleursCoach.vertMoyen : CouleursCoach.texte,
+                color: atteint
+                    ? CouleursCoach.vertMoyen
+                    : context.palette.texte,
               ),
             ),
             const SizedBox(height: 8),
@@ -271,7 +273,9 @@ class _CarteHydratation extends StatelessWidget {
                 if (minutesEffort > 0) t.eauEffort(minutesEffort),
                 if (temperature != null) t.eauChaleur(temperature!.round()),
               ].join(' · '),
-              style: textes.bodySmall?.copyWith(color: CouleursCoach.texteDoux),
+              style: textes.bodySmall?.copyWith(
+                color: context.palette.texteDoux,
+              ),
             ),
             const SizedBox(height: 12),
             Wrap(

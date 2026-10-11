@@ -65,7 +65,7 @@ class MensurationsSection extends StatelessWidget {
                   Text(
                     t.aucuneMesure,
                     style: textes.bodyMedium?.copyWith(
-                      color: CouleursCoach.texteDoux,
+                      color: context.palette.texteDoux,
                     ),
                   )
                 else
@@ -111,7 +111,7 @@ class _Ligne extends StatelessWidget {
                 child: Text(
                   '${e > 0 ? '+' : '−'}${_nombre(e.abs())}',
                   style: textes.bodySmall?.copyWith(
-                    color: CouleursCoach.texteDoux,
+                    color: context.palette.texteDoux,
                   ),
                 ),
               ),

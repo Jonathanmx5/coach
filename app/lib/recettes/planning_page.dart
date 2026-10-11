@@ -177,7 +177,7 @@ class _PlanningPageState extends State<PlanningPage> {
                     Text(
                       t.planningAide(widget.kcalCible),
                       style: textes.bodySmall?.copyWith(
-                        color: CouleursCoach.texteDoux,
+                        color: context.palette.texteDoux,
                       ),
                     ),
                     SwitchListTile(

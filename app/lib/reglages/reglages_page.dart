@@ -201,13 +201,13 @@ class _ReglagesPageState extends State<ReglagesPage> {
                         ? Text(
                             _verifie ? t.majAJour : t.majAideVerifier,
                             style: textes.bodyMedium?.copyWith(
-                              color: CouleursCoach.texteDoux,
+                              color: context.palette.texteDoux,
                             ),
                           )
                         : Container(
                             padding: const EdgeInsets.all(12),
                             decoration: BoxDecoration(
-                              color: CouleursCoach.orangeClair,
+                              color: context.palette.orangeClair,
                               borderRadius: BorderRadius.circular(12),
                             ),
                             child: Column(
@@ -255,7 +255,7 @@ class _ReglagesPageState extends State<ReglagesPage> {
                     t.partagerAide,
                     textAlign: TextAlign.center,
                     style: textes.bodySmall?.copyWith(
-                      color: CouleursCoach.texteDoux,
+                      color: context.palette.texteDoux,
                     ),
                   ),
                   const SizedBox(height: 16),

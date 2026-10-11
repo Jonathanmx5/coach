@@ -21,7 +21,7 @@ class CartePrecision extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context)!;
     return Card(
-      color: CouleursCoach.orangeClair,
+      color: context.palette.orangeClair,
       child: Padding(
         padding: const EdgeInsets.all(14),
         child: Column(

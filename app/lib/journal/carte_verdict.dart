@@ -29,17 +29,17 @@ class CarteVerdict extends StatelessWidget {
     final (couleur, fond, titre) = switch (verdict.feu) {
       Feu.vert => (
         CouleursCoach.vertMoyen,
-        CouleursCoach.vertClair,
+        context.palette.vertClair,
         t.cartonVert,
       ),
       Feu.orange => (
         CouleursCoach.orange,
-        CouleursCoach.orangeClair,
+        context.palette.orangeClair,
         t.cartonOrange,
       ),
       Feu.rouge => (
         const Color(0xFFE24B4A),
-        const Color(0xFFFCE8E8),
+        context.palette.rougeClair,
         t.cartonRouge,
       ),
     };
@@ -48,7 +48,7 @@ class CarteVerdict extends StatelessWidget {
         margin: const EdgeInsets.only(right: 6),
         padding: const EdgeInsets.all(10),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: context.palette.carte,
           borderRadius: BorderRadius.circular(12),
         ),
         child: Column(
@@ -60,7 +60,7 @@ class CarteVerdict extends StatelessWidget {
               Text(
                 detail,
                 style: textes.labelSmall?.copyWith(
-                  color: CouleursCoach.texteDoux,
+                  color: context.palette.texteDoux,
                 ),
               ),
           ],

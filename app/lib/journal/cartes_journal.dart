@@ -157,8 +157,8 @@ class CarteBilan extends StatelessWidget {
                   ),
                   decoration: BoxDecoration(
                     color: intensite == IntensiteJour.intense
-                        ? CouleursCoach.orangeClair
-                        : CouleursCoach.vertClair,
+                        ? context.palette.orangeClair
+                        : context.palette.vertClair,
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Text(libelleIntensite, style: textes.labelMedium),
@@ -172,13 +172,15 @@ class CarteBilan extends StatelessWidget {
                 value: cible <= 0 ? 0 : (mange / cible).clamp(0, 1),
                 minHeight: 10,
                 color: CouleursCoach.orange,
-                backgroundColor: CouleursCoach.orangeClair,
+                backgroundColor: context.palette.orangeClair,
               ),
             ),
             const SizedBox(height: 6),
             Text(
               t.cibleJour(cible.round()),
-              style: textes.bodySmall?.copyWith(color: CouleursCoach.texteDoux),
+              style: textes.bodySmall?.copyWith(
+                color: context.palette.texteDoux,
+              ),
             ),
             const SizedBox(height: 16),
             Row(
@@ -199,7 +201,7 @@ class CarteBilan extends StatelessWidget {
                   valeur: t.kcalValeur('$signe${ecart.abs().round()}'),
                   couleur: deficit
                       ? CouleursCoach.vert
-                      : CouleursCoach.orangeFonce,
+                      : context.palette.orangeFonce,
                 ),
               ],
             ),
@@ -232,7 +234,7 @@ class _Valeur extends StatelessWidget {
         children: [
           Text(
             libelle,
-            style: textes.bodySmall?.copyWith(color: CouleursCoach.texteDoux),
+            style: textes.bodySmall?.copyWith(color: context.palette.texteDoux),
           ),
           Text(
             valeur,
@@ -310,7 +312,7 @@ class _BarreMacro extends StatelessWidget {
               Text(
                 t.macroProgression(mange.round(), cible.round()),
                 style: textes.bodySmall?.copyWith(
-                  color: CouleursCoach.texteDoux,
+                  color: context.palette.texteDoux,
                 ),
               ),
             ],
@@ -342,7 +344,7 @@ class Vide extends StatelessWidget {
     child: Text(
       texte,
       style: Theme.of(context).textTheme.bodyMedium
-          ?.copyWith(color: CouleursCoach.texteDoux),
+          ?.copyWith(color: context.palette.texteDoux),
     ),
   );
 }

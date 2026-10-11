@@ -236,7 +236,7 @@ class _IdeesPageState extends State<IdeesPage> {
                   child: Text(
                     t.photosIllustratives,
                     style: textes.labelSmall?.copyWith(
-                      color: CouleursCoach.texteDoux,
+                      color: context.palette.texteDoux,
                     ),
                   ),
                 ),
@@ -419,8 +419,8 @@ class _CarteIdee extends StatelessWidget {
           Image.asset(
             'assets/recettes/${recette.id}.jpg',
             fit: BoxFit.cover,
-            errorBuilder: (_, _, _) => const ColoredBox(
-              color: CouleursCoach.vertPale,
+            errorBuilder: (_, _, _) => ColoredBox(
+              color: context.palette.vertPale,
               child: Center(child: Icon(Icons.restaurant, size: 64)),
             ),
           ),
@@ -507,8 +507,8 @@ class EnviesPage extends StatelessWidget {
                       child: Image.asset(
                         'assets/recettes/${r.id}.jpg',
                         fit: BoxFit.cover,
-                        errorBuilder: (_, _, _) => const ColoredBox(
-                          color: CouleursCoach.vertPale,
+                        errorBuilder: (_, _, _) => ColoredBox(
+                          color: context.palette.vertPale,
                           child: Icon(Icons.restaurant),
                         ),
                       ),

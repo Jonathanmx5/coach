@@ -11,7 +11,7 @@ import 'photos.dart';
 Widget _image(PhotoProgres p, {BoxFit fit = BoxFit.cover}) => Image.file(
   File(p.chemin),
   fit: fit,
-  errorBuilder: (_, _, _) => const ColoredBox(
+  errorBuilder: (_, _, _) => ColoredBox(
     color: CouleursCoach.vertPale,
     child: Center(child: Icon(Icons.image_outlined)),
   ),
@@ -73,7 +73,9 @@ class _PhotosSectionState extends State<PhotosSection> {
             const SizedBox(height: 4),
             Text(
               t.photosAide,
-              style: textes.bodySmall?.copyWith(color: CouleursCoach.texteDoux),
+              style: textes.bodySmall?.copyWith(
+                color: context.palette.texteDoux,
+              ),
             ),
             if (_liste.isNotEmpty) ...[
               const SizedBox(height: 12),
@@ -270,7 +272,7 @@ class _FeuillePhotoState extends State<_FeuillePhoto> {
             Text(
               t.photoAjoutAide,
               style: Theme.of(context).textTheme.bodySmall
-                  ?.copyWith(color: CouleursCoach.texteDoux),
+                  ?.copyWith(color: context.palette.texteDoux),
             ),
             const SizedBox(height: 8),
             OutlinedButton.icon(

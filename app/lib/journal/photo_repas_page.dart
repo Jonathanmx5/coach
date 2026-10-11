@@ -283,8 +283,8 @@ class _PhotoRepasPageState extends State<PhotoRepasPage> {
             child: Image.memory(
               _image!,
               fit: BoxFit.cover,
-              errorBuilder: (_, _, _) => const ColoredBox(
-                color: CouleursCoach.vertPale,
+              errorBuilder: (_, _, _) => ColoredBox(
+                color: context.palette.vertPale,
                 child: Icon(Icons.restaurant),
               ),
             ),
@@ -444,7 +444,7 @@ class _PhotoRepasPageState extends State<PhotoRepasPage> {
           const SizedBox(height: 12),
           Text(
             t.estimationAVerifier,
-            style: textes.bodySmall?.copyWith(color: CouleursCoach.texteDoux),
+            style: textes.bodySmall?.copyWith(color: context.palette.texteDoux),
           ),
         ],
         for (var i = 0; i < _aliments.length; i++) _ligne(t, i),
@@ -511,7 +511,7 @@ class _PhotoRepasPageState extends State<PhotoRepasPage> {
                       Text(
                         t.aVerifier,
                         style: textes.labelSmall?.copyWith(
-                          color: CouleursCoach.orangeFonce,
+                          color: context.palette.orangeFonce,
                           fontWeight: FontWeight.w700,
                         ),
                       ),

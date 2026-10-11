@@ -52,7 +52,7 @@ class _CoursesPageState extends State<CoursesPage> {
               Text(
                 t.coursesAide,
                 style: textes.bodySmall?.copyWith(
-                  color: CouleursCoach.texteDoux,
+                  color: context.palette.texteDoux,
                 ),
               ),
               for (final r in rayons) ...[
@@ -68,9 +68,9 @@ class _CoursesPageState extends State<CoursesPage> {
                     title: Text(
                       l.nom,
                       style: p.coches.contains(l.cle)
-                          ? const TextStyle(
+                          ? TextStyle(
                               decoration: TextDecoration.lineThrough,
-                              color: CouleursCoach.texteDoux,
+                              color: context.palette.texteDoux,
                             )
                           : null,
                     ),

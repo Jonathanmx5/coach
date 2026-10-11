@@ -301,7 +301,7 @@ class _EntrainementPageState extends State<EntrainementPage> {
                                     Text(
                                       t.materielAide,
                                       style: textes.bodySmall?.copyWith(
-                                        color: CouleursCoach.texteDoux,
+                                        color: context.palette.texteDoux,
                                       ),
                                     ),
                                     const SizedBox(height: 8),
@@ -393,7 +393,7 @@ class _CarteSeance extends StatelessWidget {
             Text(
               t.dureeEstimee(seance.minutes),
               style: textes.bodyMedium?.copyWith(
-                color: CouleursCoach.texteDoux,
+                color: context.palette.texteDoux,
               ),
             ),
             const SizedBox(height: 12),
@@ -471,7 +471,7 @@ class _CarteActivites extends StatelessWidget {
               Text(
                 t.aucuneActivite,
                 style: textes.bodyMedium?.copyWith(
-                  color: CouleursCoach.texteDoux,
+                  color: context.palette.texteDoux,
                 ),
               )
             else

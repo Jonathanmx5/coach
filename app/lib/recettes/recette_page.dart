@@ -62,7 +62,9 @@ class RecettePage extends StatelessWidget {
           Text(
             '${libelleMoment(t, recette.moment)} · '
             '${t.minutesValeur(recette.minutes)}',
-            style: textes.bodyMedium?.copyWith(color: CouleursCoach.texteDoux),
+            style: textes.bodyMedium?.copyWith(
+              color: context.palette.texteDoux,
+            ),
           ),
           const SizedBox(height: 8),
           Text(

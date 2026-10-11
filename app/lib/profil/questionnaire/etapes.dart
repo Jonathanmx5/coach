@@ -44,7 +44,7 @@ class CarteChoix extends StatelessWidget {
                   Text(
                     sousTitre!,
                     style: Theme.of(context).textTheme.bodyMedium
-                        ?.copyWith(color: CouleursCoach.texteDoux),
+                        ?.copyWith(color: context.palette.texteDoux),
                   ),
                 ],
               ],
@@ -97,7 +97,7 @@ class TuileChoix extends StatelessWidget {
 TextStyle? _styleTitre(BuildContext context, bool selectionne) =>
     Theme.of(context).textTheme.titleMedium?.copyWith(
       fontWeight: selectionne ? FontWeight.w700 : FontWeight.w500,
-      color: selectionne ? CouleursCoach.vertFonce : CouleursCoach.texte,
+      color: selectionne ? context.palette.vertFonce : context.palette.texte,
     );
 
 class _Cadre extends StatelessWidget {
@@ -115,10 +115,10 @@ class _Cadre extends StatelessWidget {
   Widget build(BuildContext context) => AnimatedContainer(
     duration: const Duration(milliseconds: 150),
     decoration: BoxDecoration(
-      color: selectionne ? CouleursCoach.vertClair : Colors.white,
+      color: selectionne ? context.palette.vertClair : context.palette.carte,
       borderRadius: BorderRadius.circular(rayonCarte),
       border: Border.all(
-        color: selectionne ? CouleursCoach.vert : CouleursCoach.bordure,
+        color: selectionne ? CouleursCoach.vert : context.palette.bordure,
         width: selectionne ? 2 : 0.8,
       ),
     ),
@@ -145,7 +145,7 @@ class _Icone extends StatelessWidget {
     width: taille,
     height: taille,
     decoration: BoxDecoration(
-      color: selectionne ? CouleursCoach.vert : CouleursCoach.vertClair,
+      color: selectionne ? CouleursCoach.vert : context.palette.vertClair,
       borderRadius: BorderRadius.circular(taille / 3.5),
     ),
     child: Icon(
@@ -188,19 +188,19 @@ class EncadreAlerte extends StatelessWidget {
   Widget build(BuildContext context) => Container(
     padding: const EdgeInsets.all(16),
     decoration: BoxDecoration(
-      color: CouleursCoach.orangeClair,
+      color: context.palette.orangeClair,
       borderRadius: BorderRadius.circular(rayonCarte),
     ),
     child: Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Icon(Icons.info_outline, color: CouleursCoach.orangeFonce),
+        Icon(Icons.info_outline, color: context.palette.orangeFonce),
         const SizedBox(width: 12),
         Expanded(
           child: Text(
             texte,
             style: Theme.of(context).textTheme.bodyMedium
-                ?.copyWith(color: CouleursCoach.orangeFonce),
+                ?.copyWith(color: context.palette.orangeFonce),
           ),
         ),
       ],
@@ -218,19 +218,19 @@ class EncadreInfo extends StatelessWidget {
   Widget build(BuildContext context) => Container(
     padding: const EdgeInsets.all(16),
     decoration: BoxDecoration(
-      color: CouleursCoach.vertClair,
+      color: context.palette.vertClair,
       borderRadius: BorderRadius.circular(rayonCarte),
     ),
     child: Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Icon(Icons.lightbulb_outline, color: CouleursCoach.vertFonce),
+        Icon(Icons.lightbulb_outline, color: context.palette.vertFonce),
         const SizedBox(width: 12),
         Expanded(
           child: Text(
             texte,
             style: Theme.of(context).textTheme.bodyMedium
-                ?.copyWith(color: CouleursCoach.vertFonce),
+                ?.copyWith(color: context.palette.vertFonce),
           ),
         ),
       ],
@@ -352,7 +352,7 @@ String libelleAppMontre(AppLocalizations t, AppMontre a) => switch (a) {
 List<Widget> contenuEtape(BuildContext context, QuestionnaireControleur c) {
   final t = AppLocalizations.of(context)!;
   final petit = Theme.of(context).textTheme.bodyMedium
-      ?.copyWith(color: CouleursCoach.texteDoux);
+      ?.copyWith(color: context.palette.texteDoux);
   TuileChoix tuile(
     String titre,
     IconData icone,

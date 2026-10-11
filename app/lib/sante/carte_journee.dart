@@ -29,7 +29,7 @@ class CarteJournee extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context)!;
     final textes = Theme.of(context).textTheme;
-    final doux = textes.bodyMedium?.copyWith(color: CouleursCoach.texteDoux);
+    final doux = textes.bodyMedium?.copyWith(color: context.palette.texteDoux);
 
     if (!montre) {
       return Card(
@@ -176,7 +176,7 @@ class _Stat extends StatelessWidget {
             width: 40,
             height: 40,
             decoration: BoxDecoration(
-              color: CouleursCoach.vertClair,
+              color: context.palette.vertClair,
               borderRadius: BorderRadius.circular(12),
             ),
             child: Icon(icone, color: CouleursCoach.vert, size: 22),
@@ -190,7 +190,7 @@ class _Stat extends StatelessWidget {
                 Text(
                   libelle,
                   style: textes.bodySmall?.copyWith(
-                    color: CouleursCoach.texteDoux,
+                    color: context.palette.texteDoux,
                   ),
                 ),
               ],

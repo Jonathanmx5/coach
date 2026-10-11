@@ -146,7 +146,7 @@ class _QuestionnairePageState extends State<QuestionnairePage> {
                       Text(
                         t.etapeSur(numero, _c.etapes.length),
                         style: Theme.of(context).textTheme.labelLarge
-                            ?.copyWith(color: CouleursCoach.texteDoux),
+                            ?.copyWith(color: context.palette.texteDoux),
                       ),
                     ],
                   ),
@@ -273,7 +273,7 @@ class _BarreEtapes extends StatelessWidget {
             duration: const Duration(milliseconds: 200),
             height: 6,
             decoration: BoxDecoration(
-              color: i < faites ? CouleursCoach.vert : CouleursCoach.bordure,
+              color: i < faites ? CouleursCoach.vert : context.palette.bordure,
               borderRadius: BorderRadius.circular(3),
             ),
           ),

@@ -206,7 +206,7 @@ class _PoidsPageState extends State<PoidsPage> {
                 Text(
                   t.aucunePesee,
                   style: textes.bodyMedium?.copyWith(
-                    color: CouleursCoach.texteDoux,
+                    color: context.palette.texteDoux,
                   ),
                 )
               else
@@ -322,7 +322,7 @@ class _CarteImc extends StatelessWidget {
                   child: Text(
                     _libelleImc(t, categorie),
                     style: textes.labelLarge?.copyWith(
-                      color: CouleursCoach.texte,
+                      color: context.palette.texte,
                     ),
                   ),
                 ),
@@ -349,7 +349,9 @@ class _CarteImc extends StatelessWidget {
             const SizedBox(height: 8),
             Text(
               t.imcAide,
-              style: textes.bodySmall?.copyWith(color: CouleursCoach.texteDoux),
+              style: textes.bodySmall?.copyWith(
+                color: context.palette.texteDoux,
+              ),
             ),
           ],
         ),
@@ -474,7 +476,7 @@ class _Courbe extends StatelessWidget {
       poids: [for (final p in pesees) p.kg, ...?projection],
       avecProjection: projection != null,
     );
-    const trait = FlLine(color: CouleursCoach.bordure, strokeWidth: 0.8);
+    final trait = FlLine(color: context.palette.bordure, strokeWidth: 0.8);
     return Card(
       child: Padding(
         padding: const EdgeInsets.fromLTRB(8, 16, 16, 8),
@@ -497,7 +499,7 @@ class _Courbe extends StatelessWidget {
                           getDrawingVerticalLine: (_) => trait,
                         ),
                         borderData: FlBorderData(
-                          border: Border.all(color: CouleursCoach.bordure),
+                          border: Border.all(color: context.palette.bordure),
                         ),
                         titlesData: FlTitlesData(
                           topTitles: const AxisTitles(),
@@ -563,7 +565,7 @@ class _Courbe extends StatelessWidget {
                           ),
                           if (projection != null)
                             LineChartBarData(
-                              color: CouleursCoach.texteDoux,
+                              color: context.palette.texteDoux,
                               barWidth: 2,
                               dashArray: [6, 5],
                               dotData: const FlDotData(show: false),
@@ -592,7 +594,7 @@ class _Courbe extends StatelessWidget {
                 child: Text(
                   t.projectionLegende,
                   style: Theme.of(context).textTheme.bodySmall
-                      ?.copyWith(color: CouleursCoach.texteDoux),
+                      ?.copyWith(color: context.palette.texteDoux),
                 ),
               ),
           ],
@@ -629,7 +631,7 @@ class _LignePesee extends StatelessWidget {
             ? Text(
                 t.sourceMontre,
                 style: textes.labelMedium?.copyWith(
-                  color: CouleursCoach.texteDoux,
+                  color: context.palette.texteDoux,
                 ),
               )
             : IconButton(

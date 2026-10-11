@@ -30,7 +30,7 @@ class CarteSeries extends StatelessWidget {
           Text(
             t.nbJours(n),
             style: textes.titleSmall?.copyWith(
-              color: n > 0 ? CouleursCoach.orange : CouleursCoach.texteDoux,
+              color: n > 0 ? CouleursCoach.orange : context.palette.texteDoux,
             ),
           ),
         ],

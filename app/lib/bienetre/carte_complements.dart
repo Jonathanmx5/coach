@@ -45,7 +45,9 @@ class CarteComplements extends StatelessWidget {
             const SizedBox(height: 4),
             Text(
               t.complementsAide,
-              style: textes.bodySmall?.copyWith(color: CouleursCoach.texteDoux),
+              style: textes.bodySmall?.copyWith(
+                color: context.palette.texteDoux,
+              ),
             ),
             for (final c in complements)
               CheckboxListTile(
@@ -57,7 +59,7 @@ class CarteComplements extends StatelessWidget {
                   c.nom,
                   style: c.actif
                       ? null
-                      : const TextStyle(color: CouleursCoach.texteDoux),
+                      : TextStyle(color: context.palette.texteDoux),
                 ),
                 subtitle: Text(
                   c.actif

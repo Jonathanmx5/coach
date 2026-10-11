@@ -17,6 +17,8 @@ class CoachApp extends StatelessWidget {
     supportedLocales: AppLocalizations.supportedLocales,
     localizationsDelegates: AppLocalizations.localizationsDelegates,
     theme: themeCoach(),
+    darkTheme: themeCoach(luminosite: Brightness.dark),
+    themeMode: ThemeMode.system,
     home: accueil,
   );
 }

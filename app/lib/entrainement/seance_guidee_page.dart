@@ -148,7 +148,7 @@ class _SeanceGuideePageState extends State<SeanceGuideePage> {
             Text(
               t.etapeSur(_index + 1, total),
               style: textes.labelMedium?.copyWith(
-                color: CouleursCoach.texteDoux,
+                color: context.palette.texteDoux,
               ),
             ),
             Expanded(

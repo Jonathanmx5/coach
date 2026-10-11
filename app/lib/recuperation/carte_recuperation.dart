@@ -40,7 +40,7 @@ class CarteRecuperation extends StatelessWidget {
               Text(
                 t.recuperationVide,
                 style: textes.bodyMedium?.copyWith(
-                  color: CouleursCoach.texteDoux,
+                  color: context.palette.texteDoux,
                 ),
               )
             else ...[

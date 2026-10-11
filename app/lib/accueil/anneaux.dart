@@ -24,7 +24,6 @@ const _cBrule = CouleursCoach.vert;
 const _cMange = CouleursCoach.orange;
 const _cProteines = CouleursCoach.vertMoyen;
 const _cEau = CouleursCoach.bleu;
-const _fond = CouleursCoach.vertClair;
 
 /// Quatre anneaux concentriques : de l'extérieur vers l'intérieur, calories
 /// brûlées, calories mangées, protéines, eau. Chaque valeur va de 0 à 1 ;
@@ -288,7 +287,7 @@ class _CarteAujourdhuiState extends State<CarteAujourdhui> {
     return Container(
       padding: const EdgeInsets.fromLTRB(20, 20, 20, 12),
       decoration: BoxDecoration(
-        color: _fond,
+        color: context.palette.vertClair,
         borderRadius: BorderRadius.circular(28),
       ),
       child: Column(
@@ -298,7 +297,7 @@ class _CarteAujourdhuiState extends State<CarteAujourdhui> {
             child: Text(
               t.anneauxTitre,
               style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                color: CouleursCoach.texte,
+                color: context.palette.texte,
                 fontWeight: FontWeight.w700,
               ),
             ),
@@ -380,13 +379,13 @@ class _Bilan extends StatelessWidget {
         Text(
           bilanTexte(net),
           style: textes.titleLarge?.copyWith(
-            color: CouleursCoach.texte,
+            color: context.palette.texte,
             fontWeight: FontWeight.w800,
           ),
         ),
         Text(
           t.bilanCentre,
-          style: textes.labelSmall?.copyWith(color: CouleursCoach.texteDoux),
+          style: textes.labelSmall?.copyWith(color: context.palette.texteDoux),
         ),
       ],
     );
@@ -440,13 +439,13 @@ class _Ligne extends StatelessWidget {
                   Text(
                     libelle,
                     style: textes.titleSmall?.copyWith(
-                      color: CouleursCoach.texte,
+                      color: context.palette.texte,
                     ),
                   ),
                   Text(
                     sous,
                     style: textes.bodySmall?.copyWith(
-                      color: CouleursCoach.texteDoux,
+                      color: context.palette.texteDoux,
                     ),
                   ),
                 ],
@@ -465,7 +464,7 @@ class _Ligne extends StatelessWidget {
                   TextSpan(
                     text: ' / $objectif $unite',
                     style: textes.bodyMedium?.copyWith(
-                      color: CouleursCoach.texteDoux,
+                      color: context.palette.texteDoux,
                     ),
                   ),
                 ],

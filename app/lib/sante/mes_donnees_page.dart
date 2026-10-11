@@ -128,7 +128,7 @@ class _MesDonneesPageState extends State<MesDonneesPage> {
               Text(
                 t.aucuneDonneePeriode,
                 style: textes.bodyMedium?.copyWith(
-                  color: CouleursCoach.texteDoux,
+                  color: context.palette.texteDoux,
                 ),
               )
             else
@@ -205,8 +205,8 @@ class _MesDonneesPageState extends State<MesDonneesPage> {
     if (jours.every((j) => j.sommeil == null)) return null;
     double h(Duration d) => d.inMinutes / 60;
     final derniere = jours.lastWhere((j) => j.sommeil != null).sommeil!;
-    const couleurs = (
-      profond: CouleursCoach.vertFonce,
+    final couleurs = (
+      profond: context.palette.vertFonce,
       leger: CouleursCoach.vertMoyen,
       paradoxal: CouleursCoach.orange,
     );
@@ -305,7 +305,9 @@ class _Cadre extends StatelessWidget {
             Text(titre, style: textes.titleMedium),
             Text(
               sousTitre,
-              style: textes.bodySmall?.copyWith(color: CouleursCoach.texteDoux),
+              style: textes.bodySmall?.copyWith(
+                color: context.palette.texteDoux,
+              ),
             ),
             const SizedBox(height: 12),
             SizedBox(height: 120, child: graphe),

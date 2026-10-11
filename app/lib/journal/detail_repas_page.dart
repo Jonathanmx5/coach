@@ -119,7 +119,7 @@ class _DetailRepasPageState extends State<DetailRepasPage> {
         children: [
           Text(
             DateFormat('EEEE d MMMM · HH:mm', 'fr').format(repas.date),
-            style: textes.bodySmall?.copyWith(color: CouleursCoach.texteDoux),
+            style: textes.bodySmall?.copyWith(color: context.palette.texteDoux),
           ),
           const SizedBox(height: 12),
           if (repas.photoId != null)
@@ -156,7 +156,9 @@ class _DetailRepasPageState extends State<DetailRepasPage> {
             const SizedBox(height: 12),
             Text(
               t.repasSansAnalyse,
-              style: textes.bodySmall?.copyWith(color: CouleursCoach.texteDoux),
+              style: textes.bodySmall?.copyWith(
+                color: context.palette.texteDoux,
+              ),
             ),
           ] else ...[
             CarteVerdict(
@@ -190,7 +192,7 @@ class _DetailRepasPageState extends State<DetailRepasPage> {
                         Text(
                           t.aVerifier,
                           style: textes.labelSmall?.copyWith(
-                            color: CouleursCoach.orangeFonce,
+                            color: context.palette.orangeFonce,
                             fontWeight: FontWeight.w700,
                           ),
                         ),
