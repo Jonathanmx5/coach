@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart' show ValueListenable;
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -40,6 +41,7 @@ class JournalPage extends StatefulWidget {
     required this.consentements,
     required this.photosRepas,
     required this.catalogue,
+    this.demandePhoto,
     this.scan = lireCodeBarres,
     this.prise = prisePhotoCamera,
   });
@@ -56,6 +58,9 @@ class JournalPage extends StatefulWidget {
   final PhotosRepas photosRepas;
   final CatalogueProduits catalogue;
   final ScanCode scan;
+
+  /// Chaque changement ouvre l'écran de photo du repas (bouton d'un widget).
+  final ValueListenable<int>? demandePhoto;
   final PrisePhoto prise;
 
   @override
@@ -82,6 +87,15 @@ class _JournalPageState extends State<JournalPage> {
   void initState() {
     super.initState();
     _ouvrirFlux();
+    widget.demandePhoto?.addListener(_surDemandePhoto);
+  }
+
+  void _surDemandePhoto() => unawaited(_photo());
+
+  @override
+  void dispose() {
+    widget.demandePhoto?.removeListener(_surDemandePhoto);
+    super.dispose();
   }
 
   void _ouvrirFlux() {

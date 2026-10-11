@@ -312,6 +312,14 @@ class FauxConsentements implements ConsentementsRepository {
 /// Widget de l'écran d'accueil : note ce qu'on lui envoie.
 class FauxWidget implements MiseAJourWidget {
   final envois = <DonneesWidget>[];
+  final demandes = StreamController<String>.broadcast();
+  String? lancement;
+
+  @override
+  Stream<String> get actions => demandes.stream;
+
+  @override
+  Future<String?> actionAuLancement() async => lancement;
 
   @override
   Future<void> mettre(DonneesWidget donnees) async => envois.add(donnees);

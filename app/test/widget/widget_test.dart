@@ -21,6 +21,21 @@ DonneesWidget donnees({
 );
 
 void main() {
+  test('textes des widgets repas : calories et protéines', () {
+    const d = DonneesWidget(
+      brulees: 900,
+      objectifBrule: 2000,
+      mangees: 1249.6,
+      objectifMange: 2080,
+      proteines: 85.2,
+      objectifProteines: 128,
+      eauMl: 750,
+      objectifEauMl: 2650,
+    );
+    expect(d.repasTexte, '1250 / 2080 kcal');
+    expect(d.proteinesTexte, 'Protéines 85 / 128 g');
+  });
+
   test('chiffres du widget : progrès, eau et bilan', () {
     final d = donnees();
     expect(d.progres, [0.75, 0.5, 0.5, 0.4]);

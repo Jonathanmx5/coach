@@ -3,8 +3,13 @@ import 'package:home_widget/home_widget.dart';
 
 import '../accueil/anneaux.dart';
 
-/// Nom complet de la classe Android du widget (voir WidgetCoach.kt).
-const widgetAndroid = 'io.github.jonathanmx5.coach.WidgetCoach';
+/// Noms complets des classes Android des widgets (voir WidgetCoach.kt,
+/// WidgetEau.kt et WidgetRepas.kt).
+const widgetsAndroid = [
+  'io.github.jonathanmx5.coach.WidgetCoach',
+  'io.github.jonathanmx5.coach.WidgetEau',
+  'io.github.jonathanmx5.coach.WidgetRepas',
+];
 
 /// Ce que le widget de l'écran d'accueil affiche : les mêmes chiffres que la
 /// carte « Aujourd'hui » de l'application.
@@ -43,6 +48,13 @@ class DonneesWidget {
 
   String get eauTexte => texteEau(eauMl, objectifEauMl);
 
+  /// « 1250 / 2080 kcal ».
+  String get repasTexte => '${mangees.round()} / ${objectifMange.round()} kcal';
+
+  /// « Protéines 85 / 128 g ».
+  String get proteinesTexte =>
+      'Protéines ${proteines.round()} / ${objectifProteines.round()} g';
+
   String get bilanLigne => 'Bilan ${bilanTexte(mangees - brulees)} kcal';
 
   @override
@@ -79,6 +91,13 @@ String texteEau(int ml, int objectifMl) {
 /// Envoie les chiffres du jour au widget de l'écran d'accueil.
 abstract class MiseAJourWidget {
   Future<void> mettre(DonneesWidget donnees);
+
+  /// Action demandée par un bouton d'un widget qui ouvre l'application
+  /// (« photo »...), pendant que l'application est ouverte.
+  Stream<String> get actions;
+
+  /// Action qui a lancé l'application, s'il y en a une.
+  Future<String?> actionAuLancement();
 }
 
 /// Petit stockage partagé avec le widget Android (SharedPreferences).
@@ -99,8 +118,10 @@ class StockageHomeWidget implements StockageWidget {
       HomeWidget.saveWidgetData<String>(cle, valeur);
 
   @override
-  Future<void> rafraichir() =>
-      HomeWidget.updateWidget(qualifiedAndroidName: widgetAndroid);
+  Future<void> rafraichir() => Future.wait([
+    for (final nom in widgetsAndroid)
+      HomeWidget.updateWidget(qualifiedAndroidName: nom),
+  ]).then((_) {});
 }
 
 /// Dessine les anneaux en image (le widget Android ne sait pas dessiner du
@@ -132,6 +153,20 @@ class WidgetAccueil implements MiseAJourWidget {
   );
 
   @override
+  Stream<String> get actions => HomeWidget.widgetClicked
+      .map((u) => u?.host ?? '')
+      .where((h) => h.isNotEmpty);
+
+  @override
+  Future<String?> actionAuLancement() async {
+    try {
+      return (await HomeWidget.initiallyLaunchedFromHomeWidget())?.host;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  @override
   Future<void> mettre(DonneesWidget donnees) async {
     try {
       await HomeWidget.renderFlutterWidget(
@@ -143,6 +178,8 @@ class WidgetAccueil implements MiseAJourWidget {
       final maintenant = DateTime.now();
       await _stockage.ecrire('eau_texte', donnees.eauTexte);
       await _stockage.ecrire('bilan_texte', donnees.bilanLigne);
+      await _stockage.ecrire('repas_texte', donnees.repasTexte);
+      await _stockage.ecrire('proteines_texte', donnees.proteinesTexte);
       await _stockage.ecrire('eau_ml', '${donnees.eauMl}');
       await _stockage.ecrire('eau_objectif_ml', '${donnees.objectifEauMl}');
       await _stockage.ecrire('eau_jour', cleDuJour(maintenant));

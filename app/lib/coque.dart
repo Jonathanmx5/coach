@@ -47,6 +47,10 @@ class _CoqueState extends State<Coque> {
     uid: widget.utilisateur.uid,
   );
   final ValueNotifier<InfoMiseAJour?> _maj = ValueNotifier(null);
+
+  /// Un widget de l'écran d'accueil demande la photo d'un repas.
+  final ValueNotifier<int> _demandePhoto = ValueNotifier(0);
+  StreamSubscription<String>? _actionsWidget;
   late final Future<String> _version = _s.versionAppli.version();
 
   Future<void> _verifierMaj() async {
@@ -74,6 +78,18 @@ class _CoqueState extends State<Coque> {
     super.initState();
     _suivi.charger(montre: widget.enregistre.profil.montre);
     unawaited(_verifierMaj());
+    _actionsWidget = _s.widgetAccueil.actions.listen(_actionWidget);
+    unawaited(
+      _s.widgetAccueil.actionAuLancement().then((a) {
+        if (a != null && mounted) _actionWidget(a);
+      }),
+    );
+  }
+
+  void _actionWidget(String action) {
+    if (action != 'photo') return;
+    setState(() => _onglet = 1);
+    _demandePhoto.value++;
   }
 
   @override
@@ -87,6 +103,8 @@ class _CoqueState extends State<Coque> {
   @override
   void dispose() {
     _suivi.dispose();
+    unawaited(_actionsWidget?.cancel());
+    _demandePhoto.dispose();
     _maj.dispose();
     _meteoSuivi.dispose();
     super.dispose();
@@ -136,6 +154,7 @@ class _CoqueState extends State<Coque> {
             consentements: _s.consentements,
             photosRepas: _s.photosRepas,
             catalogue: _s.catalogue,
+            demandePhoto: _demandePhoto,
             suivi: _suivi,
             horloge: widget.horloge,
           ),

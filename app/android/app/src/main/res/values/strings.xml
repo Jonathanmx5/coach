@@ -3,4 +3,8 @@
     <string name="widget_description">Tes anneaux du jour et l\'ajout d\'eau en un geste.</string>
     <string name="widget_titre_eau">Hydratation</string>
     <string name="widget_anneaux_description">Anneaux du jour : calories brûlées et mangées, protéines, eau</string>
+    <string name="widget_titre_repas">Repas du jour</string>
+    <string name="widget_photo_repas">📷 Photographier</string>
+    <string name="widget_eau_description">Ton eau du jour et deux boutons pour en ajouter.</string>
+    <string name="widget_repas_description">Calories et protéines du jour, et un accès direct à la photo du repas.</string>
 </resources>

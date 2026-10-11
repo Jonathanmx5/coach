@@ -334,6 +334,42 @@ void main() {
     expect(find.text('Hydratation'), findsWidgets);
   });
 
+  testWidgets('widget « Photographier » : ouvre le Repas puis la photo', (
+    tester,
+  ) async {
+    final widget = FauxWidget();
+    await monter(
+      tester,
+      FauxAuth(connecte: lea),
+      depotAvecProfil(),
+      widgetAccueil: widget,
+    );
+    expect(find.text('Bilan énergétique'), findsNothing);
+
+    widget.demandes.add('photo');
+    await tester.pumpAndSettle();
+
+    // L'onglet Repas est ouvert, et la demande de photo a démarré (accord à
+    // donner la première fois, ou écran de photo).
+    expect(find.byType(NavigationBar), findsOneWidget);
+    expect(find.text("Envoyer la photo pour l'analyse ?"), findsOneWidget);
+  });
+
+  testWidgets('application lancée par le widget « Photographier »', (
+    tester,
+  ) async {
+    final widget = FauxWidget()..lancement = 'photo';
+    await monter(
+      tester,
+      FauxAuth(connecte: lea),
+      depotAvecProfil(),
+      widgetAccueil: widget,
+    );
+
+    expect(find.text("Envoyer la photo pour l'analyse ?"), findsOneWidget);
+    expect(find.text('Bonjour Léa !'), findsNothing);
+  });
+
   testWidgets('accueil : « Idées de repas » ouvre les cartes à balayer', (
     tester,
   ) async {
