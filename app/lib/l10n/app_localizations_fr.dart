@@ -927,7 +927,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get sourceSaisie => 'Saisie';
 
   @override
-  String get tabJournal => 'Journal';
+  String get tabJournal => 'Repas';
 
   @override
   String get jourAujourdhui => 'Aujourd\'hui';

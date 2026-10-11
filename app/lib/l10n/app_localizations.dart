@@ -1747,7 +1747,7 @@ abstract class AppLocalizations {
   /// No description provided for @tabJournal.
   ///
   /// In fr, this message translates to:
-  /// **'Journal'**
+  /// **'Repas'**
   String get tabJournal;
 
   /// No description provided for @jourAujourdhui.

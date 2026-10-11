@@ -253,7 +253,7 @@ void main() {
     await tester.tap(
       find.descendant(
         of: find.byType(NavigationBar),
-        matching: find.text('Journal'),
+        matching: find.text('Repas'),
       ),
     );
     await tester.pumpAndSettle();
@@ -287,7 +287,7 @@ void main() {
     await monter(tester, FauxAuth(connecte: lea), depotAvecProfil());
     for (final nom in [
       'Accueil',
-      'Journal',
+      'Repas',
       'Sport',
       'Bien-être',
       'Poids',
