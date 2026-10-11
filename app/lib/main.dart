@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 
 import 'app.dart';
 import 'compte/auth_service.dart';
+import 'poids/pesees_repository.dart';
 import 'firebase_options.dart';
 import 'profil/profil_repository.dart';
 import 'racine.dart';
@@ -35,6 +36,7 @@ Future<void> main() async {
       accueil: Racine(
         auth: FirebaseAuthService(),
         depot: FirestoreProfilRepository(),
+        pesees: FirestorePeseesRepository(),
         sante: HealthSanteService(),
         horloge: DateTime.now,
       ),

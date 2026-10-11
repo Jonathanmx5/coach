@@ -412,4 +412,76 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get aucuneDonneePeriode => 'Aucune donnée sur cette période.';
+
+  @override
+  String get tabAccueil => 'Accueil';
+
+  @override
+  String get tabPoids => 'Poids';
+
+  @override
+  String get poidsActuel => 'Poids actuel';
+
+  @override
+  String poidsDepuis(String ecart, String date) {
+    return '$ecart kg depuis le $date';
+  }
+
+  @override
+  String poidsKgValeur(String kg) {
+    return '$kg kg';
+  }
+
+  @override
+  String get imcTitre => 'Ton IMC';
+
+  @override
+  String get imcMaigreur => 'Maigreur';
+
+  @override
+  String get imcNormal => 'Poids normal';
+
+  @override
+  String get imcSurpoids => 'Surpoids';
+
+  @override
+  String get imcObesite => 'Obésité';
+
+  @override
+  String get imcAide =>
+      'L\'IMC est un repère général : il ne tient pas compte de ta masse musculaire.';
+
+  @override
+  String get courbePoids => 'Évolution du poids';
+
+  @override
+  String get periode90 => '90 jours';
+
+  @override
+  String get periode1an => '1 an';
+
+  @override
+  String get ajouterPesee => 'Ajouter une pesée';
+
+  @override
+  String get enregistrer => 'Enregistrer';
+
+  @override
+  String get champDate => 'Date';
+
+  @override
+  String get historiquePoids => 'Historique';
+
+  @override
+  String get supprimerPesee => 'Supprimer';
+
+  @override
+  String get aucunePesee =>
+      'Aucune pesée pour l\'instant. Ajoute la première !';
+
+  @override
+  String get sourceMontre => 'Montre';
+
+  @override
+  String get sourceSaisie => 'Saisie';
 }

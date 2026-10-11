@@ -837,6 +837,138 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Aucune donnée sur cette période.'**
   String get aucuneDonneePeriode;
+
+  /// No description provided for @tabAccueil.
+  ///
+  /// In fr, this message translates to:
+  /// **'Accueil'**
+  String get tabAccueil;
+
+  /// No description provided for @tabPoids.
+  ///
+  /// In fr, this message translates to:
+  /// **'Poids'**
+  String get tabPoids;
+
+  /// No description provided for @poidsActuel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Poids actuel'**
+  String get poidsActuel;
+
+  /// No description provided for @poidsDepuis.
+  ///
+  /// In fr, this message translates to:
+  /// **'{ecart} kg depuis le {date}'**
+  String poidsDepuis(String ecart, String date);
+
+  /// No description provided for @poidsKgValeur.
+  ///
+  /// In fr, this message translates to:
+  /// **'{kg} kg'**
+  String poidsKgValeur(String kg);
+
+  /// No description provided for @imcTitre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton IMC'**
+  String get imcTitre;
+
+  /// No description provided for @imcMaigreur.
+  ///
+  /// In fr, this message translates to:
+  /// **'Maigreur'**
+  String get imcMaigreur;
+
+  /// No description provided for @imcNormal.
+  ///
+  /// In fr, this message translates to:
+  /// **'Poids normal'**
+  String get imcNormal;
+
+  /// No description provided for @imcSurpoids.
+  ///
+  /// In fr, this message translates to:
+  /// **'Surpoids'**
+  String get imcSurpoids;
+
+  /// No description provided for @imcObesite.
+  ///
+  /// In fr, this message translates to:
+  /// **'Obésité'**
+  String get imcObesite;
+
+  /// No description provided for @imcAide.
+  ///
+  /// In fr, this message translates to:
+  /// **'L\'IMC est un repère général : il ne tient pas compte de ta masse musculaire.'**
+  String get imcAide;
+
+  /// No description provided for @courbePoids.
+  ///
+  /// In fr, this message translates to:
+  /// **'Évolution du poids'**
+  String get courbePoids;
+
+  /// No description provided for @periode90.
+  ///
+  /// In fr, this message translates to:
+  /// **'90 jours'**
+  String get periode90;
+
+  /// No description provided for @periode1an.
+  ///
+  /// In fr, this message translates to:
+  /// **'1 an'**
+  String get periode1an;
+
+  /// No description provided for @ajouterPesee.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ajouter une pesée'**
+  String get ajouterPesee;
+
+  /// No description provided for @enregistrer.
+  ///
+  /// In fr, this message translates to:
+  /// **'Enregistrer'**
+  String get enregistrer;
+
+  /// No description provided for @champDate.
+  ///
+  /// In fr, this message translates to:
+  /// **'Date'**
+  String get champDate;
+
+  /// No description provided for @historiquePoids.
+  ///
+  /// In fr, this message translates to:
+  /// **'Historique'**
+  String get historiquePoids;
+
+  /// No description provided for @supprimerPesee.
+  ///
+  /// In fr, this message translates to:
+  /// **'Supprimer'**
+  String get supprimerPesee;
+
+  /// No description provided for @aucunePesee.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucune pesée pour l\'instant. Ajoute la première !'**
+  String get aucunePesee;
+
+  /// No description provided for @sourceMontre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Montre'**
+  String get sourceMontre;
+
+  /// No description provided for @sourceSaisie.
+  ///
+  /// In fr, this message translates to:
+  /// **'Saisie'**
+  String get sourceSaisie;
 }
 
 class _AppLocalizationsDelegate

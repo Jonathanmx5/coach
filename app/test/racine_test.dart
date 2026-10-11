@@ -7,6 +7,7 @@ import 'package:coach/profil/profil_repository.dart';
 import 'package:coach/profil/questionnaire/questionnaire_page.dart';
 import 'package:coach/racine.dart';
 import 'package:coach/sante/sante_service.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'donnees_sante.dart';
@@ -37,6 +38,7 @@ Future<void> monter(
   AuthService auth,
   ProfilRepository depot, {
   SanteService? sante,
+  FauxPesees? pesees,
 }) async {
   await tester.pumpWidget(
     CoachApp(
@@ -44,6 +46,7 @@ Future<void> monter(
         auth: auth,
         depot: depot,
         sante: sante ?? FauxSante(dispo: DispoSante.indisponible),
+        pesees: pesees ?? FauxPesees(),
         horloge: () => maintenant,
       ),
     ),
@@ -200,5 +203,30 @@ void main() {
     await taper(tester, 'Voir le détail');
 
     expect(find.text('Mes données'), findsOneWidget);
+  });
+
+  testWidgets("onglet Poids : poids du profil et retour à l'accueil", (
+    tester,
+  ) async {
+    await monter(tester, FauxAuth(connecte: lea), depotAvecProfil());
+
+    await tester.tap(
+      find.descendant(
+        of: find.byType(NavigationBar),
+        matching: find.text('Poids'),
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(find.text('Poids actuel'), findsOneWidget);
+    expect(find.text('80,0 kg'), findsOneWidget);
+
+    await tester.tap(
+      find.descendant(
+        of: find.byType(NavigationBar),
+        matching: find.text('Accueil'),
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(find.text('Bonjour Léa !'), findsOneWidget);
   });
 }

@@ -12,7 +12,13 @@ abstract class SanteService {
 
   /// Vrai si l'utilisateur a accordé au moins une partie de l'accès.
   Future<bool> demanderAutorisations();
-  Future<List<PointSante>> lire(DateTime debut, DateTime fin);
+
+  /// [types] restreint la lecture (par défaut : toutes les mesures).
+  Future<List<PointSante>> lire(
+    DateTime debut,
+    DateTime fin, {
+    Set<TypeMesure>? types,
+  });
 }
 
 class HealthSanteService implements SanteService {
@@ -82,10 +88,17 @@ class HealthSanteService implements SanteService {
   }
 
   @override
-  Future<List<PointSante>> lire(DateTime debut, DateTime fin) async {
+  Future<List<PointSante>> lire(
+    DateTime debut,
+    DateTime fin, {
+    Set<TypeMesure>? types,
+  }) async {
     await _configurer();
     final points = await _health.getHealthDataFromTypes(
-      types: _correspondances.keys.toList(),
+      types: [
+        for (final e in _correspondances.entries)
+          if (types == null || types.contains(e.value)) e.key,
+      ],
       startTime: debut,
       endTime: fin,
     );

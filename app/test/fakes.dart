@@ -1,6 +1,8 @@
 import 'dart:async';
 
 import 'package:coach/compte/auth_service.dart';
+import 'package:coach/poids/pesees.dart';
+import 'package:coach/poids/pesees_repository.dart';
 import 'package:coach/profil/besoins.dart';
 import 'package:coach/profil/modele.dart';
 import 'package:coach/profil/profil_repository.dart';
@@ -91,8 +93,58 @@ class FauxSante implements SanteService {
   }
 
   @override
-  Future<List<PointSante>> lire(DateTime debut, DateTime fin) async => [
+  Future<List<PointSante>> lire(
+    DateTime debut,
+    DateTime fin, {
+    Set<TypeMesure>? types,
+  }) async => [
     for (final p in points)
-      if (!p.fin.isBefore(debut) && !p.debut.isAfter(fin)) p,
+      if (!p.fin.isBefore(debut) &&
+          !p.debut.isAfter(fin) &&
+          (types == null || types.contains(p.type)))
+        p,
   ];
+}
+
+/// Pesées saisies, en mémoire.
+class FauxPesees implements PeseesRepository {
+  final donnees = <String, List<Pesee>>{};
+  final _flux = StreamController<String>.broadcast();
+  var _compteur = 0;
+
+  List<Pesee> de(String uid) => donnees[uid] ?? const [];
+
+  @override
+  Stream<List<Pesee>> observer(String uid) async* {
+    yield de(uid);
+    yield* _flux.stream.where((u) => u == uid).map((_) => de(uid));
+  }
+
+  @override
+  Future<void> ajouter(
+    String uid, {
+    required double kg,
+    required DateTime date,
+  }) async {
+    final liste = [
+      ...de(uid),
+      Pesee(
+        id: 'p${_compteur++}',
+        date: date,
+        kg: kg,
+        source: SourcePesee.manuel,
+      ),
+    ]..sort((a, b) => a.date.compareTo(b.date));
+    donnees[uid] = liste;
+    _flux.add(uid);
+  }
+
+  @override
+  Future<void> supprimer(String uid, String id) async {
+    donnees[uid] = [
+      for (final p in de(uid))
+        if (p.id != id) p,
+    ];
+    _flux.add(uid);
+  }
 }

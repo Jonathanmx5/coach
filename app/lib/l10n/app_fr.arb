@@ -195,5 +195,44 @@
       }
     }
   },
-  "aucuneDonneePeriode": "Aucune donnée sur cette période."
+  "aucuneDonneePeriode": "Aucune donnée sur cette période.",
+  "tabAccueil": "Accueil",
+  "tabPoids": "Poids",
+  "poidsActuel": "Poids actuel",
+  "poidsDepuis": "{ecart} kg depuis le {date}",
+  "@poidsDepuis": {
+    "placeholders": {
+      "ecart": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "poidsKgValeur": "{kg} kg",
+  "@poidsKgValeur": {
+    "placeholders": {
+      "kg": {
+        "type": "String"
+      }
+    }
+  },
+  "imcTitre": "Ton IMC",
+  "imcMaigreur": "Maigreur",
+  "imcNormal": "Poids normal",
+  "imcSurpoids": "Surpoids",
+  "imcObesite": "Obésité",
+  "imcAide": "L'IMC est un repère général : il ne tient pas compte de ta masse musculaire.",
+  "courbePoids": "Évolution du poids",
+  "periode90": "90 jours",
+  "periode1an": "1 an",
+  "ajouterPesee": "Ajouter une pesée",
+  "enregistrer": "Enregistrer",
+  "champDate": "Date",
+  "historiquePoids": "Historique",
+  "supprimerPesee": "Supprimer",
+  "aucunePesee": "Aucune pesée pour l'instant. Ajoute la première !",
+  "sourceMontre": "Montre",
+  "sourceSaisie": "Saisie"
 }

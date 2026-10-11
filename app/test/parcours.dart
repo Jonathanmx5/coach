@@ -65,4 +65,7 @@ Future<void> defilerJusqua(WidgetTester tester, Finder cible) async {
       scrollable: find.byType(Scrollable).first,
     );
   }
+  // Construit ne veut pas dire visible : on le ramène aussi à l'écran.
+  await tester.ensureVisible(cible.first);
+  await tester.pumpAndSettle();
 }
