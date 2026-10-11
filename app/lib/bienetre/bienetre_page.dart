@@ -260,8 +260,8 @@ class _CarteHydratation extends StatelessWidget {
               child: LinearProgressIndicator(
                 value: (bu / objectifMl).clamp(0, 1).toDouble(),
                 minHeight: 10,
-                color: const Color(0xFF378ADD),
-                backgroundColor: const Color(0xFF378ADD).withValues(alpha: 0.2),
+                color: CouleursCoach.bleu,
+                backgroundColor: CouleursCoach.bleu.withValues(alpha: 0.2),
               ),
             ),
             const SizedBox(height: 8),

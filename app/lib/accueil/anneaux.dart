@@ -13,13 +13,16 @@ import '../l10n/app_localizations.dart';
 import '../profil/besoins.dart';
 import '../profil/modele.dart';
 import '../sante/suivi.dart';
+import '../theme.dart';
 
-/// Couleurs des anneaux (celles d'Apple Fitness, vives sur fond sombre).
-const _cBrule = Color(0xFFFF9F0A);
-const _cMange = Color(0xFF32D74B);
-const _cProteines = Color(0xFFBF5AF2);
-const _cEau = Color(0xFF0A84FF);
-const _fond = Color(0xFF1C1C1E);
+/// Couleurs des anneaux, celles de l'application : vert pour le sport (menthe
+/// pour les calories brûlées, vert vif pour les protéines, qui font le muscle),
+/// orange pour l'assiette, bleu pour l'eau ; fond vert profond comme l'en-tête.
+const _cBrule = CouleursCoach.vertPale;
+const _cMange = CouleursCoach.orange;
+const _cProteines = CouleursCoach.vertVif;
+const _cEau = CouleursCoach.bleuClair;
+const _fond = CouleursCoach.vertFonce;
 
 /// Quatre anneaux concentriques : de l'extérieur vers l'intérieur, calories
 /// brûlées, calories mangées, protéines, eau. Chaque valeur va de 0 à 1 ;
@@ -66,7 +69,7 @@ class _AnneauxPainter extends CustomPainter {
       final piste = Paint()
         ..style = PaintingStyle.stroke
         ..strokeWidth = epaisseur
-        ..color = couleurs[i].withValues(alpha: 0.22);
+        ..color = couleurs[i].withValues(alpha: 0.3);
       canvas.drawCircle(centre, rayon, piste);
       if (valeurs[i] <= 0) continue;
       final trait = Paint()

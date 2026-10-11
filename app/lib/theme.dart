@@ -7,6 +7,9 @@ abstract final class CouleursCoach {
   static const vertFonce = Color(0xFF085041);
   static const vertClair = Color(0xFFE1F5EE);
   static const vertPale = Color(0xFF9FE1CB);
+  static const vertVif = Color(0xFF2BB98A);
+  static const bleu = Color(0xFF378ADD);
+  static const bleuClair = Color(0xFF6CB4EE);
   static const orange = Color(0xFFEF9F27);
   static const orangeClair = Color(0xFFFAEEDA);
   static const orangeFonce = Color(0xFF633806);
