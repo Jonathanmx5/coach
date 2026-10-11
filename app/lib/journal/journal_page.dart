@@ -280,25 +280,6 @@ class _JournalPageState extends State<JournalPage> {
                   ? null
                   : () => unawaited(widget.journal.supprimerRepas(_uid, r.id!)),
             ),
-        const SizedBox(height: 24),
-        Text(t.activitesTitre, style: Theme.of(context).textTheme.titleLarge),
-        const SizedBox(height: 8),
-        if (activites.isEmpty)
-          _Vide(t.aucuneActivite)
-        else
-          for (final a in activites)
-            _Ligne(
-              icone: iconesActivite[a.type]!,
-              titre: libelleActivite(t, a.type),
-              sousTitre:
-                  '${a.minutes} min · '
-                  '${t.kcalValeur(a.kcal.round().toString())}',
-              onSupprimer: a.id == null
-                  ? null
-                  : () => unawaited(
-                      widget.journal.supprimerActivite(_uid, a.id!),
-                    ),
-            ),
       ],
     );
   }
