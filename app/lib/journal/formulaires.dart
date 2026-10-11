@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../l10n/app_localizations.dart';
+import '../profil/questionnaire/etapes.dart';
 import '../profil/saisie.dart';
+import 'calculs.dart';
 import 'modele.dart';
 
 String libelleMoment(AppLocalizations t, Moment m) => switch (m) {
@@ -49,6 +51,7 @@ Widget _champ(
   String? erreur,
   bool decimal = true,
   bool focus = false,
+  ValueChanged<String>? onChanged,
 }) => Padding(
   padding: const EdgeInsets.only(bottom: 12),
   child: TextField(
@@ -59,6 +62,7 @@ Widget _champ(
         : TextInputType.text,
     inputFormatters: decimal ? [_decimal] : null,
     decoration: InputDecoration(labelText: label, errorText: erreur),
+    onChanged: onChanged,
   ),
 );
 
@@ -156,6 +160,121 @@ class _AjoutRepasPageState extends State<AjoutRepasPage> {
           const SizedBox(height: 8),
           FilledButton(
             onPressed: () => _valider(t),
+            child: Text(t.enregistrer),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Saisie d'une activité : type, durée, intensité. Renvoie l'[Activite].
+class AjoutActivitePage extends StatefulWidget {
+  const AjoutActivitePage({
+    super.key,
+    required this.date,
+    required this.poidsKg,
+  });
+
+  final DateTime date;
+  final double poidsKg;
+
+  @override
+  State<AjoutActivitePage> createState() => _AjoutActivitePageState();
+}
+
+class _AjoutActivitePageState extends State<AjoutActivitePage> {
+  final _duree = TextEditingController();
+  TypeActivite _type = TypeActivite.velo;
+  Intensite _intensite = Intensite.moderee;
+  String? _erreur;
+
+  @override
+  void dispose() {
+    _duree.dispose();
+    super.dispose();
+  }
+
+  int? get _minutes {
+    final m = lireNombre(_duree.text);
+    return (m == null || m <= 0 || m > 600 || m != m.roundToDouble())
+        ? null
+        : m.toInt();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
+    final textes = Theme.of(context).textTheme;
+    final minutes = _minutes;
+    return Scaffold(
+      appBar: AppBar(title: Text(t.menuActivite)),
+      body: ListView(
+        padding: const EdgeInsets.all(20),
+        children: [
+          grille([
+            for (final a in TypeActivite.values)
+              TuileChoix(
+                titre: libelleActivite(t, a),
+                icone: iconesActivite[a]!,
+                selectionne: _type == a,
+                onTap: () => setState(() => _type = a),
+              ),
+          ]),
+          _champ(
+            _duree,
+            t.champDureeMin,
+            erreur: _erreur,
+            onChanged: (_) => setState(() => _erreur = null),
+          ),
+          const SizedBox(height: 4),
+          SegmentedButton<Intensite>(
+            showSelectedIcon: false,
+            segments: [
+              ButtonSegment(value: Intensite.legere, label: Text(t.intLegere)),
+              ButtonSegment(
+                value: Intensite.moderee,
+                label: Text(t.intModeree),
+              ),
+              ButtonSegment(
+                value: Intensite.intense,
+                label: Text(t.intIntense),
+              ),
+            ],
+            selected: {_intensite},
+            onSelectionChanged: (s) => setState(() => _intensite = s.first),
+          ),
+          const SizedBox(height: 16),
+          if (minutes != null)
+            Text(
+              t.activiteEstimation(
+                kcalActivite(
+                  _type,
+                  minutes,
+                  _intensite,
+                  widget.poidsKg,
+                ).round(),
+              ),
+              style: textes.titleMedium,
+            ),
+          const SizedBox(height: 16),
+          FilledButton(
+            onPressed: () {
+              final m = _minutes;
+              if (m == null) {
+                setState(() => _erreur = t.erreurDuree);
+                return;
+              }
+              Navigator.of(context).pop(
+                Activite(
+                  date: widget.date,
+                  type: _type,
+                  minutes: m,
+                  intensite: _intensite,
+                  kcal: kcalActivite(_type, m, _intensite, widget.poidsKg),
+                ),
+              );
+            },
             child: Text(t.enregistrer),
           ),
         ],

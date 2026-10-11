@@ -1120,6 +1120,12 @@ class AppLocalizationsFr extends AppLocalizations {
   }
 
   @override
+  String get activitesDuJour => 'Activités d\'aujourd\'hui';
+
+  @override
+  String get supprimerActivite => 'Supprimer l\'activité';
+
+  @override
   String get courbePoids => 'Évolution du poids';
 
   @override

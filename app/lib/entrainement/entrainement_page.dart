@@ -13,6 +13,7 @@ import '../recuperation/carte_recuperation.dart';
 import '../recuperation/recuperation.dart';
 import '../sante/suivi.dart';
 import '../theme.dart';
+import '../journal/formulaires.dart';
 import 'carte_mobilite.dart';
 import 'entrainement_repository.dart';
 import 'generateur.dart';
@@ -168,6 +169,35 @@ class _EntrainementPageState extends State<EntrainementPage> {
     );
   }
 
+  DateTime? _jourActivites;
+  Stream<List<Activite>>? _activites;
+
+  /// Activités saisies du jour courant ; le flux change à minuit.
+  Stream<List<Activite>> _activitesDuJour(DateTime maintenant) {
+    final jour = DateTime(maintenant.year, maintenant.month, maintenant.day);
+    if (_jourActivites != jour) {
+      _jourActivites = jour;
+      _activites = widget.journal.activites(
+        _uid,
+        jour,
+        DateTime(jour.year, jour.month, jour.day + 1),
+      );
+    }
+    return _activites!;
+  }
+
+  Future<void> _ajouterActivite() async {
+    final activite = await Navigator.of(context).push<Activite>(
+      MaterialPageRoute(
+        builder: (_) =>
+            AjoutActivitePage(date: widget.horloge(), poidsKg: _profil.poidsKg),
+      ),
+    );
+    if (activite != null) {
+      unawaited(widget.journal.ajouterActivite(_uid, activite));
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context)!;
@@ -175,6 +205,12 @@ class _EntrainementPageState extends State<EntrainementPage> {
     final lieux = lieuxDuProfil(_profil);
     return Scaffold(
       appBar: AppBar(title: Text(t.tabEntrainement)),
+      floatingActionButton: FloatingActionButton.extended(
+        heroTag: 'fab-sport',
+        onPressed: _ajouterActivite,
+        icon: const Icon(Icons.add),
+        label: Text(t.menuActivite),
+      ),
       body: ListenableBuilder(
         listenable: widget.suivi,
         builder: (context, _) => StreamBuilder<int?>(
@@ -213,7 +249,7 @@ class _EntrainementPageState extends State<EntrainementPage> {
                           .where((s) => !s.date.isBefore(lundi))
                           .length;
                       return ListView(
-                        padding: const EdgeInsets.fromLTRB(20, 8, 20, 32),
+                        padding: const EdgeInsets.fromLTRB(20, 8, 20, 96),
                         children: [
                           Text(
                             t.seancesSemaine(
@@ -310,6 +346,20 @@ class _EntrainementPageState extends State<EntrainementPage> {
                             ),
                             onLancer: _lancerRoutine,
                           ),
+                          const SizedBox(height: 16),
+                          StreamBuilder<List<Activite>>(
+                            stream: _activitesDuJour(maintenant),
+                            builder: (context, snapActivites) =>
+                                _CarteActivites(
+                                  activites: snapActivites.data ?? const [],
+                                  onSupprimer: (a) => unawaited(
+                                    widget.journal.supprimerActivite(
+                                      _uid,
+                                      a.id!,
+                                    ),
+                                  ),
+                                ),
+                          ),
                         ],
                       );
                     },
@@ -386,4 +436,52 @@ class _CarteSeance extends StatelessWidget {
   }
 
   String _duree(int s) => s >= 60 ? '${s ~/ 60} min' : '$s s';
+}
+
+/// Activités sportives saisies aujourd'hui, avec leurs calories estimées.
+class _CarteActivites extends StatelessWidget {
+  const _CarteActivites({required this.activites, required this.onSupprimer});
+
+  final List<Activite> activites;
+  final ValueChanged<Activite> onSupprimer;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
+    final textes = Theme.of(context).textTheme;
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(t.activitesDuJour, style: textes.titleMedium),
+            const SizedBox(height: 4),
+            if (activites.isEmpty)
+              Text(
+                t.aucuneActivite,
+                style: textes.bodyMedium?.copyWith(
+                  color: CouleursCoach.texteDoux,
+                ),
+              )
+            else
+              for (final a in activites)
+                ListTile(
+                  contentPadding: EdgeInsets.zero,
+                  leading: Icon(iconesActivite[a.type]!),
+                  title: Text(libelleActivite(t, a.type)),
+                  subtitle: Text('${a.minutes} min · ${a.kcal.round()} kcal'),
+                  trailing: a.id == null
+                      ? null
+                      : IconButton(
+                          tooltip: t.supprimerActivite,
+                          icon: const Icon(Icons.delete_outline),
+                          onPressed: () => onSupprimer(a),
+                        ),
+                ),
+          ],
+        ),
+      ),
+    );
+  }
 }

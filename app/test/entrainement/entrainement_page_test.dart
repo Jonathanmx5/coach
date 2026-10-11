@@ -233,4 +233,75 @@ void main() {
     expect(banc.entrainement.seancesDe('u1'), isEmpty);
     expect(banc.journal.activitesDe('u1'), isEmpty);
   });
+
+  testWidgets(
+    'ajouter une activité sportive : calories estimées, enregistrée',
+    (tester) async {
+      final banc = Banc({TypeEntrainement.maison});
+      await banc.monter(tester);
+
+      await tester.tap(find.byType(FloatingActionButton));
+      await tester.pumpAndSettle();
+      await taper(tester, 'Course à pied');
+      await saisir(tester, 'Durée (min)', '30');
+      // 9,8 MET × 1,0 (modérée) × 60 kg × 0,5 h = 294 kcal.
+      expect(find.text('≈ 294 kcal brûlées'), findsOneWidget);
+      await taper(tester, 'Intense');
+      expect(find.text('≈ 353 kcal brûlées'), findsOneWidget);
+      await taper(tester, 'Enregistrer');
+
+      final a = banc.journal.activitesDe('u1').single;
+      expect(a.type, TypeActivite.course);
+      expect(a.minutes, 30);
+      expect(a.intensite, Intensite.intense);
+      expect(a.kcal, closeTo(352.8, 0.01));
+      expect(a.date, maintenant);
+    },
+  );
+
+  testWidgets('activité sans durée valide : refusée', (tester) async {
+    final banc = Banc({TypeEntrainement.maison});
+    await banc.monter(tester);
+
+    await tester.tap(find.byType(FloatingActionButton));
+    await tester.pumpAndSettle();
+    await taper(tester, 'Enregistrer');
+
+    expect(find.text('Entre une durée en minutes.'), findsOneWidget);
+    expect(banc.journal.activitesDe('u1'), isEmpty);
+  });
+
+  testWidgets('les activités du jour sont listées et supprimables', (
+    tester,
+  ) async {
+    final banc = Banc({TypeEntrainement.maison});
+    banc.journal.activitesParUid['u1'] = [
+      Activite(
+        id: 'a1',
+        date: maintenant,
+        type: TypeActivite.velo,
+        minutes: 45,
+        intensite: Intensite.moderee,
+        kcal: 337,
+      ),
+      Activite(
+        id: 'a0',
+        date: maintenant.subtract(const Duration(days: 1)),
+        type: TypeActivite.natation,
+        minutes: 20,
+        intensite: Intensite.legere,
+        kcal: 100,
+      ),
+    ];
+    await banc.monter(tester);
+
+    await defilerJusqua(tester, find.text("Activités d'aujourd'hui"));
+    expect(find.text('45 min · 337 kcal'), findsOneWidget);
+    expect(find.text('20 min · 100 kcal'), findsNothing); // hier
+
+    await tester.tap(find.byTooltip("Supprimer l'activité"));
+    await tester.pumpAndSettle();
+    expect(banc.journal.activitesDe('u1').map((a) => a.id), ['a0']);
+    expect(find.text('Aucune activité enregistrée.'), findsOneWidget);
+  });
 }

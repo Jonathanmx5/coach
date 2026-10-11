@@ -613,6 +613,8 @@
       }
     }
   },
+  "activitesDuJour": "Activités d'aujourd'hui",
+  "supprimerActivite": "Supprimer l'activité",
   "courbePoids": "Évolution du poids",
   "periode90": "90 jours",
   "periode1an": "1 an",

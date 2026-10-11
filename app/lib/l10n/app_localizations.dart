@@ -2080,6 +2080,18 @@ abstract class AppLocalizations {
   /// **'{kcal} kcal · {p} g de protéines'**
   String recapValeur(int kcal, int p);
 
+  /// No description provided for @activitesDuJour.
+  ///
+  /// In fr, this message translates to:
+  /// **'Activités d\'aujourd\'hui'**
+  String get activitesDuJour;
+
+  /// No description provided for @supprimerActivite.
+  ///
+  /// In fr, this message translates to:
+  /// **'Supprimer l\'activité'**
+  String get supprimerActivite;
+
   /// No description provided for @courbePoids.
   ///
   /// In fr, this message translates to:
