@@ -1,0 +1,19 @@
+name = "coach-relais"
+main = "src/index.js"
+compatibility_date = "2026-01-01"
+
+[ai]
+binding = "AI"
+
+# Compteurs d'usage : npx wrangler kv namespace create LIMITES, puis coller l'id.
+[[kv_namespaces]]
+binding = "LIMITES"
+id = "A_REMPLACER"
+
+[vars]
+PROJECT_ID = "coach-jonathanmx5"
+MODELE = "@cf/meta/llama-3.2-11b-vision-instruct"
+# Photos analysées par jour : par utilisateur, et pour tout le monde (garde le
+# quota gratuit de Workers AI).
+PLAFOND_UTILISATEUR = "15"
+PLAFOND_GLOBAL = "150"
