@@ -108,6 +108,14 @@ class _PhotoRepasPageState extends State<PhotoRepasPage> {
     for (final i in _gardes.toList()..sort()) _aliments[i],
   ];
 
+  static double? _somme(
+    List<AlimentEstime> l,
+    double? Function(AlimentEstime) f,
+  ) {
+    final valeurs = [for (final a in l) f(a)].whereType<double>();
+    return valeurs.isEmpty ? null : valeurs.fold<double>(0, (s, v) => s + v);
+  }
+
   /// ±10 % de la portion, arrondi à 5 g.
   void _ajuster(int i, double facteur) {
     final g = _aliments[i].grammes;
@@ -143,6 +151,17 @@ class _PhotoRepasPageState extends State<PhotoRepasPage> {
     final gardes = _retenus;
     // La photo reste sur le téléphone ; si elle ne peut pas être gardée, le
     // repas est enregistré quand même.
+    final cibles = widget.cibles;
+    final verdictFige = cibles == null || gardes.isEmpty
+        ? null
+        : verdictRepas(
+            repas: totalAliments(gardes),
+            sucres: _somme(gardes, (a) => a.sucres),
+            satures: _somme(gardes, (a) => a.satures),
+            dejaMange: widget.dejaMange,
+            cibles: cibles,
+            objectif: widget.objectif,
+          );
     String? photoId;
     try {
       photoId = await widget.photos.enregistrer(_image!);
@@ -158,6 +177,7 @@ class _PhotoRepasPageState extends State<PhotoRepasPage> {
         description: _description,
         aliments: gardes,
         photoId: photoId,
+        verdict: verdictFige,
       ),
     );
   }

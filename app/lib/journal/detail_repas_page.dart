@@ -97,14 +97,17 @@ class DetailRepasPage extends StatelessWidget {
               repas: repas.macros,
               sucres: somme((a) => a.sucres),
               satures: somme((a) => a.satures),
-              verdict: verdictRepas(
-                repas: repas.macros,
-                sucres: somme((a) => a.sucres),
-                satures: somme((a) => a.satures),
-                dejaMange: dejaMange,
-                cibles: cibles,
-                objectif: objectif,
-              ),
+              // Le jugement de l'époque ; à défaut (ancien repas), recalculé.
+              verdict:
+                  repas.verdict ??
+                  verdictRepas(
+                    repas: repas.macros,
+                    sucres: somme((a) => a.sucres),
+                    satures: somme((a) => a.satures),
+                    dejaMange: dejaMange,
+                    cibles: cibles,
+                    objectif: objectif,
+                  ),
             ),
             const SizedBox(height: 20),
             Text(t.composition, style: textes.titleMedium),

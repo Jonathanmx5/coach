@@ -15,6 +15,12 @@ abstract class PhotosRepas {
 
   Future<void> supprimer(String id);
 
+  /// Nombre de photos gardées et place qu'elles prennent.
+  Future<({int nombre, int octets})> bilan();
+
+  /// Efface les photos prises avant [limite] ; rend leur nombre.
+  Future<int> supprimerAvant(DateTime limite);
+
   /// Efface toutes les photos (suppression du compte).
   Future<void> toutSupprimer();
 }
@@ -55,6 +61,35 @@ class PhotosRepasLocales implements PhotosRepas {
   Future<void> supprimer(String id) async {
     final f = await _fichier(id);
     if (f != null && f.existsSync()) await f.delete();
+  }
+
+  @override
+  Future<({int nombre, int octets})> bilan() async {
+    var nombre = 0;
+    var octets = 0;
+    for (final f in (await _dossier()).listSync()) {
+      if (f is File) {
+        nombre++;
+        octets += f.lengthSync();
+      }
+    }
+    return (nombre: nombre, octets: octets);
+  }
+
+  @override
+  Future<int> supprimerAvant(DateTime limite) async {
+    var n = 0;
+    for (final f in (await _dossier()).listSync()) {
+      // Le nom du fichier est l'instant de la prise, en microsecondes.
+      final micro = int.tryParse(f.uri.pathSegments.last.split('.').first);
+      if (f is File &&
+          micro != null &&
+          DateTime.fromMicrosecondsSinceEpoch(micro).isBefore(limite)) {
+        await f.delete();
+        n++;
+      }
+    }
+    return n;
   }
 
   @override

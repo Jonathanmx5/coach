@@ -167,6 +167,8 @@ void main() {
   testWidgets('réglages : politique de confidentialité', (tester) async {
     racine.liensOuverts.clear();
     await ouvrir(tester, FausseMiseAJour());
+    await defilerJusqua(tester, find.text('Photos de repas'));
+    expect(find.text('Photos de repas'), findsOneWidget);
     await taper(tester, 'Politique de confidentialité');
     expect(racine.liensOuverts.single.toString(), lienConfidentialite);
   });

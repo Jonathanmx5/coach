@@ -328,6 +328,7 @@ void main() {
     final enregistre = banc.journal.repasDe('u1').single;
     expect(enregistre.aliments, hasLength(2));
     expect(enregistre.description, 'Poulet au riz');
+    expect(enregistre.verdict, isNotNull);
 
     await tester.tap(find.text('Riz, Poulet'));
     await tester.pumpAndSettle();

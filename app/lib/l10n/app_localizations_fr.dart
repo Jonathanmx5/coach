@@ -1154,6 +1154,26 @@ class AppLocalizationsFr extends AppLocalizations {
   }
 
   @override
+  String get photosRepasTitre => 'Photos de repas';
+
+  @override
+  String photosRepasBilan(int nombre, String mo) {
+    return '$nombre sur ce téléphone · $mo Mo';
+  }
+
+  @override
+  String get photosRepasNettoyer => 'Supprimer les photos de plus de 90 jours';
+
+  @override
+  String get photosRepasNettoyerAide =>
+      'Les repas et leur analyse restent dans ton journal ; seules les photos sont effacées de ce téléphone.';
+
+  @override
+  String photosRepasNettoyees(int nombre) {
+    return '$nombre photo(s) supprimée(s).';
+  }
+
+  @override
   String get courbePoids => 'Évolution du poids';
 
   @override

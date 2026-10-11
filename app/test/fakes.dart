@@ -573,6 +573,27 @@ class FausPhotosRepas implements PhotosRepas {
   @override
   Future<void> supprimer(String id) async => photos.remove(id);
 
+  final dates = <String, DateTime>{};
+
+  @override
+  Future<({int nombre, int octets})> bilan() async => (
+    nombre: photos.length,
+    octets: photos.values.fold<int>(0, (s, p) => s + p.length),
+  );
+
+  @override
+  Future<int> supprimerAvant(DateTime limite) async {
+    final vieux = [
+      for (final e in dates.entries)
+        if (e.value.isBefore(limite)) e.key,
+    ];
+    for (final id in vieux) {
+      photos.remove(id);
+      dates.remove(id);
+    }
+    return vieux.length;
+  }
+
   @override
   Future<void> toutSupprimer() async => photos.clear();
 }
@@ -686,6 +707,7 @@ class FauxJournal implements JournalRepository {
         description: repas.description,
         aliments: repas.aliments,
         photoId: repas.photoId,
+        verdict: repas.verdict,
       ),
     ];
     _flux.add(null);

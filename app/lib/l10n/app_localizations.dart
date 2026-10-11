@@ -2140,6 +2140,36 @@ abstract class AppLocalizations {
   /// **'{g} g · {kcal} kcal'**
   String portionGrammes(int g, int kcal);
 
+  /// No description provided for @photosRepasTitre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Photos de repas'**
+  String get photosRepasTitre;
+
+  /// No description provided for @photosRepasBilan.
+  ///
+  /// In fr, this message translates to:
+  /// **'{nombre} sur ce téléphone · {mo} Mo'**
+  String photosRepasBilan(int nombre, String mo);
+
+  /// No description provided for @photosRepasNettoyer.
+  ///
+  /// In fr, this message translates to:
+  /// **'Supprimer les photos de plus de 90 jours'**
+  String get photosRepasNettoyer;
+
+  /// No description provided for @photosRepasNettoyerAide.
+  ///
+  /// In fr, this message translates to:
+  /// **'Les repas et leur analyse restent dans ton journal ; seules les photos sont effacées de ce téléphone.'**
+  String get photosRepasNettoyerAide;
+
+  /// No description provided for @photosRepasNettoyees.
+  ///
+  /// In fr, this message translates to:
+  /// **'{nombre} photo(s) supprimée(s).'**
+  String photosRepasNettoyees(int nombre);
+
   /// No description provided for @courbePoids.
   ///
   /// In fr, this message translates to:

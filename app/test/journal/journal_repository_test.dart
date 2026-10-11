@@ -1,6 +1,7 @@
 import 'package:coach/journal/analyse_photo.dart';
 import 'package:coach/journal/journal_repository.dart';
 import 'package:coach/journal/modele.dart';
+import 'package:coach/journal/verdict.dart';
 import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -50,6 +51,12 @@ void main() {
         macros: const Macros(kcal: 130, proteines: 3),
         source: SourceRepas.photo,
         description: 'Du riz blanc',
+        photoId: '123',
+        verdict: const Verdict(
+          feu: Feu.rouge,
+          points: ['Trop sucré', 'Peu de protéines'],
+          conclusion: 'À éviter',
+        ),
         aliments: const [
           AlimentEstime(
             nom: 'Riz',
@@ -65,6 +72,10 @@ void main() {
     final r = (await depot.repas('u1', lundi, mardi).first).single;
 
     expect(r.description, 'Du riz blanc');
+    expect(r.photoId, '123');
+    expect(r.verdict?.feu, Feu.rouge);
+    expect(r.verdict?.points, ['Trop sucré', 'Peu de protéines']);
+    expect(r.verdict?.conclusion, 'À éviter');
     expect(r.aliments.single.nom, 'Riz');
     expect(r.aliments.single.grammes, 100);
     expect(r.aliments.single.confiance, 0.5);

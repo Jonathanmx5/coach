@@ -20,6 +20,18 @@ class Verdict {
   /// Phrases d'explication, dans l'ordre de lecture.
   final List<String> points;
   final String conclusion;
+
+  Map<String, Object?> toMap() => {
+    'feu': feu.name,
+    'points': points,
+    'conclusion': conclusion,
+  };
+
+  static Verdict fromMap(Map<String, Object?> m) => Verdict(
+    feu: Feu.values.asNameMap()[m['feu']] ?? Feu.orange,
+    points: [for (final p in (m['points'] as List?) ?? const []) '$p'],
+    conclusion: m['conclusion'] as String? ?? '',
+  );
 }
 
 String _objectif(Objectif o) => switch (o) {

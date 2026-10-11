@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 
 import 'analyse_photo.dart' show AlimentEstime;
+import 'verdict.dart' show Verdict;
 
 enum Moment { petitDejeuner, dejeuner, diner, collation }
 
@@ -68,6 +69,7 @@ class Repas {
     this.description = '',
     this.aliments = const [],
     this.photoId,
+    this.verdict,
   });
 
   final String? id;
@@ -85,6 +87,9 @@ class Repas {
   /// Référence de la photo gardée sur ce téléphone, s'il y en a une.
   final String? photoId;
 
+  /// Le jugement du coach tel qu'il était à la validation du repas.
+  final Verdict? verdict;
+
   Map<String, Object?> toMap() => {
     'date': date.millisecondsSinceEpoch,
     'moment': moment.name,
@@ -93,6 +98,7 @@ class Repas {
     'source': source.name,
     if (description.isNotEmpty) 'description': description,
     if (photoId != null) 'photoId': photoId,
+    if (verdict != null) 'verdict': verdict!.toMap(),
     if (aliments.isNotEmpty) 'aliments': [for (final a in aliments) a.toMap()],
   };
 
@@ -105,6 +111,9 @@ class Repas {
     source: SourceRepas.values.asNameMap()[m['source']] ?? SourceRepas.manuel,
     description: m['description'] as String? ?? '',
     photoId: m['photoId'] as String?,
+    verdict: m['verdict'] is Map
+        ? Verdict.fromMap((m['verdict']! as Map).cast<String, Object?>())
+        : null,
     aliments: [
       for (final a in (m['aliments'] as List?) ?? const [])
         AlimentEstime.fromMap((a as Map).cast<String, Object?>()),

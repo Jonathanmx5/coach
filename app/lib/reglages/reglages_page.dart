@@ -74,6 +74,34 @@ class _ReglagesPageState extends State<ReglagesPage> {
     await _s.auth.deconnecter();
   }
 
+  Future<void> _nettoyerPhotos() async {
+    final t = AppLocalizations.of(context)!;
+    final confirme = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(t.photosRepasNettoyer),
+        content: Text(t.photosRepasNettoyerAide),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(false),
+            child: Text(t.annuler),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(ctx).pop(true),
+            child: Text(t.supprimer),
+          ),
+        ],
+      ),
+    );
+    if (confirme != true || !mounted) return;
+    final n = await _s.photosRepas.supprimerAvant(
+      DateTime.now().subtract(const Duration(days: 90)),
+    );
+    if (!mounted) return;
+    setState(() {});
+    _message(t.photosRepasNettoyees(n));
+  }
+
   void _message(String texte) {
     ScaffoldMessenger.of(context)
       ..hideCurrentSnackBar()
@@ -261,6 +289,24 @@ class _ReglagesPageState extends State<ReglagesPage> {
               onChanged: (v) => unawaited(
                 _s.consentements.definir(_uid, Consentement.photo, v),
               ),
+            ),
+          ),
+          FutureBuilder<({int nombre, int octets})>(
+            future: _s.photosRepas.bilan(),
+            builder: (context, snap) => ListTile(
+              contentPadding: EdgeInsets.zero,
+              leading: const Icon(Icons.photo_library_outlined),
+              title: Text(t.photosRepasTitre),
+              subtitle: snap.data == null
+                  ? null
+                  : Text(
+                      t.photosRepasBilan(
+                        snap.data!.nombre,
+                        (snap.data!.octets / 1048576).toStringAsFixed(1),
+                      ),
+                    ),
+              trailing: const Icon(Icons.cleaning_services_outlined),
+              onTap: _nettoyerPhotos,
             ),
           ),
           ListTile(
