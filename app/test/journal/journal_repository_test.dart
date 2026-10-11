@@ -1,3 +1,4 @@
+import 'package:coach/journal/analyse_photo.dart';
 import 'package:coach/journal/journal_repository.dart';
 import 'package:coach/journal/modele.dart';
 import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
@@ -36,6 +37,40 @@ void main() {
     expect(liste.first.id, isNotNull);
     expect(liste.first.source, SourceRepas.codeBarres);
     expect(liste.first.macros.proteines, 12);
+  });
+
+  test('un repas photographié garde son analyse', () async {
+    final depot = FirestoreJournalRepository(FakeFirebaseFirestore());
+    await depot.ajouterRepas(
+      'u1',
+      Repas(
+        date: lundi.add(const Duration(hours: 12)),
+        moment: Moment.dejeuner,
+        nom: 'Riz',
+        macros: const Macros(kcal: 130, proteines: 3),
+        source: SourceRepas.photo,
+        description: 'Du riz blanc',
+        aliments: const [
+          AlimentEstime(
+            nom: 'Riz',
+            grammes: 100,
+            macros: Macros(kcal: 130, proteines: 3, glucides: 28),
+            confiance: 0.5,
+            sucres: 1,
+          ),
+        ],
+      ),
+    );
+
+    final r = (await depot.repas('u1', lundi, mardi).first).single;
+
+    expect(r.description, 'Du riz blanc');
+    expect(r.aliments.single.nom, 'Riz');
+    expect(r.aliments.single.grammes, 100);
+    expect(r.aliments.single.confiance, 0.5);
+    expect(r.aliments.single.sucres, 1);
+    expect(r.aliments.single.satures, isNull);
+    expect(r.aliments.single.macros.glucides, 28);
   });
 
   test('supprimer un repas', () async {

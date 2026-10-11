@@ -18,6 +18,7 @@ import 'modele.dart';
 import 'photo_repas_page.dart';
 import '../recettes/avis_repository.dart';
 import '../recettes/idees_page.dart';
+import 'detail_repas_page.dart';
 import '../recettes/planning_page.dart';
 import '../recettes/planning_repository.dart';
 
@@ -94,6 +95,24 @@ class _JournalPageState extends State<JournalPage> {
     ScaffoldMessenger.of(context)
       ..hideCurrentSnackBar()
       ..showSnackBar(SnackBar(content: Text(texte)));
+  }
+
+  void _ouvrirDetail(Repas r, CiblesJour cibles, Macros totalJour) {
+    Navigator.of(context).push<void>(
+      MaterialPageRoute(
+        builder: (_) => DetailRepasPage(
+          repas: r,
+          dejaMange: Macros(
+            kcal: totalJour.kcal - r.macros.kcal,
+            proteines: totalJour.proteines - r.macros.proteines,
+            glucides: totalJour.glucides - r.macros.glucides,
+            lipides: totalJour.lipides - r.macros.lipides,
+          ),
+          cibles: cibles,
+          objectif: widget.enregistre.profil.objectif,
+        ),
+      ),
+    );
   }
 
   Future<void> _ajouterRepas() async {
@@ -276,6 +295,7 @@ class _JournalPageState extends State<JournalPage> {
               sousTitre:
                   '${libelleMoment(t, r.moment)} · '
                   '${t.kcalValeur(r.macros.kcal.round().toString())}',
+              onTap: () => _ouvrirDetail(r, cibles, macros),
               onSupprimer: r.id == null
                   ? null
                   : () => unawaited(widget.journal.supprimerRepas(_uid, r.id!)),
@@ -629,12 +649,14 @@ class _Ligne extends StatelessWidget {
     required this.titre,
     required this.sousTitre,
     required this.onSupprimer,
+    this.onTap,
   });
 
   final IconData icone;
   final String titre;
   final String sousTitre;
   final VoidCallback? onSupprimer;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -645,6 +667,7 @@ class _Ligne extends StatelessWidget {
         leading: Icon(icone, color: CouleursCoach.vert),
         title: Text(titre),
         subtitle: Text(sousTitre),
+        onTap: onTap,
         trailing: onSupprimer == null
             ? null
             : IconButton(

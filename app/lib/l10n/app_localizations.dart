@@ -2122,6 +2122,24 @@ abstract class AppLocalizations {
   /// **'Choisis la date de la photo (aujourd\'hui par défaut), puis d\'où elle vient.'**
   String get photoAjoutAide;
 
+  /// No description provided for @composition.
+  ///
+  /// In fr, this message translates to:
+  /// **'Composition'**
+  String get composition;
+
+  /// No description provided for @repasSansAnalyse.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce repas a été saisi à la main : il n\'y a pas d\'analyse détaillée à revoir.'**
+  String get repasSansAnalyse;
+
+  /// No description provided for @portionGrammes.
+  ///
+  /// In fr, this message translates to:
+  /// **'{g} g · {kcal} kcal'**
+  String portionGrammes(int g, int kcal);
+
   /// No description provided for @courbePoids.
   ///
   /// In fr, this message translates to:

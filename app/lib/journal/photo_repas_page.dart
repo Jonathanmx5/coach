@@ -145,6 +145,8 @@ class _PhotoRepasPageState extends State<PhotoRepasPage> {
         nom: gardes.map((a) => a.nom).join(', '),
         macros: totalAliments(gardes),
         source: SourceRepas.photo,
+        description: _description,
+        aliments: gardes,
       ),
     );
   }
@@ -309,7 +311,7 @@ class _PhotoRepasPageState extends State<PhotoRepasPage> {
         if (_aliments.isEmpty)
           Text(t.aucunAliment, style: textes.bodyLarge)
         else if (retenus.isNotEmpty && cibles != null)
-          _CarteVerdict(
+          CarteVerdict(
             description: _description,
             repas: totalAliments(retenus),
             sucres: somme((a) => a.sucres),
@@ -420,8 +422,9 @@ class _PhotoRepasPageState extends State<PhotoRepasPage> {
 }
 
 /// Carton du coach : couleur, ce que c'est, les apports et le verdict détaillé.
-class _CarteVerdict extends StatelessWidget {
-  const _CarteVerdict({
+class CarteVerdict extends StatelessWidget {
+  const CarteVerdict({
+    super.key,
     required this.description,
     required this.repas,
     required this.sucres,

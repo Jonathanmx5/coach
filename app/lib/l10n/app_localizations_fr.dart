@@ -1142,6 +1142,18 @@ class AppLocalizationsFr extends AppLocalizations {
       'Choisis la date de la photo (aujourd\'hui par défaut), puis d\'où elle vient.';
 
   @override
+  String get composition => 'Composition';
+
+  @override
+  String get repasSansAnalyse =>
+      'Ce repas a été saisi à la main : il n\'y a pas d\'analyse détaillée à revoir.';
+
+  @override
+  String portionGrammes(int g, int kcal) {
+    return '$g g · $kcal kcal';
+  }
+
+  @override
   String get courbePoids => 'Évolution du poids';
 
   @override

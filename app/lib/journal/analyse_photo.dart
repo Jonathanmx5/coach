@@ -36,6 +36,24 @@ class AlimentEstime {
   final double? sucres;
   final double? satures;
 
+  Map<String, Object?> toMap() => {
+    'nom': nom,
+    'grammes': grammes,
+    'macros': macros.toMap(),
+    if (confiance != null) 'confiance': confiance,
+    if (sucres != null) 'sucres': sucres,
+    if (satures != null) 'satures': satures,
+  };
+
+  static AlimentEstime fromMap(Map<String, Object?> m) => AlimentEstime(
+    nom: m['nom'] as String? ?? '',
+    grammes: (m['grammes'] as num?)?.toDouble() ?? 0,
+    macros: Macros.fromMap((m['macros']! as Map).cast<String, Object?>()),
+    confiance: (m['confiance'] as num?)?.toDouble(),
+    sucres: (m['sucres'] as num?)?.toDouble(),
+    satures: (m['satures'] as num?)?.toDouble(),
+  );
+
   bool get aVerifier => confiance != null && confiance! < seuilConfiance;
 
   /// Même aliment avec une autre portion (apports proportionnels).

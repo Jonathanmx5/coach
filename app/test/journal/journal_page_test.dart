@@ -310,6 +310,42 @@ void main() {
     expect(banc.sources, [SourcePhoto.galerie, SourcePhoto.appareil]);
   });
 
+  testWidgets('un repas photographié se rouvre avec son analyse', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(1080, 3200);
+    tester.view.devicePixelRatio = 2.75;
+    addTearDown(tester.view.reset);
+    final banc = Banc();
+    banc.analyse.aliments = [riz, poulet];
+    banc.analyse.description = 'Poulet au riz';
+    await banc.monter(tester);
+
+    await analyserUnePhoto(tester);
+    await taper(tester, 'Enregistrer');
+    final enregistre = banc.journal.repasDe('u1').single;
+    expect(enregistre.aliments, hasLength(2));
+    expect(enregistre.description, 'Poulet au riz');
+
+    await tester.tap(find.text('Riz, Poulet'));
+    await tester.pumpAndSettle();
+    expect(find.text('Composition'), findsOneWidget);
+    expect(find.textContaining('Poulet au riz'), findsWidgets);
+    expect(find.text('Le verdict du coach'), findsOneWidget);
+    expect(find.text('100 g · 165 kcal'), findsOneWidget);
+  });
+
+  testWidgets('un repas saisi à la main : résumé sans analyse', (tester) async {
+    final banc = Banc();
+    await banc.repas(400, p: 20);
+    await banc.monter(tester);
+
+    await tester.tap(find.byIcon(Icons.restaurant).first);
+    await tester.pumpAndSettle();
+    expect(find.textContaining('analyse détaillée'), findsOneWidget);
+    expect(find.text('Composition'), findsNothing);
+  });
+
   testWidgets('photo : annulée au choix, on reste sur le choix', (
     tester,
   ) async {

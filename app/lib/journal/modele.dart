@@ -1,5 +1,7 @@
 import 'package:flutter/foundation.dart';
 
+import 'analyse_photo.dart' show AlimentEstime;
+
 enum Moment { petitDejeuner, dejeuner, diner, collation }
 
 enum SourceRepas { manuel, codeBarres, photo }
@@ -63,6 +65,8 @@ class Repas {
     required this.nom,
     required this.macros,
     required this.source,
+    this.description = '',
+    this.aliments = const [],
   });
 
   final String? id;
@@ -72,12 +76,19 @@ class Repas {
   final Macros macros;
   final SourceRepas source;
 
+  /// Pour un repas photographié : ce que l'IA a compris et les aliments
+  /// retenus, pour pouvoir revoir l'analyse plus tard.
+  final String description;
+  final List<AlimentEstime> aliments;
+
   Map<String, Object?> toMap() => {
     'date': date.millisecondsSinceEpoch,
     'moment': moment.name,
     'nom': nom,
     'macros': macros.toMap(),
     'source': source.name,
+    if (description.isNotEmpty) 'description': description,
+    if (aliments.isNotEmpty) 'aliments': [for (final a in aliments) a.toMap()],
   };
 
   static Repas fromMap(String id, Map<String, Object?> m) => Repas(
@@ -87,6 +98,11 @@ class Repas {
     nom: m['nom'] as String? ?? '',
     macros: Macros.fromMap((m['macros']! as Map).cast<String, Object?>()),
     source: SourceRepas.values.asNameMap()[m['source']] ?? SourceRepas.manuel,
+    description: m['description'] as String? ?? '',
+    aliments: [
+      for (final a in (m['aliments'] as List?) ?? const [])
+        AlimentEstime.fromMap((a as Map).cast<String, Object?>()),
+    ],
   );
 }
 

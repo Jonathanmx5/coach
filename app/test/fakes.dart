@@ -660,6 +660,8 @@ class FauxJournal implements JournalRepository {
         nom: repas.nom,
         macros: repas.macros,
         source: repas.source,
+        description: repas.description,
+        aliments: repas.aliments,
       ),
     ];
     _flux.add(null);
