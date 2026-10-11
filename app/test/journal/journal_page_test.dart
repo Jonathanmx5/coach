@@ -1,5 +1,6 @@
 import 'package:coach/compte/donnees_compte.dart';
 import 'package:coach/journal/analyse_photo.dart';
+import 'package:coach/journal/catalogue.dart';
 
 import 'dart:typed_data';
 
@@ -54,6 +55,8 @@ class Banc {
   Uint8List? photo = Uint8List.fromList([1, 2, 3]);
   final sources = <SourcePhoto>[];
   final photosRepas = FausPhotosRepas();
+  final catalogue = FauxCatalogue();
+  String? codeScanne = '3017620422003';
 
   Future<void> monter(WidgetTester tester) async {
     // Grand écran : le résultat de la photo est long, tout doit être construit.
@@ -76,6 +79,8 @@ class Banc {
           avis: FauxAvis(),
           consentements: consentements,
           photosRepas: photosRepas,
+          catalogue: catalogue,
+          scan: (_) async => codeScanne,
           prise: (source) async {
             sources.add(source);
             return photo;
@@ -701,9 +706,106 @@ void main() {
     await ouvrirPhoto(tester);
 
     expect(find.text('Prendre une photo'), findsOneWidget);
-    expect(find.text('Scanner un produit'), findsNothing);
+    // Le code-barres est une option de l'écran photo, pas un menu de plus.
+    expect(find.text('Scanner un produit'), findsOneWidget);
     expect(find.text('Ajouter une activité'), findsNothing);
     expect(find.text('Ajouter un repas'), findsNothing);
+  });
+
+  group('code-barres', () {
+    const muesli = ProduitOff(
+      nom: 'Muesli croustillant',
+      pour100g: Macros(kcal: 400, proteines: 10, glucides: 60, lipides: 12),
+      sucres100g: 20,
+      satures100g: 2,
+    );
+
+    Future<void> scanner(WidgetTester tester) async {
+      await ouvrirPhoto(tester);
+      await taper(tester, 'Scanner un produit');
+    }
+
+    testWidgets('produit connu : portion choisie puis enregistré', (
+      tester,
+    ) async {
+      final banc = Banc();
+      banc.catalogue.produit = muesli;
+      await banc.monter(tester);
+
+      await scanner(tester);
+      expect(banc.catalogue.recherches, ['3017620422003']);
+      await saisir(tester, 'Quantité mangée (g)', '50');
+      await taper(tester, 'Ajouter');
+
+      expect(find.text('50 g · 200 kcal'), findsOneWidget);
+      expect(banc.analyse.appels, 0);
+      await taper(tester, 'Enregistrer');
+
+      final r = banc.journal.repasDe('u1').single;
+      expect(r.nom, 'Muesli croustillant');
+      expect(r.macros.kcal, 200);
+      expect(r.macros.proteines, 5);
+      expect(r.source, SourceRepas.codeBarres);
+      expect(r.photoId, isNull);
+      expect(r.aliments.single.sucres, 10);
+    });
+
+    testWidgets('produit inconnu : message, retour au choix', (tester) async {
+      final banc = Banc();
+      await banc.monter(tester);
+
+      await scanner(tester);
+
+      expect(find.textContaining('Produit introuvable'), findsOneWidget);
+      expect(find.text('Scanner un produit'), findsOneWidget);
+      expect(banc.journal.repasDe('u1'), isEmpty);
+    });
+
+    testWidgets('hors-ligne : message clair', (tester) async {
+      final banc = Banc();
+      banc.catalogue.erreur = true;
+      await banc.monter(tester);
+
+      await scanner(tester);
+
+      expect(find.textContaining('Open Food Facts'), findsOneWidget);
+    });
+
+    testWidgets('lecture annulée : rien ne se passe', (tester) async {
+      final banc = Banc();
+      banc.codeScanne = null;
+      await banc.monter(tester);
+
+      await scanner(tester);
+
+      expect(banc.catalogue.recherches, isEmpty);
+      expect(find.text('Scanner un produit'), findsOneWidget);
+    });
+  });
+
+  testWidgets('l\'IA doute : on peut préciser et relancer', (tester) async {
+    final banc = Banc();
+    banc.analyse.aliments = [
+      const AlimentEstime(
+        nom: 'Plat brun',
+        grammes: 200,
+        macros: Macros(kcal: 300, proteines: 10, glucides: 30, lipides: 10),
+        confiance: 0.3,
+      ),
+    ];
+    await banc.monter(tester);
+    await analyserUnePhoto(tester);
+    expect(find.textContaining('pas sûr'), findsOneWidget);
+    expect(banc.analyse.appels, 1);
+
+    banc.analyse.aliments = [riz];
+    await saisir(tester, 'Une précision ? (facultatif)', 'du riz au curry');
+    await taper(tester, 'Analyser à nouveau');
+
+    expect(banc.analyse.appels, 2);
+    expect(banc.analyse.indices.last, 'du riz au curry');
+    expect(find.text('Riz'), findsOneWidget);
+    expect(find.textContaining('pas sûr'), findsNothing);
   });
 
   testWidgets('un produit protéiné : carton vert, description et apports', (

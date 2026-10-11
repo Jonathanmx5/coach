@@ -59,6 +59,7 @@ Future<void> monter(
           mensurations: FauxMensurations(),
           photos: FausPhotos(),
           photosRepas: FausPhotosRepas(),
+          catalogue: FauxCatalogue(),
           entrainement: FauxEntrainement(),
           voix: FausseVoix(),
           bienetre: FauxBienEtre(),

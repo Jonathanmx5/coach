@@ -1177,6 +1177,24 @@ class AppLocalizationsFr extends AppLocalizations {
   String get enregistrerModifications => 'Enregistrer les modifications';
 
   @override
+  String get catalogueErreur =>
+      'Impossible de joindre Open Food Facts. Vérifie ta connexion.';
+
+  @override
+  String get produitInconnu =>
+      'Produit introuvable. Essaie avec la photo du repas.';
+
+  @override
+  String get scanPortionLabel => 'Quantité mangée (g)';
+
+  @override
+  String get analyseIncertaine =>
+      'Je ne suis pas sûr de ce que je vois. Dis-moi ce que c\'est, je regarde à nouveau.';
+
+  @override
+  String get reanalyser => 'Analyser à nouveau';
+
+  @override
   String get courbePoids => 'Évolution du poids';
 
   @override

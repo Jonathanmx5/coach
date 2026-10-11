@@ -16,6 +16,8 @@ import 'formulaires.dart';
 import 'journal_repository.dart';
 import 'modele.dart';
 import 'photo_repas_page.dart';
+import 'catalogue.dart';
+import 'scanner_page.dart' show ScanCode, lireCodeBarres;
 import 'photos_repas.dart';
 import '../recettes/avis_repository.dart';
 import '../recettes/idees_page.dart';
@@ -37,6 +39,8 @@ class JournalPage extends StatefulWidget {
     required this.avis,
     required this.consentements,
     required this.photosRepas,
+    required this.catalogue,
+    this.scan = lireCodeBarres,
     this.prise = prisePhotoCamera,
   });
 
@@ -50,6 +54,8 @@ class JournalPage extends StatefulWidget {
   final AvisRepository avis;
   final ConsentementsRepository consentements;
   final PhotosRepas photosRepas;
+  final CatalogueProduits catalogue;
+  final ScanCode scan;
   final PrisePhoto prise;
 
   @override
@@ -152,6 +158,8 @@ class _JournalPageState extends State<JournalPage> {
           analyse: widget.analyse,
           prise: widget.prise,
           photos: widget.photosRepas,
+          catalogue: widget.catalogue,
+          scan: widget.scan,
           dejaMange: _macrosDuJour,
           cibles: _ciblesDuJour,
           objectif: widget.enregistre.profil.objectif,

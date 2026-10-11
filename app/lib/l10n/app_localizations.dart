@@ -2176,6 +2176,36 @@ abstract class AppLocalizations {
   /// **'Enregistrer les modifications'**
   String get enregistrerModifications;
 
+  /// No description provided for @catalogueErreur.
+  ///
+  /// In fr, this message translates to:
+  /// **'Impossible de joindre Open Food Facts. Vérifie ta connexion.'**
+  String get catalogueErreur;
+
+  /// No description provided for @produitInconnu.
+  ///
+  /// In fr, this message translates to:
+  /// **'Produit introuvable. Essaie avec la photo du repas.'**
+  String get produitInconnu;
+
+  /// No description provided for @scanPortionLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Quantité mangée (g)'**
+  String get scanPortionLabel;
+
+  /// No description provided for @analyseIncertaine.
+  ///
+  /// In fr, this message translates to:
+  /// **'Je ne suis pas sûr de ce que je vois. Dis-moi ce que c\'est, je regarde à nouveau.'**
+  String get analyseIncertaine;
+
+  /// No description provided for @reanalyser.
+  ///
+  /// In fr, this message translates to:
+  /// **'Analyser à nouveau'**
+  String get reanalyser;
+
   /// No description provided for @courbePoids.
   ///
   /// In fr, this message translates to:

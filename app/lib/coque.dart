@@ -135,6 +135,7 @@ class _CoqueState extends State<Coque> {
             avis: _s.avis,
             consentements: _s.consentements,
             photosRepas: _s.photosRepas,
+            catalogue: _s.catalogue,
             suivi: _suivi,
             horloge: widget.horloge,
           ),

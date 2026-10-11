@@ -7,6 +7,8 @@ import '../profil/saisie.dart';
 import '../theme.dart';
 import 'analyse_photo.dart';
 import 'calculs.dart';
+import 'catalogue.dart';
+import 'scanner_page.dart';
 import 'formulaires.dart';
 import '../profil/modele.dart';
 import 'modele.dart';
@@ -29,6 +31,8 @@ class PhotoRepasPage extends StatefulWidget {
     required this.analyse,
     required this.prise,
     required this.photos,
+    required this.catalogue,
+    this.scan = lireCodeBarres,
     this.dejaMange = Macros.zero,
     this.cibles,
     this.objectif = Objectif.forme,
@@ -38,6 +42,8 @@ class PhotoRepasPage extends StatefulWidget {
   final AnalysePhoto analyse;
   final PrisePhoto prise;
   final PhotosRepas photos;
+  final CatalogueProduits catalogue;
+  final ScanCode scan;
 
   /// Ce qui est déjà noté aujourd'hui et les objectifs du jour, pour montrer
   /// l'effet du repas ; sans [cibles], cette ligne n'est pas affichée.
@@ -58,6 +64,9 @@ class _PhotoRepasPageState extends State<PhotoRepasPage> {
   List<AlimentEstime> _aliments = const [];
   String _description = '';
   final _gardes = <int>{};
+
+  /// Vrai quand l'aliment vient d'un code-barres plutôt que d'une photo.
+  bool _viaCode = false;
   final _precision = TextEditingController();
   late Moment _moment = momentPourHeure(widget.date);
 
@@ -73,6 +82,68 @@ class _PhotoRepasPageState extends State<PhotoRepasPage> {
     setState(() {
       _image = image;
       _phase = _Phase.apercu;
+    });
+  }
+
+  void _signaler(String texte) {
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(SnackBar(content: Text(texte)));
+  }
+
+  /// Produit emballé : le code-barres donne des valeurs exactes pour 100 g,
+  /// l'utilisateur dit combien il en a mangé.
+  Future<void> _scanner() async {
+    final t = AppLocalizations.of(context)!;
+    final code = await widget.scan(context);
+    if (code == null || !mounted) return;
+    setState(() => _phase = _Phase.analyse);
+    final ProduitOff? produit;
+    try {
+      produit = await widget.catalogue.chercher(code);
+    } on ErreurCatalogue {
+      if (!mounted) return;
+      setState(() => _phase = _Phase.choix);
+      _signaler(t.catalogueErreur);
+      return;
+    }
+    if (!mounted) return;
+    if (produit == null) {
+      setState(() => _phase = _Phase.choix);
+      _signaler(t.produitInconnu);
+      return;
+    }
+    // Le sablier est retiré avant la question : rien ne tourne derrière.
+    setState(() => _phase = _Phase.choix);
+    final grammes = await showDialog<double>(
+      context: context,
+      builder: (_) => _DialoguePortion(nom: produit!.nom),
+    );
+    if (!mounted) return;
+    if (grammes == null) {
+      setState(() => _phase = _Phase.choix);
+      return;
+    }
+    final f = grammes / 100;
+    setState(() {
+      _viaCode = true;
+      _image = null;
+      _description = produit!.nom;
+      _aliments = [
+        AlimentEstime(
+          nom: produit.nom,
+          grammes: grammes,
+          macros: produit.pour100g.multiplie(f),
+          sucres: produit.sucres100g == null ? null : produit.sucres100g! * f,
+          satures: produit.satures100g == null
+              ? null
+              : produit.satures100g! * f,
+        ),
+      ];
+      _gardes
+        ..clear()
+        ..add(0);
+      _phase = _Phase.resultat;
     });
   }
 
@@ -164,7 +235,7 @@ class _PhotoRepasPageState extends State<PhotoRepasPage> {
           );
     String? photoId;
     try {
-      photoId = await widget.photos.enregistrer(_image!);
+      if (_image != null) photoId = await widget.photos.enregistrer(_image!);
     } catch (_) {}
     if (!mounted) return;
     Navigator.of(context).pop(
@@ -173,7 +244,7 @@ class _PhotoRepasPageState extends State<PhotoRepasPage> {
         moment: _moment,
         nom: gardes.map((a) => a.nom).join(', '),
         macros: totalAliments(gardes),
-        source: SourceRepas.photo,
+        source: _viaCode ? SourceRepas.codeBarres : SourceRepas.photo,
         description: _description,
         aliments: gardes,
         photoId: photoId,
@@ -197,28 +268,30 @@ class _PhotoRepasPageState extends State<PhotoRepasPage> {
     );
   }
 
-  Widget _vignette({double hauteur = 220}) => ClipRRect(
-    borderRadius: BorderRadius.circular(rayonCarte),
-    child: SizedBox(
-      height: hauteur,
-      width: double.infinity,
-      child: Image.memory(
-        _image!,
-        fit: BoxFit.cover,
-        errorBuilder: (_, _, _) => const ColoredBox(
-          color: CouleursCoach.vertPale,
-          child: Icon(Icons.restaurant),
-        ),
-      ),
-    ),
-  );
+  Widget _vignette({double hauteur = 220}) => _image == null
+      ? const SizedBox.shrink()
+      : ClipRRect(
+          borderRadius: BorderRadius.circular(rayonCarte),
+          child: SizedBox(
+            height: hauteur,
+            width: double.infinity,
+            child: Image.memory(
+              _image!,
+              fit: BoxFit.cover,
+              errorBuilder: (_, _, _) => const ColoredBox(
+                color: CouleursCoach.vertPale,
+                child: Icon(Icons.restaurant),
+              ),
+            ),
+          ),
+        );
 
   Widget _choix(AppLocalizations t) {
     final textes = Theme.of(context).textTheme;
-    Widget carte(IconData icone, String texte, SourcePhoto source) => Card(
+    Widget carte(IconData icone, String texte, SourcePhoto? source) => Card(
       clipBehavior: Clip.antiAlias,
       child: InkWell(
-        onTap: () => _choisir(source),
+        onTap: () => source == null ? _scanner() : _choisir(source),
         child: Padding(
           padding: const EdgeInsets.symmetric(vertical: 28, horizontal: 16),
           child: Column(
@@ -246,6 +319,7 @@ class _PhotoRepasPageState extends State<PhotoRepasPage> {
           t.galerieChoix,
           SourcePhoto.galerie,
         ),
+        carte(Icons.qr_code_scanner, t.scanTitre, null),
         const SizedBox(height: 8),
         TextButton(onPressed: _manuel, child: Text(t.saisirALaMain)),
       ],
@@ -356,6 +430,11 @@ class _PhotoRepasPageState extends State<PhotoRepasPage> {
               objectif: widget.objectif,
             ),
           ),
+        if (_image != null &&
+            (_aliments.isEmpty || _aliments.any((a) => a.aVerifier))) ...[
+          const SizedBox(height: 12),
+          _CartePrecision(controleur: _precision, onReanalyser: _analyser),
+        ],
         if (_aliments.isNotEmpty) ...[
           const SizedBox(height: 12),
           Text(
@@ -572,6 +651,98 @@ class CarteVerdict extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+/// Quand l'IA doute : l'utilisateur dit ce que c'est et relance l'analyse.
+class _CartePrecision extends StatelessWidget {
+  const _CartePrecision({required this.controleur, required this.onReanalyser});
+
+  final TextEditingController controleur;
+  final VoidCallback onReanalyser;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
+    return Card(
+      color: CouleursCoach.orangeClair,
+      child: Padding(
+        padding: const EdgeInsets.all(14),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              t.analyseIncertaine,
+              style: Theme.of(context).textTheme.titleSmall,
+            ),
+            const SizedBox(height: 8),
+            TextField(
+              controller: controleur,
+              maxLength: 200,
+              decoration: InputDecoration(
+                labelText: t.precisionLabel,
+                hintText: t.precisionAide,
+              ),
+            ),
+            Align(
+              alignment: Alignment.centerRight,
+              child: OutlinedButton.icon(
+                onPressed: onReanalyser,
+                icon: const Icon(Icons.refresh),
+                label: Text(t.reanalyser),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Combien de grammes du produit scanné ont été mangés.
+class _DialoguePortion extends StatefulWidget {
+  const _DialoguePortion({required this.nom});
+
+  final String nom;
+
+  @override
+  State<_DialoguePortion> createState() => _DialoguePortionState();
+}
+
+class _DialoguePortionState extends State<_DialoguePortion> {
+  final _grammes = TextEditingController(text: '100');
+
+  @override
+  void dispose() {
+    _grammes.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
+    final valeur = double.tryParse(_grammes.text.replaceAll(',', '.'));
+    return AlertDialog(
+      title: Text(widget.nom),
+      content: TextField(
+        controller: _grammes,
+        keyboardType: const TextInputType.numberWithOptions(decimal: true),
+        decoration: InputDecoration(labelText: t.scanPortionLabel),
+        onChanged: (_) => setState(() {}),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: Text(t.annuler),
+        ),
+        FilledButton(
+          onPressed: valeur == null || valeur <= 0 || valeur > 5000
+              ? null
+              : () => Navigator.of(context).pop(valeur),
+          child: Text(t.ajouter),
+        ),
+      ],
     );
   }
 }

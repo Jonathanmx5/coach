@@ -17,6 +17,7 @@ import 'package:coach/journal/modele.dart';
 import 'package:coach/poids/mensurations.dart';
 import 'package:coach/poids/mensurations_repository.dart';
 import 'package:coach/poids/pesees.dart';
+import 'package:coach/journal/catalogue.dart';
 import 'package:coach/journal/photos_repas.dart';
 import 'package:coach/poids/photos.dart';
 import 'package:coach/poids/pesees_repository.dart';
@@ -552,6 +553,22 @@ class FauxEntrainement implements EntrainementRepository {
   Future<void> ajouterSeance(String uid, SeanceFaite s) async {
     seancesParUid[uid] = [...seancesDe(uid), s];
     _flux.add(null);
+  }
+}
+
+/// Catalogue de produits programmable.
+class FauxCatalogue implements CatalogueProduits {
+  FauxCatalogue({this.produit, this.erreur = false});
+
+  ProduitOff? produit;
+  bool erreur;
+  final recherches = <String>[];
+
+  @override
+  Future<ProduitOff?> chercher(String codeBarres) async {
+    recherches.add(codeBarres);
+    if (erreur) throw const ErreurCatalogue('hors-ligne');
+    return produit;
   }
 }
 
