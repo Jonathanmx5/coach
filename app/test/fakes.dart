@@ -28,6 +28,7 @@ import 'package:coach/recettes/planning.dart';
 import 'package:coach/recettes/planning_repository.dart';
 import 'package:coach/reglages/mises_a_jour.dart';
 import 'package:coach/reseau.dart';
+import 'package:coach/widget/donnees_widget.dart';
 import 'package:coach/sante/modele.dart';
 import 'package:coach/sante/sante_service.dart';
 
@@ -306,6 +307,30 @@ class FauxConsentements implements ConsentementsRepository {
   }
 }
 
+/// Widget de l'écran d'accueil : note ce qu'on lui envoie.
+class FauxWidget implements MiseAJourWidget {
+  final envois = <DonneesWidget>[];
+
+  @override
+  Future<void> mettre(DonneesWidget donnees) async => envois.add(donnees);
+}
+
+/// Stockage du widget en mémoire.
+class FauxStockageWidget implements StockageWidget {
+  final valeurs = <String, String?>{};
+  int rafraichissements = 0;
+
+  @override
+  Future<String?> lire(String cle) async => valeurs[cle];
+
+  @override
+  Future<void> ecrire(String cle, String? valeur) async =>
+      valeurs[cle] = valeur;
+
+  @override
+  Future<void> rafraichir() async => rafraichissements++;
+}
+
 /// Réseau piloté par le test.
 class FauxReseau implements Reseau {
   FauxReseau([bool enLigne = true]) : _etat = enLigne;
@@ -537,12 +562,15 @@ class FausPhotos implements PhotosProgres {
   @override
   Future<List<PhotoProgres>> lister() async => [...liste];
 
+  final ajouts = <({SourcePhoto source, DateTime jour})>[];
+
   @override
-  Future<PhotoProgres?> prendre(DateTime date) async {
+  Future<PhotoProgres?> ajouter(SourcePhoto source, DateTime jour) async {
     if (annule) return null;
+    ajouts.add((source: source, jour: jour));
     final p = PhotoProgres(
-      chemin: '/faux/${date.millisecondsSinceEpoch}.jpg',
-      date: date,
+      chemin: '/faux/${jour.millisecondsSinceEpoch}-${liste.length}.jpg',
+      date: jour,
     );
     liste.add(p);
     return p;

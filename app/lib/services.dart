@@ -16,6 +16,7 @@ import 'recettes/planning_repository.dart';
 import 'reglages/mises_a_jour.dart';
 import 'reglages/reglages_page.dart';
 import 'reseau.dart';
+import 'widget/donnees_widget.dart';
 import 'sante/sante_service.dart';
 
 /// Tout ce que l'appli utilise à l'extérieur (Firebase, Health Connect,
@@ -41,6 +42,7 @@ class Services {
     required this.ouvrirLien,
     required this.donnees,
     required this.consentements,
+    required this.widgetAccueil,
     required this.journal,
     required this.sante,
   });
@@ -64,6 +66,7 @@ class Services {
   final OuvreurLien ouvrirLien;
   final DonneesCompte donnees;
   final ConsentementsRepository consentements;
+  final MiseAJourWidget widgetAccueil;
   final JournalRepository journal;
   final SanteService sante;
 }

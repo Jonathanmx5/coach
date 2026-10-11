@@ -46,6 +46,7 @@ class Banc {
   late final FausseMeteo meteo;
   late final SuiviMeteo meteoSuivi;
   final onglets = <int>[];
+  final widget = FauxWidget();
 
   Reperes get reperes => calculerReperes(profil, maintenant: maintenant);
 
@@ -69,6 +70,7 @@ class Banc {
               meteoSuivi: meteoSuivi,
               horloge: () => maintenant,
               onOnglet: onglets.add,
+              majWidget: widget,
             ),
           ),
         ),
@@ -303,5 +305,36 @@ void main() {
     await tester.tap(find.text('Hydratation'));
 
     expect(banc.onglets, [2, 1, 1, 4]);
+  });
+
+  testWidgets("le widget de l'écran d'accueil reçoit les chiffres du jour", (
+    tester,
+  ) async {
+    final banc = Banc();
+    banc.bienetre.eauParUid['u1'] = [
+      EntreeEau(date: DateTime(2026, 10, 9, 9), ml: 750),
+    ];
+    await banc.monter(tester);
+
+    expect(banc.widget.envois, hasLength(1));
+    final d = banc.widget.envois.single;
+    expect(d.eauMl, 750);
+    expect(d.objectifEauMl, objectifEauMl(poidsKg: 80));
+    expect(d.mangees, 0);
+    expect(d.objectifBrule, banc.reperes.maintien);
+    expect(d.eauTexte, startsWith('0,75 / '));
+
+    // Pas de nouvel envoi tant que rien ne change...
+    await tester.pump(const Duration(seconds: 2));
+    expect(banc.widget.envois, hasLength(1));
+
+    // ... puis un seul quand on boit.
+    await banc.bienetre.ajouterEau(
+      'u1',
+      EntreeEau(date: DateTime(2026, 10, 9, 15), ml: 250),
+    );
+    await tester.pumpAndSettle();
+    expect(banc.widget.envois, hasLength(2));
+    expect(banc.widget.envois.last.eauMl, 1000);
   });
 }

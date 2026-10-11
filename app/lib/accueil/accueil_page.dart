@@ -9,6 +9,7 @@ import '../bienetre/bienetre_repository.dart';
 import '../bienetre/suivi_meteo.dart';
 import '../journal/journal_repository.dart';
 import '../l10n/app_localizations.dart';
+import '../widget/donnees_widget.dart';
 import 'anneaux.dart';
 import '../profil/besoins.dart';
 import '../profil/modele.dart';
@@ -41,6 +42,7 @@ class AccueilPage extends StatefulWidget {
     required this.onIdees,
     required this.miseAJour,
     required this.onReglages,
+    this.majWidget,
   });
 
   final Utilisateur utilisateur;
@@ -65,6 +67,9 @@ class AccueilPage extends StatefulWidget {
 
   /// Ouvre les réglages.
   final VoidCallback onReglages;
+
+  /// Widget de l'écran d'accueil tenu à jour avec les chiffres du jour.
+  final MiseAJourWidget? majWidget;
 
   @override
   State<AccueilPage> createState() => _AccueilPageState();
@@ -175,6 +180,7 @@ class _AccueilPageState extends State<AccueilPage> {
                           meteoSuivi: widget.meteoSuivi,
                           horloge: widget.horloge,
                           onOnglet: widget.onOnglet,
+                          majWidget: widget.majWidget,
                         ),
                         const SizedBox(height: 24),
                         CarteJournee(

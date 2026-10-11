@@ -5,6 +5,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:home_widget/home_widget.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import 'app.dart';
@@ -27,12 +28,16 @@ import 'recettes/avis_repository.dart';
 import 'recettes/planning_repository.dart';
 import 'reglages/mises_a_jour.dart';
 import 'reseau.dart';
+import 'widget/donnees_widget.dart';
+import 'widget/rappel_widget.dart';
 import 'sante/sante_service.dart';
 import 'services.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  // Boutons d'eau du widget de l'écran d'accueil (application fermée).
+  unawaited(HomeWidget.registerInteractivityCallback(rappelWidget));
 
   // Hors-ligne : l'appli lit et écrit dans le cache, synchronisé au retour du réseau.
   FirebaseFirestore.instance.settings = const Settings(
@@ -69,6 +74,7 @@ Future<void> main() async {
           versionAppli: VersionAppliReelle(),
           donnees: FirestoreDonneesCompte(),
           consentements: FirestoreConsentementsRepository(),
+          widgetAccueil: WidgetAccueil(),
           ouvrirLien: (u) => launchUrl(u, mode: LaunchMode.externalApplication),
           analyse: AnalysePhotoRelais(
             url: const String.fromEnvironment('RELAIS_URL'),

@@ -1126,6 +1126,22 @@ class AppLocalizationsFr extends AppLocalizations {
   String get supprimerActivite => 'Supprimer l\'activité';
 
   @override
+  String get ajouterPhotoProgres => 'Ajouter une photo';
+
+  @override
+  String get photoAppareil => 'Appareil photo';
+
+  @override
+  String get photoBibliotheque => 'Bibliothèque de photos';
+
+  @override
+  String get photoDate => 'Date de la photo';
+
+  @override
+  String get photoAjoutAide =>
+      'Choisis la date de la photo (aujourd\'hui par défaut), puis d\'où elle vient.';
+
+  @override
   String get courbePoids => 'Évolution du poids';
 
   @override

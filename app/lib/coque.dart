@@ -113,6 +113,7 @@ class _CoqueState extends State<Coque> {
             meteoSuivi: _meteoSuivi,
             miseAJour: _maj,
             onReglages: _ouvrirReglages,
+            majWidget: _s.widgetAccueil,
             onIdees: () => Navigator.of(context).push<void>(
               MaterialPageRoute(
                 builder: (_) => IdeesPage(

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="widget_description">Tes anneaux du jour et l\'ajout d\'eau en un geste.</string>
+    <string name="widget_titre_eau">Hydratation</string>
+    <string name="widget_anneaux_description">Anneaux du jour : calories brûlées et mangées, protéines, eau</string>
+</resources>

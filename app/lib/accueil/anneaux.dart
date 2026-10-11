@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:flutter/foundation.dart' show listEquals;
@@ -14,6 +15,7 @@ import '../profil/besoins.dart';
 import '../profil/modele.dart';
 import '../sante/suivi.dart';
 import '../theme.dart';
+import '../widget/donnees_widget.dart';
 
 /// Couleurs des anneaux, celles de l'application, sur un fond vert très clair :
 /// vert pour le sport (vert profond pour les calories brûlées, vert moyen pour
@@ -33,6 +35,7 @@ class Anneaux extends StatelessWidget {
     required this.progres,
     this.taille = 230,
     this.centre,
+    this.animer = true,
   });
 
   /// Dans l'ordre : brûlées, mangées, protéines, eau.
@@ -41,6 +44,9 @@ class Anneaux extends StatelessWidget {
 
   /// Affiché au milieu des anneaux.
   final Widget? centre;
+
+  /// Faux pour dessiner d'un coup (image du widget de l'écran d'accueil).
+  final bool animer;
 
   static const couleurs = [_cBrule, _cMange, _cProteines, _cEau];
 
@@ -52,7 +58,7 @@ class Anneaux extends StatelessWidget {
       children: [
         TweenAnimationBuilder<double>(
           tween: Tween(begin: 0, end: 1),
-          duration: const Duration(milliseconds: 900),
+          duration: animer ? const Duration(milliseconds: 900) : Duration.zero,
           curve: Curves.easeOutCubic,
           builder: (context, t, _) => CustomPaint(
             size: Size.square(taille),
@@ -135,6 +141,7 @@ class CarteAujourdhui extends StatefulWidget {
     required this.meteoSuivi,
     required this.horloge,
     required this.onOnglet,
+    this.majWidget,
   });
 
   final String uid;
@@ -148,11 +155,17 @@ class CarteAujourdhui extends StatefulWidget {
   /// Ouvre un onglet de la barre du bas (1 Repas, 2 Sport, 3 Poids, 4 Bien-être).
   final ValueChanged<int> onOnglet;
 
+  /// Widget de l'écran d'accueil à tenir à jour avec ces chiffres.
+  final MiseAJourWidget? majWidget;
+
   @override
   State<CarteAujourdhui> createState() => _CarteAujourdhuiState();
 }
 
 class _CarteAujourdhuiState extends State<CarteAujourdhui> {
+  DonneesWidget? _derniereEnvoyee;
+  bool _donneesPretes = false;
+
   late final DateTime _jour = DateTime(
     widget.horloge().year,
     widget.horloge().month,
@@ -188,12 +201,17 @@ class _CarteAujourdhuiState extends State<CarteAujourdhui> {
         stream: _eau,
         builder: (context, eau) => ListenableBuilder(
           listenable: Listenable.merge([widget.suivi, widget.meteoSuivi]),
-          builder: (context, _) => _contenu(
-            context,
-            repas.data ?? const [],
-            activites.data ?? const [],
-            eau.data ?? const [],
-          ),
+          builder: (context, _) {
+            // Le widget n'est mis à jour qu'avec des données arrivées, pas avec
+            // des zéros de chargement.
+            _donneesPretes = repas.hasData && activites.hasData && eau.hasData;
+            return _contenu(
+              context,
+              repas.data ?? const [],
+              activites.data ?? const [],
+              eau.data ?? const [],
+            );
+          },
         ),
       ),
     ),
@@ -246,6 +264,26 @@ class _CarteAujourdhuiState extends State<CarteAujourdhui> {
     final mesure = (jourSante?.kcalTotales ?? 0) > 0;
 
     double part(double v, double objectif) => objectif <= 0 ? 0 : v / objectif;
+
+    // Le widget de l'écran d'accueil reçoit les mêmes chiffres, une seule fois
+    // par changement.
+    final pour = DonneesWidget(
+      brulees: brulees,
+      objectifBrule: objectifBrule,
+      mangees: macros.kcal,
+      objectifMange: cibles.kcal,
+      proteines: macros.proteines,
+      objectifProteines: cibles.proteines,
+      eauMl: bu,
+      objectifEauMl: objectifEau,
+    );
+    final majWidget = widget.majWidget;
+    if (majWidget != null && _donneesPretes && pour != _derniereEnvoyee) {
+      _derniereEnvoyee = pour;
+      WidgetsBinding.instance.addPostFrameCallback(
+        (_) => unawaited(majWidget.mettre(pour)),
+      );
+    }
 
     return Container(
       padding: const EdgeInsets.fromLTRB(20, 20, 20, 12),

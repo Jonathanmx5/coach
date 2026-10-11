@@ -45,6 +45,7 @@ Future<void> monter(
   FausseMiseAJour? miseAJour,
   FauxDonnees? donnees,
   FauxConsentements? consentements,
+  FauxWidget? widgetAccueil,
 }) async {
   await tester.pumpWidget(
     CoachApp(
@@ -68,6 +69,7 @@ Future<void> monter(
           avis: FauxAvis(),
           donnees: donnees ?? FauxDonnees(),
           consentements: consentements ?? FauxConsentements(),
+          widgetAccueil: widgetAccueil ?? FauxWidget(),
           miseAJour: miseAJour ?? FausseMiseAJour(),
           versionAppli: FausseVersion(),
           ouvrirLien: (u) async {

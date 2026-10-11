@@ -1,3 +1,4 @@
+import 'package:coach/journal/analyse_photo.dart';
 import 'package:coach/poids/photos.dart';
 import 'package:flutter/material.dart';
 import 'package:coach/poids/mensurations.dart';
@@ -289,36 +290,53 @@ void main() {
     expect(find.text('22,0 %'), findsOneWidget);
   });
 
-  testWidgets('photos : prise, annulation, comparaison et suppression', (
-    tester,
-  ) async {
-    final banc = Banc();
-    banc.photos.liste.add(
-      PhotoProgres(chemin: '/faux/1.jpg', date: DateTime(2026, 9, 9)),
-    );
-    await banc.monter(tester);
+  testWidgets(
+    'photos : appareil, bibliothèque, date, comparaison et suppression',
+    (tester) async {
+      final banc = Banc();
+      banc.photos.liste.add(
+        PhotoProgres(chemin: '/faux/1.jpg', date: DateTime(2026, 9, 9)),
+      );
+      await banc.monter(tester);
 
-    await defilerJusqua(tester, find.text('Prendre une photo'));
-    expect(find.text('Comparer'), findsNothing);
+      await defilerJusqua(tester, find.text('Ajouter une photo'));
+      expect(find.text('Comparer'), findsNothing);
 
-    banc.photos.annule = true;
-    await taper(tester, 'Prendre une photo');
-    expect(banc.photos.liste, hasLength(1));
+      // Annulation depuis l'appareil : rien n'est ajouté.
+      banc.photos.annule = true;
+      await taper(tester, 'Ajouter une photo');
+      await taper(tester, 'Appareil photo');
+      expect(banc.photos.liste, hasLength(1));
 
-    banc.photos.annule = false;
-    await taper(tester, 'Prendre une photo');
-    expect(banc.photos.liste, hasLength(2));
+      // Bibliothèque, à la date du jour par défaut.
+      banc.photos.annule = false;
+      await taper(tester, 'Ajouter une photo');
+      await taper(tester, 'Bibliothèque de photos');
+      expect(banc.photos.liste, hasLength(2));
+      expect(banc.photos.ajouts.last.source, SourcePhoto.galerie);
+      expect(banc.photos.ajouts.last.jour, DateTime(2026, 10, 9));
 
-    await taper(tester, 'Comparer');
-    expect(find.byType(Slider), findsOneWidget);
-    expect(find.text('Avant'), findsOneWidget);
-    await tester.tap(find.byType(BackButton));
-    await tester.pumpAndSettle();
+      // Une date choisie dans le calendrier, depuis l'appareil.
+      await taper(tester, 'Ajouter une photo');
+      await taper(tester, 'Date de la photo : 9 oct. 2026');
+      await tester.tap(find.text('3'));
+      await tester.tap(find.text('OK'));
+      await tester.pumpAndSettle();
+      await taper(tester, 'Appareil photo');
+      expect(banc.photos.ajouts.last.source, SourcePhoto.appareil);
+      expect(banc.photos.ajouts.last.jour, DateTime(2026, 10, 3));
 
-    await tester.tap(find.byTooltip('Supprimer la photo').first);
-    await tester.pumpAndSettle();
-    expect(banc.photos.liste, hasLength(1));
-  });
+      await taper(tester, 'Comparer');
+      expect(find.byType(Slider), findsOneWidget);
+      expect(find.text('Avant'), findsOneWidget);
+      await tester.tap(find.byType(BackButton));
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byTooltip('Supprimer la photo').first);
+      await tester.pumpAndSettle();
+      expect(banc.photos.liste, hasLength(2));
+    },
+  );
 
   test(
     'quadrillage : pas des traits selon la période et l\'écart de poids',

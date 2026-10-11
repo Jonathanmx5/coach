@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 
 import '../l10n/app_localizations.dart';
 import '../theme.dart';
+import '../journal/analyse_photo.dart' show SourcePhoto;
 import 'photos.dart';
 
 Widget _image(PhotoProgres p, {BoxFit fit = BoxFit.cover}) => Image.file(
@@ -41,8 +42,15 @@ class _PhotosSectionState extends State<PhotosSection> {
     if (mounted) setState(() => _liste = l);
   }
 
-  Future<void> _prendre() async {
-    await widget.photos.prendre(widget.horloge());
+  Future<void> _ajouter() async {
+    final choix =
+        await showModalBottomSheet<({SourcePhoto source, DateTime jour})>(
+          context: context,
+          showDragHandle: true,
+          builder: (_) => _FeuillePhoto(maintenant: widget.horloge()),
+        );
+    if (choix == null) return;
+    await widget.photos.ajouter(choix.source, choix.jour);
     await _recharger();
   }
 
@@ -91,7 +99,7 @@ class _PhotosSectionState extends State<PhotosSection> {
                             Row(
                               children: [
                                 Text(
-                                  DateFormat.yMMM('fr').format(p.date),
+                                  DateFormat.yMMMd('fr').format(p.date),
                                   style: textes.labelSmall,
                                 ),
                                 IconButton(
@@ -118,9 +126,9 @@ class _PhotosSectionState extends State<PhotosSection> {
                   style: OutlinedButton.styleFrom(
                     minimumSize: const Size(0, 48),
                   ),
-                  onPressed: _prendre,
+                  onPressed: _ajouter,
                   icon: const Icon(Icons.photo_camera_outlined),
-                  label: Text(t.prendrePhoto),
+                  label: Text(t.ajouterPhotoProgres),
                 ),
                 if (_liste.length >= 2)
                   FilledButton.icon(
@@ -212,6 +220,80 @@ class _ComparaisonPageState extends State<ComparaisonPage> {
                 ),
                 Text(t.photoApres),
               ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Choix de la date de la photo, puis de sa provenance (appareil ou
+/// bibliothèque). Rend la source et le jour.
+class _FeuillePhoto extends StatefulWidget {
+  const _FeuillePhoto({required this.maintenant});
+
+  final DateTime maintenant;
+
+  @override
+  State<_FeuillePhoto> createState() => _FeuillePhotoState();
+}
+
+class _FeuillePhotoState extends State<_FeuillePhoto> {
+  late DateTime _jour = DateTime(
+    widget.maintenant.year,
+    widget.maintenant.month,
+    widget.maintenant.day,
+  );
+
+  Future<void> _changerDate() async {
+    final choix = await showDatePicker(
+      context: context,
+      initialDate: _jour,
+      firstDate: DateTime(widget.maintenant.year - 5),
+      lastDate: widget.maintenant,
+      locale: const Locale('fr'),
+    );
+    if (choix != null) setState(() => _jour = choix);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
+    return SafeArea(
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(20, 0, 20, 16),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text(
+              t.photoAjoutAide,
+              style: Theme.of(context).textTheme.bodySmall
+                  ?.copyWith(color: CouleursCoach.texteDoux),
+            ),
+            const SizedBox(height: 8),
+            OutlinedButton.icon(
+              onPressed: _changerDate,
+              icon: const Icon(Icons.calendar_today_outlined),
+              label: Text(
+                '${t.photoDate} : ${DateFormat.yMMMd('fr').format(_jour)}',
+              ),
+            ),
+            const SizedBox(height: 8),
+            ListTile(
+              leading: const Icon(Icons.photo_camera_outlined),
+              title: Text(t.photoAppareil),
+              onTap: () =>
+                  Navigator.of(context)
+                      .pop((source: SourcePhoto.appareil, jour: _jour)),
+            ),
+            ListTile(
+              leading: const Icon(Icons.photo_library_outlined),
+              title: Text(t.photoBibliotheque),
+              onTap: () =>
+                  Navigator.of(context)
+                      .pop((source: SourcePhoto.galerie, jour: _jour)),
             ),
           ],
         ),

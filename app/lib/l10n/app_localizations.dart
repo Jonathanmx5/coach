@@ -2092,6 +2092,36 @@ abstract class AppLocalizations {
   /// **'Supprimer l\'activité'**
   String get supprimerActivite;
 
+  /// No description provided for @ajouterPhotoProgres.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ajouter une photo'**
+  String get ajouterPhotoProgres;
+
+  /// No description provided for @photoAppareil.
+  ///
+  /// In fr, this message translates to:
+  /// **'Appareil photo'**
+  String get photoAppareil;
+
+  /// No description provided for @photoBibliotheque.
+  ///
+  /// In fr, this message translates to:
+  /// **'Bibliothèque de photos'**
+  String get photoBibliotheque;
+
+  /// No description provided for @photoDate.
+  ///
+  /// In fr, this message translates to:
+  /// **'Date de la photo'**
+  String get photoDate;
+
+  /// No description provided for @photoAjoutAide.
+  ///
+  /// In fr, this message translates to:
+  /// **'Choisis la date de la photo (aujourd\'hui par défaut), puis d\'où elle vient.'**
+  String get photoAjoutAide;
+
   /// No description provided for @courbePoids.
   ///
   /// In fr, this message translates to:
