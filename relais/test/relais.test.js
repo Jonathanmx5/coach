@@ -293,3 +293,88 @@ test('relais : App Check observe laisse passer, enforce refuse sans preuve', asy
     200,
   );
 });
+
+const REPONSE_GEMINI = {
+  candidates: [
+    {
+      content: {
+        parts: [
+          {
+            text: '{"description":"Poulet au riz","aliments":[{"nom":"Riz","grammes":180,"kcal":234,"proteines":5,"glucides":50,"lipides":1,"confiance":0.8}]}',
+          },
+        ],
+      },
+    },
+  ],
+};
+
+function fauxFetch(reponses) {
+  const appels = [];
+  const f = async (url, init) => {
+    appels.push({ url, init });
+    const r = reponses.shift();
+    if (r instanceof Error) throw r;
+    return new Response(JSON.stringify(r.corps), { status: r.statut ?? 200 });
+  };
+  return { f, appels };
+}
+
+test('Gemini : la photo part avec la clé en en-tête, le résultat est nettoyé', async () => {
+  const { cles, jeton } = await fabrique();
+  const { f, appels } = fauxFetch([{ corps: REPONSE_GEMINI }]);
+  let workersAppele = false;
+  const e = { ...env(async () => { workersAppele = true; return { response: '{"aliments":[]}' }; }), GEMINI_API_KEY: 'cle-secrete' };
+  const r = await traiter(
+    new Request('https://relais.test/analyse?indice=' + encodeURIComponent('la moitié'), {
+      method: 'POST',
+      headers: { authorization: `Bearer ${await jeton()}` },
+      body: new Uint8Array([1, 2, 3]),
+    }),
+    e,
+    { cles, maintenant: MAINTENANT, fetcher: f },
+  );
+  assert.equal(r.status, 200);
+  const j = await r.json();
+  assert.equal(j.description, 'Poulet au riz');
+  assert.equal(j.aliments[0].nom, 'Riz');
+  assert.equal(workersAppele, false);
+  assert.equal(appels.length, 1);
+  assert.ok(appels[0].url.endsWith("/models/gemini-3.8-flash:generateContent"));
+  assert.equal(appels[0].url.includes('cle-secrete'), false, 'cle dans adresse');
+  assert.equal(appels[0].init.headers['x-goog-api-key'], 'cle-secrete');
+  const corps = JSON.parse(appels[0].init.body);
+  const parties = corps.contents[0].parts;
+  assert.match(parties[0].text, /la moitié/);
+  assert.equal(parties[1].inline_data.mime_type, 'image/jpeg');
+  assert.equal(parties[1].inline_data.data, 'AQID');
+  assert.equal(corps.generationConfig.responseMimeType, 'application/json');
+});
+
+test('Gemini en panne, clé refusée ou réponse vide : repli sur Workers AI', async () => {
+  const { cles, jeton } = await fabrique();
+  for (const reponses of [
+    [{ statut: 500, corps: {} }],
+    [{ statut: 403, corps: { error: 'clé refusée' } }],
+    [{ corps: { candidates: [] } }],
+    [new Error('réseau')],
+  ]) {
+    const { f } = fauxFetch(reponses);
+    const r = await traiter(
+      requete({ jeton: await jeton() }),
+      { ...env(), GEMINI_API_KEY: 'k' },
+      { cles, maintenant: MAINTENANT, fetcher: f },
+    );
+    assert.equal(r.status, 200);
+    assert.equal((await r.json()).aliments[0].nom, 'pomme');
+  }
+});
+
+test('sans clé Gemini, ou FOURNISSEUR=workers : Workers AI directement', async () => {
+  const { cles, jeton } = await fabrique();
+  const { f, appels } = fauxFetch([{ corps: REPONSE_GEMINI }]);
+  for (const e of [env(), { ...env(), GEMINI_API_KEY: 'k', FOURNISSEUR: 'workers' }]) {
+    const r = await traiter(requete({ jeton: await jeton() }), e, { cles, maintenant: MAINTENANT, fetcher: f });
+    assert.equal((await r.json()).aliments[0].nom, 'pomme');
+  }
+  assert.equal(appels.length, 0);
+});

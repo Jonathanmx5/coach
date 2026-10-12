@@ -62,6 +62,10 @@ abstract class ConsentementsRepository {
   Future<void> definir(String uid, Consentement c, bool accorde);
 }
 
+/// L'accord pour la photo de repas date d'avant le passage à Google Gemini :
+/// un accord plus ancien ne vaut plus, on le redemande une fois.
+final consentPhotoDepuis = DateTime(2026, 10, 12).millisecondsSinceEpoch;
+
 class FirestoreConsentementsRepository implements ConsentementsRepository {
   FirestoreConsentementsRepository([FirebaseFirestore? db])
     : _db = db ?? FirebaseFirestore.instance;
@@ -80,7 +84,10 @@ class FirestoreConsentementsRepository implements ConsentementsRepository {
         final data = d.data() ?? const {};
         return {
           for (final c in Consentement.values)
-            if (data[c.name] is num) c,
+            if (data[c.name] is num &&
+                (c != Consentement.photo ||
+                    (data[c.name] as num) >= consentPhotoDepuis))
+              c,
         };
       });
 

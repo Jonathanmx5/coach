@@ -137,6 +137,23 @@ void main() {
     expect(await depot.accordes('u1').first, isEmpty);
   });
 
+  test('un accord photo ancien est redemandé, pas celui de la météo', () async {
+    final db = FakeFirebaseFirestore();
+    await db.doc('users/u1/reglages/consentements').set({
+      'photo': DateTime(2026, 10, 1).millisecondsSinceEpoch,
+      'meteo': DateTime(2026, 10, 1).millisecondsSinceEpoch,
+    });
+    final depot = FirestoreConsentementsRepository(db);
+
+    expect(await depot.accordes('u1').first, {Consentement.meteo});
+
+    await depot.definir('u1', Consentement.photo, true);
+    expect(await depot.accordes('u1').first, {
+      Consentement.meteo,
+      Consentement.photo,
+    });
+  });
+
   group('réglages', () {
     Future<void> ouvrir(
       WidgetTester tester, {

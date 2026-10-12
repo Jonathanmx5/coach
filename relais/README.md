@@ -1,6 +1,6 @@
 # Relais photo de repas (Cloudflare Worker)
 
-Reçoit la photo d'un repas depuis l'application, vérifie le jeton Firebase de l'utilisateur, applique des plafonds journaliers, interroge un modèle de vision gratuit de Cloudflare Workers AI et renvoie la liste des aliments estimés. L'image n'est ni enregistrée ni journalisée.
+Reçoit la photo d'un repas depuis l'application, vérifie le jeton Firebase de l'utilisateur, applique des plafonds journaliers, interroge un modèle de vision (Google Gemini si une clé est configurée, sinon un modèle gratuit de Cloudflare Workers AI) et renvoie la liste des aliments estimés. L'image n'est ni enregistrée ni journalisée.
 
 - `POST /analyse` — corps : image JPEG (1,5 Mo max) ; `Authorization: Bearer <jeton Firebase>`.
 - Réponse : `{"aliments":[{"nom","grammes","kcal","proteines","glucides","lipides"}]}` ou `{"erreur":"auth|quota|taille|illisible|ia"}` (401, 429, 413, 422, 502).
@@ -49,3 +49,20 @@ L'application envoie un jeton App Check (Play Integrity) dans l'en-tête `X-Fire
 - `enforce` : ils sont refusés (401).
 
 Mise en route : Console Firebase → App Check → enregistrer l'application Android avec Play Integrity ; renseigner `PROJECT_NUMBER` (numéro du projet, dans les paramètres du projet) ; passer `APP_CHECK` à `observe`, puis à `enforce` **seulement une fois l'application distribuée par le Play Store** : un APK installé à la main (GitHub) n'a pas de preuve Play Integrity et serait refusé.
+
+## Google Gemini (recommandé pour la précision)
+
+Le relais utilise Gemini quand le secret `GEMINI_API_KEY` existe ; au moindre échec (clé refusée, quota, panne, réponse illisible) il repasse automatiquement au modèle de Workers AI. `FOURNISSEUR = "workers"` dans `wrangler.toml` force Workers AI.
+
+1. Créer un projet et une clé dans [Google AI Studio](https://aistudio.google.com/apikey), puis **activer la facturation** du projet (offre payante) : avec l'offre gratuite, Google peut utiliser les photos pour améliorer ses produits, ce que la politique de confidentialité exclut.
+2. Enregistrer la clé comme secret (la valeur est demandée au clavier, jamais écrite dans un fichier) :
+
+   ```bash
+   cd relais
+   npx wrangler secret put GEMINI_API_KEY
+   npx wrangler deploy
+   ```
+
+3. Restreindre la clé dans la console Google Cloud (API Generative Language uniquement) et fixer un budget d'alerte.
+
+Le modèle se règle avec `GEMINI_MODELE` (`gemini-3.8-flash` par défaut ; `gemini-3.5-flash-lite` ou `gemini-3.1-flash-lite` sont moins chers et moins précis). Ordre de grandeur : une photo représente environ 1 000 à 2 000 jetons en entrée, soit quelques millièmes d'euro avec un modèle Flash (tarifs à vérifier sur la page des prix de Google).

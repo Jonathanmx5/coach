@@ -1777,7 +1777,7 @@ abstract class AppLocalizations {
   /// No description provided for @consentPhotoTexte.
   ///
   /// In fr, this message translates to:
-  /// **'La photo de ton repas est envoyée à un service d\'IA hébergé par Cloudflare pour estimer les aliments. Le service ne la conserve pas. Elle reste seulement sur ton téléphone, jamais dans le cloud, pour que tu puisses revoir ton repas ; seul le résultat que tu valides est ajouté à ton journal en ligne. Tu peux retirer ton accord à tout moment dans les Réglages.'**
+  /// **'La photo de ton repas est envoyée à un service d\'IA pour estimer les aliments : Google Gemini (offre payante, qui n\'utilise pas tes photos pour entraîner ses modèles), via un relais hébergé par Cloudflare, ou à défaut Cloudflare Workers AI. Elle n\'est pas conservée par ces services. Elle reste seulement sur ton téléphone, jamais dans le cloud, pour que tu puisses revoir ton repas ; seul le résultat que tu valides est ajouté à ton journal en ligne. Tu peux retirer ton accord à tout moment dans les Réglages.'**
   String get consentPhotoTexte;
 
   /// No description provided for @consentMeteoTitre.

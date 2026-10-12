@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:typed_data';
 
 import 'package:coach/reglages/mises_a_jour.dart';
 import 'package:coach/reglages/reglage_theme.dart';

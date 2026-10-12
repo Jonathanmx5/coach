@@ -1,5 +1,6 @@
 import { analyse, entreeModele } from './analyse.js';
 import { clesAppCheck, clesGoogle, JetonInvalide, verifierAppCheck, verifierJeton } from './jeton.js';
+import { appelerGemini } from './gemini.js';
 import { consommer } from './limites.js';
 
 const TAILLE_MAX = 1_500_000;
@@ -68,15 +69,32 @@ export async function traiter(request, env, deps = {}) {
   });
   if (!limite.ok) return reponse({ erreur: 'quota', raison: limite.raison }, 429);
 
-  let sortie;
-  try {
-    const brut = await env.AI.run(
-      env.MODELE,
-      entreeModele(octets, url.searchParams.get('indice') ?? ''),
-    );
-    sortie = analyse(brut?.response ?? brut);
-  } catch {
-    return reponse({ erreur: 'ia' }, 502);
+  const indice = url.searchParams.get('indice') ?? '';
+  let sortie = null;
+
+  // Gemini d'abord quand une clé est configurée ; au moindre échec (clé
+  // refusée, quota, panne, réponse illisible), on repasse au modèle de Workers AI.
+  if (env.GEMINI_API_KEY && (env.FOURNISSEUR ?? 'gemini') !== 'workers') {
+    try {
+      sortie = analyse(
+        await appelerGemini(octets, indice, {
+          cle: env.GEMINI_API_KEY,
+          modele: env.GEMINI_MODELE ?? 'gemini-3.8-flash',
+          fetcher: deps.fetcher,
+        }),
+      );
+    } catch {
+      console.log('gemini indisponible : repli sur Workers AI');
+    }
+  }
+
+  if (sortie === null) {
+    try {
+      const brut = await env.AI.run(env.MODELE, entreeModele(octets, indice));
+      sortie = analyse(brut?.response ?? brut);
+    } catch {
+      return reponse({ erreur: 'ia' }, 502);
+    }
   }
   if (sortie === null) return reponse({ erreur: 'illisible' }, 422);
   return reponse(sortie);
