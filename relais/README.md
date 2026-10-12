@@ -5,7 +5,7 @@ Reçoit la photo d'un repas depuis l'application, vérifie le jeton Firebase de 
 - `POST /analyse` — corps : image JPEG (1,5 Mo max) ; `Authorization: Bearer <jeton Firebase>`.
 - Réponse : `{"aliments":[{"nom","grammes","kcal","proteines","glucides","lipides"}]}` ou `{"erreur":"auth|quota|taille|illisible|ia"}` (401, 429, 413, 422, 502).
 - Plafonds (par jour UTC) : 8 photos par utilisateur et 500 au total (une photo coûte environ 10 neurones, le quota gratuit de Workers AI est de 10 000 par jour). Réglables dans `wrangler.toml`.
-- Le modèle est interchangeable (`MODELE`) : Llama 4 Scout (17B, vision) depuis le 12 octobre 2026. Llama 3.2 11B répondait en texte libre au lieu de JSON sur des photos de plats (analyse illisible), Llama 4 Scout respecte le format. Le format de l'entrée est dans `src/analyse.js` (`entreeModele`).
+- Le modèle est interchangeable (`MODELE`) : Llama 3.2 11B Vision par défaut ; si sa réponse est illisible (texte libre au lieu de JSON, constaté sur des photos de test) ou en panne, `MODELE_SECOURS` (Llama 4 Scout 17B) prend le relais. Le format de l'entrée est dans `src/analyse.js` (`entreeModele`).
 
 ## Tests
 

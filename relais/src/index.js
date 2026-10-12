@@ -88,14 +88,21 @@ export async function traiter(request, env, deps = {}) {
     }
   }
 
-  if (sortie === null) {
+  // Modèle principal de Workers AI, puis modèle de secours s'il n'a rien
+  // renvoyé d'exploitable (réponse en texte libre, panne).
+  let erreurIa = false;
+  for (const modele of [env.MODELE, env.MODELE_SECOURS]) {
+    if (sortie !== null) break;
+    if (!modele) continue;
     try {
-      const brut = await env.AI.run(env.MODELE, entreeModele(octets, indice));
+      const brut = await env.AI.run(modele, entreeModele(octets, indice));
       sortie = analyse(brut?.response ?? brut?.choices?.[0]?.message?.content ?? brut);
+      erreurIa = false;
     } catch {
-      return reponse({ erreur: 'ia' }, 502);
+      erreurIa = true;
     }
   }
+  if (sortie === null && erreurIa) return reponse({ erreur: 'ia' }, 502);
   if (sortie === null) return reponse({ erreur: 'illisible' }, 422);
   return reponse(sortie);
 }

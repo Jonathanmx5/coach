@@ -378,3 +378,34 @@ test('sans clé Gemini, ou FOURNISSEUR=workers : Workers AI directement', async 
   }
   assert.equal(appels.length, 0);
 });
+
+test('modèle principal illisible ou en panne : le modèle de secours répond', async () => {
+  const { cles, jeton } = await fabrique();
+  const appels = [];
+  const ia = async (modele) => {
+    appels.push(modele);
+    if (modele === 'principal') return { response: '**Description :** du texte libre, pas du JSON' };
+    return { response: '{"aliments":[{"nom":"pomme","grammes":150,"kcal":78}]}' };
+  };
+  const e = { ...env(ia), MODELE: 'principal', MODELE_SECOURS: 'secours' };
+  const r = await traiter(requete({ jeton: await jeton() }), e, { cles, maintenant: MAINTENANT });
+  assert.equal(r.status, 200);
+  assert.equal((await r.json()).aliments[0].nom, 'pomme');
+  assert.deepEqual(appels, ['principal', 'secours']);
+
+  // Principal en panne : même chose.
+  appels.length = 0;
+  const panne = async (modele) => {
+    appels.push(modele);
+    if (modele === 'principal') throw new Error('panne');
+    return { response: '{"aliments":[{"nom":"poire","grammes":120,"kcal":70}]}' };
+  };
+  const r2 = await traiter(requete({ jeton: await jeton() }), { ...env(panne), MODELE: 'principal', MODELE_SECOURS: 'secours' }, { cles, maintenant: MAINTENANT });
+  assert.equal((await r2.json()).aliments[0].nom, 'poire');
+
+  // Principal valide : le secours n'est pas appelé.
+  appels.length = 0;
+  const bon = async (modele) => { appels.push(modele); return { response: '{"aliments":[]}' }; };
+  await traiter(requete({ jeton: await jeton() }), { ...env(bon), MODELE: 'principal', MODELE_SECOURS: 'secours' }, { cles, maintenant: MAINTENANT });
+  assert.deepEqual(appels, ['principal']);
+});

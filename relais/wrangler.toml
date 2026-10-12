@@ -12,7 +12,9 @@ id = "ca1b497c69f844df9fe098c9d5e66c4a"
 
 [vars]
 PROJECT_ID = "coach-jonathanmx5"
-MODELE = "@cf/meta/llama-4-scout-17b-16e-instruct"
+MODELE = "@cf/meta/llama-3.2-11b-vision-instruct"
+# Si le modèle principal ne renvoie rien d'exploitable (texte libre au lieu de JSON).
+MODELE_SECOURS = "@cf/meta/llama-4-scout-17b-16e-instruct"
 # Photos analysées par jour : par utilisateur, et pour tout le monde (garde le
 # quota gratuit de Workers AI).
 PLAFOND_UTILISATEUR = "8"
