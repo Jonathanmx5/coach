@@ -10,4 +10,6 @@
     <string name="widget_ajouter_250">Ajouter 250 millilitres d’eau</string>
     <string name="widget_ajouter_500">Ajouter 500 millilitres d’eau</string>
     <string name="widget_photo_description">Photographier mon repas</string>
+    <string name="widget_ajouter_1000">Ajouter 1 litre d’eau</string>
+    <string name="widget_ajouter_180">Ajouter 18 centilitres d’eau</string>
 </resources>

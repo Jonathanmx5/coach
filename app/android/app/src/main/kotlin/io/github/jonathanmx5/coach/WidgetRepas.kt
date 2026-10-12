@@ -25,7 +25,7 @@ class WidgetRepas : HomeWidgetProvider() {
             vues.setTextViewText(R.id.repas_proteines, widgetData.getString("proteines_texte", ""))
             vues.setOnClickPendingIntent(
                 R.id.repas_photo,
-                HomeWidgetLaunchIntent.getActivity(context, MainActivity::class.java, Uri.parse("coach://photo")),
+                HomeWidgetLaunchIntent.getActivity(context, MainActivity::class.java, Uri.parse("coach://photo?source=appareil")),
             )
             vues.setOnClickPendingIntent(
                 R.id.repas_racine,

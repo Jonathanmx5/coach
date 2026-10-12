@@ -25,6 +25,16 @@ import 'detail_repas_page.dart';
 import '../recettes/planning_page.dart';
 import '../recettes/planning_repository.dart';
 
+/// Demande d'ouvrir l'écran de photo du repas (bouton d'un widget) ; [source]
+/// non nulle : on passe directement par l'appareil ou la bibliothèque.
+class DemandePhoto {
+  const DemandePhoto(this.numero, [this.source]);
+
+  /// Change à chaque demande, pour que deux demandes identiques se distinguent.
+  final int numero;
+  final SourcePhoto? source;
+}
+
 /// Onglet Journal : repas, activités et bilan énergétique du jour.
 class JournalPage extends StatefulWidget {
   const JournalPage({
@@ -59,7 +69,7 @@ class JournalPage extends StatefulWidget {
   final ScanCode scan;
 
   /// Chaque changement ouvre l'écran de photo du repas (bouton d'un widget).
-  final ValueListenable<int>? demandePhoto;
+  final ValueListenable<DemandePhoto>? demandePhoto;
   final PrisePhoto prise;
 
   @override
@@ -89,7 +99,8 @@ class _JournalPageState extends State<JournalPage> {
     widget.demandePhoto?.addListener(_surDemandePhoto);
   }
 
-  void _surDemandePhoto() => unawaited(_photo());
+  void _surDemandePhoto() =>
+      unawaited(_photo(source: widget.demandePhoto?.value.source));
 
   @override
   void dispose() {
@@ -146,7 +157,7 @@ class _JournalPageState extends State<JournalPage> {
     if (repas != null) unawaited(widget.journal.ajouterRepas(_uid, repas));
   }
 
-  Future<void> _photo() async {
+  Future<void> _photo({SourcePhoto? source}) async {
     final t = AppLocalizations.of(context)!;
     // Sans analyse possible (pas de relais) ou sans l'accord de l'utilisateur
     // pour envoyer la photo, il reste la saisie à la main.
@@ -173,6 +184,7 @@ class _JournalPageState extends State<JournalPage> {
           photos: widget.photosRepas,
           catalogue: widget.catalogue,
           scan: widget.scan,
+          sourceInitiale: source,
           dejaMange: _macrosDuJour,
           cibles: _ciblesDuJour,
           objectif: widget.enregistre.profil.objectif,

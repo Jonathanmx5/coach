@@ -153,14 +153,14 @@ class WidgetAccueil implements MiseAJourWidget {
   );
 
   @override
-  Stream<String> get actions => HomeWidget.widgetClicked
-      .map((u) => u?.host ?? '')
-      .where((h) => h.isNotEmpty);
+  Stream<String> get actions =>
+      HomeWidget.widgetClicked.map(actionDe).where((a) => a.isNotEmpty);
 
   @override
   Future<String?> actionAuLancement() async {
     try {
-      return (await HomeWidget.initiallyLaunchedFromHomeWidget())?.host;
+      final a = actionDe(await HomeWidget.initiallyLaunchedFromHomeWidget());
+      return a.isEmpty ? null : a;
     } catch (_) {
       return null;
     }
@@ -189,6 +189,17 @@ class WidgetAccueil implements MiseAJourWidget {
       // conséquence pour l'application.
     }
   }
+}
+
+/// L'action demandée par une adresse de widget : « eau », « photo », ou
+/// « photo-appareil » (coach://photo?source=appareil : ouvre l'appareil photo
+/// directement). Vide si l'adresse n'en porte pas.
+String actionDe(Uri? u) {
+  if (u == null || u.host.isEmpty) return '';
+  if (u.host == 'photo' && u.queryParameters['source'] == 'appareil') {
+    return 'photo-appareil';
+  }
+  return u.host;
 }
 
 String cleDuJour(DateTime t) =>

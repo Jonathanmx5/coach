@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
@@ -38,6 +39,7 @@ class PhotoRepasPage extends StatefulWidget {
     required this.photos,
     required this.catalogue,
     this.scan = lireCodeBarres,
+    this.sourceInitiale,
     this.dejaMange = Macros.zero,
     this.cibles,
     this.objectif = Objectif.forme,
@@ -49,6 +51,9 @@ class PhotoRepasPage extends StatefulWidget {
   final PhotosRepas photos;
   final CatalogueProduits catalogue;
   final ScanCode scan;
+
+  /// Ouvre tout de suite l'appareil (ou la bibliothèque) au lieu du choix.
+  final SourcePhoto? sourceInitiale;
 
   /// Ce qui est déjà noté aujourd'hui et les objectifs du jour, pour montrer
   /// l'effet du repas ; sans [cibles], cette ligne n'est pas affichée.
@@ -74,6 +79,17 @@ class _PhotoRepasPageState extends State<PhotoRepasPage> {
   bool _viaCode = false;
   final _precision = TextEditingController();
   late Moment _moment = momentPourHeure(widget.date);
+
+  @override
+  void initState() {
+    super.initState();
+    final source = widget.sourceInitiale;
+    if (source != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) unawaited(_choisir(source));
+      });
+    }
+  }
 
   @override
   void dispose() {

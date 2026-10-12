@@ -8,6 +8,7 @@ import 'bienetre/suivi_meteo.dart';
 import 'compte/auth_service.dart';
 import 'entrainement/entrainement_page.dart';
 import 'recettes/idees_page.dart';
+import 'journal/analyse_photo.dart' show SourcePhoto;
 import 'journal/journal_page.dart';
 import 'l10n/app_localizations.dart';
 import 'poids/poids_page.dart';
@@ -50,7 +51,9 @@ class _CoqueState extends State<Coque> {
   final ValueNotifier<InfoMiseAJour?> _maj = ValueNotifier(null);
 
   /// Un widget de l'écran d'accueil demande la photo d'un repas.
-  final ValueNotifier<int> _demandePhoto = ValueNotifier(0);
+  final ValueNotifier<DemandePhoto> _demandePhoto = ValueNotifier(
+    const DemandePhoto(0),
+  );
   StreamSubscription<String>? _actionsWidget;
   late final Future<String> _version = _s.versionAppli.version();
 
@@ -88,9 +91,12 @@ class _CoqueState extends State<Coque> {
   }
 
   void _actionWidget(String action) {
-    if (action != 'photo') return;
+    if (action != 'photo' && action != 'photo-appareil') return;
     setState(() => _onglet = 1);
-    _demandePhoto.value++;
+    _demandePhoto.value = DemandePhoto(
+      _demandePhoto.value.numero + 1,
+      action == 'photo-appareil' ? SourcePhoto.appareil : null,
+    );
   }
 
   @override
