@@ -2,7 +2,7 @@
 <appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
     android:description="@string/widget_description"
     android:initialLayout="@layout/widget_coach"
-    android:minWidth="280dp"
+    android:minWidth="320dp"
     android:minHeight="110dp"
     android:resizeMode="horizontal|vertical"
     android:targetCellHeight="2"
