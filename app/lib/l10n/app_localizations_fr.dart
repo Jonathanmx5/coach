@@ -1222,6 +1222,56 @@ class AppLocalizationsFr extends AppLocalizations {
   String get themeAuto => 'Auto';
 
   @override
+  String get sauvegardeTitre => 'Sauvegarde';
+
+  @override
+  String get sauvegardeExporter => 'Enregistrer une sauvegarde (Excel)';
+
+  @override
+  String get sauvegardeExporterAide =>
+      'Repas, activités, pesées, eau, compléments et séances dans un fichier .xlsx.';
+
+  @override
+  String get sauvegardeImporter => 'Importer une sauvegarde';
+
+  @override
+  String get sauvegardeImporterAide =>
+      'Ajoute l\'historique d\'un fichier Excel de sauvegarde ; rien n\'est supprimé.';
+
+  @override
+  String get sauvegardeEnregistree => 'Sauvegarde enregistrée.';
+
+  @override
+  String get sauvegardeEchec =>
+      'La sauvegarde n\'a pas pu être créée. Réessaie.';
+
+  @override
+  String get sauvegardeHorsLigne =>
+      'Connecte-toi à internet pour importer : les données sont envoyées à ton compte.';
+
+  @override
+  String get importConfirmerTitre => 'Importer cette sauvegarde ?';
+
+  @override
+  String get importConfirmerTexte =>
+      'L\'historique du fichier est ajouté à ton compte. Les lignes déjà présentes sont remplacées, rien n\'est supprimé.';
+
+  @override
+  String get importer => 'Importer';
+
+  @override
+  String importTermine(int importes, int ignores) {
+    return '$importes ligne(s) importée(s), $ignores ignorée(s).';
+  }
+
+  @override
+  String get importInvalide =>
+      'Ce fichier n\'est pas une sauvegarde Crunch & Go.';
+
+  @override
+  String get importEchec => 'L\'import a échoué. Réessaie.';
+
+  @override
   String get courbePoids => 'Évolution du poids';
 
   @override

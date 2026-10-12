@@ -31,6 +31,8 @@ import 'recettes/avis_repository.dart';
 import 'recettes/planning_repository.dart';
 import 'reglages/mises_a_jour.dart';
 import 'reglages/reglage_theme.dart';
+import 'sauvegarde/fichiers.dart';
+import 'sauvegarde/sauvegarde.dart';
 import 'reseau.dart';
 import 'widget/donnees_widget.dart';
 import 'widget/rappel_widget.dart';
@@ -90,6 +92,8 @@ Future<void> main() async {
           catalogue: CatalogueOpenFoodFacts(),
           photosRepas: PhotosRepasLocales(),
           theme: theme,
+          sauvegarde: SauvegardeFirestore(),
+          fichiers: FichiersSysteme(),
           entrainement: FirestoreEntrainementRepository(),
           voix: VoixTts(),
           bienetre: FirestoreBienEtreRepository(),

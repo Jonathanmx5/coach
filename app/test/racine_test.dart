@@ -48,6 +48,8 @@ Future<void> monter(
   FauxConsentements? consentements,
   FauxWidget? widgetAccueil,
   ReglageTheme? theme,
+  FausseSauvegarde? sauvegarde,
+  FauxFichiers? fichiers,
 }) async {
   final reglageTheme = theme ?? ReglageThemeFixe();
   await tester.pumpWidget(
@@ -64,6 +66,8 @@ Future<void> monter(
           photos: FausPhotos(),
           photosRepas: FausPhotosRepas(),
           theme: reglageTheme,
+          sauvegarde: sauvegarde ?? FausseSauvegarde(),
+          fichiers: fichiers ?? FauxFichiers(),
           catalogue: FauxCatalogue(),
           entrainement: FauxEntrainement(),
           voix: FausseVoix(),

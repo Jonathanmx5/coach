@@ -2,12 +2,14 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:flutter/services.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
 import '../compte/auth_service.dart';
 import '../compte/donnees_compte.dart';
 import '../l10n/app_localizations.dart';
+import '../sauvegarde/sauvegarde.dart';
 import '../services.dart';
 import '../theme.dart';
 import 'mises_a_jour.dart';
@@ -72,6 +74,69 @@ class _ReglagesPageState extends State<ReglagesPage> {
     // La page se ferme d'abord : l'aiguillage de l'appli reprend la main.
     Navigator.of(context).pop();
     await _s.auth.deconnecter();
+  }
+
+  bool _sauvegarde = false;
+
+  Future<void> _exporter() async {
+    final t = AppLocalizations.of(context)!;
+    setState(() => _sauvegarde = true);
+    try {
+      final octets = await _s.sauvegarde.exporter(
+        _uid,
+        maintenant: DateTime.now(),
+      );
+      final jour = DateFormat('yyyy-MM-dd').format(DateTime.now());
+      final fait = await _s.fichiers.enregistrer(
+        'crunch-and-go-$jour.xlsx',
+        octets,
+      );
+      if (mounted && fait) _message(t.sauvegardeEnregistree);
+    } catch (_) {
+      if (mounted) _message(t.sauvegardeEchec);
+    } finally {
+      if (mounted) setState(() => _sauvegarde = false);
+    }
+  }
+
+  Future<void> _importer() async {
+    final t = AppLocalizations.of(context)!;
+    final enLigne = await _s.reseau.enLigne.first;
+    if (!enLigne) {
+      if (mounted) _message(t.sauvegardeHorsLigne);
+      return;
+    }
+    final octets = await _s.fichiers.choisir();
+    if (octets == null || !mounted) return;
+    final confirme = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(t.importConfirmerTitre),
+        content: Text(t.importConfirmerTexte),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(false),
+            child: Text(t.annuler),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(ctx).pop(true),
+            child: Text(t.importer),
+          ),
+        ],
+      ),
+    );
+    if (confirme != true || !mounted) return;
+    setState(() => _sauvegarde = true);
+    try {
+      final r = await _s.sauvegarde.importer(_uid, octets);
+      if (mounted) _message(t.importTermine(r.importes, r.ignores));
+    } on SauvegardeInvalide {
+      if (mounted) _message(t.importInvalide);
+    } catch (_) {
+      if (mounted) _message(t.importEchec);
+    } finally {
+      if (mounted) setState(() => _sauvegarde = false);
+    }
   }
 
   Future<void> _nettoyerPhotos() async {
@@ -318,6 +383,26 @@ class _ReglagesPageState extends State<ReglagesPage> {
                 _s.consentements.definir(_uid, Consentement.photo, v),
               ),
             ),
+          ),
+          Text(
+            t.sauvegardeTitre,
+            style: Theme.of(context).textTheme.titleMedium,
+          ),
+          ListTile(
+            contentPadding: EdgeInsets.zero,
+            leading: const Icon(Icons.file_download_outlined),
+            title: Text(t.sauvegardeExporter),
+            subtitle: Text(t.sauvegardeExporterAide),
+            enabled: !_sauvegarde,
+            onTap: _exporter,
+          ),
+          ListTile(
+            contentPadding: EdgeInsets.zero,
+            leading: const Icon(Icons.file_upload_outlined),
+            title: Text(t.sauvegardeImporter),
+            subtitle: Text(t.sauvegardeImporterAide),
+            enabled: !_sauvegarde,
+            onTap: _importer,
           ),
           FutureBuilder<({int nombre, int octets})>(
             future: _s.photosRepas.bilan(),

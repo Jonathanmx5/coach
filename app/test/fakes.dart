@@ -18,6 +18,8 @@ import 'package:coach/poids/mensurations.dart';
 import 'package:coach/poids/mensurations_repository.dart';
 import 'package:coach/poids/pesees.dart';
 import 'package:coach/journal/catalogue.dart';
+import 'package:coach/sauvegarde/fichiers.dart';
+import 'package:coach/sauvegarde/sauvegarde.dart';
 import 'package:coach/journal/photos_repas.dart';
 import 'package:coach/poids/photos.dart';
 import 'package:coach/poids/pesees_repository.dart';
@@ -578,6 +580,44 @@ class FauxCatalogue implements CatalogueProduits {
     if (erreur) throw const ErreurCatalogue('hors-ligne');
     return produit;
   }
+}
+
+/// Sauvegarde Excel simulée.
+class FausseSauvegarde implements Sauvegarde {
+  final exports = <String>[];
+  final imports = <Uint8List>[];
+  bool invalide = false;
+  var resultat = const ResultatImport(importes: 3, ignores: 1);
+
+  @override
+  Future<Uint8List> exporter(String uid, {required DateTime maintenant}) async {
+    exports.add(uid);
+    return Uint8List.fromList([1, 2, 3]);
+  }
+
+  @override
+  Future<ResultatImport> importer(String uid, Uint8List octets) async {
+    if (invalide) throw const SauvegardeInvalide();
+    imports.add(octets);
+    return resultat;
+  }
+}
+
+/// Fichiers choisis ou enregistrés par le test.
+class FauxFichiers implements Fichiers {
+  final enregistres = <String, Uint8List>{};
+  Uint8List? aChoisir;
+  bool refuse = false;
+
+  @override
+  Future<bool> enregistrer(String nom, Uint8List octets) async {
+    if (refuse) return false;
+    enregistres[nom] = octets;
+    return true;
+  }
+
+  @override
+  Future<Uint8List?> choisir() async => aChoisir;
 }
 
 /// Photos de repas en mémoire.

@@ -33,6 +33,7 @@ Ces données servent à :
 - **Localisation approximative** (optionnelle) : si vous activez « Adapter à la météo », votre position, arrondie à environ 10 km, est envoyée au service Open-Meteo pour obtenir la température du jour. Elle n'est pas enregistrée.
 - **Photo d'un repas** (optionnelle) : la photo est envoyée à un relais Crunch & Go hébergé chez Cloudflare, qui la transmet à un modèle d'IA de Cloudflare Workers AI pour estimer les aliments. Le relais ne la conserve pas. Quand vous validez le repas, la photo est gardée **uniquement sur votre téléphone** (jamais envoyée dans le cloud) pour pouvoir revoir l'analyse ; seul le résultat que vous validez est ajouté à votre journal en ligne. Huit photos au plus par jour et par personne.
 - **Code-barres d'un produit** (optionnel) : le numéro du code-barres que vous scannez est envoyé à Open Food Facts (base collaborative gratuite) pour obtenir les valeurs nutritionnelles. Aucune photo ni information sur vous n'est envoyée.
+- **Sauvegarde Excel** (optionnelle) : le fichier est créé sur votre téléphone et rangé à l'endroit que vous choisissez ; il contient vos données de santé en clair. Gardez-le comme vos autres documents personnels. L'import le relit sur votre téléphone puis l'ajoute à votre compte.
 - **Notifications** (optionnelles) : rappels de compléments programmés sur votre téléphone.
 
 ## Ce que Crunch & Go ne fait pas

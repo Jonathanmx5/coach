@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:typed_data';
 
 import 'package:coach/reglages/mises_a_jour.dart';
 import 'package:coach/reglages/reglage_theme.dart';
@@ -208,6 +209,128 @@ void main() {
 
     SharedPreferences.setMockInitialValues({'theme': 'n-importe-quoi'});
     expect((await ReglageThemeLocal.charger()).mode.value, ThemeMode.system);
+  });
+
+  group('sauvegarde Excel', () {
+    Future<(FausseSauvegarde, FauxFichiers)> ouvrirSauvegarde(
+      WidgetTester tester, {
+      FauxReseau? reseau,
+    }) async {
+      final sauvegarde = FausseSauvegarde();
+      final fichiers = FauxFichiers();
+      await racine.monter(
+        tester,
+        FauxAuth(connecte: racine.lea),
+        racine.depotAvecProfil(),
+        sauvegarde: sauvegarde,
+        fichiers: fichiers,
+        reseau: reseau,
+      );
+      await tester.tap(find.byTooltip('Réglages'));
+      await tester.pumpAndSettle();
+      await defilerJusqua(
+        tester,
+        find.text('Enregistrer une sauvegarde (Excel)'),
+      );
+      return (sauvegarde, fichiers);
+    }
+
+    testWidgets('enregistrer : fichier daté rangé par le téléphone', (
+      tester,
+    ) async {
+      final (sauvegarde, fichiers) = await ouvrirSauvegarde(tester);
+
+      await taper(tester, 'Enregistrer une sauvegarde (Excel)');
+
+      expect(sauvegarde.exports, ['u1']);
+      expect(
+        fichiers.enregistres.keys.single,
+        matches(r'^crunch-and-go-\d{4}-\d{2}-\d{2}\.xlsx$'),
+      );
+      expect(find.text('Sauvegarde enregistrée.'), findsOneWidget);
+    });
+
+    testWidgets('enregistrer annulé : pas de message de réussite', (
+      tester,
+    ) async {
+      final (_, fichiers) = await ouvrirSauvegarde(tester);
+      fichiers.refuse = true;
+
+      await taper(tester, 'Enregistrer une sauvegarde (Excel)');
+
+      expect(find.text('Sauvegarde enregistrée.'), findsNothing);
+    });
+
+    testWidgets('importer : confirmation puis résultat', (tester) async {
+      final (sauvegarde, fichiers) = await ouvrirSauvegarde(tester);
+      fichiers.aChoisir = Uint8List.fromList([9, 9]);
+
+      await taper(tester, 'Importer une sauvegarde');
+      expect(find.text('Importer cette sauvegarde ?'), findsOneWidget);
+      expect(sauvegarde.imports, isEmpty);
+      await tester.tap(find.widgetWithText(FilledButton, 'Importer'));
+      await tester.pumpAndSettle();
+
+      expect(sauvegarde.imports.single, [9, 9]);
+      expect(
+        find.text('3 ligne(s) importée(s), 1 ignorée(s).'),
+        findsOneWidget,
+      );
+    });
+
+    testWidgets('importer : refus à la confirmation, rien n\'est écrit', (
+      tester,
+    ) async {
+      final (sauvegarde, fichiers) = await ouvrirSauvegarde(tester);
+      fichiers.aChoisir = Uint8List.fromList([9]);
+
+      await taper(tester, 'Importer une sauvegarde');
+      await tester.tap(find.text('Annuler'));
+      await tester.pumpAndSettle();
+
+      expect(sauvegarde.imports, isEmpty);
+    });
+
+    testWidgets('importer : fichier invalide, message clair', (tester) async {
+      final (sauvegarde, fichiers) = await ouvrirSauvegarde(tester);
+      sauvegarde.invalide = true;
+      fichiers.aChoisir = Uint8List.fromList([1]);
+
+      await taper(tester, 'Importer une sauvegarde');
+      await tester.tap(find.widgetWithText(FilledButton, 'Importer'));
+      await tester.pumpAndSettle();
+
+      expect(
+        find.text("Ce fichier n'est pas une sauvegarde Crunch & Go."),
+        findsOneWidget,
+      );
+    });
+
+    testWidgets('importer : aucun fichier choisi, rien ne se passe', (
+      tester,
+    ) async {
+      final (sauvegarde, _) = await ouvrirSauvegarde(tester);
+
+      await taper(tester, 'Importer une sauvegarde');
+
+      expect(find.text('Importer cette sauvegarde ?'), findsNothing);
+      expect(sauvegarde.imports, isEmpty);
+    });
+
+    testWidgets('importer hors-ligne : message, fichier non demandé', (
+      tester,
+    ) async {
+      final (sauvegarde, fichiers) = await ouvrirSauvegarde(
+        tester,
+        reseau: FauxReseau(false),
+      );
+      fichiers.aChoisir = Uint8List.fromList([1]);
+
+      await taper(tester, 'Importer une sauvegarde');
+
+      expect(find.textContaining('Connecte-toi à internet'), findsOneWidget);
+      expect(sauvegarde.imports, isEmpty);
+    });
   });
 
   testWidgets('réglages : politique de confidentialité', (tester) async {

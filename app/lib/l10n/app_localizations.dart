@@ -2246,6 +2246,90 @@ abstract class AppLocalizations {
   /// **'Auto'**
   String get themeAuto;
 
+  /// No description provided for @sauvegardeTitre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sauvegarde'**
+  String get sauvegardeTitre;
+
+  /// No description provided for @sauvegardeExporter.
+  ///
+  /// In fr, this message translates to:
+  /// **'Enregistrer une sauvegarde (Excel)'**
+  String get sauvegardeExporter;
+
+  /// No description provided for @sauvegardeExporterAide.
+  ///
+  /// In fr, this message translates to:
+  /// **'Repas, activités, pesées, eau, compléments et séances dans un fichier .xlsx.'**
+  String get sauvegardeExporterAide;
+
+  /// No description provided for @sauvegardeImporter.
+  ///
+  /// In fr, this message translates to:
+  /// **'Importer une sauvegarde'**
+  String get sauvegardeImporter;
+
+  /// No description provided for @sauvegardeImporterAide.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ajoute l\'historique d\'un fichier Excel de sauvegarde ; rien n\'est supprimé.'**
+  String get sauvegardeImporterAide;
+
+  /// No description provided for @sauvegardeEnregistree.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sauvegarde enregistrée.'**
+  String get sauvegardeEnregistree;
+
+  /// No description provided for @sauvegardeEchec.
+  ///
+  /// In fr, this message translates to:
+  /// **'La sauvegarde n\'a pas pu être créée. Réessaie.'**
+  String get sauvegardeEchec;
+
+  /// No description provided for @sauvegardeHorsLigne.
+  ///
+  /// In fr, this message translates to:
+  /// **'Connecte-toi à internet pour importer : les données sont envoyées à ton compte.'**
+  String get sauvegardeHorsLigne;
+
+  /// No description provided for @importConfirmerTitre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Importer cette sauvegarde ?'**
+  String get importConfirmerTitre;
+
+  /// No description provided for @importConfirmerTexte.
+  ///
+  /// In fr, this message translates to:
+  /// **'L\'historique du fichier est ajouté à ton compte. Les lignes déjà présentes sont remplacées, rien n\'est supprimé.'**
+  String get importConfirmerTexte;
+
+  /// No description provided for @importer.
+  ///
+  /// In fr, this message translates to:
+  /// **'Importer'**
+  String get importer;
+
+  /// No description provided for @importTermine.
+  ///
+  /// In fr, this message translates to:
+  /// **'{importes} ligne(s) importée(s), {ignores} ignorée(s).'**
+  String importTermine(int importes, int ignores);
+
+  /// No description provided for @importInvalide.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce fichier n\'est pas une sauvegarde Crunch & Go.'**
+  String get importInvalide;
+
+  /// No description provided for @importEchec.
+  ///
+  /// In fr, this message translates to:
+  /// **'L\'import a échoué. Réessaie.'**
+  String get importEchec;
+
   /// No description provided for @courbePoids.
   ///
   /// In fr, this message translates to:
