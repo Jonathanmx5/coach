@@ -91,7 +91,7 @@ export async function traiter(request, env, deps = {}) {
   if (sortie === null) {
     try {
       const brut = await env.AI.run(env.MODELE, entreeModele(octets, indice));
-      sortie = analyse(brut?.response ?? brut);
+      sortie = analyse(brut?.response ?? brut?.choices?.[0]?.message?.content ?? brut);
     } catch {
       return reponse({ erreur: 'ia' }, 502);
     }
