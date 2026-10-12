@@ -3,6 +3,7 @@ import 'dart:math' as math;
 
 import 'package:flutter/foundation.dart' show listEquals;
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 import '../bienetre/bienetre_repository.dart';
 import '../bienetre/hydratation.dart';
@@ -13,6 +14,7 @@ import '../journal/modele.dart';
 import '../l10n/app_localizations.dart';
 import '../profil/besoins.dart';
 import '../profil/modele.dart';
+import '../sante/sources.dart';
 import '../sante/suivi.dart';
 import '../theme.dart';
 import '../widget/donnees_widget.dart';
@@ -355,7 +357,18 @@ class _CarteAujourdhuiState extends State<CarteAujourdhui> {
           _Ligne(
             couleur: Anneaux.couleursPour(Theme.of(context).brightness).first,
             libelle: t.libBrule,
-            sous: mesure ? t.sourceMesure : t.sourceEstimeJusqua,
+            sous: !mesure
+                ? t.sourceEstimeJusqua
+                : (jourSante?.sourceKcal == null ||
+                          nomDeSource(jourSante!.sourceKcal).isEmpty
+                      ? t.sourceMesure
+                      : t.sourceMesureDe(
+                          nomDeSource(jourSante.sourceKcal),
+                          jourSante.derniereMesureKcal == null
+                              ? ''
+                              : DateFormat('HH:mm')
+                                    .format(jourSante.derniereMesureKcal!),
+                        )),
             valeur: '${brulees.round()}',
             objectif: '${objectifBrule.round()}',
             unite: 'kcal',

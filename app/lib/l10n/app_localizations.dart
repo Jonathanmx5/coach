@@ -2330,6 +2330,12 @@ abstract class AppLocalizations {
   /// **'L\'import a échoué. Réessaie.'**
   String get importEchec;
 
+  /// No description provided for @sourceMesureDe.
+  ///
+  /// In fr, this message translates to:
+  /// **'{source} · mis à jour à {heure}'**
+  String sourceMesureDe(String source, String heure);
+
   /// No description provided for @courbePoids.
   ///
   /// In fr, this message translates to:

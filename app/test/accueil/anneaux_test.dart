@@ -266,6 +266,26 @@ void main() {
     expect(banc.progres[0], closeTo(1500 / banc.reperes.maintien, 1e-9));
   });
 
+  testWidgets('calories mesurées : la source et l\'heure sont indiquées', (
+    tester,
+  ) async {
+    final banc = Banc(
+      points: [
+        PointSante(
+          type: TypeMesure.kcalTotales,
+          debut: DateTime(2026, 10, 9, 0),
+          fin: DateTime(2026, 10, 9, 8, 12),
+          valeur: 560,
+          source: 'com.google.android.apps.fitness',
+        ),
+      ],
+    );
+    await banc.monter(tester);
+
+    expect(find.text('Google Fit · mis à jour à 08:12'), findsOneWidget);
+    expect(find.text('Mesuré par ta montre'), findsNothing);
+  });
+
   testWidgets('une journée dépassée reste à 100 %', (tester) async {
     final banc = Banc();
     banc.bienetre.eauParUid['u1'] = [

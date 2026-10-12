@@ -31,6 +31,7 @@ class PointSante {
     required this.fin,
     required this.valeur,
     this.libelle,
+    this.source,
   });
 
   final TypeMesure type;
@@ -40,6 +41,9 @@ class PointSante {
 
   /// Type d'activité pour une séance.
   final String? libelle;
+
+  /// Application qui a écrit la mesure (identifiant de paquet), si connue.
+  final String? source;
 }
 
 @immutable
@@ -96,6 +100,9 @@ class JourSante {
     this.freqResp,
     this.sommeil,
     this.seances = const [],
+    this.sourceKcal,
+    this.derniereMesureKcal,
+    this.sourcePas,
   });
 
   final DateTime jour;
@@ -111,6 +118,12 @@ class JourSante {
   final double? freqResp;
   final ResumeSommeil? sommeil;
   final List<Seance> seances;
+
+  /// D'où viennent les calories du jour (identifiant de paquet) et l'heure de
+  /// la dernière mesure ; de même pour les pas.
+  final String? sourceKcal;
+  final DateTime? derniereMesureKcal;
+  final String? sourcePas;
 }
 
 @immutable

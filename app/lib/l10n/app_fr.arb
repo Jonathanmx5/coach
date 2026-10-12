@@ -658,6 +658,8 @@
   "@importTermine": {"placeholders": {"importes": {"type": "int"}, "ignores": {"type": "int"}}},
   "importInvalide": "Ce fichier n'est pas une sauvegarde Crunch & Go.",
   "importEchec": "L'import a échoué. Réessaie.",
+  "sourceMesureDe": "{source} · mis à jour à {heure}",
+  "@sourceMesureDe": {"placeholders": {"source": {"type": "String"}, "heure": {"type": "String"}}},
   "courbePoids": "Évolution du poids",
   "periode90": "90 jours",
   "periode1an": "1 an",

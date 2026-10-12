@@ -116,12 +116,14 @@ class HealthSanteService implements SanteService {
         fin: p.dateTo,
         valeur: (valeur.totalEnergyBurned ?? 0).toDouble(),
         libelle: valeur.workoutActivityType.name,
+        source: p.sourceName,
       ),
       NumericHealthValue() => PointSante(
         type: type,
         debut: p.dateFrom,
         fin: p.dateTo,
         valeur: valeur.numericValue.toDouble(),
+        source: p.sourceName,
       ),
       _ => null,
     };

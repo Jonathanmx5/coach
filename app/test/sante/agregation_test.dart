@@ -25,7 +25,107 @@ final mardi = DateTime(2026, 10, 6);
 JourSante jour(List<JourSante> jours, DateTime d) =>
     jours.firstWhere((j) => j.jour == d);
 
+PointSante src(
+  TypeMesure type,
+  String source,
+  DateTime debut,
+  DateTime fin,
+  double valeur,
+) => PointSante(
+  type: type,
+  debut: debut,
+  fin: fin,
+  valeur: valeur,
+  source: source,
+);
+
 void main() {
+  test(
+    'deux applications pour les mêmes pas : la plus complète, pas la somme',
+    () {
+      final h8 = lundi.add(const Duration(hours: 8));
+      final h9 = lundi.add(const Duration(hours: 9));
+      final h10 = lundi.add(const Duration(hours: 10));
+      final jours = agregerParJour(
+        [
+          // Le téléphone et la montre ont compté les mêmes pas.
+          src(TypeMesure.pas, 'tel', h8, h9, 1000),
+          src(TypeMesure.pas, 'tel', h9, h10, 1500),
+          src(TypeMesure.pas, 'montre', h8, h10, 3000),
+        ],
+        debut: lundi,
+        fin: mardi,
+      );
+      final j = jour(jours, lundi);
+      expect(j.pas, 3000);
+      expect(j.sourcePas, 'montre');
+    },
+  );
+
+  test('calories : source retenue et heure de la dernière mesure', () {
+    final jours = agregerParJour(
+      [
+        src(
+          TypeMesure.kcalTotales,
+          'com.google.android.apps.fitness',
+          lundi,
+          lundi.add(const Duration(hours: 7)),
+          480,
+        ),
+        src(
+          TypeMesure.kcalTotales,
+          'com.google.android.apps.fitness',
+          lundi.add(const Duration(hours: 7)),
+          lundi.add(const Duration(hours: 8, minutes: 12)),
+          50,
+        ),
+        // Une autre application, avec moins de données : ignorée.
+        src(
+          TypeMesure.kcalTotales,
+          'com.xiaomi.wearable',
+          lundi,
+          lundi.add(const Duration(hours: 6)),
+          300,
+        ),
+      ],
+      debut: lundi,
+      fin: mardi,
+    );
+    final j = jour(jours, lundi);
+    expect(j.kcalTotales, 530);
+    expect(j.sourceKcal, 'com.google.android.apps.fitness');
+    expect(
+      j.derniereMesureKcal,
+      lundi.add(const Duration(hours: 8, minutes: 12)),
+    );
+  });
+
+  test(
+    'points sans source (anciens tests, autres plateformes) : additionnés',
+    () {
+      final jours = agregerParJour(
+        [
+          pt(
+            TypeMesure.pas,
+            lundi.add(const Duration(hours: 8)),
+            lundi.add(const Duration(hours: 9)),
+            1000,
+          ),
+          pt(
+            TypeMesure.pas,
+            lundi.add(const Duration(hours: 12)),
+            lundi.add(const Duration(hours: 13)),
+            2500,
+          ),
+        ],
+        debut: lundi,
+        fin: mardi,
+      );
+      expect(jour(jours, lundi).pas, 3500);
+      expect(jour(jours, lundi).sourcePas, isNull);
+    },
+  );
+
   test('un total prévu jusqu\'à minuit ne compte que ce qui est écoulé', () {
     // Les enregistrements réels de Google Fit un matin à 7 h 59.
     final matin = DateTime(2026, 10, 12);

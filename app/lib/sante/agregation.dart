@@ -77,7 +77,40 @@ List<JourSante> agregerParJour(
   return jours;
 }
 
+/// Total d'une mesure additive pour un jour. Plusieurs applications peuvent
+/// écrire la même mesure (pas du téléphone et de la montre, calories de Google
+/// Fit et de Mi Fitness) : les additionner la compterait deux fois. On garde
+/// donc le total de la source la plus complète du jour, jamais la somme.
+({double? valeur, String? source, DateTime? derniere}) _total(
+  List<PointSante> points,
+  TypeMesure type,
+) {
+  final parSource = <String?, List<PointSante>>{};
+  for (final p in points.where((p) => p.type == type)) {
+    parSource.putIfAbsent(p.source, () => []).add(p);
+  }
+  if (parSource.isEmpty) return (valeur: null, source: null, derniere: null);
+  String? meilleure;
+  var total = -1.0;
+  for (final e in parSource.entries) {
+    final s = e.value.fold<double>(0, (a, p) => a + p.valeur);
+    if (s > total) {
+      total = s;
+      meilleure = e.key;
+    }
+  }
+  final derniere = parSource[meilleure]!
+      .map((p) => p.fin)
+      .reduce((a, b) => a.isAfter(b) ? a : b);
+  return (valeur: total, source: meilleure, derniere: derniere);
+}
+
 JourSante _resumerJour(DateTime jour, List<PointSante> points) {
+  final pas = _total(points, TypeMesure.pas);
+  final distance = _total(points, TypeMesure.distance);
+  final etages = _total(points, TypeMesure.etages);
+  final actives = _total(points, TypeMesure.kcalActives);
+  final totales = _total(points, TypeMesure.kcalTotales);
   List<PointSante> de(TypeMesure t) =>
       points.where((p) => p.type == t).toList();
   double? somme(TypeMesure t) {
@@ -97,11 +130,14 @@ JourSante _resumerJour(DateTime jour, List<PointSante> points) {
 
   return JourSante(
     jour: jour,
-    pas: somme(TypeMesure.pas)?.round(),
-    distanceM: somme(TypeMesure.distance),
-    etages: somme(TypeMesure.etages)?.round(),
-    kcalActives: somme(TypeMesure.kcalActives),
-    kcalTotales: somme(TypeMesure.kcalTotales),
+    pas: pas.valeur?.round(),
+    distanceM: distance.valeur,
+    etages: etages.valeur?.round(),
+    kcalActives: actives.valeur,
+    kcalTotales: totales.valeur,
+    sourceKcal: totales.source ?? actives.source,
+    derniereMesureKcal: totales.derniere ?? actives.derniere,
+    sourcePas: pas.source,
     fcMoyenne: moyenne(TypeMesure.fc),
     fcRepos: derniere(TypeMesure.fcRepos),
     variabiliteMs: derniere(TypeMesure.variabilite),

@@ -1272,6 +1272,11 @@ class AppLocalizationsFr extends AppLocalizations {
   String get importEchec => 'L\'import a échoué. Réessaie.';
 
   @override
+  String sourceMesureDe(String source, String heure) {
+    return '$source · mis à jour à $heure';
+  }
+
+  @override
   String get courbePoids => 'Évolution du poids';
 
   @override
