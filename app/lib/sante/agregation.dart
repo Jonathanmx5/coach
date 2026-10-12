@@ -13,11 +13,50 @@ const _phasesSommeil = {
   TypeMesure.sommeilEndormi,
 };
 
+/// Les mesures qui s'additionnent sur un intervalle : si l'intervalle se
+/// prolonge dans le futur, seule la part déjà écoulée compte.
+const _additives = {
+  TypeMesure.pas,
+  TypeMesure.distance,
+  TypeMesure.etages,
+  TypeMesure.kcalActives,
+  TypeMesure.kcalTotales,
+};
+
+/// Coupe à [maintenant] les points additifs qui dépassent. Google Fit écrit
+/// par exemple un total de calories « de 7 h 13 à minuit » dès le matin :
+/// sans ce découpage, la journée afficherait plus de calories brûlées qu'elle
+/// n'a eu le temps d'en brûler. Une valeur est répartie à égalité sur la durée.
+List<PointSante> couperAuPresent(List<PointSante> points, DateTime maintenant) {
+  final sortie = <PointSante>[];
+  for (final p in points) {
+    if (!_additives.contains(p.type) || !p.fin.isAfter(maintenant)) {
+      sortie.add(p);
+      continue;
+    }
+    if (!p.debut.isBefore(maintenant)) continue; // entièrement dans le futur
+    final total = p.fin.difference(p.debut).inMicroseconds;
+    final ecoule = maintenant.difference(p.debut).inMicroseconds;
+    sortie.add(
+      PointSante(
+        type: p.type,
+        debut: p.debut,
+        fin: maintenant,
+        valeur: total <= 0 ? p.valeur : p.valeur * ecoule / total,
+        libelle: p.libelle,
+      ),
+    );
+  }
+  return sortie;
+}
+
 List<JourSante> agregerParJour(
   List<PointSante> points, {
   required DateTime debut,
   required DateTime fin,
+  DateTime? maintenant,
 }) {
+  if (maintenant != null) points = couperAuPresent(points, maintenant);
   final parJour = <DateTime, List<PointSante>>{};
   for (final p in points) {
     // Le sommeil compte pour le jour du réveil, le reste pour le jour du début.

@@ -26,6 +26,72 @@ JourSante jour(List<JourSante> jours, DateTime d) =>
     jours.firstWhere((j) => j.jour == d);
 
 void main() {
+  test('un total prévu jusqu\'à minuit ne compte que ce qui est écoulé', () {
+    // Les enregistrements réels de Google Fit un matin à 7 h 59.
+    final matin = DateTime(2026, 10, 12);
+    final maintenant = DateTime(2026, 10, 12, 7, 59);
+    final jours = agregerParJour(
+      [
+        pt(
+          TypeMesure.kcalTotales,
+          matin,
+          DateTime(2026, 10, 12, 6, 58, 6),
+          485.8,
+        ),
+        pt(
+          TypeMesure.kcalTotales,
+          DateTime(2026, 10, 12, 7, 13, 57),
+          DateTime(2026, 10, 13),
+          1169,
+        ),
+      ],
+      debut: matin,
+      fin: maintenant,
+      maintenant: maintenant,
+    );
+
+    final kcal = jour(jours, matin).kcalTotales!;
+    // 485,8 + la part écoulée des 1169 (45 min sur 16 h 46) ≈ 52 : environ 538.
+    expect(
+      kcal,
+      closeTo(485.8 + 1169 * (45 * 60 + 3) / (16 * 3600 + 46 * 60 + 3), 0.5),
+    );
+    expect(kcal, lessThan(560));
+  });
+
+  test('un intervalle entièrement dans le futur est ignoré', () {
+    final maintenant = DateTime(2026, 10, 12, 8);
+    final jours = agregerParJour(
+      [
+        pt(
+          TypeMesure.pas,
+          DateTime(2026, 10, 12, 7),
+          DateTime(2026, 10, 12, 7, 30),
+          400,
+        ),
+        pt(
+          TypeMesure.pas,
+          DateTime(2026, 10, 12, 9),
+          DateTime(2026, 10, 12, 10),
+          5000,
+        ),
+      ],
+      debut: DateTime(2026, 10, 12),
+      fin: maintenant,
+      maintenant: maintenant,
+    );
+    expect(jour(jours, DateTime(2026, 10, 12)).pas, 400);
+  });
+
+  test('sans « maintenant », rien n\'est coupé (historique)', () {
+    final jours = agregerParJour(
+      [pt(TypeMesure.kcalTotales, lundi, mardi, 2000)],
+      debut: lundi,
+      fin: mardi,
+    );
+    expect(jour(jours, lundi).kcalTotales, 2000);
+  });
+
   test('pas du même jour additionnés', () {
     final jours = agregerParJour(
       [

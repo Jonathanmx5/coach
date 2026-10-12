@@ -51,7 +51,12 @@ class Suivi extends ChangeNotifier {
       );
       final points = await sante.lire(debut, maintenant);
       _points = points.length;
-      jours = agregerParJour(points, debut: debut, fin: maintenant);
+      jours = agregerParJour(
+        points,
+        debut: debut,
+        fin: maintenant,
+        maintenant: maintenant,
+      );
       pesees = mesures(points, TypeMesure.poids);
       masseGrasse = mesures(points, TypeMesure.masseGrasse);
       maintien = ajustements.maintienMesure(jours, aujourdhui: maintenant);
