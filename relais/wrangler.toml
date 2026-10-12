@@ -17,7 +17,7 @@ MODELE = "@cf/meta/llama-3.2-11b-vision-instruct"
 MODELE_SECOURS = "@cf/meta/llama-4-scout-17b-16e-instruct"
 # Photos analysées par jour : par utilisateur, et pour tout le monde (garde le
 # quota gratuit de Workers AI).
-PLAFOND_UTILISATEUR = "8"
+PLAFOND_UTILISATEUR = "30"
 PLAFOND_GLOBAL = "500"
 # App Check : "off", "observe" (note les appels sans preuve) ou "enforce"
 # (les refuse). PROJECT_NUMBER : numéro du projet Firebase (Paramètres du projet).
