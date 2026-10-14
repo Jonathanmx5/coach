@@ -409,3 +409,122 @@ test('modèle principal illisible ou en panne : le modèle de secours répond', 
   await traiter(requete({ jeton: await jeton() }), { ...env(bon), MODELE: 'principal', MODELE_SECOURS: 'secours' }, { cles, maintenant: MAINTENANT });
   assert.deepEqual(appels, ['principal']);
 });
+
+test('texte libre (puces) : la réponse de Llama 3.2 est récupérée', () => {
+  const texte = [
+    '**Description :** Plat de poisson grillé sur un lit de cuscus.',
+    '',
+    '**Aliments :**',
+    '',
+    '*   Poisson (halibut ou saumon) : 200 g',
+    '    *   Kcal : 180',
+    '    *   Protéines : 30 g',
+    '    *   Glucides : 0 g',
+    '    *   Sucres : 0 g',
+    '    *   Lipides : 6 g',
+    '    *   Satures : 1 g',
+    '    *   Confiance : 1',
+    '*   Cuscus : 100 g',
+    '    *   Kcal : 150',
+    '    *   Protéines : 3 g',
+    '    *   Glucides : 30 g',
+    '    *   Lipides : 1 g',
+    '    *   Confiance : 0,7',
+  ].join('\n');
+  const r = analyse(texte);
+  assert.equal(r.description, 'Plat de poisson grillé sur un lit de cuscus.');
+  assert.equal(r.aliments.length, 2);
+  const [poisson, cuscus] = r.aliments;
+  assert.equal(poisson.nom, 'Poisson (halibut ou saumon)');
+  assert.equal(poisson.grammes, 200);
+  assert.equal(poisson.proteines, 30);
+  assert.equal(poisson.lipides, 6);
+  assert.equal(poisson.satures, 1);
+  assert.equal(cuscus.glucides, 30);
+  assert.equal(cuscus.confiance, 0.7);
+  // Du JSON reste du JSON, et un texte sans aliment ne donne rien.
+  assert.equal(analyse('{"aliments":[{"nom":"x","grammes":10,"kcal":5}]}').aliments[0].nom, 'x');
+  assert.equal(analyse('Je ne vois aucun plat sur cette image.'), null);
+});
+
+test('fourchette de quantité : gardée si elle encadre l\'estimation', () => {
+  const r = analyse({
+    aliments: [
+      { nom: 'riz', grammes: 200, grammes_min: 150, grammes_max: 260, kcal: 260 },
+      { nom: 'incohérent', grammes: 100, grammes_min: 150, grammes_max: 200, kcal: 100 },
+      { nom: 'énorme', grammes: 100, grammes_min: 50, grammes_max: 2000, kcal: 100 },
+      { nom: 'sans', grammes: 80, kcal: 100 },
+    ],
+  });
+  assert.deepEqual([r.aliments[0].grammes_min, r.aliments[0].grammes_max], [150, 260]);
+  assert.equal(r.aliments[1].grammes_min, undefined);
+  assert.equal(r.aliments[2].grammes_max, undefined);
+  assert.equal(r.aliments[3].grammes_min, undefined);
+});
+
+test('Llama 3.2 : JSON sans accolades, clés capitalisées, réponse coupée', () => {
+  const coupe = [
+    '"Description": "Plat de riz, haricots rouges et légumes.",',
+    '"Aliments": [',
+    '{"Nom": "Riz", "Grammes": 150, "Grammes_min": 100, "Grammes_max": 200, "Kcal": 360, "Proteines": 6, "Glucides": 70, "Sucres": 0, "Lipides": 2, "Satures": 0, "Confiance": 0.8},',
+    '{"Nom": "Haricots rouges", "Grammes": 200, "Grammes_min": 150, "Grammes_max": 250, "Kcal": 150, "Proteines": 10, "Glucides": 30, "Sucres": 0, "Lipides": 0, "Satures": 0, "Confiance": 0.8},',
+    '{"Nom": "Huile d\'olive", "Grammes": 10, "Grammes_min": 5, "Grammes_max": 15, "Kcal": 90, "Proteines": 0, "Glucides": 0, "Sucres": 0, "Lipides": 10, "Satures": 1, "Confianc',
+  ].join('\n');
+  const r = analyse(coupe);
+  assert.equal(r.description, 'Plat de riz, haricots rouges et légumes.');
+  assert.deepEqual(r.aliments.map((a) => a.nom), ['Riz', 'Haricots rouges']);
+  assert.equal(r.aliments[0].grammes, 150);
+  assert.equal(r.aliments[0].grammes_min, 100);
+  assert.equal(r.aliments[0].grammes_max, 200);
+  assert.equal(r.aliments[0].proteines, 4.1); // riz à 2,4 kcal/g annoncé : recalculé avec le repère (1,3 kcal/g)
+
+  // Complète, avec des accolades manquantes seulement autour.
+  const complete = '"Description": "x", "Aliments": [{"Nom": "Pomme", "Grammes": 120, "Kcal": 62}]';
+  assert.equal(analyse(complete).aliments[0].nom, 'Pomme');
+
+  // Du JSON normal avec des clés accentuées ou capitalisées.
+  const normal = analyse('{"Description":"y","aliments":[{"nom":"Poire","grammes":100,"kcal":57,"Protéines":0.4}]}');
+  assert.equal(normal.aliments[0].proteines, 0.4);
+});
+
+import { referentiel } from '../src/referentiel.js';
+
+test('référentiel : aliments sûrs reconnus, plats composés et crus écartés', () => {
+  assert.equal(referentiel('Riz').kcal, 130);
+  assert.equal(referentiel('Poisson (halibut ou saumon)'), null);
+  assert.equal(referentiel('Saumon').kcal, 206);
+  assert.equal(referentiel('Blanc de poulet grillé').kcal, 165);
+  assert.equal(referentiel('Spaghettis').kcal, 158);
+  assert.equal(referentiel('Pommes de terre').kcal, 86);
+  assert.equal(referentiel('Frites').kcal, 300);
+  assert.equal(referentiel('Riz au lait'), null);
+  assert.equal(referentiel('Sauce tomate'), null);
+  assert.equal(referentiel('Poulet et riz'), null);
+  assert.equal(referentiel('Salade composée'), null);
+  assert.equal(referentiel('Pomme').kcal, 52);
+  assert.equal(referentiel('Pomme de terre sautée').kcal, 86);
+  assert.equal(referentiel('Chocolat'), null);
+  assert.equal(referentiel(''), null);
+  assert.equal(referentiel(undefined), null);
+});
+
+test('un aliment connu à la densité absurde est recalculé, un plausible est laissé', () => {
+  const r = analyse({
+    aliments: [
+      // Riz cuit annoncé à 0,5 kcal/g (le tableau dit 1,3) : corrigé.
+      { nom: 'Riz', grammes: 200, kcal: 100, proteines: 2, glucides: 20, lipides: 2, confiance: 1 },
+      // Riz dans la bonne fourchette (1,2 kcal/g) : inchangé.
+      { nom: 'Riz', grammes: 200, kcal: 240, proteines: 5, glucides: 52, lipides: 0.6 },
+      // Aliment inconnu : inchangé même s'il paraît faible.
+      { nom: 'Plat mystère', grammes: 200, kcal: 100, proteines: 2, glucides: 20, lipides: 2 },
+    ],
+  });
+  const [corrige, plausible, inconnu] = r.aliments;
+  assert.equal(corrige.kcal, 260);
+  assert.equal(corrige.proteines, 5.4);
+  assert.equal(corrige.glucides, 56);
+  assert.equal(corrige.grammes, 200);
+  assert.equal(plausible.kcal, 240);
+  assert.equal(plausible.glucides, 52);
+  assert.equal(inconnu.kcal, 100);
+});

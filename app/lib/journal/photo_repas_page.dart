@@ -456,6 +456,10 @@ class _PhotoRepasPageState extends State<PhotoRepasPage> {
           const SizedBox(height: 12),
           CartePrecision(controleur: _precision, onReanalyser: _analyser),
         ],
+        if (fourchetteKcal(retenus) case final f?) ...[
+          const SizedBox(height: 8),
+          Text(t.fourchetteKcal(f.min, f.max), style: textes.titleSmall),
+        ],
         if (_aliments.isNotEmpty) ...[
           const SizedBox(height: 12),
           Text(
@@ -523,6 +527,16 @@ class _PhotoRepasPageState extends State<PhotoRepasPage> {
                       '${a.grammes.round()} g · ${a.macros.kcal.round()} kcal',
                       style: textes.bodySmall,
                     ),
+                    if (a.aFourchette)
+                      Text(
+                        t.fourchetteGrammes(
+                          a.grammesMin!.round(),
+                          a.grammesMax!.round(),
+                        ),
+                        style: textes.labelSmall?.copyWith(
+                          color: context.palette.texteDoux,
+                        ),
+                      ),
                     if (a.aVerifier)
                       Text(
                         t.aVerifier,

@@ -457,6 +457,57 @@ void main() {
     expect(r.source, SourceRepas.photo);
   });
 
+  testWidgets('fourchette de quantité : montrée, suit la portion, gardée', (
+    tester,
+  ) async {
+    final banc = Banc();
+    banc.analyse.aliments = [
+      const AlimentEstime(
+        nom: 'Riz',
+        grammes: 200,
+        macros: Macros(kcal: 260, proteines: 5, glucides: 56, lipides: 1),
+        confiance: 0.8,
+        grammesMin: 150,
+        grammesMax: 260,
+      ),
+    ];
+    await banc.monter(tester);
+    await analyserUnePhoto(tester);
+
+    expect(find.text('entre 150 et 260 g'), findsOneWidget);
+    expect(find.text('Environ 195 à 338 kcal en tout'), findsOneWidget);
+
+    await tester.tap(find.byTooltip('Augmenter la portion'));
+    await tester.pump();
+    expect(find.text('entre 165 et 286 g'), findsOneWidget);
+
+    await taper(tester, 'Enregistrer');
+    final aliment = banc.journal.repasDe('u1').single.aliments.single;
+    expect(aliment.grammesMin, closeTo(165, 0.001));
+    expect(aliment.grammesMax, closeTo(286, 0.001));
+  });
+
+  testWidgets('sans fourchette ou fourchette étroite : rien de plus affiché', (
+    tester,
+  ) async {
+    final banc = Banc();
+    banc.analyse.aliments = [
+      riz,
+      const AlimentEstime(
+        nom: 'Pain',
+        grammes: 100,
+        macros: Macros(kcal: 265),
+        grammesMin: 97,
+        grammesMax: 104,
+      ),
+    ];
+    await banc.monter(tester);
+    await analyserUnePhoto(tester);
+
+    expect(find.textContaining('entre '), findsNothing);
+    expect(find.textContaining('en tout'), findsNothing);
+  });
+
   testWidgets('photo : + et − ajustent la portion de 10 %', (tester) async {
     final banc = Banc();
     banc.analyse.aliments = [riz];

@@ -181,9 +181,12 @@ class _DetailRepasPageState extends State<DetailRepasPage> {
                   title: Text(aliments[i].nom),
                   subtitle: Text(
                     t.portionGrammes(
-                      aliments[i].grammes.round(),
-                      aliments[i].macros.kcal.round(),
-                    ),
+                          aliments[i].grammes.round(),
+                          aliments[i].macros.kcal.round(),
+                        ) +
+                        (aliments[i].aFourchette
+                            ? '\n${t.fourchetteGrammes(aliments[i].grammesMin!.round(), aliments[i].grammesMax!.round())}'
+                            : ''),
                   ),
                   trailing: Row(
                     mainAxisSize: MainAxisSize.min,

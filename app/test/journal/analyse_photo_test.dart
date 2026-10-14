@@ -66,6 +66,36 @@ void main() {
     expect(vues[1].headers.containsKey('x-firebase-appcheck'), isFalse);
   });
 
+  test('fourchette de quantité lue, et calories entre deux bornes', () async {
+    final c = client(
+      (_) async => json({
+        'description': 'Riz et poulet',
+        'aliments': [
+          {
+            'nom': 'Riz',
+            'grammes': 200,
+            'grammes_min': 150,
+            'grammes_max': 250,
+            'kcal': 260,
+          },
+          {'nom': 'Poulet', 'grammes': 100, 'kcal': 165},
+        ],
+      }),
+    );
+    final r = await c.analyser(image);
+
+    expect(r.aliments[0].grammesMin, 150);
+    expect(r.aliments[0].grammesMax, 250);
+    expect(r.aliments[0].aFourchette, isTrue);
+    expect(r.aliments[1].grammesMin, isNull);
+    expect(r.aliments[1].aFourchette, isFalse);
+    final f = fourchetteKcal(r.aliments)!;
+    // Riz : 195 à 325 ; poulet : 165 dans les deux cas.
+    expect(f.min, 360);
+    expect(f.max, 490);
+    expect(fourchetteKcal([r.aliments[1]]), isNull);
+  });
+
   test('envoie l\'image avec le jeton et lit les aliments', () async {
     late http.Request vue;
     final c = client((r) async {

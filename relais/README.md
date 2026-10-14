@@ -32,13 +32,30 @@ flutter build apk --dart-define=RELAIS_URL=https://coach-relais.<compte>.workers
 
 Sans `RELAIS_URL`, l'entrée « Photo du repas » n'apparaît pas dans l'application.
 
-## Évaluer la qualité
+## Évaluer et comparer les modèles
 
-Rassembler une vingtaine de photos de vrais repas pesés (`x.jpg` + `x.json` avec `{"kcal": 650}`), puis :
+Prendre une vingtaine de **vrais repas pesés** : photographier l'assiette, noter le poids total et les calories (balance de cuisine, étiquettes). Dans un dossier, pour chaque repas, `x.jpg` et `x.json` :
+
+```json
+{"kcal": 650, "grammes": 480}
+```
+
+(`grammes` : poids total du repas, facultatif.) Puis :
 
 ```bash
-RELAIS_URL=https://… JETON=<jeton Firebase> node eval/evaluer.js ./photos
+cd relais
+node eval/comparer.js ./photos
 ```
+
+Le script lance un petit worker d'évaluation (`wrangler dev --remote`, quota gratuit de Workers AI, ni jeton ni plafond) et compare Llama 3.2 11B, Llama 4 Scout et Mistral Small 3.1 ; Gemini s'ajoute si `GEMINI_API_KEY` est défini dans l'environnement. Il affiche, par modèle : la part de réponses lisibles, l'erreur médiane sur les calories, la part des repas à ±20 %, l'erreur sur le poids, la part des repas dont le poids pesé tombe dans la fourchette annoncée, et la durée moyenne. Pour tester d'autres modèles : `node eval/comparer.js ./photos "@cf/meta/llama-4-scout-17b-16e-instruct,gemini"`.
+
+`evaluer.js` mesure, lui, le relais déployé (`RELAIS_URL` et `JETON` Firebase), tel que l'application l'appelle.
+
+## Garde-fous sur la réponse du modèle
+
+- Le relais lit du JSON, du JSON sans accolades extérieures (fréquent avec Llama 3.2), du JSON coupé en route, et même une liste à puces.
+- Chaque aliment peut porter une fourchette de quantité (`grammes_min`, `grammes_max`), gardée seulement si elle encadre l'estimation.
+- Pour un aliment sans ambiguïté (riz, pâtes, poulet, œuf, pain...), si la densité calorique annoncée s'écarte de plus de 25 % de `src/referentiel.js`, les apports sont recalculés avec ce tableau (les grammes restent ceux du modèle). Les plats composés et les aliments crus ne sont jamais corrigés. Ce tableau est un ordre de grandeur, à valider avec la série de repas pesés.
 
 ## App Check (preuve que l'appel vient de la vraie application)
 

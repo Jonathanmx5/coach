@@ -20,6 +20,8 @@ class AlimentEstime {
     this.confiance,
     this.sucres,
     this.satures,
+    this.grammesMin,
+    this.grammesMax,
   });
 
   final String nom;
@@ -36,6 +38,18 @@ class AlimentEstime {
   final double? sucres;
   final double? satures;
 
+  /// Fourchette de quantité donnée par l'IA (la vraie valeur y a de bonnes
+  /// chances d'être) ; null si elle n'en a pas donné.
+  final double? grammesMin;
+  final double? grammesMax;
+
+  /// Vrai si la fourchette est assez large pour valoir la peine d'être montrée.
+  bool get aFourchette =>
+      grammesMin != null &&
+      grammesMax != null &&
+      grammes > 0 &&
+      (grammesMax! - grammesMin!) / grammes >= 0.1;
+
   Map<String, Object?> toMap() => {
     'nom': nom,
     'grammes': grammes,
@@ -43,6 +57,8 @@ class AlimentEstime {
     if (confiance != null) 'confiance': confiance,
     if (sucres != null) 'sucres': sucres,
     if (satures != null) 'satures': satures,
+    if (grammesMin != null) 'grammesMin': grammesMin,
+    if (grammesMax != null) 'grammesMax': grammesMax,
   };
 
   static AlimentEstime fromMap(Map<String, Object?> m) => AlimentEstime(
@@ -52,6 +68,8 @@ class AlimentEstime {
     confiance: (m['confiance'] as num?)?.toDouble(),
     sucres: (m['sucres'] as num?)?.toDouble(),
     satures: (m['satures'] as num?)?.toDouble(),
+    grammesMin: (m['grammesMin'] as num?)?.toDouble(),
+    grammesMax: (m['grammesMax'] as num?)?.toDouble(),
   );
 
   bool get aVerifier => confiance != null && confiance! < seuilConfiance;
@@ -65,6 +83,8 @@ class AlimentEstime {
       confiance: confiance,
       sucres: sucres == null ? null : sucres! * f,
       satures: satures == null ? null : satures! * f,
+      grammesMin: grammesMin == null ? null : grammesMin! * f,
+      grammesMax: grammesMax == null ? null : grammesMax! * f,
       macros: grammes <= 0 ? macros : macros.multiplie(f),
     );
   }
@@ -76,7 +96,29 @@ class AlimentEstime {
     confiance: confiance,
     sucres: sucres,
     satures: satures,
+    grammesMin: grammesMin,
+    grammesMax: grammesMax,
   );
+}
+
+/// Calories du repas entre deux bornes, d'après les fourchettes de quantité de
+/// l'IA (un aliment sans fourchette compte pour sa valeur). Null si aucun
+/// aliment n'a de fourchette utile.
+({int min, int max})? fourchetteKcal(Iterable<AlimentEstime> aliments) {
+  var min = 0.0;
+  var max = 0.0;
+  var une = false;
+  for (final a in aliments) {
+    if (a.aFourchette) {
+      une = true;
+      min += a.macros.kcal * a.grammesMin! / a.grammes;
+      max += a.macros.kcal * a.grammesMax! / a.grammes;
+    } else {
+      min += a.macros.kcal;
+      max += a.macros.kcal;
+    }
+  }
+  return une ? (min: min.round(), max: max.round()) : null;
 }
 
 /// Ce que l'IA a compris de la photo : de quoi il s'agit (plat, produit et
@@ -179,6 +221,8 @@ class AnalysePhotoRelais implements AnalysePhoto {
               confiance: (a['confiance'] as num?)?.toDouble(),
               sucres: (a['sucres'] as num?)?.toDouble(),
               satures: (a['satures'] as num?)?.toDouble(),
+              grammesMin: (a['grammes_min'] as num?)?.toDouble(),
+              grammesMax: (a['grammes_max'] as num?)?.toDouble(),
               macros: Macros(
                 kcal: (a['kcal'] as num).toDouble(),
                 proteines: (a['proteines'] as num?)?.toDouble() ?? 0,

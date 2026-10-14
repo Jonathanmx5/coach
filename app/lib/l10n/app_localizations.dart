@@ -2336,6 +2336,18 @@ abstract class AppLocalizations {
   /// **'{source} · mis à jour à {heure}'**
   String sourceMesureDe(String source, String heure);
 
+  /// No description provided for @fourchetteGrammes.
+  ///
+  /// In fr, this message translates to:
+  /// **'entre {min} et {max} g'**
+  String fourchetteGrammes(int min, int max);
+
+  /// No description provided for @fourchetteKcal.
+  ///
+  /// In fr, this message translates to:
+  /// **'Environ {min} à {max} kcal en tout'**
+  String fourchetteKcal(int min, int max);
+
   /// No description provided for @courbePoids.
   ///
   /// In fr, this message translates to:

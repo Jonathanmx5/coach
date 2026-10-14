@@ -64,6 +64,8 @@ void main() {
             macros: Macros(kcal: 130, proteines: 3, glucides: 28),
             confiance: 0.5,
             sucres: 1,
+            grammesMin: 80,
+            grammesMax: 130,
           ),
         ],
       ),
@@ -80,6 +82,8 @@ void main() {
     expect(r.aliments.single.grammes, 100);
     expect(r.aliments.single.confiance, 0.5);
     expect(r.aliments.single.sucres, 1);
+    expect(r.aliments.single.grammesMin, 80);
+    expect(r.aliments.single.grammesMax, 130);
     expect(r.aliments.single.satures, isNull);
     expect(r.aliments.single.macros.glucides, 28);
   });

@@ -1277,6 +1277,16 @@ class AppLocalizationsFr extends AppLocalizations {
   }
 
   @override
+  String fourchetteGrammes(int min, int max) {
+    return 'entre $min et $max g';
+  }
+
+  @override
+  String fourchetteKcal(int min, int max) {
+    return 'Environ $min à $max kcal en tout';
+  }
+
+  @override
   String get courbePoids => 'Évolution du poids';
 
   @override
