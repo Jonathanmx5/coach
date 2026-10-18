@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 
 import '../l10n/app_localizations.dart';
 import '../theme.dart';
+import 'ajustement.dart';
 import 'analyse_photo.dart';
 import 'calculs.dart';
 import 'carte_verdict.dart';
@@ -74,6 +75,9 @@ class _PhotoRepasPageState extends State<PhotoRepasPage> {
   List<AlimentEstime> _aliments = const [];
   String _description = '';
   final _gardes = <int>{};
+
+  /// Corrections à la main du total (boutons + et − des tuiles).
+  Ajustement _ajustement = const Ajustement();
 
   /// Vrai quand l'aliment vient d'un code-barres plutôt que d'une photo.
   bool _viaCode = false;
@@ -239,15 +243,19 @@ class _PhotoRepasPageState extends State<PhotoRepasPage> {
     });
   }
 
+  /// Total des aliments gardés, avec les corrections faites à la main.
+  Macros get _total => _ajustement.appliquer(totalAliments(_retenus));
+
   Future<void> _valider() async {
     final gardes = _retenus;
+    final total = _total;
     // La photo reste sur le téléphone ; si elle ne peut pas être gardée, le
     // repas est enregistré quand même.
     final cibles = widget.cibles;
     final verdictFige = cibles == null || gardes.isEmpty
         ? null
         : verdictRepas(
-            repas: totalAliments(gardes),
+            repas: total,
             sucres: _somme(gardes, (a) => a.sucres),
             satures: _somme(gardes, (a) => a.satures),
             dejaMange: widget.dejaMange,
@@ -264,7 +272,7 @@ class _PhotoRepasPageState extends State<PhotoRepasPage> {
         date: widget.date,
         moment: _moment,
         nom: gardes.map((a) => a.nom).join(', '),
-        macros: totalAliments(gardes),
+        macros: total,
         source: _viaCode ? SourceRepas.codeBarres : SourceRepas.photo,
         description: _description,
         aliments: gardes,
@@ -439,11 +447,18 @@ class _PhotoRepasPageState extends State<PhotoRepasPage> {
         else if (retenus.isNotEmpty && cibles != null)
           CarteVerdict(
             description: _description,
-            repas: totalAliments(retenus),
+            repas: _total,
+            onAjuster: (champ, sens) => setState(
+              () => _ajustement = _ajustement.avec(
+                champ,
+                sens,
+                totalAliments(retenus),
+              ),
+            ),
             sucres: somme((a) => a.sucres),
             satures: somme((a) => a.satures),
             verdict: verdictRepas(
-              repas: totalAliments(retenus),
+              repas: _total,
               sucres: somme((a) => a.sucres),
               satures: somme((a) => a.satures),
               dejaMange: widget.dejaMange,

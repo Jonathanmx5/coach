@@ -2348,6 +2348,18 @@ abstract class AppLocalizations {
   /// **'Environ {min} à {max} kcal en tout'**
   String fourchetteKcal(int min, int max);
 
+  /// No description provided for @ajusterPlus.
+  ///
+  /// In fr, this message translates to:
+  /// **'Augmenter : {nom}'**
+  String ajusterPlus(String nom);
+
+  /// No description provided for @ajusterMoins.
+  ///
+  /// In fr, this message translates to:
+  /// **'Diminuer : {nom}'**
+  String ajusterMoins(String nom);
+
   /// No description provided for @courbePoids.
   ///
   /// In fr, this message translates to:

@@ -6,6 +6,7 @@ import 'package:intl/intl.dart';
 import '../l10n/app_localizations.dart';
 import '../profil/modele.dart';
 import '../theme.dart';
+import 'ajustement.dart';
 import 'analyse_photo.dart';
 import 'calculs.dart';
 import 'formulaires.dart';
@@ -49,11 +50,23 @@ class _DetailRepasPageState extends State<DetailRepasPage> {
   late Moment _moment = widget.repas.moment;
   bool _portionsChangees = false;
 
-  bool get _modifie => _portionsChangees || _moment != widget.repas.moment;
+  /// L'écart entre les apports enregistrés et la somme des aliments (une
+  /// correction faite à la main plus tôt), puis celui d'à présent.
+  late final Ajustement _initial = Ajustement.entre(
+    widget.repas.macros,
+    totalAliments(widget.repas.aliments),
+  );
+  late Ajustement _ajustement = _initial;
 
-  /// Les apports : recalculés si les portions ont bougé.
-  Macros get _macros =>
-      _portionsChangees ? totalAliments(_aliments) : widget.repas.macros;
+  /// Vrai quand les apports ne sont plus ceux qui sont enregistrés.
+  bool get _apportsChanges => _portionsChangees || _ajustement != _initial;
+
+  bool get _modifie => _apportsChanges || _moment != widget.repas.moment;
+
+  /// Les apports : recalculés si les portions ou les valeurs ont bougé.
+  Macros get _macros => !_apportsChanges || _aliments.isEmpty
+      ? widget.repas.macros
+      : _ajustement.appliquer(totalAliments(_aliments));
 
   static double? _somme(
     List<AlimentEstime> l,
@@ -97,7 +110,7 @@ class _DetailRepasPageState extends State<DetailRepasPage> {
         aliments: _aliments,
         photoId: r.photoId,
         // Le jugement est refait seulement si les apports ont changé.
-        verdict: _portionsChangees && _aliments.isNotEmpty
+        verdict: _apportsChanges && _aliments.isNotEmpty
             ? _calculerVerdict()
             : r.verdict,
       ),
@@ -168,7 +181,14 @@ class _DetailRepasPageState extends State<DetailRepasPage> {
               satures: _somme(aliments, (a) => a.satures),
               // Le jugement de l'époque ; refait si on change les portions, ou
               // pour un ancien repas qui n'en avait pas.
-              verdict: _portionsChangees
+              onAjuster: (champ, sens) => setState(
+                () => _ajustement = _ajustement.avec(
+                  champ,
+                  sens,
+                  totalAliments(_aliments),
+                ),
+              ),
+              verdict: _apportsChanges
                   ? _calculerVerdict()
                   : (repas.verdict ?? _calculerVerdict()),
             ),

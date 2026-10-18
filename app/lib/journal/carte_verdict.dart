@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../l10n/app_localizations.dart';
 import '../theme.dart';
+import 'ajustement.dart';
 import 'modele.dart';
 import 'verdict.dart';
 
@@ -14,6 +15,7 @@ class CarteVerdict extends StatelessWidget {
     required this.sucres,
     required this.satures,
     required this.verdict,
+    this.onAjuster,
   });
 
   final String description;
@@ -21,6 +23,10 @@ class CarteVerdict extends StatelessWidget {
   final double? sucres;
   final double? satures;
   final Verdict verdict;
+
+  /// Si présent, chaque tuile a un bouton − et un bouton + pour corriger la
+  /// valeur à la main.
+  final void Function(ChampMacro champ, int sens)? onAjuster;
 
   @override
   Widget build(BuildContext context) {
@@ -43,7 +49,12 @@ class CarteVerdict extends StatelessWidget {
         t.cartonRouge,
       ),
     };
-    Widget tuile(String libelle, String valeur, String? detail) => Expanded(
+    Widget tuile(
+      String libelle,
+      String valeur,
+      String? detail,
+      ChampMacro champ,
+    ) => Expanded(
       child: Container(
         margin: const EdgeInsets.only(right: 6),
         padding: const EdgeInsets.all(10),
@@ -56,7 +67,23 @@ class CarteVerdict extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(libelle, style: textes.labelSmall),
-            Text(valeur, style: textes.titleMedium),
+            Row(
+              children: [
+                Expanded(child: Text(valeur, style: textes.titleMedium)),
+                if (onAjuster != null) ...[
+                  _BoutonAjuster(
+                    icone: Icons.remove,
+                    tooltip: t.ajusterMoins(libelle),
+                    onTap: () => onAjuster!(champ, -1),
+                  ),
+                  _BoutonAjuster(
+                    icone: Icons.add,
+                    tooltip: t.ajusterPlus(libelle),
+                    onTap: () => onAjuster!(champ, 1),
+                  ),
+                ],
+              ],
+            ),
             if (detail != null)
               Text(
                 detail,
@@ -109,8 +136,18 @@ class CarteVerdict extends StatelessWidget {
           const SizedBox(height: 12),
           Row(
             children: [
-              tuile(t.tuileCalories, '${repas.kcal.round()} kcal', null),
-              tuile(t.tuileProteines, '${repas.proteines.round()} g', null),
+              tuile(
+                t.tuileCalories,
+                '${repas.kcal.round()} kcal',
+                null,
+                ChampMacro.kcal,
+              ),
+              tuile(
+                t.tuileProteines,
+                '${repas.proteines.round()} g',
+                null,
+                ChampMacro.proteines,
+              ),
             ],
           ),
           const SizedBox(height: 6),
@@ -120,11 +157,13 @@ class CarteVerdict extends StatelessWidget {
                 t.tuileGlucides,
                 '${repas.glucides.round()} g',
                 sucres == null ? null : t.dontSucres(sucres!.round()),
+                ChampMacro.glucides,
               ),
               tuile(
                 t.tuileLipides,
                 '${repas.lipides.round()} g',
                 satures == null ? null : t.dontSatures(satures!.round()),
+                ChampMacro.lipides,
               ),
             ],
           ),
@@ -145,4 +184,31 @@ class CarteVerdict extends StatelessWidget {
       ),
     );
   }
+}
+
+/// Petit bouton rond − ou + d'une tuile.
+class _BoutonAjuster extends StatelessWidget {
+  const _BoutonAjuster({
+    required this.icone,
+    required this.tooltip,
+    required this.onTap,
+  });
+
+  final IconData icone;
+  final String tooltip;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) => IconButton(
+    tooltip: tooltip,
+    onPressed: onTap,
+    icon: Icon(icone, size: 18),
+    padding: EdgeInsets.zero,
+    constraints: const BoxConstraints.tightFor(width: 36, height: 36),
+    visualDensity: VisualDensity.compact,
+    style: IconButton.styleFrom(
+      minimumSize: const Size(36, 36),
+      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+    ),
+  );
 }

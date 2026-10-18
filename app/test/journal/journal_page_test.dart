@@ -457,6 +457,80 @@ void main() {
     expect(r.source, SourceRepas.photo);
   });
 
+  testWidgets('boutons + et − des tuiles : valeurs corrigées et enregistrées', (
+    tester,
+  ) async {
+    final banc = Banc();
+    banc.analyse.aliments = [riz, poulet];
+    await banc.monter(tester);
+    await analyserUnePhoto(tester);
+
+    // Départ : riz + poulet = 295 kcal, 34 g de protéines, 28 g de glucides.
+    expect(find.text('295 kcal'), findsOneWidget);
+    expect(find.text('34 g'), findsOneWidget);
+
+    await tester.tap(find.byTooltip('Augmenter : Protéines'));
+    await tester.pump();
+    expect(find.text('35 g'), findsOneWidget);
+    expect(find.text('299 kcal'), findsOneWidget); // +1 g = +4 kcal
+
+    await tester.tap(find.byTooltip('Diminuer : Lipides'));
+    await tester.pump();
+    expect(find.text('290 kcal'), findsOneWidget); // −1 g = −9 kcal
+
+    await tester.tap(find.byTooltip('Augmenter : Calories'));
+    await tester.pump();
+    expect(find.text('300 kcal'), findsOneWidget);
+
+    await taper(tester, 'Enregistrer');
+    final m = banc.journal.repasDe('u1').single.macros;
+    expect(m.proteines, 35);
+    expect(m.lipides, 3);
+    expect(m.kcal, 300);
+    // Les aliments et leurs portions, eux, restent ceux de l'analyse.
+    expect(banc.journal.repasDe('u1').single.aliments, hasLength(2));
+  });
+
+  testWidgets('détail d\'un repas : valeurs corrigées après coup', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(1080, 3600);
+    tester.view.devicePixelRatio = 2.75;
+    addTearDown(tester.view.reset);
+    final banc = Banc();
+    banc.analyse.aliments = [riz, poulet];
+    await banc.monter(tester);
+    await analyserUnePhoto(tester);
+    await taper(tester, 'Enregistrer');
+
+    await tester.tap(find.text('Riz, Poulet'));
+    await tester.pumpAndSettle();
+    expect(find.text('Enregistrer les modifications'), findsNothing);
+
+    await tester.tap(find.byTooltip('Augmenter : Glucides'));
+    await tester.pump();
+    await tester.tap(find.byTooltip('Augmenter : Glucides'));
+    await tester.pump();
+    expect(find.text('30 g'), findsOneWidget);
+    await taper(tester, 'Enregistrer les modifications');
+
+    final m = banc.journal.repasDe('u1').single.macros;
+    expect(m.glucides, 30);
+    expect(m.kcal, 303); // 295 + 2 × 4
+
+    // Rouvert, les valeurs corrigées sont celles qu'on voit ; revenir à
+    // l'analyse d'origine n'est pas obligatoire, et rien n'est « modifié ».
+    await tester.tap(find.text('Riz, Poulet'));
+    await tester.pumpAndSettle();
+    expect(find.text('30 g'), findsOneWidget);
+    expect(find.text('Enregistrer les modifications'), findsNothing);
+
+    // Une portion changée garde la correction à la main par-dessus.
+    await tester.tap(find.byTooltip('Augmenter la portion').first);
+    await tester.pump();
+    expect(find.text('Enregistrer les modifications'), findsOneWidget);
+  });
+
   testWidgets('fourchette de quantité : montrée, suit la portion, gardée', (
     tester,
   ) async {

@@ -1287,6 +1287,16 @@ class AppLocalizationsFr extends AppLocalizations {
   }
 
   @override
+  String ajusterPlus(String nom) {
+    return 'Augmenter : $nom';
+  }
+
+  @override
+  String ajusterMoins(String nom) {
+    return 'Diminuer : $nom';
+  }
+
+  @override
   String get courbePoids => 'Évolution du poids';
 
   @override
