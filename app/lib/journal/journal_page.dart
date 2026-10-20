@@ -19,6 +19,7 @@ import 'cartes_journal.dart';
 import 'catalogue.dart';
 import 'scanner_page.dart' show ScanCode, lireCodeBarres;
 import 'photos_repas.dart';
+import 'repas_recents.dart';
 import 'signalement.dart';
 import '../recettes/avis_repository.dart';
 import '../recettes/idees_page.dart';
@@ -166,12 +167,6 @@ class _JournalPageState extends State<JournalPage> with WidgetsBindingObserver {
       ? widget.horloge()
       : DateTime(_jour.year, _jour.month, _jour.day, 12);
 
-  void _message(String texte) {
-    ScaffoldMessenger.of(context)
-      ..hideCurrentSnackBar()
-      ..showSnackBar(SnackBar(content: Text(texte)));
-  }
-
   void _ouvrirDetail(Repas r, CiblesJour cibles, Macros totalJour) {
     Navigator.of(context).push<void>(
       routeVerre(
@@ -284,6 +279,26 @@ class _JournalPageState extends State<JournalPage> with WidgetsBindingObserver {
     }
   }
 
+  /// Les repas des [joursRecents] derniers jours, à proposer de nouveau ;
+  /// une liste vide si la lecture échoue ou tarde.
+  Future<List<Repas>> _recents() async {
+    final a = _aujourdhui;
+    final debut = DateTime(a.year, a.month, a.day - joursRecents);
+    final fin = DateTime(a.year, a.month, a.day + 1);
+    try {
+      final repas = await widget.journal
+          .repas(_uid, debut, fin)
+          .first
+          .timeout(const Duration(seconds: 3));
+      return repasRecents(repas);
+    } on TimeoutException {
+      return const [];
+    } catch (e, s) {
+      signalerErreur(e, s);
+      return const [];
+    }
+  }
+
   /// Écran photo du repas ; [date] : celle du repas (par défaut, selon le
   /// jour affiché).
   Future<void> _photo({SourcePhoto? source, DateTime? date}) async {
@@ -302,22 +317,10 @@ class _JournalPageState extends State<JournalPage> with WidgetsBindingObserver {
   }) async {
     final t = AppLocalizations.of(context)!;
     final messager = ScaffoldMessenger.of(context);
-    // Sans analyse possible (pas de relais) ou sans l'accord de l'utilisateur
-    // pour envoyer la photo, il reste la saisie à la main.
-    final accord =
-        widget.analyse.disponible &&
-        await assurerConsentement(
-          context,
-          widget.consentements,
-          _uid,
-          Consentement.photo,
-        );
-    if (!mounted) return;
-    if (!accord) {
-      _message(t.sansAnalyse);
-      await _ajouterRepas(date: date);
-      return;
-    }
+    // L'écran s'ouvre toujours : le code-barres, les repas récents et la
+    // saisie à la main n'ont pas besoin de l'accord pour l'IA, qui n'est
+    // demandé qu'au choix d'une photo.
+    final recents = _recents();
     final (dejaMange, cibles) = await _totauxDe(_debutDeJour(date));
     if (!mounted) return;
     final resultat = await Navigator.of(context).push<Object>(
@@ -329,6 +332,13 @@ class _JournalPageState extends State<JournalPage> with WidgetsBindingObserver {
           photos: widget.photosRepas,
           catalogue: widget.catalogue,
           scan: widget.scan,
+          accordPhoto: (contexte) => assurerConsentement(
+            contexte,
+            widget.consentements,
+            _uid,
+            Consentement.photo,
+          ),
+          recents: recents,
           sourceInitiale: source,
           dejaMange: dejaMange,
           cibles: cibles,

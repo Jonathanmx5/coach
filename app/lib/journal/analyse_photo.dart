@@ -140,11 +140,23 @@ class AlimentEstime {
 /// marque) et les aliments avec leurs apports.
 @immutable
 class ResultatAnalyse {
-  const ResultatAnalyse({required this.description, required this.aliments});
+  const ResultatAnalyse({
+    required this.description,
+    required this.aliments,
+    this.restantes,
+  });
 
   final String description;
   final List<AlimentEstime> aliments;
+
+  /// Analyses photo encore possibles aujourd'hui, si le relais le dit.
+  final int? restantes;
 }
+
+/// Le nombre d'analyses restantes renvoyé par le relais : un entier positif
+/// ou nul, sinon rien (ancien relais, valeur inattendue).
+int? lireRestantes(Object? valeur) =>
+    valeur is num && valeur.isFinite && valeur >= 0 ? valeur.floor() : null;
 
 /// [tropGros] : la photo dépasse la taille acceptée par le relais (413).
 enum CauseAnalyse { reseau, auth, quota, illisible, tropGros, indisponible }
@@ -236,6 +248,7 @@ class AnalysePhotoRelais implements AnalysePhoto {
       final json = jsonDecode(utf8.decode(r.bodyBytes)) as Map<String, dynamic>;
       return ResultatAnalyse(
         description: ((json['description'] as String?) ?? '').trim(),
+        restantes: lireRestantes(json['restantes']),
         aliments: [
           for (final a in json['aliments'] as List)
             AlimentEstime(

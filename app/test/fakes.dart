@@ -222,12 +222,19 @@ class FausseAnalyse implements AnalysePhoto {
   int appels = 0;
   final indices = <String?>[];
 
+  /// Analyses restantes renvoyées par le relais (null : il n'en dit rien).
+  int? restantes;
+
   @override
   Future<ResultatAnalyse> analyser(Uint8List jpeg, {String? indice}) async {
     appels++;
     indices.add(indice);
     if (echec != null) throw AnalyseEchouee(echec!);
-    return ResultatAnalyse(description: description, aliments: aliments);
+    return ResultatAnalyse(
+      description: description,
+      aliments: aliments,
+      restantes: restantes,
+    );
   }
 }
 

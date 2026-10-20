@@ -490,10 +490,10 @@ void main() {
     widget.demandes.add('photo');
     await tester.pumpAndSettle();
 
-    // L'onglet Repas est ouvert, et la demande de photo a démarré (accord à
-    // donner la première fois, ou écran de photo).
-    expect(find.byType(NavigationBar), findsOneWidget);
-    expect(find.text("Envoyer la photo pour l'analyse ?"), findsOneWidget);
+    // L'onglet Repas est ouvert, puis l'écran de photo (l'accord n'est
+    // demandé qu'au choix d'une photo).
+    expect(find.byType(NavigationBar, skipOffstage: false), findsOneWidget);
+    expect(find.text('Prendre une photo'), findsOneWidget);
   });
 
   testWidgets('application lancée par le widget « Photographier »', (
@@ -507,7 +507,7 @@ void main() {
       widgetAccueil: widget,
     );
 
-    expect(find.text("Envoyer la photo pour l'analyse ?"), findsOneWidget);
+    expect(find.text('Prendre une photo'), findsOneWidget);
     expect(find.text('Bonjour Léa !'), findsNothing);
   });
 

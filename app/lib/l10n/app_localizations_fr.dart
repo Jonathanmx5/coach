@@ -1254,6 +1254,9 @@ class AppLocalizationsFr extends AppLocalizations {
   String get verdictCoach => 'Le verdict du coach';
 
   @override
+  String get verdictJournee => 'Et pour ta journée';
+
+  @override
   String get tuileCalories => 'Calories';
 
   @override
@@ -1833,5 +1836,38 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String joursPrevus(String jours) {
     return 'Jours prévus : $jours';
+  }
+
+  @override
+  String get photoSansAccord =>
+      'Sans ton accord, la photo n\'est pas envoyée. Tu peux scanner un produit, reprendre un repas récent ou saisir le repas à la main.';
+
+  @override
+  String get repasRecentsTitre => 'Repas récents';
+
+  @override
+  String get repasRecentsAide =>
+      'Un appui pour le remettre au journal, avec les mêmes aliments.';
+
+  @override
+  String repasRecentLigne(String moment, String jour, int kcal) {
+    return '$moment du $jour · $kcal kcal';
+  }
+
+  @override
+  String repasRecentAjouter(String nom) {
+    return 'Ajouter de nouveau : $nom';
+  }
+
+  @override
+  String analysesRestantes(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: 'Encore $n analyses photo possibles aujourd\'hui.',
+      one: 'Encore 1 analyse photo possible aujourd\'hui.',
+      zero: 'Plus d\'analyse photo possible aujourd\'hui.',
+    );
+    return '$_temp0';
   }
 }

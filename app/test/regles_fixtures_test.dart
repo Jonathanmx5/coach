@@ -73,11 +73,17 @@ Repas repasMaximal() {
       feu: Feu.rouge,
       points: [
         '52 g de protéines : un apport correct.',
-        'C\'est près de la moitié de ta journée en un seul repas.',
-        '40 g de sucres : beaucoup d\'un coup.',
+        '50 g de sucres : beaucoup d\'un coup.',
         '18 g de graisses saturées : à limiter.',
+        'Repas très gras : 70 g de lipides.',
       ],
-      conclusion: 'À éviter aujourd\'hui.',
+      conclusion:
+          'À garder pour les occasions : cette composition sert peu ton '
+          'objectif de perte de poids.',
+      budget:
+          'Tu dépasses de 1250 kcal ton objectif du jour avec ce repas. '
+          'Allège un peu les prochains repas, sans en sauter. C\'est près de '
+          'la moitié de ta journée en un seul repas.',
     ),
   );
 }

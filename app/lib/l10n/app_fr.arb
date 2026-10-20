@@ -709,6 +709,7 @@
     }
   },
   "verdictCoach": "Le verdict du coach",
+  "verdictJournee": "Et pour ta journée",
   "tuileCalories": "Calories",
   "tuileProteines": "Protéines",
   "tuileGlucides": "Glucides",
@@ -950,5 +951,14 @@
   "semaineFaite": "Séances de la semaine faites.",
   "commencerQuandMeme": "Commencer quand même",
   "joursPrevus": "Jours prévus : {jours}",
-  "@joursPrevus": {"placeholders": {"jours": {"type": "String"}}}
+  "@joursPrevus": {"placeholders": {"jours": {"type": "String"}}},
+  "photoSansAccord": "Sans ton accord, la photo n'est pas envoyée. Tu peux scanner un produit, reprendre un repas récent ou saisir le repas à la main.",
+  "repasRecentsTitre": "Repas récents",
+  "repasRecentsAide": "Un appui pour le remettre au journal, avec les mêmes aliments.",
+  "repasRecentLigne": "{moment} du {jour} · {kcal} kcal",
+  "@repasRecentLigne": {"placeholders": {"moment": {"type": "String"}, "jour": {"type": "String"}, "kcal": {"type": "int"}}},
+  "repasRecentAjouter": "Ajouter de nouveau : {nom}",
+  "@repasRecentAjouter": {"placeholders": {"nom": {"type": "String"}}},
+  "analysesRestantes": "{n, plural, =0{Plus d'analyse photo possible aujourd'hui.} =1{Encore 1 analyse photo possible aujourd'hui.} other{Encore {n} analyses photo possibles aujourd'hui.}}",
+  "@analysesRestantes": {"placeholders": {"n": {"type": "int"}}}
 }

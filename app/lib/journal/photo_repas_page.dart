@@ -17,6 +17,7 @@ import 'formulaires.dart';
 import '../profil/modele.dart';
 import 'modele.dart';
 import 'photos_repas.dart';
+import 'repas_recents.dart';
 import 'signalement.dart';
 import 'verdict.dart';
 
@@ -31,8 +32,14 @@ class SaisieManuelle {
   const SaisieManuelle();
 }
 
+/// Demande (ou retrouve) l'accord pour envoyer la photo à l'analyse par IA ;
+/// vrai si l'utilisateur est d'accord.
+typedef AccordPhoto = Future<bool> Function(BuildContext context);
+
 /// Photo du repas : l'IA estime les aliments, l'utilisateur ajuste, ajoute ou
-/// retire des aliments, voit l'effet sur sa journée et valide.
+/// retire des aliments, voit l'effet sur sa journée et valide. Le code-barres,
+/// les repas récents et la saisie à la main n'envoient rien à l'IA : seul le
+/// choix d'une photo demande l'accord.
 /// Rend un [Repas], une [SaisieManuelle], ou null si abandon.
 class PhotoRepasPage extends StatefulWidget {
   const PhotoRepasPage({
@@ -42,6 +49,8 @@ class PhotoRepasPage extends StatefulWidget {
     required this.prise,
     required this.photos,
     required this.catalogue,
+    required this.accordPhoto,
+    this.recents,
     this.scan = lireCodeBarres,
     this.sourceInitiale,
     this.dejaMange = Macros.zero,
@@ -55,6 +64,14 @@ class PhotoRepasPage extends StatefulWidget {
   final PhotosRepas photos;
   final CatalogueProduits catalogue;
   final ScanCode scan;
+
+  /// Demandé avant de prendre ou de choisir une photo, jamais pour le
+  /// code-barres ni la saisie à la main.
+  final AccordPhoto accordPhoto;
+
+  /// Repas des derniers jours, à remettre au journal en un appui (voir
+  /// [repasRecents]) ; null : la liste n'est pas proposée.
+  final Future<List<Repas>>? recents;
 
   /// Ouvre tout de suite l'appareil (ou la bibliothèque) au lieu du choix.
   final SourcePhoto? sourceInitiale;
@@ -90,6 +107,14 @@ class _PhotoRepasPageState extends State<PhotoRepasPage> {
 
   /// Vrai pendant l'enregistrement : un second appui ne fait rien.
   bool _enregistrement = false;
+
+  /// Analyses photo encore possibles aujourd'hui, d'après la dernière réponse
+  /// du relais ; null s'il n'en a rien dit.
+  int? _restantes;
+
+  /// Sans relais configuré, pas de photo : restent le code-barres, les repas
+  /// récents et la saisie à la main.
+  bool get _photoPossible => widget.analyse.disponible;
   final _precision = TextEditingController();
   late Moment _moment = momentPourHeure(widget.date);
 
@@ -97,7 +122,7 @@ class _PhotoRepasPageState extends State<PhotoRepasPage> {
   void initState() {
     super.initState();
     final source = widget.sourceInitiale;
-    if (source != null) {
+    if (source != null && _photoPossible) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted) unawaited(_choisir(source));
       });
@@ -112,6 +137,22 @@ class _PhotoRepasPageState extends State<PhotoRepasPage> {
 
   Future<void> _choisir(SourcePhoto source) async {
     final t = AppLocalizations.of(context)!;
+    if (!_photoPossible) return;
+    // La photo n'est prise que pour être analysée : l'accord est demandé
+    // avant, et un refus laisse les autres façons de noter le repas.
+    final bool accord;
+    try {
+      accord = await widget.accordPhoto(context);
+    } catch (e, s) {
+      signalerErreur(e, s);
+      if (mounted) _signaler(t.photoIndisponible);
+      return;
+    }
+    if (!mounted) return;
+    if (!accord) {
+      _signaler(t.photoSansAccord);
+      return;
+    }
     final Uint8List? image;
     try {
       image = await widget.prise(source);
@@ -246,6 +287,7 @@ class _PhotoRepasPageState extends State<PhotoRepasPage> {
       );
       if (!mounted) return;
       setState(() {
+        _restantes = analyse.restantes;
         _description = analyse.description;
         _remplacer(analyse.aliments);
         _phase = _Phase.resultat;
@@ -268,6 +310,30 @@ class _PhotoRepasPageState extends State<PhotoRepasPage> {
   }
 
   void _manuel() => Navigator.of(context).pop(const SaisieManuelle());
+
+  /// Remet au journal un repas récent, daté du jour affiché, sans photo ; son
+  /// verdict est celui de la journée en cours.
+  void _reprendre(Repas r) {
+    if (_enregistrement) return;
+    _enregistrement = true;
+    final cibles = widget.cibles;
+    Navigator.of(context).pop(
+      repasRepris(
+        r,
+        date: widget.date,
+        verdict: cibles == null
+            ? null
+            : verdictRepas(
+                repas: r.macros,
+                sucres: _somme(r.aliments, (a) => a.sucres),
+                satures: _somme(r.aliments, (a) => a.satures),
+                dejaMange: widget.dejaMange,
+                cibles: cibles,
+                objectif: widget.objectif,
+              ),
+      ),
+    );
+  }
 
   List<AlimentEstime> get _retenus => [
     for (final i in _gardes.toList()..sort()) _aliments[i],
@@ -449,23 +515,38 @@ class _PhotoRepasPageState extends State<PhotoRepasPage> {
     return ListView(
       padding: const EdgeInsets.all(20),
       children: [
-        Text(t.photoConseil, style: textes.bodyMedium),
-        const SizedBox(height: 16),
-        carte(
-          Icons.photo_camera_outlined,
-          t.prendrePhotoRepas,
-          SourcePhoto.appareil,
-        ),
-        const SizedBox(height: 12),
-        carte(
-          Icons.photo_library_outlined,
-          t.galerieChoix,
-          SourcePhoto.galerie,
-        ),
+        if (_photoPossible) ...[
+          Text(t.photoConseil, style: textes.bodyMedium),
+          const SizedBox(height: 16),
+          carte(
+            Icons.photo_camera_outlined,
+            t.prendrePhotoRepas,
+            SourcePhoto.appareil,
+          ),
+          const SizedBox(height: 12),
+          carte(
+            Icons.photo_library_outlined,
+            t.galerieChoix,
+            SourcePhoto.galerie,
+          ),
+        ] else
+          Text(t.sansAnalyse, style: textes.bodyMedium),
         const SizedBox(height: 12),
         carte(Icons.qr_code_scanner, t.scanTitre, null),
         const SizedBox(height: 8),
         TextButton(onPressed: _manuel, child: Text(t.saisirALaMain)),
+        if (widget.recents case final recents?)
+          FutureBuilder<List<Repas>>(
+            future: recents,
+            builder: (context, snap) {
+              final liste = snap.data ?? const <Repas>[];
+              if (liste.isEmpty) return const SizedBox.shrink();
+              return Padding(
+                padding: const EdgeInsets.only(top: 16),
+                child: ListeRepasRecents(repas: liste, onChoisir: _reprendre),
+              );
+            },
+          ),
       ],
     );
   }
@@ -489,6 +570,7 @@ class _PhotoRepasPageState extends State<PhotoRepasPage> {
         icon: const Icon(Icons.auto_awesome),
         label: Text(t.analyserRepas),
       ),
+      ..._analysesRestantes(t),
       TextButton(
         onPressed: () => setState(() => _phase = _Phase.choix),
         child: Text(t.changerPhoto),
@@ -589,6 +671,7 @@ class _PhotoRepasPageState extends State<PhotoRepasPage> {
           const SizedBox(height: 12),
           CartePrecision(controleur: _precision, onReanalyser: _analyser),
         ],
+        if (_image != null) ..._analysesRestantes(t),
         if (fourchetteKcal(retenus) case final f?) ...[
           const SizedBox(height: 8),
           Text(
@@ -638,6 +721,20 @@ class _PhotoRepasPageState extends State<PhotoRepasPage> {
       ],
     );
   }
+
+  /// Le nombre d'analyses photo restantes du jour, si le relais l'a donné.
+  List<Widget> _analysesRestantes(AppLocalizations t) => [
+    if (_restantes case final n?) ...[
+      const SizedBox(height: 8),
+      Text(
+        t.analysesRestantes(n),
+        key: const ValueKey('analyses-restantes'),
+        textAlign: TextAlign.center,
+        style: Theme.of(context).textTheme.bodySmall
+            ?.copyWith(color: context.palette.texteDoux),
+      ),
+    ],
+  ];
 
   Widget _ligne(AppLocalizations t, int i) {
     final a = _aliments[i];

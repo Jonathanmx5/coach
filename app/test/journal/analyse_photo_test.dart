@@ -69,6 +69,26 @@ void main() {
     expect(vues[1].headers.containsKey('x-firebase-appcheck'), isFalse);
   });
 
+  test(
+    'analyses restantes : lues si le relais les renvoie, sinon rien',
+    () async {
+      final avec = await client(
+        (_) async => json({'aliments': [], 'restantes': 5}),
+      ).analyser(image);
+      expect(avec.restantes, 5);
+      final sans = await client((_) async => json({'aliments': []}))
+          .analyser(image);
+      expect(sans.restantes, isNull);
+      final bizarre = await client(
+        (_) async => json({'aliments': [], 'restantes': 'beaucoup'}),
+      ).analyser(image);
+      expect(bizarre.restantes, isNull);
+      expect(lireRestantes(-1), isNull);
+      expect(lireRestantes(0), 0);
+      expect(lireRestantes(3.0), 3);
+    },
+  );
+
   test('fourchette de quantité lue, et calories entre deux bornes', () async {
     final c = client(
       (_) async => json({

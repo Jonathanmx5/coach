@@ -201,8 +201,10 @@ void main() {
       widget.demandes.add('photo');
       await tester.pumpAndSettle();
 
-      expect(find.byType(JournalPage), findsOneWidget);
-      expect(find.text("Envoyer la photo pour l'analyse ?"), findsOneWidget);
+      expect(find.byType(JournalPage, skipOffstage: false), findsOneWidget);
+      // L'écran photo est ouvert ; l'accord ne sera demandé qu'au choix
+      // d'une photo.
+      expect(find.text('Prendre une photo'), findsOneWidget);
     });
   });
 
@@ -219,7 +221,7 @@ void main() {
       expect(find.text("Envoyer la photo pour l'analyse ?"), findsOneWidget);
       await tester.tap(find.text('Refuser'));
       await tester.pumpAndSettle();
-      // Sans accord, la saisie à la main s'est ouverte : on la referme.
+      // Sans accord, l'écran photo reste ouvert : on le referme.
       Navigator.of(tester.element(find.byType(Coque, skipOffstage: false)))
           .popUntil((r) => r.isFirst);
       await tester.pumpAndSettle();

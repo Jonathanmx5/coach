@@ -6,6 +6,8 @@ import 'package:coach/journal/calculs.dart';
 import 'package:coach/journal/catalogue.dart';
 import 'package:coach/journal/modele.dart';
 import 'package:coach/journal/photo_repas_page.dart';
+import 'package:coach/journal/repas_recents.dart';
+import 'package:coach/journal/verdict.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -67,6 +69,15 @@ class Banc {
   PrisePhoto prise = (_) async => Uint8List.fromList([1, 2, 3]);
   final resultats = <Object?>[];
 
+  /// Réponse de l'utilisateur à la demande d'accord pour l'IA, et nombre de
+  /// fois où elle a été posée.
+  bool accord = true;
+  int demandesAccord = 0;
+
+  /// Repas des derniers jours proposés ; null : pas de liste.
+  List<Repas>? recents;
+  Macros dejaMange = Macros.zero;
+
   Future<void> monter(WidgetTester tester) async {
     tester.view.physicalSize = const Size(1080, 4200);
     tester.view.devicePixelRatio = 2.75;
@@ -88,6 +99,12 @@ class Banc {
                         catalogue: catalogue,
                         scan: (_) async => '3017620422003',
                         cibles: cibles,
+                        dejaMange: dejaMange,
+                        accordPhoto: (_) async {
+                          demandesAccord++;
+                          return accord;
+                        },
+                        recents: recents == null ? null : Future.value(recents),
                       ),
                     ),
                   ),
@@ -426,5 +443,165 @@ void main() {
       ),
     );
     expect(galerie.top - appareil.bottom, greaterThanOrEqualTo(12));
+  });
+
+  group('accord pour l\'IA', () {
+    testWidgets('demandé seulement au choix d\'une photo', (tester) async {
+      final banc = Banc();
+      await banc.monter(tester);
+      expect(banc.demandesAccord, 0);
+
+      await taper(tester, 'Scanner un produit');
+      expect(banc.demandesAccord, 0);
+      await taper(tester, 'Prendre une photo');
+      expect(banc.demandesAccord, 1);
+      expect(find.text('Analyser ce repas'), findsOneWidget);
+    });
+
+    testWidgets('refusé : pas de photo, les autres choix restent', (
+      tester,
+    ) async {
+      var prises = 0;
+      final banc = Banc()
+        ..accord = false
+        ..prise = (_) async {
+          prises++;
+          return Uint8List.fromList([1, 2, 3]);
+        };
+      await banc.monter(tester);
+
+      await taper(tester, 'Prendre une photo');
+
+      expect(prises, 0);
+      expect(banc.analyse.appels, 0);
+      expect(
+        find.textContaining('la photo n\'est pas envoyée'),
+        findsOneWidget,
+      );
+      expect(find.text('Scanner un produit'), findsOneWidget);
+      expect(find.text('Saisir à la main'), findsOneWidget);
+    });
+
+    testWidgets('sans relais : ni photo ni accord, le scanner reste', (
+      tester,
+    ) async {
+      final banc = Banc()..analyse.disponible = false;
+      await banc.monter(tester);
+
+      expect(find.textContaining('Sans analyse par IA'), findsOneWidget);
+      expect(find.text('Prendre une photo'), findsNothing);
+      expect(find.text('Choisir dans la galerie'), findsNothing);
+      expect(find.text('Scanner un produit'), findsOneWidget);
+      expect(banc.demandesAccord, 0);
+    });
+  });
+
+  group('analyses photo restantes', () {
+    testWidgets('affichées quand le relais les donne', (tester) async {
+      final banc = Banc()..analyse.restantes = 3;
+      await banc.monter(tester);
+      await banc.analyser(tester);
+
+      expect(
+        find.text('Encore 3 analyses photo possibles aujourd\'hui.'),
+        findsOneWidget,
+      );
+    });
+
+    testWidgets('une seule restante : message au singulier', (tester) async {
+      final banc = Banc()..analyse.restantes = 1;
+      await banc.monter(tester);
+      await banc.analyser(tester);
+      expect(
+        find.text('Encore 1 analyse photo possible aujourd\'hui.'),
+        findsOneWidget,
+      );
+    });
+
+    testWidgets('rien quand le relais n\'en dit rien', (tester) async {
+      final banc = Banc();
+      await banc.monter(tester);
+      await banc.analyser(tester);
+
+      expect(find.byKey(const ValueKey('analyses-restantes')), findsNothing);
+    });
+  });
+
+  group('repas récents', () {
+    final hier = Repas(
+      id: 'r1',
+      date: DateTime(2026, 10, 8, 19, 30),
+      moment: Moment.diner,
+      nom: 'Riz, Poulet',
+      macros: const Macros(kcal: 295, proteines: 34, glucides: 28, lipides: 4),
+      source: SourceRepas.photo,
+      description: 'Poulet au riz',
+      aliments: const [riz, poulet],
+      photoId: '1760000000000000',
+      verdict: const Verdict(
+        feu: Feu.rouge,
+        points: ['ancien'],
+        conclusion: 'ancien',
+      ),
+    );
+
+    testWidgets('un appui : même repas, daté du jour affiché, sans photo', (
+      tester,
+    ) async {
+      final banc = Banc()
+        ..recents = [hier]
+        ..dejaMange = const Macros(kcal: 1000);
+      await banc.monter(tester);
+
+      expect(find.text('Repas récents'), findsOneWidget);
+      expect(find.text('Dîner du jeu. 8 oct. · 295 kcal'), findsOneWidget);
+      await taper(tester, 'Riz, Poulet');
+
+      final r = banc.resultats.single! as Repas;
+      expect(r.id, isNull);
+      expect(r.photoId, isNull);
+      expect(r.date, DateTime(2026, 10, 9, 12));
+      expect(r.moment, Moment.diner);
+      expect(r.nom, 'Riz, Poulet');
+      expect(r.macros.kcal, 295);
+      expect(r.aliments, hasLength(2));
+      expect(r.description, 'Poulet au riz');
+      // Le verdict est celui de la nouvelle journée, pas l'ancien.
+      expect(r.verdict!.points, isNot(contains('ancien')));
+      expect(r.verdict!.budget, startsWith('Il te reste 785 kcal'));
+      expect(banc.demandesAccord, 0);
+    });
+
+    testWidgets('aucun repas récent : pas de section', (tester) async {
+      final banc = Banc()..recents = const [];
+      await banc.monter(tester);
+
+      expect(find.text('Repas récents'), findsNothing);
+    });
+  });
+
+  test('repas récents : du plus récent, sans doublon ni repas sans nom', () {
+    Repas r(String nom, int jour, double kcal) => Repas(
+      date: DateTime(2026, 10, jour, 12),
+      moment: Moment.dejeuner,
+      nom: nom,
+      macros: Macros(kcal: kcal),
+      source: SourceRepas.manuel,
+    );
+    final liste = repasRecents([
+      r('Salade', 3, 300),
+      r('Pâtes', 5, 600),
+      r('salade ', 7, 300),
+      r('', 8, 100),
+      r('Salade', 6, 450),
+    ]);
+    expect(
+      [for (final x in liste) '${x.nom}@${x.date.day}'],
+      ['salade @7', 'Salade@6', 'Pâtes@5'],
+    );
+    expect(
+      repasRecents([for (var i = 1; i <= 20; i++) r('Plat $i', i, 100)]),
+      hasLength(maxRecents),
+    );
   });
 }

@@ -6,7 +6,8 @@ import 'ajustement.dart';
 import 'modele.dart';
 import 'verdict.dart';
 
-/// Carton du coach : couleur, ce que c'est, les apports et le verdict détaillé.
+/// Carton du coach : couleur, ce que c'est, les apports, le verdict détaillé
+/// sur la composition, puis la place du repas dans la journée.
 class CarteVerdict extends StatelessWidget {
   const CarteVerdict({
     super.key,
@@ -188,6 +189,18 @@ class CarteVerdict extends StatelessWidget {
             verdict.conclusion,
             style: textes.titleSmall?.copyWith(fontWeight: FontWeight.w700),
           ),
+          // Le budget du jour, à part : il ne change pas la couleur du
+          // carton, qui ne juge que la composition du repas.
+          if (verdict.budget case final budget?) ...[
+            const SizedBox(height: 14),
+            Text(t.verdictJournee, style: textes.titleMedium),
+            const SizedBox(height: 4),
+            Text(
+              budget,
+              key: const ValueKey('verdict-budget'),
+              style: textes.bodyMedium,
+            ),
+          ],
         ],
       ),
     );

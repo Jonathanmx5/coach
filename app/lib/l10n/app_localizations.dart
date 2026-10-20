@@ -2272,6 +2272,12 @@ abstract class AppLocalizations {
   /// **'Le verdict du coach'**
   String get verdictCoach;
 
+  /// No description provided for @verdictJournee.
+  ///
+  /// In fr, this message translates to:
+  /// **'Et pour ta journée'**
+  String get verdictJournee;
+
   /// No description provided for @tuileCalories.
   ///
   /// In fr, this message translates to:
@@ -3267,6 +3273,42 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Jours prévus : {jours}'**
   String joursPrevus(String jours);
+
+  /// No description provided for @photoSansAccord.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sans ton accord, la photo n\'est pas envoyée. Tu peux scanner un produit, reprendre un repas récent ou saisir le repas à la main.'**
+  String get photoSansAccord;
+
+  /// No description provided for @repasRecentsTitre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Repas récents'**
+  String get repasRecentsTitre;
+
+  /// No description provided for @repasRecentsAide.
+  ///
+  /// In fr, this message translates to:
+  /// **'Un appui pour le remettre au journal, avec les mêmes aliments.'**
+  String get repasRecentsAide;
+
+  /// No description provided for @repasRecentLigne.
+  ///
+  /// In fr, this message translates to:
+  /// **'{moment} du {jour} · {kcal} kcal'**
+  String repasRecentLigne(String moment, String jour, int kcal);
+
+  /// No description provided for @repasRecentAjouter.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ajouter de nouveau : {nom}'**
+  String repasRecentAjouter(String nom);
+
+  /// No description provided for @analysesRestantes.
+  ///
+  /// In fr, this message translates to:
+  /// **'{n, plural, =0{Plus d\'analyse photo possible aujourd\'hui.} =1{Encore 1 analyse photo possible aujourd\'hui.} other{Encore {n} analyses photo possibles aujourd\'hui.}}'**
+  String analysesRestantes(int n);
 }
 
 class _AppLocalizationsDelegate

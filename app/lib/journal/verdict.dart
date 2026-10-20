@@ -4,7 +4,9 @@ import '../profil/modele.dart';
 import 'calculs.dart';
 import 'modele.dart';
 
-/// Carton du coach : vert = bon choix, orange = à ajuster, rouge = à éviter.
+/// Carton du coach, selon la composition du repas seule : vert = bon choix,
+/// orange = à ajuster, rouge = à garder pour les occasions. Le budget de la
+/// journée n'en change jamais la couleur.
 enum Feu { vert, orange, rouge }
 
 @immutable
@@ -13,24 +15,31 @@ class Verdict {
     required this.feu,
     required this.points,
     required this.conclusion,
+    this.budget,
   });
 
   final Feu feu;
 
-  /// Phrases d'explication, dans l'ordre de lecture.
+  /// Phrases d'explication sur la composition, dans l'ordre de lecture.
   final List<String> points;
   final String conclusion;
+
+  /// Place du repas dans la journée (« Il te reste 600 kcal… »), à part du
+  /// carton ; null si les objectifs du jour sont inconnus (ancien repas).
+  final String? budget;
 
   Map<String, Object?> toMap() => {
     'feu': feu.name,
     'points': points,
     'conclusion': conclusion,
+    if (budget != null) 'budget': budget,
   };
 
   static Verdict fromMap(Map<String, Object?> m) => Verdict(
     feu: Feu.values.asNameMap()[m['feu']] ?? Feu.orange,
     points: [for (final p in (m['points'] as List?) ?? const []) '$p'],
     conclusion: m['conclusion'] as String? ?? '',
+    budget: m['budget'] is String ? m['budget'] as String : null,
   );
 }
 
@@ -41,9 +50,18 @@ String _objectif(Objectif o) => switch (o) {
   Objectif.reprise => 'reprise en douceur',
 };
 
-/// Jugement d'un repas ou d'un produit selon l'objectif de la personne et sa
-/// journée : protéines, place dans le budget calorique, sucres, graisses
-/// saturées. Les seuils sont des repères de bon sens, pas un avis médical.
+/// Sucres totaux (fruits et lait compris, faute de connaître les sucres
+/// ajoutés) : au-delà, un avertissement ; au-delà du second seuil, le carton
+/// est rouge.
+const seuilSucres = 25.0, seuilSucresCritique = 45.0;
+
+/// Graisses saturées : au-delà, un avertissement.
+const seuilSatures = 10.0;
+
+/// Jugement d'un repas ou d'un produit selon sa composition (protéines,
+/// sucres, graisses saturées, part des graisses) et l'objectif de la
+/// personne ; à part, sa place dans le budget calorique du jour. Les seuils
+/// sont des repères de bon sens, pas un avis médical.
 Verdict verdictRepas({
   required Macros repas,
   double? sucres,
@@ -59,7 +77,7 @@ Verdict verdictRepas({
   var avertissements = 0;
   var critiques = 0;
 
-  // Protéines.
+  // Protéines : quantité et densité (part des calories qui en vient).
   final densite = kcal > 0 ? p * 4 / kcal : 0.0;
   if (p >= 15 && densite >= 0.25) {
     points.add(
@@ -76,38 +94,12 @@ Verdict verdictRepas({
     );
   }
 
-  // Budget calorique du jour.
-  final apres = dejaMange.kcal + kcal;
-  final cible = cibles.kcal;
-  if (apres > cible * 1.1) {
-    critiques++;
-    points.add(
-      'Avec ce repas, tu dépasserais ton objectif du jour de '
-      '${(apres - cible).round()} kcal.',
-    );
-  } else if (apres > cible) {
-    avertissements++;
-    points.add(
-      'Tu atteindrais ton objectif calorique du jour '
-      '(${apres.round()} / ${cible.round()} kcal).',
-    );
-  } else {
-    points.add(
-      'Il te resterait ${(cible - apres).round()} kcal pour le reste de la '
-      'journée.',
-    );
-  }
-  if (objectif == Objectif.perte && cible > 0 && kcal > cible * 0.45) {
-    avertissements++;
-    points.add('C\'est près de la moitié de ta journée en un seul repas.');
-  }
-
-  // Sucres et glucides.
+  // Sucres (totaux) et glucides.
   final g = repas.glucides;
-  if (sucres != null && sucres >= 30) {
+  if (sucres != null && sucres >= seuilSucresCritique) {
     critiques++;
     points.add('${sucres.round()} g de sucres : beaucoup d\'un coup.');
-  } else if (sucres != null && sucres >= 15) {
+  } else if (sucres != null && sucres >= seuilSucres) {
     avertissements++;
     points.add(
       '${sucres.round()} g de sucres : à réserver aux moments où tu bouges.',
@@ -121,7 +113,7 @@ Verdict verdictRepas({
   }
 
   // Graisses.
-  if (satures != null && satures >= 10) {
+  if (satures != null && satures >= seuilSatures) {
     avertissements++;
     points.add('${satures.round()} g de graisses saturées : à limiter.');
   }
@@ -137,9 +129,50 @@ Verdict verdictRepas({
     Feu.vert =>
       'Validé ! Un très bon choix pour ton objectif de ${_objectif(objectif)}.',
     Feu.orange =>
-      'À ajuster : prends une portion plus petite ou compense sur les '
-          'prochains repas.',
-    Feu.rouge => 'À éviter aujourd\'hui, ou à réduire fortement.',
+      'À ajuster : plus de protéines, moins de sucres ou de gras la '
+          'prochaine fois.',
+    Feu.rouge =>
+      'À garder pour les occasions : cette composition sert peu ton '
+          'objectif de ${_objectif(objectif)}.',
   };
-  return Verdict(feu: feu, points: points, conclusion: conclusion);
+  return Verdict(
+    feu: feu,
+    points: points,
+    conclusion: conclusion,
+    budget: budgetDuJour(
+      repas: repas,
+      dejaMange: dejaMange,
+      cibles: cibles,
+      objectif: objectif,
+    ),
+  );
+}
+
+/// La place du repas dans la journée, en une phrase neutre : ce qu'il reste,
+/// ou de combien l'objectif est dépassé. Pour la prise de muscle, un
+/// dépassement n'est pas un problème. Null sans objectif calorique.
+String? budgetDuJour({
+  required Macros repas,
+  required Macros dejaMange,
+  required CiblesJour cibles,
+  required Objectif objectif,
+}) {
+  final cible = cibles.kcal;
+  if (cible <= 0) return null;
+  final apres = dejaMange.kcal + repas.kcal;
+  final ecart = (apres - cible).round();
+  final String phrase;
+  if (ecart <= 0) {
+    phrase = 'Il te reste ${-ecart} kcal pour la journée avec ce repas.';
+  } else {
+    final suite = objectif == Objectif.muscle
+        ? 'Pour la prise de muscle, ce n\'est pas un problème.'
+        : 'Allège un peu les prochains repas, sans en sauter.';
+    phrase =
+        'Tu dépasses de $ecart kcal ton objectif du jour avec ce repas. $suite';
+  }
+  final gros = objectif == Objectif.perte && repas.kcal > cible * 0.45;
+  return gros
+      ? '$phrase C\'est près de la moitié de ta journée en un seul repas.'
+      : phrase;
 }
