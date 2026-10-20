@@ -35,7 +35,6 @@ const perteSimple = Profil(
   niveau: Niveau.debutant,
   joursParSemaine: 3,
   dureeSeanceMin: 45,
-  problemeSante: false,
 );
 
 Future<void> monter(
@@ -197,10 +196,13 @@ void main() {
     await taper(tester, 'Modifier mon profil');
     expect(find.text('Quel est ton objectif ?'), findsOneWidget);
     await taper(tester, 'Prendre du muscle');
-    for (var i = 0; i < 8; i++) {
+    for (var i = 0; i < 9; i++) {
       await taper(tester, 'Suivant');
     }
-    await taper(tester, 'Suivant');
+    // Écran de résultat : rien n'est enregistré avant « C'est parti ».
+    expect(find.text('Ton plan'), findsOneWidget);
+    expect(depot.donnees['u1']?.profil.objectif, Objectif.perte);
+    await taper(tester, "C'est parti");
 
     expect(depot.donnees['u1']?.profil.objectif, Objectif.muscle);
     expect(find.byType(AccueilPage), findsOneWidget);

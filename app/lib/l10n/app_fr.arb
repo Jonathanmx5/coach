@@ -22,15 +22,18 @@
   "qMensurations": "Ta taille et ton poids",
   "champTaille": "Taille (cm)",
   "champPoids": "Poids (kg)",
-  "qTypeDeVie": "Ton quotidien ressemble plutôt à…",
+  "champPoidsCible": "Poids visé (kg, facultatif)",
+  "erreurCibleBasse": "Ce poids serait trop bas pour ta taille.",
+  "qTypeDeVie": "Hors sport, ton quotidien ressemble plutôt à…",
+  "qTypeDeVieAide": "Ne compte pas tes séances : elles s'ajoutent à part, les jours où tu en fais.",
   "vieSedentaire": "Assis toute la journée",
   "vieSedentaireEx": "Bureau, voiture, peu de marche",
   "viePeuActif": "Un peu actif",
   "viePeuActifEx": "Souvent debout, un peu de marche",
-  "vieActif": "Actif",
-  "vieActifEx": "Métier physique, beaucoup de marche",
-  "vieTresActif": "Très actif",
-  "vieTresActifEx": "Travail très physique ou sport tous les jours",
+  "vieActif": "Actif, hors sport",
+  "vieActifEx": "Métier physique ou beaucoup de marche au quotidien",
+  "vieTresActif": "Très actif, hors sport",
+  "vieTresActifEx": "Travail très physique toute la journée (bâtiment, manutention…)",
   "qEntrainements": "Où veux-tu t'entraîner ?",
   "qEntrainementsAide": "Plusieurs choix possibles.",
   "entrainementSalle": "Salle de sport",
@@ -52,8 +55,19 @@
       }
     }
   },
-  "qSante": "Es-tu enceinte ou as-tu un problème de santé particulier ?",
-  "conseilMedecin": "Parles-en à ton médecin avant de commencer. Par prudence, l'objectif « perdre du poids » est désactivé.",
+  "qSante": "L'un de ces cas te concerne-t-il ?",
+  "qSanteAide": "Coche tout ce qui s'applique : tes repères et tes séances s'adaptent.",
+  "precautionEnceinte": "Enceinte ou allaitante",
+  "precautionEnceinteEx": "Pas de régime : on vise la forme, sans saut ni exercice allongé.",
+  "precautionMedecin": "Perte de poids suivie par un médecin",
+  "precautionMedecinEx": "Déficit plus doux et exercices sans impact. Ses consignes passent avant les nôtres.",
+  "precautionArticulations": "Douleurs articulaires",
+  "precautionArticulationsEx": "Exercices sans saut ni impact ; la course est remplacée par la marche.",
+  "precautionAucune": "Aucun de ces cas",
+  "santeAPreciser": "Cette question a changé : précise ta réponse. En attendant, toutes les précautions restent appliquées.",
+  "messagePerteGrossesse": "Pendant la grossesse ou l'allaitement, pas de régime : on part sur « garder la forme ». Parles-en à ta sage-femme ou à ton médecin.",
+  "messagePertePlancher": "Tes besoins de tous les jours sont déjà au niveau du minimum conseillé : manger moins ne serait pas sûr. On part plutôt sur « garder la forme ».",
+  "messageRecomposition": "Avec ton IMC, on te propose une recomposition : un léger déficit et beaucoup de protéines, pour gagner du muscle tout en perdant du gras.",
   "messageMineur": "Crunch & Go est réservé aux personnes de 18 ans et plus. Les besoins des adolescents sont différents : parles-en à ton médecin.",
   "messagePerteImc": "Ton poids est déjà bas pour ta taille : on part plutôt sur « garder la forme ».",
   "erreurNombre": "Entre un nombre valide.",
@@ -116,6 +130,54 @@
   },
   "reperesProteinesLabel": "de protéines",
   "reperesEstimation": "Estimations calculées d'après ton profil.",
+  "qResultat": "Ton plan",
+  "objectifRecomposition": "Recomposition",
+  "resultatMaintien": "Maintien estimé : {kcal} kcal par jour, hors sport.",
+  "@resultatMaintien": {
+    "placeholders": {
+      "kcal": {
+        "type": "int"
+      }
+    }
+  },
+  "resultatRythmePerte": "Rythme attendu : environ {kg} kg de moins par semaine.",
+  "@resultatRythmePerte": {
+    "placeholders": {
+      "kg": {
+        "type": "String"
+      }
+    }
+  },
+  "resultatRythmePrise": "Rythme attendu : environ {kg} kg de plus par semaine.",
+  "@resultatRythmePrise": {
+    "placeholders": {
+      "kg": {
+        "type": "String"
+      }
+    }
+  },
+  "resultatRythmeStable": "Rythme attendu : poids stable.",
+  "resultatDate": "Poids visé de {kg} kg vers le {date}.",
+  "@resultatDate": {
+    "placeholders": {
+      "kg": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "resultatSansDate": "Pas de date estimée pour {kg} kg avec cet objectif.",
+  "@resultatSansDate": {
+    "placeholders": {
+      "kg": {
+        "type": "String"
+      }
+    }
+  },
+  "resultatAide": "Ces repères s'ajustent avec tes pesées et ton activité.",
+  "boutonCestParti": "C'est parti",
   "carteProgramme": "Ton programme",
   "carteProgrammeSous": "Ta séance du jour",
   "carteIdees": "Idées de repas",

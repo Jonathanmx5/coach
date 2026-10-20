@@ -20,7 +20,6 @@ const perteSimple = Profil(
   niveau: Niveau.debutant,
   joursParSemaine: 3,
   dureeSeanceMin: 45,
-  problemeSante: false,
 );
 
 void main() {
@@ -219,7 +218,6 @@ void main() {
         niveau: Niveau.debutant,
         joursParSemaine: 3,
         dureeSeanceMin: 45,
-        problemeSante: false,
       );
       final p = profilApresImport(
         femme,

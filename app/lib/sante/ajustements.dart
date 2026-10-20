@@ -150,4 +150,5 @@ Profil profilApresImport(Profil profil, Mesure pesee) => appliquerGardeFous(
     poidsKg: (pesee.valeur * 10).round() / 10,
     poidsDate: pesee.date,
   ),
+  maintenant: pesee.date,
 );

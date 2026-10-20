@@ -11,6 +11,7 @@ import '../modele.dart';
 import '../profil_repository.dart';
 import 'controleur.dart';
 import 'etapes.dart';
+import 'resultat.dart';
 
 class QuestionnairePage extends StatefulWidget {
   const QuestionnairePage({
@@ -166,12 +167,16 @@ class _QuestionnairePageState extends State<QuestionnairePage> {
                       ),
                       const SizedBox(height: 20),
                       ...contenuEtape(context, _c),
+                      if (_c.etape == Etape.resultat) _resultat(),
                       if (enConnexion) ..._contenuConnexion(t),
                       if (_c.etape == Etape.appMontre && _c.appMontre != null)
                         ..._contenuAutorisation(t, _c.appMontre!),
                       if (alerte != null) ...[
                         const SizedBox(height: 16),
-                        EncadreAlerte(texteAlerte(t, alerte)),
+                        if (alerte == Alerte.recomposition)
+                          EncadreInfo(texteAlerte(t, alerte))
+                        else
+                          EncadreAlerte(texteAlerte(t, alerte)),
                       ],
                     ],
                   ),
@@ -181,7 +186,11 @@ class _QuestionnairePageState extends State<QuestionnairePage> {
                     padding: const EdgeInsets.fromLTRB(20, 8, 20, 16),
                     child: FilledButton(
                       onPressed: _c.peutContinuer ? _avancer : null,
-                      child: Text(t.boutonSuivant),
+                      child: Text(
+                        _c.etape == Etape.resultat && _c.estDerniereEtape
+                            ? t.boutonCestParti
+                            : t.boutonSuivant,
+                      ),
                     ),
                   ),
               ],
@@ -189,6 +198,17 @@ class _QuestionnairePageState extends State<QuestionnairePage> {
           ),
         );
       },
+    );
+  }
+
+  Widget _resultat() {
+    final maintenant = widget.horloge();
+    final profil = _c.construireProfil();
+    return ResultatQuestionnaire(
+      profil: profil,
+      reperes: calculerReperes(profil, maintenant: maintenant),
+      maintenant: maintenant,
+      objectifDemande: _c.objectif,
     );
   }
 

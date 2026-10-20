@@ -76,7 +76,17 @@ class AppLocalizationsFr extends AppLocalizations {
   String get champPoids => 'Poids (kg)';
 
   @override
-  String get qTypeDeVie => 'Ton quotidien ressemble plutôt à…';
+  String get champPoidsCible => 'Poids visé (kg, facultatif)';
+
+  @override
+  String get erreurCibleBasse => 'Ce poids serait trop bas pour ta taille.';
+
+  @override
+  String get qTypeDeVie => 'Hors sport, ton quotidien ressemble plutôt à…';
+
+  @override
+  String get qTypeDeVieAide =>
+      'Ne compte pas tes séances : elles s\'ajoutent à part, les jours où tu en fais.';
 
   @override
   String get vieSedentaire => 'Assis toute la journée';
@@ -91,16 +101,17 @@ class AppLocalizationsFr extends AppLocalizations {
   String get viePeuActifEx => 'Souvent debout, un peu de marche';
 
   @override
-  String get vieActif => 'Actif';
+  String get vieActif => 'Actif, hors sport';
 
   @override
-  String get vieActifEx => 'Métier physique, beaucoup de marche';
+  String get vieActifEx => 'Métier physique ou beaucoup de marche au quotidien';
 
   @override
-  String get vieTresActif => 'Très actif';
+  String get vieTresActif => 'Très actif, hors sport';
 
   @override
-  String get vieTresActifEx => 'Travail très physique ou sport tous les jours';
+  String get vieTresActifEx =>
+      'Travail très physique toute la journée (bâtiment, manutention…)';
 
   @override
   String get qEntrainements => 'Où veux-tu t\'entraîner ?';
@@ -147,12 +158,51 @@ class AppLocalizationsFr extends AppLocalizations {
   }
 
   @override
-  String get qSante =>
-      'Es-tu enceinte ou as-tu un problème de santé particulier ?';
+  String get qSante => 'L\'un de ces cas te concerne-t-il ?';
 
   @override
-  String get conseilMedecin =>
-      'Parles-en à ton médecin avant de commencer. Par prudence, l\'objectif « perdre du poids » est désactivé.';
+  String get qSanteAide =>
+      'Coche tout ce qui s\'applique : tes repères et tes séances s\'adaptent.';
+
+  @override
+  String get precautionEnceinte => 'Enceinte ou allaitante';
+
+  @override
+  String get precautionEnceinteEx =>
+      'Pas de régime : on vise la forme, sans saut ni exercice allongé.';
+
+  @override
+  String get precautionMedecin => 'Perte de poids suivie par un médecin';
+
+  @override
+  String get precautionMedecinEx =>
+      'Déficit plus doux et exercices sans impact. Ses consignes passent avant les nôtres.';
+
+  @override
+  String get precautionArticulations => 'Douleurs articulaires';
+
+  @override
+  String get precautionArticulationsEx =>
+      'Exercices sans saut ni impact ; la course est remplacée par la marche.';
+
+  @override
+  String get precautionAucune => 'Aucun de ces cas';
+
+  @override
+  String get santeAPreciser =>
+      'Cette question a changé : précise ta réponse. En attendant, toutes les précautions restent appliquées.';
+
+  @override
+  String get messagePerteGrossesse =>
+      'Pendant la grossesse ou l\'allaitement, pas de régime : on part sur « garder la forme ». Parles-en à ta sage-femme ou à ton médecin.';
+
+  @override
+  String get messagePertePlancher =>
+      'Tes besoins de tous les jours sont déjà au niveau du minimum conseillé : manger moins ne serait pas sûr. On part plutôt sur « garder la forme ».';
+
+  @override
+  String get messageRecomposition =>
+      'Avec ton IMC, on te propose une recomposition : un léger déficit et beaucoup de protéines, pour gagner du muscle tout en perdant du gras.';
 
   @override
   String get messageMineur =>
@@ -229,6 +279,47 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get reperesEstimation => 'Estimations calculées d\'après ton profil.';
+
+  @override
+  String get qResultat => 'Ton plan';
+
+  @override
+  String get objectifRecomposition => 'Recomposition';
+
+  @override
+  String resultatMaintien(int kcal) {
+    return 'Maintien estimé : $kcal kcal par jour, hors sport.';
+  }
+
+  @override
+  String resultatRythmePerte(String kg) {
+    return 'Rythme attendu : environ $kg kg de moins par semaine.';
+  }
+
+  @override
+  String resultatRythmePrise(String kg) {
+    return 'Rythme attendu : environ $kg kg de plus par semaine.';
+  }
+
+  @override
+  String get resultatRythmeStable => 'Rythme attendu : poids stable.';
+
+  @override
+  String resultatDate(String kg, String date) {
+    return 'Poids visé de $kg kg vers le $date.';
+  }
+
+  @override
+  String resultatSansDate(String kg) {
+    return 'Pas de date estimée pour $kg kg avec cet objectif.';
+  }
+
+  @override
+  String get resultatAide =>
+      'Ces repères s\'ajustent avec tes pesées et ton activité.';
+
+  @override
+  String get boutonCestParti => 'C\'est parti';
 
   @override
   String get carteProgramme => 'Ton programme';

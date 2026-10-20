@@ -15,7 +15,6 @@ const profil = Profil(
   niveau: Niveau.reprise,
   joursParSemaine: 4,
   dureeSeanceMin: 30,
-  problemeSante: false,
 );
 
 const reperes = Reperes(

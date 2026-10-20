@@ -226,11 +226,29 @@ abstract class AppLocalizations {
   /// **'Poids (kg)'**
   String get champPoids;
 
+  /// No description provided for @champPoidsCible.
+  ///
+  /// In fr, this message translates to:
+  /// **'Poids visé (kg, facultatif)'**
+  String get champPoidsCible;
+
+  /// No description provided for @erreurCibleBasse.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce poids serait trop bas pour ta taille.'**
+  String get erreurCibleBasse;
+
   /// No description provided for @qTypeDeVie.
   ///
   /// In fr, this message translates to:
-  /// **'Ton quotidien ressemble plutôt à…'**
+  /// **'Hors sport, ton quotidien ressemble plutôt à…'**
   String get qTypeDeVie;
+
+  /// No description provided for @qTypeDeVieAide.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ne compte pas tes séances : elles s\'ajoutent à part, les jours où tu en fais.'**
+  String get qTypeDeVieAide;
 
   /// No description provided for @vieSedentaire.
   ///
@@ -259,25 +277,25 @@ abstract class AppLocalizations {
   /// No description provided for @vieActif.
   ///
   /// In fr, this message translates to:
-  /// **'Actif'**
+  /// **'Actif, hors sport'**
   String get vieActif;
 
   /// No description provided for @vieActifEx.
   ///
   /// In fr, this message translates to:
-  /// **'Métier physique, beaucoup de marche'**
+  /// **'Métier physique ou beaucoup de marche au quotidien'**
   String get vieActifEx;
 
   /// No description provided for @vieTresActif.
   ///
   /// In fr, this message translates to:
-  /// **'Très actif'**
+  /// **'Très actif, hors sport'**
   String get vieTresActif;
 
   /// No description provided for @vieTresActifEx.
   ///
   /// In fr, this message translates to:
-  /// **'Travail très physique ou sport tous les jours'**
+  /// **'Travail très physique toute la journée (bâtiment, manutention…)'**
   String get vieTresActifEx;
 
   /// No description provided for @qEntrainements.
@@ -367,14 +385,80 @@ abstract class AppLocalizations {
   /// No description provided for @qSante.
   ///
   /// In fr, this message translates to:
-  /// **'Es-tu enceinte ou as-tu un problème de santé particulier ?'**
+  /// **'L\'un de ces cas te concerne-t-il ?'**
   String get qSante;
 
-  /// No description provided for @conseilMedecin.
+  /// No description provided for @qSanteAide.
   ///
   /// In fr, this message translates to:
-  /// **'Parles-en à ton médecin avant de commencer. Par prudence, l\'objectif « perdre du poids » est désactivé.'**
-  String get conseilMedecin;
+  /// **'Coche tout ce qui s\'applique : tes repères et tes séances s\'adaptent.'**
+  String get qSanteAide;
+
+  /// No description provided for @precautionEnceinte.
+  ///
+  /// In fr, this message translates to:
+  /// **'Enceinte ou allaitante'**
+  String get precautionEnceinte;
+
+  /// No description provided for @precautionEnceinteEx.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pas de régime : on vise la forme, sans saut ni exercice allongé.'**
+  String get precautionEnceinteEx;
+
+  /// No description provided for @precautionMedecin.
+  ///
+  /// In fr, this message translates to:
+  /// **'Perte de poids suivie par un médecin'**
+  String get precautionMedecin;
+
+  /// No description provided for @precautionMedecinEx.
+  ///
+  /// In fr, this message translates to:
+  /// **'Déficit plus doux et exercices sans impact. Ses consignes passent avant les nôtres.'**
+  String get precautionMedecinEx;
+
+  /// No description provided for @precautionArticulations.
+  ///
+  /// In fr, this message translates to:
+  /// **'Douleurs articulaires'**
+  String get precautionArticulations;
+
+  /// No description provided for @precautionArticulationsEx.
+  ///
+  /// In fr, this message translates to:
+  /// **'Exercices sans saut ni impact ; la course est remplacée par la marche.'**
+  String get precautionArticulationsEx;
+
+  /// No description provided for @precautionAucune.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucun de ces cas'**
+  String get precautionAucune;
+
+  /// No description provided for @santeAPreciser.
+  ///
+  /// In fr, this message translates to:
+  /// **'Cette question a changé : précise ta réponse. En attendant, toutes les précautions restent appliquées.'**
+  String get santeAPreciser;
+
+  /// No description provided for @messagePerteGrossesse.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pendant la grossesse ou l\'allaitement, pas de régime : on part sur « garder la forme ». Parles-en à ta sage-femme ou à ton médecin.'**
+  String get messagePerteGrossesse;
+
+  /// No description provided for @messagePertePlancher.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tes besoins de tous les jours sont déjà au niveau du minimum conseillé : manger moins ne serait pas sûr. On part plutôt sur « garder la forme ».'**
+  String get messagePertePlancher;
+
+  /// No description provided for @messageRecomposition.
+  ///
+  /// In fr, this message translates to:
+  /// **'Avec ton IMC, on te propose une recomposition : un léger déficit et beaucoup de protéines, pour gagner du muscle tout en perdant du gras.'**
+  String get messageRecomposition;
 
   /// No description provided for @messageMineur.
   ///
@@ -501,6 +585,66 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Estimations calculées d\'après ton profil.'**
   String get reperesEstimation;
+
+  /// No description provided for @qResultat.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton plan'**
+  String get qResultat;
+
+  /// No description provided for @objectifRecomposition.
+  ///
+  /// In fr, this message translates to:
+  /// **'Recomposition'**
+  String get objectifRecomposition;
+
+  /// No description provided for @resultatMaintien.
+  ///
+  /// In fr, this message translates to:
+  /// **'Maintien estimé : {kcal} kcal par jour, hors sport.'**
+  String resultatMaintien(int kcal);
+
+  /// No description provided for @resultatRythmePerte.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rythme attendu : environ {kg} kg de moins par semaine.'**
+  String resultatRythmePerte(String kg);
+
+  /// No description provided for @resultatRythmePrise.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rythme attendu : environ {kg} kg de plus par semaine.'**
+  String resultatRythmePrise(String kg);
+
+  /// No description provided for @resultatRythmeStable.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rythme attendu : poids stable.'**
+  String get resultatRythmeStable;
+
+  /// No description provided for @resultatDate.
+  ///
+  /// In fr, this message translates to:
+  /// **'Poids visé de {kg} kg vers le {date}.'**
+  String resultatDate(String kg, String date);
+
+  /// No description provided for @resultatSansDate.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pas de date estimée pour {kg} kg avec cet objectif.'**
+  String resultatSansDate(String kg);
+
+  /// No description provided for @resultatAide.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ces repères s\'ajustent avec tes pesées et ton activité.'**
+  String get resultatAide;
+
+  /// No description provided for @boutonCestParti.
+  ///
+  /// In fr, this message translates to:
+  /// **'C\'est parti'**
+  String get boutonCestParti;
 
   /// No description provided for @carteProgramme.
   ///

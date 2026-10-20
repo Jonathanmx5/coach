@@ -38,7 +38,6 @@ Profil profilDe({
   niveau: Niveau.debutant,
   joursParSemaine: 3,
   dureeSeanceMin: 30,
-  problemeSante: false,
   montre: montre,
   appMontre: montre ? AppMontre.miFitness : null,
   poidsDate: DateTime(2026, 10, 1),

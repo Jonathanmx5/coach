@@ -10,6 +10,19 @@ enum TypeEntrainement { salle, maison, course, marche }
 
 enum Niveau { debutant, reprise, regulier }
 
+/// Précautions de santé cochées à l'étape santé du questionnaire.
+enum Precaution {
+  /// Grossesse ou allaitement : pas d'objectif de perte, exercices sans
+  /// impact et sans position allongée.
+  enceinteOuAllaitante,
+
+  /// Perte de poids suivie par un médecin : déficit limité, sans impact.
+  perteSuivieMedecin,
+
+  /// Douleurs articulaires : exercices sans saut ni impact.
+  douleursArticulaires,
+}
+
 /// Application qui accompagne la montre ou le bracelet.
 enum AppMontre { googleFit, samsungHealth, miFitness, fitbit, garmin, autre }
 
@@ -27,7 +40,9 @@ class Profil {
     required this.niveau,
     required this.joursParSemaine,
     required this.dureeSeanceMin,
-    required this.problemeSante,
+    this.precautions = const {},
+    this.santeAPreciser = false,
+    this.poidsCibleKg,
     this.montre = false,
     this.appMontre,
     this.poidsDate,
@@ -43,7 +58,15 @@ class Profil {
   final Niveau niveau;
   final int joursParSemaine;
   final int dureeSeanceMin;
-  final bool problemeSante;
+  final Set<Precaution> precautions;
+
+  /// Ancienne réponse « enceinte ou problème de santé » (oui), sans détail :
+  /// toutes les précautions s'appliquent jusqu'à ce que la personne précise.
+  final bool santeAPreciser;
+
+  /// Poids visé, facultatif : sert à estimer une date sur l'écran de
+  /// résultat.
+  final double? poidsCibleKg;
   final bool montre;
   final AppMontre? appMontre;
 
@@ -51,6 +74,18 @@ class Profil {
   final DateTime? poidsDate;
 
   int age(DateTime maintenant) => maintenant.year - anneeNaissance;
+
+  /// Pas d'objectif de perte : grossesse, allaitement ou ancienne réponse
+  /// « problème de santé » non précisée.
+  bool get perteDeconseillee =>
+      santeAPreciser || precautions.contains(Precaution.enceinteOuAllaitante);
+
+  /// Séances sans saut ni impact (course remplacée par la marche).
+  bool get sansImpact => santeAPreciser || precautions.isNotEmpty;
+
+  /// Pas d'exercice allongé sur le dos ou à plat ventre.
+  bool get sansPositionAllongee =>
+      santeAPreciser || precautions.contains(Precaution.enceinteOuAllaitante);
 
   Profil copyWith({
     Objectif? objectif,
@@ -63,7 +98,10 @@ class Profil {
     Niveau? niveau,
     int? joursParSemaine,
     int? dureeSeanceMin,
-    bool? problemeSante,
+    Set<Precaution>? precautions,
+    bool? santeAPreciser,
+    double? poidsCibleKg,
+    bool effacerPoidsCible = false,
     bool? montre,
     AppMontre? appMontre,
     bool effacerAppMontre = false,
@@ -79,7 +117,9 @@ class Profil {
     niveau: niveau ?? this.niveau,
     joursParSemaine: joursParSemaine ?? this.joursParSemaine,
     dureeSeanceMin: dureeSeanceMin ?? this.dureeSeanceMin,
-    problemeSante: problemeSante ?? this.problemeSante,
+    precautions: precautions ?? this.precautions,
+    santeAPreciser: santeAPreciser ?? this.santeAPreciser,
+    poidsCibleKg: effacerPoidsCible ? null : poidsCibleKg ?? this.poidsCibleKg,
     montre: montre ?? this.montre,
     appMontre: effacerAppMontre ? null : appMontre ?? this.appMontre,
     poidsDate: poidsDate ?? this.poidsDate,
@@ -99,34 +139,55 @@ class Profil {
     'niveau': niveau.name,
     'joursParSemaine': joursParSemaine,
     'dureeSeanceMin': dureeSeanceMin,
-    'problemeSante': problemeSante,
+    'precautions':
+        (precautions.toList()..sort((a, b) => a.index.compareTo(b.index)))
+            .map((p) => p.name)
+            .toList(),
+    if (santeAPreciser) 'santeAPreciser': true,
+    // Lu par les versions précédentes de l'application (champ obligatoire).
+    'problemeSante': perteDeconseillee,
+    'poidsCibleKg': poidsCibleKg,
     'montre': montre,
     'appMontre': appMontre?.name,
     'poidsDate': poidsDate?.millisecondsSinceEpoch,
   };
 
-  static Profil fromMap(Map<String, Object?> m) => Profil(
-    objectif: Objectif.values.byName(m['objectif']! as String),
-    sexe: Sexe.values.byName(m['sexe']! as String),
-    anneeNaissance: (m['anneeNaissance']! as num).toInt(),
-    tailleCm: (m['tailleCm']! as num).toInt(),
-    poidsKg: (m['poidsKg']! as num).toDouble(),
-    typeDeVie: TypeDeVie.values.byName(m['typeDeVie']! as String),
-    typesEntrainement: (m['typesEntrainement']! as List)
-        .map((t) => TypeEntrainement.values.byName(t as String))
-        .toSet(),
-    niveau: Niveau.values.byName(m['niveau']! as String),
-    joursParSemaine: (m['joursParSemaine']! as num).toInt(),
-    dureeSeanceMin: (m['dureeSeanceMin']! as num).toInt(),
-    problemeSante: m['problemeSante']! as bool,
-    // Profils antérieurs à la santé connectée : champs absents.
-    montre: m['montre'] as bool? ?? false,
-    appMontre: AppMontre.values.asNameMap()[m['appMontre']],
-    poidsDate: switch (m['poidsDate']) {
-      final num ms => DateTime.fromMillisecondsSinceEpoch(ms.toInt()),
-      _ => null,
-    },
-  );
+  static Profil fromMap(Map<String, Object?> m) {
+    // Profils antérieurs aux précautions : seul le booléen problemeSante
+    // existe. « Oui » garde toutes les précautions jusqu'à ce que la
+    // personne précise sa réponse.
+    final liste = m['precautions'];
+    final precautions = liste is List
+        ? {for (final nom in liste) ?Precaution.values.asNameMap()[nom]}
+        : const <Precaution>{};
+    final santeAPreciser = liste is List
+        ? m['santeAPreciser'] == true
+        : m['problemeSante'] == true;
+    return Profil(
+      objectif: Objectif.values.byName(m['objectif']! as String),
+      sexe: Sexe.values.byName(m['sexe']! as String),
+      anneeNaissance: (m['anneeNaissance']! as num).toInt(),
+      tailleCm: (m['tailleCm']! as num).toInt(),
+      poidsKg: (m['poidsKg']! as num).toDouble(),
+      typeDeVie: TypeDeVie.values.byName(m['typeDeVie']! as String),
+      typesEntrainement: (m['typesEntrainement']! as List)
+          .map((t) => TypeEntrainement.values.byName(t as String))
+          .toSet(),
+      niveau: Niveau.values.byName(m['niveau']! as String),
+      joursParSemaine: (m['joursParSemaine']! as num).toInt(),
+      dureeSeanceMin: (m['dureeSeanceMin']! as num).toInt(),
+      precautions: precautions,
+      santeAPreciser: santeAPreciser,
+      poidsCibleKg: (m['poidsCibleKg'] as num?)?.toDouble(),
+      // Profils antérieurs à la santé connectée : champs absents.
+      montre: m['montre'] as bool? ?? false,
+      appMontre: AppMontre.values.asNameMap()[m['appMontre']],
+      poidsDate: switch (m['poidsDate']) {
+        final num ms => DateTime.fromMillisecondsSinceEpoch(ms.toInt()),
+        _ => null,
+      },
+    );
+  }
 
   @override
   bool operator ==(Object other) =>
@@ -141,7 +202,9 @@ class Profil {
       other.niveau == niveau &&
       other.joursParSemaine == joursParSemaine &&
       other.dureeSeanceMin == dureeSeanceMin &&
-      other.problemeSante == problemeSante &&
+      setEquals(other.precautions, precautions) &&
+      other.santeAPreciser == santeAPreciser &&
+      other.poidsCibleKg == poidsCibleKg &&
       other.montre == montre &&
       other.appMontre == appMontre &&
       other.poidsDate == poidsDate;
@@ -158,7 +221,9 @@ class Profil {
     niveau,
     joursParSemaine,
     dureeSeanceMin,
-    problemeSante,
+    Object.hashAllUnordered(precautions),
+    santeAPreciser,
+    poidsCibleKg,
     montre,
     appMontre,
     poidsDate,

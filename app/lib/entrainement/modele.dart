@@ -26,6 +26,9 @@ class Exercice {
     this.salleSeulement = false,
     this.duree = false,
     this.alternative,
+    this.impact = false,
+    this.allonge = false,
+    this.varianteDouce = false,
   });
 
   final String id;
@@ -44,6 +47,16 @@ class Exercice {
 
   /// Remplaçant (id) quand le matériel manque.
   final String? alternative;
+
+  /// Sauts ou course sur place : exclu pour une grossesse, un suivi médical
+  /// ou des douleurs articulaires.
+  final bool impact;
+
+  /// Allongé sur le dos ou à plat ventre : exclu pour une grossesse.
+  final bool allonge;
+
+  /// Variante sans impact, proposée seulement quand l'impact est exclu.
+  final bool varianteDouce;
 }
 
 /// Un exercice dans une séance, avec ses séries.

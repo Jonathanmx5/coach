@@ -13,7 +13,6 @@ void main() {
     niveau: Niveau.debutant,
     joursParSemaine: 3,
     dureeSeanceMin: 45,
-    problemeSante: false,
   );
 
   test('aller-retour toMap / fromMap', () {
@@ -65,5 +64,81 @@ void main() {
     final sans = avecMontre.copyWith(montre: false, effacerAppMontre: true);
     expect(sans.appMontre, isNull);
     expect(sans.montre, isFalse);
+  });
+
+  test('aller-retour avec précautions et poids visé', () {
+    final p = profil.copyWith(
+      precautions: {
+        Precaution.douleursArticulaires,
+        Precaution.perteSuivieMedecin,
+      },
+      poidsCibleKg: 74.5,
+    );
+    expect(Profil.fromMap(p.toMap()), p);
+    expect(p.toMap()['precautions'], [
+      'perteSuivieMedecin',
+      'douleursArticulaires',
+    ]);
+    // Les anciennes versions lisent encore problemeSante (obligatoire).
+    expect(p.toMap()['problemeSante'], isFalse);
+    expect(
+      profil
+          .copyWith(precautions: {Precaution.enceinteOuAllaitante})
+          .toMap()['problemeSante'],
+      isTrue,
+    );
+  });
+
+  test(
+    'ancien profil « problème de santé : oui » : toutes les précautions',
+    () {
+      final ancien = profil.toMap()
+        ..remove('precautions')
+        ..remove('poidsCibleKg')
+        ..['problemeSante'] = true;
+      final lu = Profil.fromMap(ancien);
+      expect(lu.santeAPreciser, isTrue);
+      expect(lu.precautions, isEmpty);
+      expect(lu.perteDeconseillee, isTrue);
+      expect(lu.sansImpact, isTrue);
+      expect(lu.sansPositionAllongee, isTrue);
+      expect(lu.poidsCibleKg, isNull);
+      // Réenregistré tel quel, il garde la même prudence.
+      expect(Profil.fromMap(lu.toMap()), lu);
+      expect(lu.toMap()['problemeSante'], isTrue);
+    },
+  );
+
+  test('ancien profil « problème de santé : non » : aucune précaution', () {
+    final ancien = profil.toMap()..remove('precautions');
+    final lu = Profil.fromMap(ancien);
+    expect(lu.santeAPreciser, isFalse);
+    expect(lu.perteDeconseillee, isFalse);
+    expect(lu.sansImpact, isFalse);
+  });
+
+  test('précautions : effets de chaque case', () {
+    final douleurs = profil.copyWith(
+      precautions: {Precaution.douleursArticulaires},
+    );
+    expect(douleurs.sansImpact, isTrue);
+    expect(douleurs.perteDeconseillee, isFalse);
+    expect(douleurs.sansPositionAllongee, isFalse);
+    final medecin = profil.copyWith(
+      precautions: {Precaution.perteSuivieMedecin},
+    );
+    expect(medecin.sansImpact, isTrue);
+    expect(medecin.perteDeconseillee, isFalse);
+    final enceinte = profil.copyWith(
+      precautions: {Precaution.enceinteOuAllaitante},
+    );
+    expect(enceinte.perteDeconseillee, isTrue);
+    expect(enceinte.sansPositionAllongee, isTrue);
+    expect(profil.sansImpact, isFalse);
+  });
+
+  test('copyWith peut effacer le poids visé', () {
+    final p = profil.copyWith(poidsCibleKg: 70);
+    expect(p.copyWith(effacerPoidsCible: true).poidsCibleKg, isNull);
   });
 }

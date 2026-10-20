@@ -43,13 +43,17 @@ String _libelleMateriel(AppLocalizations t, Materiel m) => switch (m) {
 };
 
 /// Lieux proposés d'après les types d'entraînement du questionnaire (la
-/// maison par défaut).
+/// maison par défaut). Sans impact (précautions de santé), la course est
+/// remplacée par la marche.
 List<Lieu> lieuxDuProfil(Profil p) {
+  final course = p.typesEntrainement.contains(TypeEntrainement.course);
   final l = <Lieu>[
     if (p.typesEntrainement.contains(TypeEntrainement.maison)) Lieu.maison,
     if (p.typesEntrainement.contains(TypeEntrainement.salle)) Lieu.salle,
-    if (p.typesEntrainement.contains(TypeEntrainement.course)) Lieu.course,
-    if (p.typesEntrainement.contains(TypeEntrainement.marche)) Lieu.marche,
+    if (course && !p.sansImpact) Lieu.course,
+    if (p.typesEntrainement.contains(TypeEntrainement.marche) ||
+        (course && p.sansImpact))
+      Lieu.marche,
   ];
   return l.isEmpty ? [Lieu.maison] : l;
 }

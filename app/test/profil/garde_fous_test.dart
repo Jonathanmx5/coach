@@ -13,8 +13,9 @@ const base = Profil(
   niveau: Niveau.debutant,
   joursParSemaine: 3,
   dureeSeanceMin: 30,
-  problemeSante: false,
 );
+
+final maintenant = DateTime(2026, 10, 9);
 
 void main() {
   test('17 ans est mineur, 18 ans ne l\'est pas', () {
@@ -24,45 +25,90 @@ void main() {
 
   test('IMC 18,48 : perte refusée', () {
     expect(
-      pertePermise(poidsKg: 53.4, tailleCm: 170, problemeSante: false),
-      isFalse,
+      refusPerte(base.copyWith(poidsKg: 53.4), maintenant: maintenant),
+      RefusPerte.imcBas,
     );
   });
 
   test('IMC 18,51 : perte permise', () {
     expect(
-      pertePermise(poidsKg: 53.5, tailleCm: 170, problemeSante: false),
-      isTrue,
+      refusPerte(base.copyWith(poidsKg: 53.5), maintenant: maintenant),
+      isNull,
     );
   });
 
-  test('problème de santé : perte refusée', () {
+  test('enceinte ou allaitante : perte refusée', () {
+    final p = base.copyWith(precautions: {Precaution.enceinteOuAllaitante});
+    expect(refusPerte(p, maintenant: maintenant), RefusPerte.sante);
     expect(
-      pertePermise(poidsKg: 80, tailleCm: 180, problemeSante: true),
-      isFalse,
+      appliquerGardeFous(p, maintenant: maintenant).objectif,
+      Objectif.forme,
     );
   });
 
-  test('perte + problème de santé devient forme', () {
+  test('perte suivie par un médecin ou douleurs : perte permise', () {
+    for (final c in [
+      Precaution.perteSuivieMedecin,
+      Precaution.douleursArticulaires,
+    ]) {
+      final p = base.copyWith(precautions: {c});
+      expect(appliquerGardeFous(p, maintenant: maintenant), p, reason: '$c');
+    }
+  });
+
+  test('ancienne réponse « problème de santé » : perte refusée', () {
+    final p = base.copyWith(santeAPreciser: true);
+    expect(refusPerte(p, maintenant: maintenant), RefusPerte.sante);
     expect(
-      appliquerGardeFous(base.copyWith(problemeSante: true)).objectif,
+      appliquerGardeFous(p, maintenant: maintenant).objectif,
       Objectif.forme,
     );
   });
 
   test('perte + IMC bas devient forme', () {
     expect(
-      appliquerGardeFous(base.copyWith(poidsKg: 50)).objectif,
+      appliquerGardeFous(
+        base.copyWith(poidsKg: 50),
+        maintenant: maintenant,
+      ).objectif,
       Objectif.forme,
     );
   });
 
-  test('muscle + problème de santé reste muscle', () {
-    final p = base.copyWith(objectif: Objectif.muscle, problemeSante: true);
-    expect(appliquerGardeFous(p), p);
+  test('plancher au-dessus du maintien : perte refusée', () {
+    // Femme de 60 ans, 150 cm, 45 kg, sédentaire : maintien 1112 kcal,
+    // plancher 1200. Une « perte » serait un excédent.
+    final p = base.copyWith(
+      anneeNaissance: 1966,
+      tailleCm: 150,
+      poidsKg: 45,
+      typeDeVie: TypeDeVie.sedentaire,
+    );
+    expect(maintienEstime(p, maintenant).round(), 1112);
+    expect(refusPerte(p, maintenant: maintenant), RefusPerte.plancher);
+    expect(
+      appliquerGardeFous(p, maintenant: maintenant).objectif,
+      Objectif.forme,
+    );
+    // Même gabarit mais un peu actif : maintien 1274, la perte reste permise.
+    expect(
+      refusPerte(
+        p.copyWith(typeDeVie: TypeDeVie.peuActif),
+        maintenant: maintenant,
+      ),
+      isNull,
+    );
+  });
+
+  test('muscle + grossesse reste muscle', () {
+    final p = base.copyWith(
+      objectif: Objectif.muscle,
+      precautions: {Precaution.enceinteOuAllaitante},
+    );
+    expect(appliquerGardeFous(p, maintenant: maintenant), p);
   });
 
   test('perte avec un profil normal reste perte', () {
-    expect(appliquerGardeFous(base), base);
+    expect(appliquerGardeFous(base, maintenant: maintenant), base);
   });
 }

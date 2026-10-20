@@ -32,7 +32,6 @@ final profil = Profil(
   niveau: Niveau.debutant,
   joursParSemaine: 3,
   dureeSeanceMin: 30,
-  problemeSante: false,
 );
 
 class Banc {

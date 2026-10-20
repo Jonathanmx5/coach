@@ -42,7 +42,6 @@ const profil = Profil(
   niveau: Niveau.debutant,
   joursParSemaine: 3,
   dureeSeanceMin: 45,
-  problemeSante: false,
 );
 
 class Banc {

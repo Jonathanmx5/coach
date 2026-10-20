@@ -24,10 +24,11 @@ Future<void> saisir(WidgetTester tester, String champ, String valeur) async {
 
 /// Répond à tout le questionnaire jusqu'à l'étape santé incluse
 /// (perte, homme, 30 ans, 180 cm, 80,5 kg, un peu actif, salle, débutant,
-/// 3 jours, 45 min).
+/// 3 jours, 45 min). [precaution] : libellé de la case santé à cocher ;
+/// sinon « Aucun de ces cas ».
 Future<void> remplirJusquaSante(
   WidgetTester tester, {
-  bool sante = false,
+  String? precaution,
 }) async {
   await taper(tester, 'Perdre du poids');
   await taper(tester, 'Suivant');
@@ -46,13 +47,16 @@ Future<void> remplirJusquaSante(
   await taper(tester, '3');
   await taper(tester, '45 min');
   await taper(tester, 'Suivant');
-  await taper(tester, sante ? 'Oui' : 'Non');
+  await taper(tester, precaution ?? 'Aucun de ces cas');
 }
 
-/// Depuis l'étape santé : répond « Non » à la montre et passe à la suite.
+/// Depuis l'étape santé : répond « Non » à la montre, passe l'écran de
+/// résultat et arrive à la connexion.
 Future<void> sansMontre(WidgetTester tester) async {
   await taper(tester, 'Suivant');
   await taper(tester, 'Non');
+  await taper(tester, 'Suivant');
+  expect(find.text('Ton plan'), findsOneWidget);
   await taper(tester, 'Suivant');
 }
 

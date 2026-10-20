@@ -23,7 +23,6 @@ const profil = Profil(
   niveau: Niveau.debutant,
   joursParSemaine: 3,
   dureeSeanceMin: 30,
-  problemeSante: false,
 );
 
 void main() {
@@ -48,13 +47,13 @@ void main() {
   });
 
   test(
-    'tous les exercices du catalogue sont animés, sauf les jumping jacks',
+    'tous les exercices du catalogue sont animés, sauf deux sans photos',
     () {
       final sans = [
         for (final e in catalogueExercices)
           if (!exercicesAnimes.contains(e.id)) e.id,
       ];
-      expect(sans, ['jumping_jacks']);
+      expect(sans, ['jumping_jacks', 'marche_genoux']);
     },
   );
 

@@ -8,6 +8,8 @@ Profil profil({
   Niveau niveau = Niveau.debutant,
   Objectif objectif = Objectif.forme,
   int duree = 45,
+  Set<Precaution> precautions = const {},
+  bool santeAPreciser = false,
 }) => Profil(
   objectif: objectif,
   sexe: Sexe.femme,
@@ -19,7 +21,8 @@ Profil profil({
   niveau: niveau,
   joursParSemaine: 3,
   dureeSeanceMin: duree,
-  problemeSante: false,
+  precautions: precautions,
+  santeAPreciser: santeAPreciser,
 );
 
 void main() {
@@ -152,5 +155,84 @@ void main() {
     expect(genererMarche(seancesFaites: 0).minutes, 20);
     expect(genererMarche(seancesFaites: 3).minutes, 25);
     expect(genererMarche(seancesFaites: 300).minutes, 60);
+  });
+
+  /// Tous les exercices proposés sur [n] séances à ce lieu.
+  Set<Exercice> exercicesProposes(
+    Profil p, {
+    Lieu lieu = Lieu.maison,
+    Set<Materiel>? materiel,
+    int n = 30,
+  }) => {
+    for (var k = 0; k < n; k++)
+      ...genererSeance(
+        lieu: lieu,
+        materiel: materiel ?? Materiel.values.toSet(),
+        profil: p,
+        seancesFaites: k,
+      ).exercices.map((e) => e.exercice),
+  };
+
+  test('sans précaution : sauts proposés, pas la variante douce', () {
+    final ids = exercicesProposes(profil(duree: 60)).map((e) => e.id);
+    expect(ids, contains('corde'));
+    expect(ids, isNot(contains('marche_genoux')));
+  });
+
+  test('douleurs articulaires : ni saut ni impact, variante douce', () {
+    for (final lieu in [Lieu.maison, Lieu.salle]) {
+      final exos = exercicesProposes(
+        profil(duree: 60, precautions: {Precaution.douleursArticulaires}),
+        lieu: lieu,
+      );
+      expect(exos.where((e) => e.impact), isEmpty, reason: '$lieu');
+      expect(exos.map((e) => e.id), contains('marche_genoux'));
+      // Les positions allongées restent permises.
+      expect(exos.where((e) => e.allonge), isNotEmpty);
+    }
+    final medecin = exercicesProposes(
+      profil(duree: 60, precautions: {Precaution.perteSuivieMedecin}),
+    );
+    expect(medecin.where((e) => e.impact), isEmpty);
+  });
+
+  test('grossesse : ni impact ni position allongée', () {
+    for (final materiel in [<Materiel>{}, Materiel.values.toSet()]) {
+      final exos = exercicesProposes(
+        profil(duree: 60, precautions: {Precaution.enceinteOuAllaitante}),
+        materiel: materiel,
+      );
+      expect(exos, isNotEmpty);
+      expect(exos.where((e) => e.impact || e.allonge), isEmpty);
+    }
+  });
+
+  test('ancienne réponse santé : toutes les précautions', () {
+    final exos = exercicesProposes(profil(duree: 60, santeAPreciser: true));
+    expect(exos.where((e) => e.impact || e.allonge), isEmpty);
+  });
+
+  test('sans impact, la course devient de la marche active', () {
+    final douleurs = profil(precautions: {Precaution.douleursArticulaires});
+    final s = genererSeance(
+      lieu: Lieu.course,
+      materiel: const {},
+      profil: douleurs,
+      seancesFaites: 0,
+    );
+    expect(s.lieu, Lieu.marche);
+    expect(s.etapes.any((e) => e.titre.startsWith('Course')), isFalse);
+  });
+
+  test('catalogue : les sauts sont marqués « impact »', () {
+    final impact = {
+      for (final e in catalogueExercices)
+        if (e.impact) e.id,
+    };
+    expect(impact, {'jumping_jacks', 'corde', 'montees_genoux'});
+    for (final e in catalogueExercices.where((e) => e.varianteDouce)) {
+      expect(e.impact, isFalse, reason: e.id);
+      expect(e.allonge, isFalse, reason: e.id);
+    }
   });
 }

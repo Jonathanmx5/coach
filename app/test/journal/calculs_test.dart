@@ -17,7 +17,6 @@ const profil = Profil(
   niveau: Niveau.debutant,
   joursParSemaine: 3,
   dureeSeanceMin: 45,
-  problemeSante: false,
 );
 
 // Repères « perte simple » : base 1780, maintien 2448, cible 2080, 128 g prot.
@@ -100,6 +99,39 @@ void main() {
         2448 + 600,
       );
     });
+
+    test(
+      'type de vie « très actif » : le sport saisi compté une seule fois',
+      () {
+        // Le facteur du type de vie ne couvre que le quotidien hors sport :
+        // une séance de 45 min de course s'y ajoute une fois, en calories
+        // nettes, et rien n'est ajouté un jour sans séance.
+        final tresActif = profil.copyWith(typeDeVie: TypeDeVie.tresActif);
+        final maintien = calculerReperes(
+          tresActif,
+          maintenant: DateTime(2026, 10, 9),
+        ).maintien;
+        expect(maintien, (1780 * 1.725).round());
+        final course = kcalActivite(
+          TypeActivite.course,
+          45,
+          Intensite.moderee,
+          80,
+        );
+        expect(
+          depenseDuJour(maintien: maintien, kcalMontre: null, kcalActivites: 0),
+          maintien,
+        );
+        expect(
+          depenseDuJour(
+            maintien: maintien,
+            kcalMontre: null,
+            kcalActivites: course,
+          ),
+          maintien + course,
+        );
+      },
+    );
 
     test('montre sans total : base + calories actives', () {
       expect(
@@ -364,7 +396,6 @@ void bilanTests() {
         niveau: Niveau.debutant,
         joursParSemaine: 3,
         dureeSeanceMin: 45,
-        problemeSante: false,
       );
       final b = bilan(const [], p: actif, repas: [repas(2350)]);
       expect(b.reperes.kcalCible, 2350);

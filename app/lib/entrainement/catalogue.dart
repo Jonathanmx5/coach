@@ -44,6 +44,7 @@ const catalogueExercices = <Exercice>[
   ),
   Exercice(
     id: 'pont_fessier',
+    allonge: true,
     nom: 'Pont fessier',
     groupe: Groupe.jambes,
     consigne:
@@ -80,6 +81,7 @@ const catalogueExercices = <Exercice>[
   ),
   Exercice(
     id: 'developpe_halteres',
+    allonge: true,
     nom: 'Développé avec haltères',
     groupe: Groupe.pousser,
     requis: {Materiel.halteres},
@@ -88,6 +90,7 @@ const catalogueExercices = <Exercice>[
   ),
   Exercice(
     id: 'developpe_couche',
+    allonge: true,
     nom: 'Développé couché',
     groupe: Groupe.pousser,
     salleSeulement: true,
@@ -103,6 +106,7 @@ const catalogueExercices = <Exercice>[
   // Tirer
   Exercice(
     id: 'superman',
+    allonge: true,
     nom: 'Superman',
     groupe: Groupe.tirer,
     consigne: 'À plat ventre, décolle bras et jambes en contractant le dos, tiens une seconde.',
@@ -156,12 +160,14 @@ const catalogueExercices = <Exercice>[
   ),
   Exercice(
     id: 'crunch',
+    allonge: true,
     nom: 'Crunch',
     groupe: Groupe.tronc,
     consigne: 'Sur le dos, genoux pliés, décolle les épaules sans tirer sur la nuque.',
   ),
   Exercice(
     id: 'dead_bug',
+    allonge: true,
     nom: 'Dead bug',
     groupe: Groupe.tronc,
     consigne: 'Sur le dos, bras et jambes en l\'air, étends un bras et la jambe opposée, bas du dos collé au sol.',
@@ -169,6 +175,7 @@ const catalogueExercices = <Exercice>[
   // Cardio
   Exercice(
     id: 'jumping_jacks',
+    impact: true,
     nom: 'Jumping jacks',
     groupe: Groupe.cardio,
     duree: true,
@@ -176,6 +183,7 @@ const catalogueExercices = <Exercice>[
   ),
   Exercice(
     id: 'corde',
+    impact: true,
     nom: 'Corde à sauter',
     groupe: Groupe.cardio,
     duree: true,
@@ -185,10 +193,19 @@ const catalogueExercices = <Exercice>[
   ),
   Exercice(
     id: 'montees_genoux',
+    impact: true,
     nom: 'Montées de genoux',
     groupe: Groupe.cardio,
     duree: true,
     consigne: 'Sur place, monte les genoux à hauteur de hanche, rythme vif.',
+  ),
+  Exercice(
+    id: 'marche_genoux',
+    nom: 'Genoux hauts sans sauter',
+    groupe: Groupe.cardio,
+    duree: true,
+    varianteDouce: true,
+    consigne: 'Sur place, un pied toujours au sol : monte un genou puis l\'autre en balançant les bras.',
   ),
 ];
 

@@ -288,6 +288,7 @@ class _ChampNombreState extends State<ChampNombre> {
             null => null,
             ErreurChamp.nombreInvalide => t.erreurNombre,
             ErreurChamp.horsPlage => t.erreurPlage(widget.min, widget.max),
+            ErreurChamp.cibleTropBasse => t.erreurCibleBasse,
           },
         ),
         onChanged: (v) => setState(() => _erreur = widget.onSaisie(v)),
@@ -307,6 +308,7 @@ String titreEtape(AppLocalizations t, Etape e) => switch (e) {
   Etape.sante => t.qSante,
   Etape.montre => t.qMontre,
   Etape.appMontre => t.qAppMontre,
+  Etape.resultat => t.qResultat,
   Etape.connexion => t.qConnexion,
 };
 
@@ -320,7 +322,31 @@ String libelleObjectif(AppLocalizations t, Objectif o) => switch (o) {
 String texteAlerte(AppLocalizations t, Alerte a) => switch (a) {
   Alerte.mineur => t.messageMineur,
   Alerte.perteRefuseeImc => t.messagePerteImc,
-  Alerte.conseilMedecin => t.conseilMedecin,
+  Alerte.perteRefuseePlancher => t.messagePertePlancher,
+  Alerte.perteRefuseeGrossesse => t.messagePerteGrossesse,
+  Alerte.recomposition => t.messageRecomposition,
+};
+
+/// Titre, explication et icône de chaque précaution de l'étape santé.
+(String, String, IconData) libellePrecaution(
+  AppLocalizations t,
+  Precaution p,
+) => switch (p) {
+  Precaution.enceinteOuAllaitante => (
+    t.precautionEnceinte,
+    t.precautionEnceinteEx,
+    Icons.pregnant_woman,
+  ),
+  Precaution.perteSuivieMedecin => (
+    t.precautionMedecin,
+    t.precautionMedecinEx,
+    Icons.medical_services_outlined,
+  ),
+  Precaution.douleursArticulaires => (
+    t.precautionArticulations,
+    t.precautionArticulationsEx,
+    Icons.accessibility_new,
+  ),
 };
 
 const iconesObjectif = {
@@ -438,6 +464,15 @@ List<Widget> contenuEtape(BuildContext context, QuestionnaireControleur c) {
           min: poidsMin,
           max: poidsMax,
         ),
+        if (c.demandePoidsCible)
+          ChampNombre(
+            key: const ValueKey('poidsCible'),
+            label: t.champPoidsCible,
+            valeurInitiale: formaterNombre(c.poidsCibleKg),
+            onSaisie: c.saisirPoidsCible,
+            min: poidsMin,
+            max: poidsMax,
+          ),
       ];
     case Etape.typeDeVie:
       final libelles = {
@@ -455,6 +490,8 @@ List<Widget> contenuEtape(BuildContext context, QuestionnaireControleur c) {
         TypeDeVie.tresActif: (t.vieTresActif, t.vieTresActifEx, Icons.bolt),
       };
       return [
+        Text(t.qTypeDeVieAide, style: petit),
+        const SizedBox(height: 12),
         for (final MapEntry(key: v, value: (titre, exemple, icone))
             in libelles.entries)
           carte(
@@ -528,20 +565,27 @@ List<Widget> contenuEtape(BuildContext context, QuestionnaireControleur c) {
       ];
     case Etape.sante:
       return [
-        grille([
-          tuile(
-            t.boutonOui,
-            Icons.medical_services_outlined,
-            c.problemeSante == true,
-            () => c.repondreSante(true),
-          ),
-          tuile(
-            t.boutonNon,
-            Icons.thumb_up_outlined,
-            c.problemeSante == false,
-            () => c.repondreSante(false),
-          ),
-        ]),
+        Text(t.qSanteAide, style: petit),
+        const SizedBox(height: 12),
+        if (c.santeAPreciser) ...[
+          EncadreAlerte(t.santeAPreciser),
+          const SizedBox(height: 12),
+        ],
+        for (final p in c.precautionsProposees)
+          if (libellePrecaution(t, p) case (final titre, final ex, final icone))
+            carte(
+              titre,
+              icone,
+              c.precautions.contains(p),
+              () => c.basculerPrecaution(p),
+              ex,
+            ),
+        carte(
+          t.precautionAucune,
+          Icons.thumb_up_outlined,
+          c.aucunePrecaution,
+          c.repondreAucunePrecaution,
+        ),
         Text(t.mentionMedicale, style: petit),
       ];
     case Etape.montre:
@@ -575,7 +619,8 @@ List<Widget> contenuEtape(BuildContext context, QuestionnaireControleur c) {
             ),
         ]),
       ];
-    case Etape.connexion:
+    case Etape.resultat || Etape.connexion:
+      // Construits par la page (profil calculé, connexion).
       return const [];
   }
 }

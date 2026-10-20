@@ -90,6 +90,7 @@ Profil? profilAvecPesee(
   if (p.poidsDate != null && !date.isAfter(p.poidsDate!)) return null;
   return appliquerGardeFous(
     p.copyWith(poidsKg: (kg * 10).round() / 10, poidsDate: date),
+    maintenant: date,
   );
 }
 
@@ -99,4 +100,5 @@ Profil profilDepuisDerniere(Profil p, Pesee derniere) => appliquerGardeFous(
     poidsKg: (derniere.kg * 10).round() / 10,
     poidsDate: derniere.date,
   ),
+  maintenant: derniere.date,
 );

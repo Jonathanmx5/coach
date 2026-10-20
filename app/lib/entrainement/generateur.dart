@@ -27,18 +27,31 @@ const _ordreGroupes = [
 
 typedef _Candidat = ({Exercice exo, Exercice? remplace});
 
-List<_Candidat> _candidats(Groupe g, Lieu lieu, Set<Materiel> materiel) {
+/// Exercice compatible avec les précautions de santé du profil : sans saut
+/// ni impact, sans position allongée pour une grossesse. Les variantes
+/// douces ne remplacent l'impact que lorsqu'il est exclu.
+bool exercicePermis(Exercice e, Profil profil) =>
+    (profil.sansImpact ? !e.impact : !e.varianteDouce) &&
+    !(profil.sansPositionAllongee && e.allonge);
+
+List<_Candidat> _candidats(
+  Groupe g,
+  Lieu lieu,
+  Set<Materiel> materiel,
+  Profil profil,
+) {
   final directs = <_Candidat>[];
   final remplaces = <_Candidat>[];
   final vus = <String>{};
   for (final e in catalogueExercices.where((e) => e.groupe == g)) {
     final r = resoudre(e, lieu, materiel);
-    if (r == null) continue;
+    if (r == null || !exercicePermis(r, profil)) continue;
     if (r.id == e.id && vus.add(r.id)) directs.add((exo: r, remplace: null));
   }
   for (final e in catalogueExercices.where((e) => e.groupe == g)) {
     final r = resoudre(e, lieu, materiel);
-    if (r == null || r.id == e.id) continue;
+    if (r == null || r.id == e.id || !exercicePermis(r, profil)) continue;
+    if (!exercicePermis(e, profil)) continue;
     if (r.groupe == g && vus.add(r.id)) remplaces.add((exo: r, remplace: e));
   }
   return [...directs, ...remplaces];
@@ -83,7 +96,7 @@ Seance genererRenforcement({
   final pris = <String>{};
   for (var i = 0; i < nb; i++) {
     final groupe = _ordreGroupes[i % _ordreGroupes.length];
-    final tous = _candidats(groupe, lieu, materiel);
+    final tous = _candidats(groupe, lieu, materiel, profil);
     final dispo = [
       for (final c in tous)
         if (!pris.contains(c.exo.id)) c,
@@ -234,13 +247,17 @@ Seance genererMarche({required int seancesFaites}) {
   );
 }
 
-/// Séance proposée pour ce lieu.
+/// Séance proposée pour ce lieu. Sans impact (précautions de santé), la
+/// course devient de la marche active.
 Seance genererSeance({
   required Lieu lieu,
   required Set<Materiel> materiel,
   required Profil profil,
   required int seancesFaites,
 }) => switch (lieu) {
+  Lieu.course when profil.sansImpact => genererMarche(
+    seancesFaites: seancesFaites,
+  ),
   Lieu.course => genererCourse(profil: profil, seancesFaites: seancesFaites),
   Lieu.marche => genererMarche(seancesFaites: seancesFaites),
   _ => genererRenforcement(

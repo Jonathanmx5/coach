@@ -31,7 +31,6 @@ Profil profilDe(Set<TypeEntrainement> types) => Profil(
   niveau: Niveau.debutant,
   joursParSemaine: 3,
   dureeSeanceMin: 30,
-  problemeSante: false,
 );
 
 final refus = FirebaseException(
@@ -83,6 +82,19 @@ void main() {
       [Lieu.salle, Lieu.course],
     );
     expect(lieuxDuProfil(profilDe({})), [Lieu.maison]);
+    // Sans impact (douleurs, grossesse…), la course devient de la marche,
+    // sans doublon si la marche est déjà choisie.
+    final douleurs = profilDe({TypeEntrainement.salle, TypeEntrainement.course})
+        .copyWith(precautions: {Precaution.douleursArticulaires});
+    expect(lieuxDuProfil(douleurs), [Lieu.salle, Lieu.marche]);
+    expect(
+      lieuxDuProfil(
+        douleurs.copyWith(
+          typesEntrainement: {TypeEntrainement.course, TypeEntrainement.marche},
+        ),
+      ),
+      [Lieu.marche],
+    );
     expect(lieuxDuProgramme(Lieu.maison), {Lieu.maison, Lieu.salle});
     expect(lieuxDuProgramme(Lieu.salle), {Lieu.maison, Lieu.salle});
     expect(lieuxDuProgramme(Lieu.course), {Lieu.course});

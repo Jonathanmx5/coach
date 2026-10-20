@@ -40,7 +40,6 @@ const profil = Profil(
   niveau: Niveau.debutant,
   joursParSemaine: 3,
   dureeSeanceMin: 45,
-  problemeSante: false,
 );
 
 /// Le vrai widget d'accueil (action de lancement rendue une seule fois),

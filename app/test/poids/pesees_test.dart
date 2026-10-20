@@ -14,7 +14,6 @@ const profil = Profil(
   niveau: Niveau.debutant,
   joursParSemaine: 3,
   dureeSeanceMin: 30,
-  problemeSante: false,
 );
 
 Pesee manuelle(int jour, double kg) => Pesee(
