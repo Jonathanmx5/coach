@@ -3309,6 +3309,66 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'{n, plural, =0{Plus d\'analyse photo possible aujourd\'hui.} =1{Encore 1 analyse photo possible aujourd\'hui.} other{Encore {n} analyses photo possibles aujourd\'hui.}}'**
   String analysesRestantes(int n);
+
+  /// No description provided for @maSemaine.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ma semaine'**
+  String get maSemaine;
+
+  /// No description provided for @maSemaineSous.
+  ///
+  /// In fr, this message translates to:
+  /// **'7 derniers jours'**
+  String get maSemaineSous;
+
+  /// No description provided for @semaineKcal.
+  ///
+  /// In fr, this message translates to:
+  /// **'kcal mangées par jour en moyenne'**
+  String get semaineKcal;
+
+  /// No description provided for @semaineDansCible.
+  ///
+  /// In fr, this message translates to:
+  /// **'jours notés dans la cible (±10 %)'**
+  String get semaineDansCible;
+
+  /// No description provided for @semaineProteines.
+  ///
+  /// In fr, this message translates to:
+  /// **'protéines par jour en moyenne'**
+  String get semaineProteines;
+
+  /// No description provided for @semaineSeances.
+  ///
+  /// In fr, this message translates to:
+  /// **'séances faites'**
+  String get semaineSeances;
+
+  /// No description provided for @semaineEvolutionPoids.
+  ///
+  /// In fr, this message translates to:
+  /// **'poids moyen, comparé à la semaine d\'avant'**
+  String get semaineEvolutionPoids;
+
+  /// No description provided for @semainePoidsMoyen.
+  ///
+  /// In fr, this message translates to:
+  /// **'poids moyen sur 7 jours'**
+  String get semainePoidsMoyen;
+
+  /// No description provided for @semaineSansPesee.
+  ///
+  /// In fr, this message translates to:
+  /// **'aucune pesée cette semaine'**
+  String get semaineSansPesee;
+
+  /// No description provided for @semaineAucunRepas.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucun repas noté ces 7 derniers jours : notez vos repas dans le Journal pour suivre votre semaine.'**
+  String get semaineAucunRepas;
 }
 
 class _AppLocalizationsDelegate

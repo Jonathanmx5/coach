@@ -960,5 +960,15 @@
   "repasRecentAjouter": "Ajouter de nouveau : {nom}",
   "@repasRecentAjouter": {"placeholders": {"nom": {"type": "String"}}},
   "analysesRestantes": "{n, plural, =0{Plus d'analyse photo possible aujourd'hui.} =1{Encore 1 analyse photo possible aujourd'hui.} other{Encore {n} analyses photo possibles aujourd'hui.}}",
-  "@analysesRestantes": {"placeholders": {"n": {"type": "int"}}}
+  "@analysesRestantes": {"placeholders": {"n": {"type": "int"}}},
+  "maSemaine": "Ma semaine",
+  "maSemaineSous": "7 derniers jours",
+  "semaineKcal": "kcal mangées par jour en moyenne",
+  "semaineDansCible": "jours notés dans la cible (±10 %)",
+  "semaineProteines": "protéines par jour en moyenne",
+  "semaineSeances": "séances faites",
+  "semaineEvolutionPoids": "poids moyen, comparé à la semaine d'avant",
+  "semainePoidsMoyen": "poids moyen sur 7 jours",
+  "semaineSansPesee": "aucune pesée cette semaine",
+  "semaineAucunRepas": "Aucun repas noté ces 7 derniers jours : notez vos repas dans le Journal pour suivre votre semaine."
 }

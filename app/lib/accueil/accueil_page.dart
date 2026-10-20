@@ -10,8 +10,10 @@ import '../compte/auth_service.dart';
 import '../format.dart';
 import '../journal/journal_repository.dart';
 import '../l10n/app_localizations.dart';
+import '../poids/pesees_repository.dart';
 import '../widget/donnees_widget.dart';
 import 'anneaux.dart';
+import 'carte_semaine.dart';
 import '../profil/modele.dart';
 import '../profil/profil_repository.dart';
 import '../profil/questionnaire/controleur.dart';
@@ -38,6 +40,7 @@ class AccueilPage extends StatefulWidget {
     required this.horloge,
     required this.onOnglet,
     required this.journal,
+    required this.pesees,
     required this.bienetre,
     required this.meteoSuivi,
     required this.onIdees,
@@ -57,6 +60,9 @@ class AccueilPage extends StatefulWidget {
   /// Ouvre un onglet de la barre du bas (1 Repas, 2 Sport, 3 Poids, 4 Bien-être).
   final ValueChanged<int> onOnglet;
   final JournalRepository journal;
+
+  /// Pesées saisies, pour la tendance du poids de « Ma semaine ».
+  final PeseesRepository pesees;
   final BienEtreRepository bienetre;
   final SuiviMeteo meteoSuivi;
 
@@ -226,6 +232,18 @@ class _AccueilPageState extends State<AccueilPage> {
                           horloge: widget.horloge,
                           onOnglet: widget.onOnglet,
                           majWidget: widget.majWidget,
+                        ),
+                        const SizedBox(height: 16),
+                        // Recréée le lendemain : la fenêtre des 7 jours avance.
+                        CarteSemaine(
+                          key: ValueKey(('semaine', widget.horloge().day)),
+                          uid: widget.utilisateur.uid,
+                          profil: _profil,
+                          suivi: _suivi,
+                          journal: widget.journal,
+                          pesees: widget.pesees,
+                          horloge: widget.horloge,
+                          onJournal: () => widget.onOnglet(1),
                         ),
                         const SizedBox(height: 24),
                         CarteJournee(

@@ -1,6 +1,9 @@
 import 'package:coach/accueil/accueil_page.dart';
+import 'package:coach/accueil/anneaux.dart';
+import 'package:coach/accueil/carte_semaine.dart';
 import 'package:coach/app.dart';
 import 'package:coach/compte/auth_service.dart';
+import 'package:coach/journal/journal_page.dart';
 import 'package:coach/profil/besoins.dart';
 import 'package:coach/profil/modele.dart';
 import 'package:coach/profil/profil_repository.dart';
@@ -105,6 +108,18 @@ FauxDepot depotAvecProfil([Profil profil = perteSimple]) =>
         reperes: calculerReperes(profil, maintenant: maintenant),
       );
 
+/// Texte (chiffre et objectif) dans la carte « Aujourd'hui ».
+Finder dansAujourdhui(String texte) => find.descendant(
+  of: find.byType(CarteAujourdhui),
+  matching: find.textContaining(texte, findRichText: true),
+);
+
+/// Texte (chiffre et objectif) dans la carte « Ma semaine ».
+Finder dansSemaine(String texte) => find.descendant(
+  of: find.byType(CarteSemaine),
+  matching: find.textContaining(texte, findRichText: true),
+);
+
 void main() {
   testWidgets('non connecté : page de bienvenue', (tester) async {
     await monter(tester, FauxAuth(), FauxDepot());
@@ -147,12 +162,13 @@ void main() {
     await monter(tester, FauxAuth(connecte: lea), depotAvecProfil());
 
     expect(find.text("Aujourd'hui"), findsOneWidget);
-    expect(
-      find.textContaining('/ 2080 kcal', findRichText: true),
-      findsOneWidget,
-    );
-    expect(find.textContaining('/ 128 g', findRichText: true), findsOneWidget);
+    expect(dansAujourdhui('/ 2080 kcal'), findsOneWidget);
+    expect(dansAujourdhui('/ 128 g'), findsOneWidget);
     expect(find.text('Objectif : perdre du poids'), findsOneWidget);
+    // « Ma semaine », sous la carte du jour, compare à la même cible.
+    expect(find.text('Ma semaine'), findsOneWidget);
+    expect(dansSemaine('/ 2080 kcal'), findsOneWidget);
+    expect(dansSemaine('/ 128 g'), findsOneWidget);
   });
 
   testWidgets('se déconnecter : retour à la bienvenue, widget vidé', (
@@ -223,10 +239,8 @@ void main() {
       sante: FauxSante(points: semaineType()),
     );
 
-    expect(
-      find.textContaining('/ 2210 kcal', findRichText: true),
-      findsOneWidget,
-    );
+    expect(dansAujourdhui('/ 2210 kcal'), findsOneWidget);
+    expect(dansSemaine('/ 2210 kcal'), findsOneWidget);
     await defilerJusqua(tester, find.text('6500'));
     expect(find.text('6500'), findsOneWidget);
     expect(find.text('7 h 00'), findsOneWidget);
@@ -244,10 +258,7 @@ void main() {
       find.textContaining('Estimé jusqu', findRichText: true),
       findsOneWidget,
     );
-    expect(
-      find.textContaining('/ 2080 kcal', findRichText: true),
-      findsOneWidget,
-    );
+    expect(dansAujourdhui('/ 2080 kcal'), findsOneWidget);
   });
 
   testWidgets('pesée plus récente : poids du profil mis à jour', (
@@ -530,5 +541,14 @@ void main() {
     await taper(tester, 'Ton programme');
 
     expect(find.text('Commencer la séance'), findsOneWidget);
+  });
+
+  testWidgets('accueil : « Ma semaine » ouvre le Journal', (tester) async {
+    await monter(tester, FauxAuth(connecte: lea), depotAvecProfil());
+    expect(find.byType(JournalPage), findsNothing);
+
+    await taper(tester, 'Ma semaine');
+
+    expect(find.byType(JournalPage), findsOneWidget);
   });
 }

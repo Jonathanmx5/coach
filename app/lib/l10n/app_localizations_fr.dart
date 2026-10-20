@@ -1870,4 +1870,36 @@ class AppLocalizationsFr extends AppLocalizations {
     );
     return '$_temp0';
   }
+
+  @override
+  String get maSemaine => 'Ma semaine';
+
+  @override
+  String get maSemaineSous => '7 derniers jours';
+
+  @override
+  String get semaineKcal => 'kcal mangées par jour en moyenne';
+
+  @override
+  String get semaineDansCible => 'jours notés dans la cible (±10 %)';
+
+  @override
+  String get semaineProteines => 'protéines par jour en moyenne';
+
+  @override
+  String get semaineSeances => 'séances faites';
+
+  @override
+  String get semaineEvolutionPoids =>
+      'poids moyen, comparé à la semaine d\'avant';
+
+  @override
+  String get semainePoidsMoyen => 'poids moyen sur 7 jours';
+
+  @override
+  String get semaineSansPesee => 'aucune pesée cette semaine';
+
+  @override
+  String get semaineAucunRepas =>
+      'Aucun repas noté ces 7 derniers jours : notez vos repas dans le Journal pour suivre votre semaine.';
 }

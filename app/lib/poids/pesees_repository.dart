@@ -4,8 +4,10 @@ import 'pesees.dart';
 
 /// Pesées saisies dans Coach (spec §2.2 : users/{uid}/pesees).
 abstract class PeseesRepository {
-  /// Pesées manuelles, triées par date croissante.
-  Stream<List<Pesee>> observer(String uid);
+  /// Pesées manuelles, triées par date croissante. Avec [depuis], seulement
+  /// celles faites à partir de cette date (l'accueil ne lit que les deux
+  /// dernières semaines).
+  Stream<List<Pesee>> observer(String uid, {DateTime? depuis});
 
   /// Hors-ligne, ce Future ne se termine qu'à la synchronisation.
   Future<void> ajouter(
@@ -26,23 +28,31 @@ class FirestorePeseesRepository implements PeseesRepository {
       _db.collection('users').doc(uid).collection('pesees');
 
   @override
-  Stream<List<Pesee>> observer(String uid) =>
-      _pesees(uid)
-          .orderBy('date')
-          .snapshots()
-          .map(
-            (snap) => [
-              for (final d in snap.docs)
-                Pesee(
-                  id: d.id,
-                  date: DateTime.fromMillisecondsSinceEpoch(
-                    (d.data()['date'] as num).toInt(),
-                  ),
-                  kg: (d.data()['kg'] as num).toDouble(),
-                  source: SourcePesee.manuel,
+  Stream<List<Pesee>> observer(String uid, {DateTime? depuis}) {
+    Query<Map<String, dynamic>> requete = _pesees(uid);
+    if (depuis != null) {
+      requete = requete.where(
+        'date',
+        isGreaterThanOrEqualTo: depuis.millisecondsSinceEpoch,
+      );
+    }
+    return requete
+        .orderBy('date')
+        .snapshots()
+        .map(
+          (snap) => [
+            for (final d in snap.docs)
+              Pesee(
+                id: d.id,
+                date: DateTime.fromMillisecondsSinceEpoch(
+                  (d.data()['date'] as num).toInt(),
                 ),
-            ],
-          );
+                kg: (d.data()['kg'] as num).toDouble(),
+                source: SourcePesee.manuel,
+              ),
+          ],
+        );
+  }
 
   @override
   Future<void> ajouter(

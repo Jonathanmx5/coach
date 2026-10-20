@@ -171,10 +171,18 @@ class FauxPesees implements PeseesRepository {
 
   List<Pesee> de(String uid) => donnees[uid] ?? const [];
 
+  /// Fenêtres demandées (null : toutes les pesées).
+  final depuisDemandes = <DateTime?>[];
+
   @override
-  Stream<List<Pesee>> observer(String uid) async* {
-    yield de(uid);
-    yield* _flux.stream.where((u) => u == uid).map((_) => de(uid));
+  Stream<List<Pesee>> observer(String uid, {DateTime? depuis}) async* {
+    depuisDemandes.add(depuis);
+    List<Pesee> lire() => [
+      for (final p in de(uid))
+        if (depuis == null || !p.date.isBefore(depuis)) p,
+    ];
+    yield lire();
+    yield* _flux.stream.where((u) => u == uid).map((_) => lire());
   }
 
   @override

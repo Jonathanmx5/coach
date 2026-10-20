@@ -193,6 +193,7 @@ class _CoqueState extends State<Coque> with WidgetsBindingObserver {
       horloge: widget.horloge,
       onOnglet: _choisirOnglet,
       journal: _s.journal,
+      pesees: _s.pesees,
       bienetre: _s.bienetre,
       meteoSuivi: _meteoSuivi,
       miseAJour: _maj,
