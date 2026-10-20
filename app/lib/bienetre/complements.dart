@@ -1,5 +1,7 @@
 import 'package:flutter/foundation.dart';
 
+import '../format.dart';
+
 /// Un complément alimentaire suivi par un rappel quotidien. Coach ne
 /// conseille aucune dose : l'utilisateur note ce qu'il prend.
 @immutable
@@ -25,8 +27,11 @@ class Complement {
     actif: actif ?? this.actif,
   );
 
+  /// Longueur maximale du nom (règles Firestore, complementValide).
+  static const nomMax = 80;
+
   Map<String, Object?> toMap() => {
-    'nom': nom,
+    'nom': tronquer(nom, nomMax),
     'minutes': minutes,
     'actif': actif,
   };

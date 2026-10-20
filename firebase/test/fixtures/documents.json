@@ -1,0 +1,664 @@
+[
+  {
+    "chemin": "repas/repas-1",
+    "donnees": {
+      "date": 1791653400000,
+      "moment": "diner",
+      "nom": "Pâtes",
+      "macros": {
+        "kcal": 650.0,
+        "proteines": 0.0,
+        "glucides": 0.0,
+        "lipides": 0.0
+      },
+      "source": "manuel"
+    }
+  },
+  {
+    "chemin": "repas/repas-2",
+    "donnees": {
+      "date": 1791808200000,
+      "moment": "collation",
+      "nom": "",
+      "macros": {
+        "kcal": 0.0,
+        "proteines": 0.0,
+        "glucides": 0.0,
+        "lipides": 0.0
+      },
+      "source": "manuel"
+    }
+  },
+  {
+    "chemin": "repas/repas-3",
+    "donnees": {
+      "date": 1791808200000,
+      "moment": "petitDejeuner",
+      "nom": "Sauce crémeuse aux champignons et échalotes numéro 0........, Sauce crémeuse aux champignons et échalotes numéro 1........, Sauce crémeuse aux champignons et échalotes numéro 2........, Sauce crémeuse aux champignons et échalotes numéro 3........, Sauce crémeuse aux champignons et échalotes numéro 4........, Sauce crémeuse aux champignons et échalotes numéro 5........, Sauce crémeuse aux champign…",
+      "macros": {
+        "kcal": 2160.0,
+        "proteines": 120.0,
+        "glucides": 240.0,
+        "lipides": 0.0
+      },
+      "source": "photo",
+      "description": "Une assiette très garnie. Une assiette très garnie. Une assiette très garnie. Une assiette très garnie. Une assiette très garnie. Une assiette très garnie. Une assiette très garnie. Une assiette très garnie. Une assiette très garnie. Une assiette très garnie. Une assiette très garnie. Une assiette très garnie. Une assiette très garnie. Une assiette très garnie. Une assiette très garnie. Une assiette très garnie. Une assiette très garnie. Une assiette très garnie. Une assiette très garnie. Une assiette très garnie. Une assiette très garnie. Une assiette très garnie. Une assiette très garnie. Une assiette très garnie. Une assiette très garnie. Une assiette très garnie. Une assiette très garnie. Une assiette très garnie. Une assiette très garnie. Une assiette très garnie. Une assiette très g…",
+      "photoId": "1760000000000000",
+      "verdict": {
+        "feu": "rouge",
+        "points": [
+          "52 g de protéines : un apport correct.",
+          "C'est près de la moitié de ta journée en un seul repas.",
+          "40 g de sucres : beaucoup d'un coup.",
+          "18 g de graisses saturées : à limiter."
+        ],
+        "conclusion": "À éviter aujourd'hui."
+      },
+      "aliments": [
+        {
+          "nom": "Sauce crémeuse aux champignons et échalotes numéro 0........",
+          "grammes": 150.0,
+          "macros": {
+            "kcal": 270.0,
+            "proteines": 15.0,
+            "glucides": 30.0,
+            "lipides": 0.0
+          },
+          "confiance": 0.45,
+          "sucres": 3.5,
+          "satures": 1.2,
+          "grammesMin": 105.0,
+          "grammesMax": 210.0
+        },
+        {
+          "nom": "Sauce crémeuse aux champignons et échalotes numéro 1........",
+          "grammes": 150.0,
+          "macros": {
+            "kcal": 270.0,
+            "proteines": 15.0,
+            "glucides": 30.0,
+            "lipides": 0.0
+          },
+          "confiance": 0.45,
+          "sucres": 3.5,
+          "satures": 1.2,
+          "grammesMin": 105.0,
+          "grammesMax": 210.0
+        },
+        {
+          "nom": "Sauce crémeuse aux champignons et échalotes numéro 2........",
+          "grammes": 150.0,
+          "macros": {
+            "kcal": 270.0,
+            "proteines": 15.0,
+            "glucides": 30.0,
+            "lipides": 0.0
+          },
+          "confiance": 0.45,
+          "sucres": 3.5,
+          "satures": 1.2,
+          "grammesMin": 105.0,
+          "grammesMax": 210.0
+        },
+        {
+          "nom": "Sauce crémeuse aux champignons et échalotes numéro 3........",
+          "grammes": 150.0,
+          "macros": {
+            "kcal": 270.0,
+            "proteines": 15.0,
+            "glucides": 30.0,
+            "lipides": 0.0
+          },
+          "confiance": 0.45,
+          "sucres": 3.5,
+          "satures": 1.2,
+          "grammesMin": 105.0,
+          "grammesMax": 210.0
+        },
+        {
+          "nom": "Sauce crémeuse aux champignons et échalotes numéro 4........",
+          "grammes": 150.0,
+          "macros": {
+            "kcal": 270.0,
+            "proteines": 15.0,
+            "glucides": 30.0,
+            "lipides": 0.0
+          },
+          "confiance": 0.45,
+          "sucres": 3.5,
+          "satures": 1.2,
+          "grammesMin": 105.0,
+          "grammesMax": 210.0
+        },
+        {
+          "nom": "Sauce crémeuse aux champignons et échalotes numéro 5........",
+          "grammes": 150.0,
+          "macros": {
+            "kcal": 270.0,
+            "proteines": 15.0,
+            "glucides": 30.0,
+            "lipides": 0.0
+          },
+          "confiance": 0.45,
+          "sucres": 3.5,
+          "satures": 1.2,
+          "grammesMin": 105.0,
+          "grammesMax": 210.0
+        },
+        {
+          "nom": "Sauce crémeuse aux champignons et échalotes numéro 6........",
+          "grammes": 150.0,
+          "macros": {
+            "kcal": 270.0,
+            "proteines": 15.0,
+            "glucides": 30.0,
+            "lipides": 0.0
+          },
+          "confiance": 0.45,
+          "sucres": 3.5,
+          "satures": 1.2,
+          "grammesMin": 105.0,
+          "grammesMax": 210.0
+        },
+        {
+          "nom": "Sauce crémeuse aux champignons et échalotes numéro 7........",
+          "grammes": 150.0,
+          "macros": {
+            "kcal": 270.0,
+            "proteines": 15.0,
+            "glucides": 30.0,
+            "lipides": 0.0
+          },
+          "confiance": 0.45,
+          "sucres": 3.5,
+          "satures": 1.2,
+          "grammesMin": 105.0,
+          "grammesMax": 210.0
+        }
+      ]
+    }
+  },
+  {
+    "chemin": "activites/activites-1",
+    "donnees": {
+      "date": 1791648000000,
+      "type": "autre",
+      "minutes": 45,
+      "intensite": "moderee",
+      "kcal": 420.0
+    }
+  },
+  {
+    "chemin": "activites/activites-2",
+    "donnees": {
+      "date": 1791808200000,
+      "type": "marche",
+      "minutes": 1,
+      "intensite": "legere",
+      "kcal": 0.0
+    }
+  },
+  {
+    "chemin": "activites/activites-3",
+    "donnees": {
+      "date": 1791808200000,
+      "type": "natation",
+      "minutes": 600,
+      "intensite": "intense",
+      "kcal": 9000.0
+    }
+  },
+  {
+    "chemin": "pesees/pesees-1",
+    "donnees": {
+      "kg": 30.0,
+      "date": 1791808200000,
+      "source": "manuel"
+    }
+  },
+  {
+    "chemin": "pesees/pesees-2",
+    "donnees": {
+      "kg": 300.0,
+      "date": 1791808200000,
+      "source": "manuel"
+    }
+  },
+  {
+    "chemin": "pesees/pesees-3",
+    "donnees": {
+      "kg": 80.4,
+      "date": 1791583200000,
+      "source": "manuel"
+    }
+  },
+  {
+    "chemin": "mensurations/mensurations-1",
+    "donnees": {
+      "date": 1791808200000,
+      "taille": 200.0,
+      "poitrine": 200.0,
+      "bras": 70.0,
+      "masseGrasse": 60.0
+    }
+  },
+  {
+    "chemin": "mensurations/mensurations-2",
+    "donnees": {
+      "date": 1791808200000,
+      "taille": 40.0
+    }
+  },
+  {
+    "chemin": "eau/eau-1",
+    "donnees": {
+      "date": 1791619200000,
+      "ml": 5000
+    }
+  },
+  {
+    "chemin": "eau/eau-2",
+    "donnees": {
+      "date": 1791808200000,
+      "ml": 2000
+    }
+  },
+  {
+    "chemin": "eau/eau-3",
+    "donnees": {
+      "date": 1791808200000,
+      "ml": 250
+    }
+  },
+  {
+    "chemin": "complements/complements-1",
+    "donnees": {
+      "nom": "Vitamine D",
+      "minutes": 0,
+      "actif": true
+    }
+  },
+  {
+    "chemin": "complements/complements-2",
+    "donnees": {
+      "nom": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx…",
+      "minutes": 1439,
+      "actif": false
+    }
+  },
+  {
+    "chemin": "prises/2026-10-12",
+    "donnees": {
+      "ids": [
+        "complement-1",
+        "complement-2",
+        "complement-3",
+        "complement-4",
+        "complement-5",
+        "complement-6",
+        "complement-7",
+        "complement-8",
+        "complement-9",
+        "complement-10",
+        "complement-11",
+        "complement-12",
+        "complement-13",
+        "complement-14",
+        "complement-15",
+        "complement-16",
+        "complement-17",
+        "complement-18",
+        "complement-19",
+        "complement-20",
+        "complement-21",
+        "complement-22",
+        "complement-23",
+        "complement-24",
+        "complement-25",
+        "complement-26",
+        "complement-27",
+        "complement-28",
+        "complement-29",
+        "complement-30",
+        "complement-31",
+        "complement-32",
+        "complement-33",
+        "complement-34",
+        "complement-35",
+        "complement-36",
+        "complement-37",
+        "complement-38",
+        "complement-39",
+        "complement-40",
+        "complement-41",
+        "complement-42",
+        "complement-43",
+        "complement-44",
+        "complement-45",
+        "complement-46",
+        "complement-47",
+        "complement-48",
+        "complement-49"
+      ]
+    }
+  },
+  {
+    "chemin": "seances/import-seance",
+    "donnees": {
+      "date": 1760000000000,
+      "lieu": "salle",
+      "minutes": 40
+    }
+  },
+  {
+    "chemin": "seances/seances-2",
+    "donnees": {
+      "date": 1791808200000,
+      "lieu": "course",
+      "minutes": 600
+    }
+  },
+  {
+    "chemin": "seances/seances-3",
+    "donnees": {
+      "date": 1791808200000,
+      "lieu": "maison",
+      "minutes": 1
+    }
+  },
+  {
+    "chemin": "ressentis/2026-10-12",
+    "donnees": {
+      "valeur": 1
+    }
+  },
+  {
+    "chemin": "ressentis/2026-10-10",
+    "donnees": {
+      "valeur": 2
+    }
+  },
+  {
+    "chemin": "ressentis/2026-10-13",
+    "donnees": {
+      "valeur": 3
+    }
+  },
+  {
+    "chemin": "planning/2026-10-12",
+    "donnees": {
+      "vegetarien": true,
+      "coches": [
+        "article-0",
+        "article-1",
+        "article-2",
+        "article-3",
+        "article-4",
+        "article-5",
+        "article-6",
+        "article-7",
+        "article-8",
+        "article-9",
+        "article-10",
+        "article-11",
+        "article-12",
+        "article-13",
+        "article-14",
+        "article-15",
+        "article-16",
+        "article-17",
+        "article-18",
+        "article-19",
+        "article-20",
+        "article-21",
+        "article-22",
+        "article-23",
+        "article-24",
+        "article-25",
+        "article-26",
+        "article-27",
+        "article-28",
+        "article-29",
+        "article-30",
+        "article-31",
+        "article-32",
+        "article-33",
+        "article-34",
+        "article-35",
+        "article-36",
+        "article-37",
+        "article-38",
+        "article-39",
+        "article-40",
+        "article-41",
+        "article-42",
+        "article-43",
+        "article-44",
+        "article-45",
+        "article-46",
+        "article-47",
+        "article-48",
+        "article-49",
+        "article-50",
+        "article-51",
+        "article-52",
+        "article-53",
+        "article-54",
+        "article-55",
+        "article-56",
+        "article-57",
+        "article-58",
+        "article-59",
+        "article-60",
+        "article-61",
+        "article-62",
+        "article-63",
+        "article-64",
+        "article-65",
+        "article-66",
+        "article-67",
+        "article-68",
+        "article-69",
+        "article-70",
+        "article-71",
+        "article-72",
+        "article-73",
+        "article-74",
+        "article-75",
+        "article-76",
+        "article-77",
+        "article-78",
+        "article-79"
+      ],
+      "repas": {
+        "0": {
+          "petitDejeuner": {
+            "id": "porridge_banane",
+            "p": 1.5
+          },
+          "dejeuner": {
+            "id": "yaourt_muesli",
+            "p": 1.5
+          },
+          "diner": {
+            "id": "omelette_pain",
+            "p": 1.5
+          },
+          "collation": {
+            "id": "fromage_blanc_noix",
+            "p": 1.5
+          }
+        },
+        "1": {
+          "petitDejeuner": {
+            "id": "poulet_riz_brocoli",
+            "p": 1.5
+          },
+          "dejeuner": {
+            "id": "salade_thon_pates",
+            "p": 1.5
+          },
+          "diner": {
+            "id": "chili_sin_carne",
+            "p": 1.5
+          },
+          "collation": {
+            "id": "bowl_quinoa_pois_chiches",
+            "p": 1.5
+          }
+        },
+        "2": {
+          "petitDejeuner": {
+            "id": "dinde_patate_douce",
+            "p": 1.5
+          },
+          "dejeuner": {
+            "id": "wrap_poulet",
+            "p": 1.5
+          },
+          "diner": {
+            "id": "saumon_riz_epinards",
+            "p": 1.5
+          },
+          "collation": {
+            "id": "soupe_lentilles",
+            "p": 1.5
+          }
+        },
+        "3": {
+          "petitDejeuner": {
+            "id": "omelette_champignons",
+            "p": 1.5
+          },
+          "dejeuner": {
+            "id": "steak_pommes_de_terre",
+            "p": 1.5
+          },
+          "diner": {
+            "id": "cabillaud_quinoa",
+            "p": 1.5
+          },
+          "collation": {
+            "id": "skyr_banane",
+            "p": 1.5
+          }
+        },
+        "4": {
+          "petitDejeuner": {
+            "id": "pancakes_avoine",
+            "p": 1.5
+          },
+          "dejeuner": {
+            "id": "smoothie_bowl",
+            "p": 1.5
+          },
+          "diner": {
+            "id": "oeufs_brouilles_epinards",
+            "p": 1.5
+          },
+          "collation": {
+            "id": "poke_bowl_saumon",
+            "p": 1.5
+          }
+        },
+        "5": {
+          "petitDejeuner": {
+            "id": "bolognaise_dinde",
+            "p": 1.5
+          },
+          "dejeuner": {
+            "id": "salade_lentilles_feta",
+            "p": 1.5
+          },
+          "diner": {
+            "id": "salade_poulet_croquante",
+            "p": 1.5
+          },
+          "collation": {
+            "id": "crevettes_riz_legumes",
+            "p": 1.5
+          }
+        },
+        "6": {
+          "petitDejeuner": {
+            "id": "tortilla_pommes_de_terre",
+            "p": 1.5
+          },
+          "dejeuner": {
+            "id": "pita_pizza_legumes",
+            "p": 1.5
+          },
+          "diner": {
+            "id": "poulet_curry_coco",
+            "p": 1.5
+          },
+          "collation": {
+            "id": "smoothie_banane_proteine",
+            "p": 1.5
+          }
+        }
+      }
+    }
+  },
+  {
+    "chemin": "reglages/recettes",
+    "donnees": {
+      "avis": {
+        "porridge_banane": "refuse",
+        "yaourt_muesli": "aime",
+        "omelette_pain": "aime",
+        "fromage_blanc_noix": "aime",
+        "poulet_riz_brocoli": "aime",
+        "salade_thon_pates": "aime",
+        "chili_sin_carne": "aime",
+        "bowl_quinoa_pois_chiches": "aime",
+        "dinde_patate_douce": "aime",
+        "wrap_poulet": "aime",
+        "saumon_riz_epinards": "aime",
+        "soupe_lentilles": "aime",
+        "omelette_champignons": "aime",
+        "steak_pommes_de_terre": "aime",
+        "cabillaud_quinoa": "aime",
+        "skyr_banane": "aime",
+        "pancakes_avoine": "aime",
+        "smoothie_bowl": "aime",
+        "oeufs_brouilles_epinards": "aime",
+        "poke_bowl_saumon": "aime",
+        "bolognaise_dinde": "aime",
+        "salade_lentilles_feta": "aime",
+        "salade_poulet_croquante": "aime",
+        "crevettes_riz_legumes": "aime",
+        "tortilla_pommes_de_terre": "aime",
+        "pita_pizza_legumes": "aime",
+        "poulet_curry_coco": "aime",
+        "smoothie_banane_proteine": "aime",
+        "fromage_blanc_fruits": "aime"
+      }
+    }
+  },
+  {
+    "chemin": "reglages/entrainement",
+    "donnees": {
+      "materiel": [
+        "halteres",
+        "elastiques",
+        "barreTraction",
+        "kettlebell",
+        "banc",
+        "cordeASauter"
+      ]
+    }
+  },
+  {
+    "chemin": "reglages/bienetre",
+    "donnees": {
+      "meteo": false
+    }
+  },
+  {
+    "chemin": "reglages/consentements",
+    "donnees": {
+      "photo": 1760000000000
+    }
+  }
+]

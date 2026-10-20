@@ -1,13 +1,11 @@
 import 'dart:async';
 
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/widgets.dart';
 
 import '../bienetre/bienetre_repository.dart';
 import '../bienetre/hydratation.dart';
-import '../firebase_options.dart';
+import '../firebase_init.dart';
 import 'donnees_widget.dart';
 
 /// Eau ajoutée depuis un bouton du widget : on l'enregistre pour [uid] puis on
@@ -50,15 +48,10 @@ Future<void> rappelWidget(Uri? adresse) async {
   if (ml == null || ml <= 0 || ml > 2000) return;
 
   WidgetsFlutterBinding.ensureInitialized();
-  if (Firebase.apps.isEmpty) {
-    await Firebase.initializeApp(
-      options: DefaultFirebaseOptions.currentPlatform,
-    );
-  }
-  FirebaseFirestore.instance.settings = const Settings(
-    persistenceEnabled: true,
-    cacheSizeBytes: Settings.CACHE_SIZE_UNLIMITED,
-  );
+  // Même démarrage que l'application, App Check compris : sans lui, l'eau
+  // ajoutée application fermée serait refusée le jour où la vérification
+  // sera imposée.
+  await initialiserFirebase();
   final utilisateur =
       FirebaseAuth.instance.currentUser ??
       await FirebaseAuth.instance.authStateChanges().first.timeout(

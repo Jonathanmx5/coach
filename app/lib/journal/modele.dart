@@ -1,5 +1,7 @@
 import 'package:flutter/foundation.dart';
 
+import '../format.dart';
+
 import 'analyse_photo.dart' show AlimentEstime;
 import 'verdict.dart' show Verdict;
 
@@ -90,16 +92,30 @@ class Repas {
   /// Le jugement du coach tel qu'il était à la validation du repas.
   final Verdict? verdict;
 
+  /// Bornes des règles Firestore (firebase/firestore.rules, repasValide) : un
+  /// repas qui les dépasse serait refusé par le serveur, puis retiré du
+  /// journal.
+  static const nomMax = 400,
+      descriptionMax = 800,
+      alimentsMax = 40,
+      photoIdMax = 30,
+      texteCourtMax = 20;
+
+  /// Le document Firestore, toujours dans les bornes des règles : textes
+  /// trop longs coupés, aliments au-delà du 40e laissés de côté, référence de
+  /// photo invalide omise.
   Map<String, Object?> toMap() => {
     'date': date.millisecondsSinceEpoch,
-    'moment': moment.name,
-    'nom': nom,
+    'moment': tronquer(moment.name, texteCourtMax),
+    'nom': tronquer(nom, nomMax),
     'macros': macros.toMap(),
-    'source': source.name,
-    if (description.isNotEmpty) 'description': description,
-    if (photoId != null) 'photoId': photoId,
+    'source': tronquer(source.name, texteCourtMax),
+    if (description.isNotEmpty)
+      'description': tronquer(description, descriptionMax),
+    if (photoId != null && photoId!.length <= photoIdMax) 'photoId': photoId,
     if (verdict != null) 'verdict': verdict!.toMap(),
-    if (aliments.isNotEmpty) 'aliments': [for (final a in aliments) a.toMap()],
+    if (aliments.isNotEmpty)
+      'aliments': [for (final a in aliments.take(alimentsMax)) a.toMap()],
   };
 
   static Repas fromMap(String id, Map<String, Object?> m) => Repas(

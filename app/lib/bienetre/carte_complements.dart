@@ -133,6 +133,7 @@ class _DialogueComplementState extends State<_DialogueComplement> {
           TextField(
             controller: _nom,
             autofocus: true,
+            maxLength: Complement.nomMax,
             textCapitalization: TextCapitalization.sentences,
             decoration: InputDecoration(labelText: t.nomComplement),
             onChanged: (_) => setState(() {}),

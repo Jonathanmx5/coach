@@ -13,4 +13,15 @@ void main() {
     expect(formatLitres(250), '0,25');
     expect(formatLitres(0), '0,00');
   });
+
+  test('tronquer : coupe avec « … » sans casser un émoji', () {
+    expect(tronquer('Riz', 5), 'Riz');
+    expect(tronquer('abcdef', 5), 'abcd…');
+    expect(tronquer('abcdef', 5).length, 5);
+    // L'émoji (2 unités UTF-16) occupe les positions 3 et 4 : il est retiré
+    // en entier plutôt que coupé en deux.
+    final coupe = tronquer('abc🍕defg', 5);
+    expect(coupe, 'abc…');
+    expect(coupe.length, lessThanOrEqualTo(5));
+  });
 }

@@ -5,8 +5,21 @@ service cloud.firestore {
       return request.auth != null && request.auth.uid == uid;
     }
 
-    // Un repas n'a que les champs que l'application écrit, de taille bornée :
-    // une base trop grosse ou truffée de n'importe quoi est refusée.
+    // Nombre (entier ou décimal) compris entre min et max inclus.
+    function entre(v, min, max) {
+      return v is number && v >= min && v <= max;
+    }
+
+    function texte(v, max) {
+      return v is string && v.size() <= max;
+    }
+
+    // Chaque fonction ci-dessous n'accepte que les champs que l'application
+    // (ou l'import d'une sauvegarde Excel) écrit, avec leur type et des
+    // tailles bornées : une base trop grosse ou truffée de n'importe quoi est
+    // refusée. Les listes `hasOnly` sont comparées au code par
+    // app/test/regles_coherence_test.dart.
+
     function repasValide(d) {
       return d.keys().hasOnly([
           'date', 'moment', 'nom', 'macros', 'source',
@@ -14,14 +27,115 @@ service cloud.firestore {
         ])
         && d.keys().hasAll(['date', 'moment', 'nom', 'macros', 'source'])
         && d.date is number
-        && d.moment is string && d.moment.size() <= 20
-        && d.nom is string && d.nom.size() <= 400
-        && d.macros is map
-        && d.source is string && d.source.size() <= 20
-        && (!('description' in d) || (d.description is string && d.description.size() <= 800))
+        && texte(d.moment, 20)
+        && texte(d.nom, 400)
+        && d.macros is map && d.macros.size() <= 10
+        && texte(d.source, 20)
+        && (!('description' in d) || texte(d.description, 800))
         && (!('aliments' in d) || (d.aliments is list && d.aliments.size() <= 40))
-        && (!('photoId' in d) || (d.photoId is string && d.photoId.size() <= 30))
-        && (!('verdict' in d) || d.verdict is map);
+        && (!('photoId' in d) || texte(d.photoId, 30))
+        && (!('verdict' in d) || (d.verdict is map && d.verdict.size() <= 10));
+    }
+
+    function activiteValide(d) {
+      return d.keys().hasOnly(['date', 'type', 'minutes', 'intensite', 'kcal'])
+        && d.keys().hasAll(['date', 'type', 'minutes', 'intensite', 'kcal'])
+        && d.date is number
+        && texte(d.type, 20)
+        && entre(d.minutes, 0, 1440)
+        && texte(d.intensite, 20)
+        && entre(d.kcal, 0, 20000);
+    }
+
+    function peseeValide(d) {
+      return d.keys().hasOnly(['kg', 'date', 'source'])
+        && d.keys().hasAll(['kg', 'date'])
+        && entre(d.kg, 20, 400)
+        && d.date is number
+        && (!('source' in d) || texte(d.source, 20));
+    }
+
+    function mensurationValide(d) {
+      return d.keys().hasOnly(['date', 'taille', 'poitrine', 'bras', 'masseGrasse'])
+        && d.keys().hasAll(['date'])
+        && d.date is number
+        && (!('taille' in d) || entre(d.taille, 0, 300))
+        && (!('poitrine' in d) || entre(d.poitrine, 0, 300))
+        && (!('bras' in d) || entre(d.bras, 0, 300))
+        && (!('masseGrasse' in d) || entre(d.masseGrasse, 0, 100));
+    }
+
+    function eauValide(d) {
+      return d.keys().hasOnly(['date', 'ml'])
+        && d.keys().hasAll(['date', 'ml'])
+        && d.date is number
+        && d.ml is number && d.ml > 0 && d.ml <= 5000;
+    }
+
+    function complementValide(d) {
+      return d.keys().hasOnly(['nom', 'minutes', 'actif'])
+        && d.keys().hasAll(['nom', 'minutes'])
+        && texte(d.nom, 80)
+        && entre(d.minutes, 0, 1439)
+        && (!('actif' in d) || d.actif is bool);
+    }
+
+    function priseValide(d) {
+      return d.keys().hasOnly(['ids'])
+        && d.keys().hasAll(['ids'])
+        && d.ids is list && d.ids.size() <= 50;
+    }
+
+    function seanceValide(d) {
+      return d.keys().hasOnly(['date', 'lieu', 'minutes'])
+        && d.keys().hasAll(['date', 'lieu', 'minutes'])
+        && d.date is number
+        && texte(d.lieu, 20)
+        && entre(d.minutes, 1, 600);
+    }
+
+    function ressentiValide(d) {
+      return d.keys().hasOnly(['valeur'])
+        && d.keys().hasAll(['valeur'])
+        && entre(d.valeur, 1, 3);
+    }
+
+    function planningValide(d) {
+      return d.keys().hasOnly(['vegetarien', 'coches', 'repas'])
+        && (!('vegetarien' in d) || d.vegetarien is bool)
+        && (!('coches' in d) || (d.coches is list && d.coches.size() <= 500))
+        && (!('repas' in d) || (d.repas is map && d.repas.size() <= 7));
+    }
+
+    // reglages/{id} : un document par écran, chacun avec ses champs.
+    function reglagesValide(id, d) {
+      return (id == 'consentements'
+          && d.keys().hasOnly(['photo', 'meteo'])
+          && (!('photo' in d) || d.photo is number)
+          && (!('meteo' in d) || d.meteo is number))
+        || (id == 'bienetre'
+          && d.keys().hasOnly(['meteo'])
+          && (!('meteo' in d) || d.meteo is bool))
+        || (id == 'entrainement'
+          && d.keys().hasOnly(['materiel'])
+          && (!('materiel' in d) || (d.materiel is list && d.materiel.size() <= 20)))
+        || (id == 'recettes'
+          && d.keys().hasOnly(['avis'])
+          && (!('avis' in d) || (d.avis is map && d.avis.size() <= 500)));
+    }
+
+    function documentValide(collection, id, d) {
+      return (collection == 'repas' && repasValide(d))
+        || (collection == 'activites' && activiteValide(d))
+        || (collection == 'pesees' && peseeValide(d))
+        || (collection == 'mensurations' && mensurationValide(d))
+        || (collection == 'eau' && eauValide(d))
+        || (collection == 'complements' && complementValide(d))
+        || (collection == 'prises' && priseValide(d))
+        || (collection == 'seances' && seanceValide(d))
+        || (collection == 'ressentis' && ressentiValide(d))
+        || (collection == 'planning' && planningValide(d))
+        || (collection == 'reglages' && reglagesValide(id, d));
     }
 
     // Chaque utilisateur n'accède qu'à ses propres données.
@@ -30,24 +144,17 @@ service cloud.firestore {
       allow create, update: if proprietaire(uid)
         && request.resource.data.size() <= 60;
 
-      // Seules les collections de l'application existent, et les documents
-      // gardent une taille raisonnable.
-      match /{collection}/{chemin=**} {
+      // Seules les collections de l'application existent, sur un seul
+      // niveau : la suppression du compte ne verrait pas une sous-collection
+      // imbriquée.
+      match /{collection}/{id} {
         allow read, delete: if proprietaire(uid) && collection in [
           'repas', 'activites', 'pesees', 'mensurations', 'eau',
           'complements', 'prises', 'seances', 'ressentis', 'planning',
           'reglages'
         ];
         allow create, update: if proprietaire(uid)
-          && collection in [
-            'activites', 'pesees', 'mensurations', 'eau', 'complements',
-            'prises', 'seances', 'ressentis', 'planning', 'reglages'
-          ]
-          && request.resource.data.size() <= 60;
-      }
-
-      match /repas/{id} {
-        allow create, update: if proprietaire(uid) && repasValide(request.resource.data);
+          && documentValide(collection, id, request.resource.data);
       }
     }
   }

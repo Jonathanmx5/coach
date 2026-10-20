@@ -1,8 +1,6 @@
 import 'dart:async';
 
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_app_check/firebase_app_check.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -24,7 +22,7 @@ import 'poids/photos.dart';
 import 'entrainement/entrainement_repository.dart';
 import 'journal/analyse_photo.dart';
 import 'entrainement/voix.dart';
-import 'firebase_options.dart';
+import 'firebase_init.dart';
 import 'profil/profil_repository.dart';
 import 'racine.dart';
 import 'recettes/avis_repository.dart';
@@ -50,30 +48,21 @@ Future<ReglageTheme> _chargerTheme() async {
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  // App Check : prouve que les appels viennent de la vraie application. Sans
-  // effet tant que la vérification n'est pas activée côté serveur, et jamais
-  // bloquant (APK installé hors Play Store, pas de réseau...).
-  try {
-    await FirebaseAppCheck.instance.activate(
-      providerAndroid: kDebugMode
-          ? const AndroidDebugProvider()
-          : const AndroidPlayIntegrityProvider(),
-    );
-  } catch (_) {}
+  await initialiserFirebase();
   // Boutons d'eau du widget de l'écran d'accueil (application fermée).
   unawaited(HomeWidget.registerInteractivityCallback(rappelWidget));
 
-  // Hors-ligne : l'appli lit et écrit dans le cache, synchronisé au retour du réseau.
-  FirebaseFirestore.instance.settings = const Settings(
-    persistenceEnabled: true,
-  );
-
+  // Une erreur Firebase non rattrapée (écriture refusée, réseau) est notée
+  // sans compter comme un plantage.
   final crashlytics = FirebaseCrashlytics.instance;
   await crashlytics.setCrashlyticsCollectionEnabled(!kDebugMode);
-  FlutterError.onError = crashlytics.recordFlutterFatalError;
+  FlutterError.onError = (details) => erreurFatale(details.exception)
+      ? crashlytics.recordFlutterFatalError(details)
+      : crashlytics.recordFlutterError(details);
   PlatformDispatcher.instance.onError = (erreur, pile) {
-    unawaited(crashlytics.recordError(erreur, pile, fatal: true));
+    unawaited(
+      crashlytics.recordError(erreur, pile, fatal: erreurFatale(erreur)),
+    );
     return true;
   };
 

@@ -5,7 +5,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:excel/excel.dart';
 import 'package:intl/intl.dart';
 
+import '../bienetre/complements.dart';
 import '../journal/modele.dart';
+import '../poids/mensurations.dart';
 
 /// Ce que contient une sauvegarde importée.
 class ResultatImport {
@@ -100,17 +102,30 @@ const _titreId = 'Identifiant';
 const _titreDate = 'Date';
 const _titreJson = 'Données (JSON, ne pas modifier)';
 
-/// Champs qu'un repas peut porter (les règles de la base refusent les autres).
-const _champsRepas = {
-  'date',
-  'moment',
-  'nom',
-  'macros',
-  'source',
-  'description',
-  'aliments',
-  'photoId',
-  'verdict',
+/// Champs que chaque collection importée peut porter : les règles de la base
+/// (firebase/firestore.rules) refusent les autres, et un seul document refusé
+/// ferait échouer tout un lot d'écritures. Un test compare ces listes aux
+/// règles.
+const champsImportables = <String, Set<String>>{
+  'repas': {
+    'date',
+    'moment',
+    'nom',
+    'macros',
+    'source',
+    'description',
+    'aliments',
+    'photoId',
+    'verdict',
+  },
+  'activites': {'date', 'type', 'minutes', 'intensite', 'kcal'},
+  'pesees': {'kg', 'date', 'source'},
+  'mensurations': {'date', 'taille', 'poitrine', 'bras', 'masseGrasse'},
+  'eau': {'date', 'ml'},
+  'complements': {'nom', 'minutes', 'actif'},
+  'prises': {'ids'},
+  'seances': {'date', 'lieu', 'minutes'},
+  'ressentis': {'valeur'},
 };
 
 final _formatDate = DateFormat('yyyy-MM-dd HH:mm');
@@ -258,10 +273,18 @@ class SauvegardeFirestore implements Sauvegarde {
           ignores++;
           continue;
         }
-        if (e.key == 'repas') {
-          doc.removeWhere((k, _) => !_champsRepas.contains(k));
-        }
+        final champs = champsImportables[e.key];
+        if (champs != null) doc.removeWhere((k, _) => !champs.contains(k));
+        // Repas et activités repassent par leur modèle : textes et listes
+        // ramenés dans les bornes des règles, type inconnu remplacé.
+        if (e.key == 'repas') doc = Repas.fromMap('x', doc).toMap();
+        if (e.key == 'activites') doc = Activite.fromMap('x', doc).toMap();
         final id = (cellule(iId == -1 ? null : iId) ?? '').trim();
+        // Un « / » viserait une sous-collection, que les règles refusent.
+        if (id.contains('/')) {
+          ignores++;
+          continue;
+        }
         final ref = id.isEmpty
             ? _col(uid, e.key).doc()
             : _col(uid, e.key).doc(id);
@@ -358,10 +381,47 @@ class SauvegardeFirestore implements Sauvegarde {
               a.kcal < 20000;
         case 'pesees':
           final kg = doc['kg'];
-          return date is num && kg is num && kg > 20 && kg < 400;
+          final source = doc['source'];
+          return date is num &&
+              kg is num &&
+              kg > 20 &&
+              kg < 400 &&
+              (source == null || (source is String && source.length <= 20));
         case 'eau':
           final ml = doc['ml'];
           return date is num && ml is num && ml > 0 && ml <= 5000;
+        case 'mensurations':
+          return date is num &&
+              TypeMensuration.values.every((t) {
+                final v = doc[t.name];
+                final max = t == TypeMensuration.masseGrasse ? 100 : 300;
+                return v == null || (v is num && v >= 0 && v <= max);
+              });
+        case 'complements':
+          final nom = doc['nom'];
+          final minutes = doc['minutes'];
+          final actif = doc['actif'];
+          return nom is String &&
+              nom.length <= Complement.nomMax &&
+              minutes is num &&
+              minutes >= 0 &&
+              minutes < 1440 &&
+              (actif == null || actif is bool);
+        case 'prises':
+          final ids = doc['ids'];
+          return ids is List && ids.length <= 50;
+        case 'seances':
+          final minutes = doc['minutes'];
+          final lieu = doc['lieu'];
+          return date is num &&
+              lieu is String &&
+              lieu.length <= 20 &&
+              minutes is num &&
+              minutes >= 1 &&
+              minutes <= 600;
+        case 'ressentis':
+          final valeur = doc['valeur'];
+          return valeur is num && valeur >= 1 && valeur <= 3;
       }
     } catch (_) {
       return false;

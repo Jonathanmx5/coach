@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:coach/sauvegarde/sauvegarde.dart';
@@ -274,6 +275,80 @@ void main() {
       expect(doc['nom'], 'X');
     },
   );
+
+  test('import : seuls les champs et les valeurs acceptés par les règles sont '
+      'écrits', () async {
+    List<CellValue?> ligne(String id, Map<String, Object?> m) => [
+      t(id),
+      null,
+      t(jsonEncode(m)),
+    ];
+    final entete = [
+      t('Identifiant'),
+      t('Date'),
+      t('Données (JSON, ne pas modifier)'),
+    ];
+    final octets = classeur({
+      'Repas': [
+        entete,
+        ligne('long', {
+          'date': 1760000000000,
+          'moment': 'diner',
+          'nom': 'x' * 500,
+          'macros': {'kcal': 100},
+          'source': 'manuel',
+          'description': 'y' * 900,
+        }),
+      ],
+      'Activités': [
+        entete,
+        ligne('a1', {
+          'date': 1760000000000,
+          'type': 'z' * 50,
+          'minutes': 30,
+          'intensite': 'moderee',
+          'kcal': 200,
+          'ancien': true,
+        }),
+      ],
+      'Compléments': [
+        entete,
+        ligne('c1', {'nom': 'Zinc', 'minutes': 480, 'ancien': 'x'}),
+        ligne('c2', {'nom': 'z' * 200, 'minutes': 480}),
+        ligne('c3', {'nom': 'Fer', 'minutes': 2000}),
+      ],
+      'Séances': [
+        entete,
+        ligne('s1', {'date': 1760000000000, 'lieu': 'salle', 'minutes': 0}),
+      ],
+      'Ressentis': [
+        entete,
+        ligne('2026-10-10', {'valeur': 7}),
+        ligne('2026-10-11', {'valeur': 2}),
+      ],
+      'Eau': [
+        entete,
+        ligne('a/b/c', {'date': 1760000000000, 'ml': 250}),
+      ],
+    });
+    final cible = FakeFirebaseFirestore();
+    final r = await SauvegardeFirestore(cible).importer('u1', octets);
+
+    // Ignorés : nom de complément trop long, heure impossible, séance de
+    // 0 minute, ressenti hors échelle, identifiant avec des « / ».
+    expect(r.ignores, 5);
+    expect(r.importes, 4);
+
+    final repas = (await cible.doc('users/u1/repas/long').get()).data()!;
+    expect((repas['nom'] as String).length, 400);
+    expect((repas['description'] as String).length, 800);
+    final activite = (await cible.doc('users/u1/activites/a1').get()).data()!;
+    expect(activite['type'], 'autre');
+    expect(activite.containsKey('ancien'), isFalse);
+    final zinc = (await cible.doc('users/u1/complements/c1').get()).data()!;
+    expect(zinc, {'nom': 'Zinc', 'minutes': 480});
+    expect((await cible.collection('users/u1/eau').get()).docs, isEmpty);
+  });
 
   test('un fichier qui n\'est pas une sauvegarde est refusé', () async {
     final cible = FakeFirebaseFirestore();
