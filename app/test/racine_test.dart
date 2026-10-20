@@ -152,14 +152,36 @@ void main() {
     expect(find.text('Objectif : perdre du poids'), findsOneWidget);
   });
 
-  testWidgets('se déconnecter : retour à la bienvenue', (tester) async {
-    await monter(tester, FauxAuth(connecte: lea), depotAvecProfil());
+  testWidgets('se déconnecter : retour à la bienvenue, widget vidé', (
+    tester,
+  ) async {
+    final widget = FauxWidget();
+    await monter(
+      tester,
+      FauxAuth(connecte: lea),
+      depotAvecProfil(),
+      widgetAccueil: widget,
+    );
+    expect(widget.effacements, 0);
 
     await tester.tap(find.byTooltip('Réglages'));
     await tester.pumpAndSettle();
     await taper(tester, 'Se déconnecter');
 
     expect(find.text('Commencer'), findsOneWidget);
+    // Le widget de l'écran d'accueil ne garde rien du compte, une seule fois.
+    expect(widget.effacements, 1);
+    await tester.pump(const Duration(seconds: 1));
+    expect(widget.effacements, 1);
+  });
+
+  testWidgets('non connecté au lancement : widget vidé une fois', (
+    tester,
+  ) async {
+    final widget = FauxWidget();
+    await monter(tester, FauxAuth(), FauxDepot(), widgetAccueil: widget);
+
+    expect(widget.effacements, 1);
   });
 
   testWidgets('modifier mon profil : questionnaire prérempli puis accueil', (

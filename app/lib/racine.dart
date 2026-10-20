@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 import 'accueil/bienvenue_page.dart';
@@ -23,6 +25,24 @@ class Racine extends StatefulWidget {
 class _RacineState extends State<Racine> {
   Services get _s => widget.services;
   late final Stream<Utilisateur?> _utilisateur = _s.auth.changements;
+
+  /// Vrai une fois le widget de l'écran d'accueil vidé pour l'absence de
+  /// compte en cours : une seule fois par déconnexion.
+  bool _widgetVide = false;
+
+  /// Déconnexion ou compte supprimé : le widget de l'écran d'accueil, visible
+  /// de tous, ne garde ni les chiffres ni l'eau du compte.
+  void _viderWidget(Utilisateur? u) {
+    if (u != null) {
+      _widgetVide = false;
+      return;
+    }
+    if (_widgetVide) return;
+    _widgetVide = true;
+    WidgetsBinding.instance.addPostFrameCallback(
+      (_) => unawaited(_s.widgetAccueil.effacer()),
+    );
+  }
 
   void _commencer() {
     // Créé hors du builder : la route peut être reconstruite sans perdre
@@ -54,6 +74,7 @@ class _RacineState extends State<Racine> {
         return const _Chargement();
       }
       final u = snap.data;
+      _viderWidget(u);
       if (u == null) {
         return BienvenuePage(auth: _s.auth, onCommencer: _commencer);
       }

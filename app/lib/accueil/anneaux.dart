@@ -297,12 +297,23 @@ class _CarteAujourdhuiState extends State<CarteAujourdhui> {
       objectifProteines: cibles.proteines,
       eauMl: bu,
       objectifEauMl: objectifEau,
+      description: t.widgetAnneauxSemantique(
+        brulees.round(),
+        objectifBrule.round(),
+        macros.kcal.round(),
+        cibles.kcal.round(),
+        macros.proteines.round(),
+        cibles.proteines.round(),
+        bilanTexte(macros.kcal - brulees),
+      ),
     );
     final majWidget = widget.majWidget;
     if (majWidget != null && _donneesPretes && pour != _derniereEnvoyee) {
       _derniereEnvoyee = pour;
+      // Datés du jour de la carte, pas de l'heure de l'envoi : redessinée
+      // après minuit, elle n'attribue pas ses totaux au lendemain.
       WidgetsBinding.instance.addPostFrameCallback(
-        (_) => unawaited(majWidget.mettre(pour)),
+        (_) => unawaited(majWidget.mettre(pour, jour: _jour, uid: widget.uid)),
       );
     }
 

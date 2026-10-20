@@ -1,4 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- Redessiné toutes les 30 min (le minimum d’Android) : après minuit, les
+     chiffres de la veille laissent la place à « — » au plus tard 30 min plus
+     tard (le widget compare le jour des données à la date du jour). -->
 <appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
     android:description="@string/widget_repas_description"
     android:initialLayout="@layout/widget_repas"
@@ -7,5 +10,5 @@
     android:resizeMode="horizontal"
     android:targetCellHeight="1"
     android:targetCellWidth="4"
-    android:updatePeriodMillis="0"
+    android:updatePeriodMillis="1800000"
     android:widgetCategory="home_screen" />

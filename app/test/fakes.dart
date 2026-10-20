@@ -320,6 +320,9 @@ class FauxConsentements implements ConsentementsRepository {
 /// Widget de l'écran d'accueil : note ce qu'on lui envoie.
 class FauxWidget implements MiseAJourWidget {
   final envois = <DonneesWidget>[];
+  final jours = <DateTime>[];
+  final uids = <String>[];
+  int effacements = 0;
   final demandes = StreamController<String>.broadcast();
   String? lancement;
 
@@ -330,20 +333,41 @@ class FauxWidget implements MiseAJourWidget {
   Future<String?> actionAuLancement() async => lancement;
 
   @override
-  Future<void> mettre(DonneesWidget donnees) async => envois.add(donnees);
+  Future<void> mettre(
+    DonneesWidget donnees, {
+    required DateTime jour,
+    required String uid,
+  }) async {
+    envois.add(donnees);
+    jours.add(jour);
+    uids.add(uid);
+  }
+
+  @override
+  Future<void> effacer() async => effacements++;
 }
 
-/// Stockage du widget en mémoire.
+/// Stockage du widget en mémoire. Écrire `null` retire la clé, comme
+/// home_widget.
 class FauxStockageWidget implements StockageWidget {
   final valeurs = <String, String?>{};
+
+  /// Clés écrites, dans l'ordre (une écriture disque chacune sur Android).
+  final ecritures = <String>[];
   int rafraichissements = 0;
 
   @override
   Future<String?> lire(String cle) async => valeurs[cle];
 
   @override
-  Future<void> ecrire(String cle, String? valeur) async =>
+  Future<void> ecrire(String cle, String? valeur) async {
+    ecritures.add(cle);
+    if (valeur == null) {
+      valeurs.remove(cle);
+    } else {
       valeurs[cle] = valeur;
+    }
+  }
 
   @override
   Future<void> rafraichir() async => rafraichissements++;

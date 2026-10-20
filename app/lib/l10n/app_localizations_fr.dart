@@ -1208,6 +1208,19 @@ class AppLocalizationsFr extends AppLocalizations {
   }
 
   @override
+  String widgetAnneauxSemantique(
+    int brulees,
+    int objBrule,
+    int mangees,
+    int objMange,
+    int proteines,
+    int objProteines,
+    String bilan,
+  ) {
+    return 'Anneaux du jour. Calories brûlées : $brulees sur $objBrule. Calories mangées : $mangees sur $objMange. Protéines : $proteines sur $objProteines grammes. Bilan : $bilan kilocalories.';
+  }
+
+  @override
   String get apparence => 'Apparence';
 
   @override

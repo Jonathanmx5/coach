@@ -6,7 +6,7 @@
     android:background="@drawable/widget_fond"
     android:gravity="center_vertical"
     android:orientation="vertical"
-    android:padding="10dp">
+    android:padding="8dp">
 
     <TextView
         android:layout_width="wrap_content"
@@ -30,7 +30,7 @@
         android:layout_width="match_parent"
         android:layout_height="6dp"
         android:layout_marginTop="4dp"
-        android:layout_marginBottom="8dp"
+        android:layout_marginBottom="6dp"
         android:max="2000"
         android:progress="0"
         android:progressTint="#378ADD" />
@@ -44,7 +44,7 @@
             android:id="@+id/eau_plus250"
             android:contentDescription="@string/widget_ajouter_250"
             android:layout_width="0dp"
-            android:layout_height="34dp"
+            android:layout_height="48dp"
             android:layout_marginEnd="4dp"
             android:layout_weight="1"
             android:background="@drawable/widget_bouton"
@@ -60,7 +60,7 @@
             android:id="@+id/eau_plus500"
             android:contentDescription="@string/widget_ajouter_500"
             android:layout_width="0dp"
-            android:layout_height="34dp"
+            android:layout_height="48dp"
             android:layout_weight="1"
             android:background="@drawable/widget_bouton"
             android:minHeight="0dp"

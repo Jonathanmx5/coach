@@ -8,16 +8,21 @@
     android:orientation="horizontal"
     android:padding="8dp">
 
-    <!-- Colonne de gauche : appareil photo en haut, textes en bas. Même largeur
-         que la colonne de droite, pour que la roue soit au centre du widget. -->
+    <!-- Trois colonnes en largeurs proportionnelles : le widget tient en 4
+         colonnes de l'écran d'accueil, même sur les anciens lanceurs. Celles
+         de gauche et de droite ont le même poids, pour que la roue reste au
+         centre du widget. -->
+
+    <!-- Colonne de gauche : appareil photo en haut, eau et bilan en bas. -->
     <FrameLayout
-        android:layout_width="112dp"
-        android:layout_height="match_parent">
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1">
 
         <ImageButton
             android:id="@+id/widget_photo"
-            android:layout_width="54dp"
-            android:layout_height="54dp"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
             android:layout_gravity="top|start"
             android:background="@drawable/widget_photo"
             android:contentDescription="@string/widget_photo_description"
@@ -41,108 +46,160 @@
 
             <TextView
                 android:id="@+id/widget_eau"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_width="match_parent"
+                android:layout_height="20dp"
+                android:autoSizeMaxTextSize="15sp"
+                android:autoSizeMinTextSize="9sp"
+                android:autoSizeTextType="uniform"
                 android:maxLines="1"
                 android:text="—"
                 android:textColor="#2F6FB8"
                 android:textSize="15sp"
                 android:textStyle="bold" />
 
+            <!-- L'eau en barre native : les boutons d'eau la tiennent à jour
+                 sans que l'appli redessine l'image des anneaux. -->
+            <ProgressBar
+                android:id="@+id/widget_eau_barre"
+                style="?android:attr/progressBarStyleHorizontal"
+                android:layout_width="match_parent"
+                android:layout_height="4dp"
+                android:layout_marginTop="2dp"
+                android:layout_marginBottom="2dp"
+                android:max="2000"
+                android:progress="0"
+                android:progressTint="#378ADD" />
+
             <TextView
                 android:id="@+id/widget_bilan"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:maxLines="1"
+                android:maxLines="2"
                 android:textColor="#2C2C2A"
                 android:textSize="11sp" />
         </LinearLayout>
     </FrameLayout>
 
-    <!-- Au milieu : la roue, centrée en largeur et en hauteur. -->
+    <!-- Au milieu : la roue (calories brûlées, mangées, protéines), centrée
+         en largeur et en hauteur. -->
     <FrameLayout
         android:layout_width="0dp"
         android:layout_height="match_parent"
-        android:layout_weight="1">
+        android:layout_marginStart="4dp"
+        android:layout_marginEnd="4dp"
+        android:layout_weight="0.8">
 
         <ImageView
             android:id="@+id/widget_anneaux"
-            android:layout_width="96dp"
-            android:layout_height="96dp"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
             android:layout_gravity="center"
             android:contentDescription="@string/widget_anneaux_description"
             android:scaleType="fitCenter" />
     </FrameLayout>
 
+    <!-- À droite : les quatre boutons d'eau en grille 2 × 2, pour des zones
+         tactiles aussi grandes que la place le permet. -->
     <LinearLayout
-        android:layout_width="112dp"
+        android:layout_width="0dp"
         android:layout_height="match_parent"
+        android:layout_weight="1"
         android:orientation="vertical">
 
-        <Button
-            android:id="@+id/widget_plus1000"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_marginBottom="3dp"
             android:layout_weight="1"
-            android:background="@drawable/widget_bouton"
-            android:contentDescription="@string/widget_ajouter_1000"
-            android:minHeight="0dp"
-            android:minWidth="0dp"
-            android:padding="0dp"
-            android:text="+ 1 L"
-            android:textAllCaps="false"
-            android:textColor="#FFFFFF"
-            android:textSize="12sp" />
+            android:orientation="horizontal">
 
-        <Button
-            android:id="@+id/widget_plus500"
+            <Button
+                android:id="@+id/widget_plus1000"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_marginEnd="3dp"
+                android:layout_weight="1"
+                android:autoSizeMaxTextSize="13sp"
+                android:autoSizeMinTextSize="8sp"
+                android:autoSizeTextType="uniform"
+                android:background="@drawable/widget_bouton"
+                android:contentDescription="@string/widget_ajouter_1000"
+                android:maxLines="1"
+                android:minHeight="0dp"
+                android:minWidth="0dp"
+                android:padding="2dp"
+                android:text="+ 1 L"
+                android:textAllCaps="false"
+                android:textColor="#FFFFFF"
+                android:textSize="13sp" />
+
+            <Button
+                android:id="@+id/widget_plus500"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:autoSizeMaxTextSize="13sp"
+                android:autoSizeMinTextSize="8sp"
+                android:autoSizeTextType="uniform"
+                android:background="@drawable/widget_bouton"
+                android:contentDescription="@string/widget_ajouter_500"
+                android:maxLines="1"
+                android:minHeight="0dp"
+                android:minWidth="0dp"
+                android:padding="2dp"
+                android:text="+500 ml"
+                android:textAllCaps="false"
+                android:textColor="#FFFFFF"
+                android:textSize="13sp" />
+        </LinearLayout>
+
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_marginBottom="3dp"
             android:layout_weight="1"
-            android:background="@drawable/widget_bouton"
-            android:contentDescription="@string/widget_ajouter_500"
-            android:minHeight="0dp"
-            android:minWidth="0dp"
-            android:padding="0dp"
-            android:text="+500 ml"
-            android:textAllCaps="false"
-            android:textColor="#FFFFFF"
-            android:textSize="12sp" />
+            android:orientation="horizontal">
 
-        <Button
-            android:id="@+id/widget_plus250"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_marginBottom="3dp"
-            android:layout_weight="1"
-            android:background="@drawable/widget_bouton"
-            android:contentDescription="@string/widget_ajouter_250"
-            android:minHeight="0dp"
-            android:minWidth="0dp"
-            android:padding="0dp"
-            android:text="+250 ml"
-            android:textAllCaps="false"
-            android:textColor="#FFFFFF"
-            android:textSize="12sp" />
+            <Button
+                android:id="@+id/widget_plus250"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_marginEnd="3dp"
+                android:layout_weight="1"
+                android:autoSizeMaxTextSize="13sp"
+                android:autoSizeMinTextSize="8sp"
+                android:autoSizeTextType="uniform"
+                android:background="@drawable/widget_bouton"
+                android:contentDescription="@string/widget_ajouter_250"
+                android:maxLines="1"
+                android:minHeight="0dp"
+                android:minWidth="0dp"
+                android:padding="2dp"
+                android:text="+250 ml"
+                android:textAllCaps="false"
+                android:textColor="#FFFFFF"
+                android:textSize="13sp" />
 
-        <Button
-            android:id="@+id/widget_plus180"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
-            android:background="@drawable/widget_bouton"
-            android:contentDescription="@string/widget_ajouter_180"
-            android:drawableStart="@drawable/ic_verre"
-            android:drawablePadding="4dp"
-            android:minHeight="0dp"
-            android:minWidth="0dp"
-            android:paddingStart="14dp"
-            android:paddingEnd="14dp"
-            android:text="18 cl"
-            android:textAllCaps="false"
-            android:textColor="#FFFFFF"
-            android:textSize="12sp" />
+            <Button
+                android:id="@+id/widget_plus180"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:autoSizeMaxTextSize="13sp"
+                android:autoSizeMinTextSize="8sp"
+                android:autoSizeTextType="uniform"
+                android:background="@drawable/widget_bouton"
+                android:contentDescription="@string/widget_ajouter_180"
+                android:drawableStart="@drawable/ic_verre"
+                android:drawablePadding="2dp"
+                android:maxLines="1"
+                android:minHeight="0dp"
+                android:minWidth="0dp"
+                android:paddingStart="6dp"
+                android:paddingEnd="4dp"
+                android:text="18 cl"
+                android:textAllCaps="false"
+                android:textColor="#FFFFFF"
+                android:textSize="13sp" />
+        </LinearLayout>
     </LinearLayout>
 </LinearLayout>

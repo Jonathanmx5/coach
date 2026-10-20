@@ -343,6 +343,13 @@ void main() {
     expect(d.mangees, 0);
     expect(d.objectifBrule, banc.reperes.maintien);
     expect(d.eauTexte, startsWith('0,75 / '));
+    // Datés du jour affiché, pour le compte affiché ; chiffres lus par
+    // TalkBack sur le widget.
+    expect(banc.widget.jours.single, DateTime(2026, 10, 9));
+    expect(banc.widget.uids.single, 'u1');
+    expect(d.description, startsWith('Anneaux du jour. Calories brûlées : '));
+    expect(d.description, contains('Calories mangées : 0 sur '));
+    expect(d.description, isNot(contains('Eau')));
 
     // Pas de nouvel envoi tant que rien ne change...
     await tester.pump(const Duration(seconds: 2));

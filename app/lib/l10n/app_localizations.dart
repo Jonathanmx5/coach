@@ -2216,6 +2216,20 @@ abstract class AppLocalizations {
     String bilan,
   );
 
+  /// Lu par TalkBack sur les anneaux du widget de l'écran d'accueil (sans l'eau, affichée à côté).
+  ///
+  /// In fr, this message translates to:
+  /// **'Anneaux du jour. Calories brûlées : {brulees} sur {objBrule}. Calories mangées : {mangees} sur {objMange}. Protéines : {proteines} sur {objProteines} grammes. Bilan : {bilan} kilocalories.'**
+  String widgetAnneauxSemantique(
+    int brulees,
+    int objBrule,
+    int mangees,
+    int objMange,
+    int proteines,
+    int objProteines,
+    String bilan,
+  );
+
   /// No description provided for @apparence.
   ///
   /// In fr, this message translates to:

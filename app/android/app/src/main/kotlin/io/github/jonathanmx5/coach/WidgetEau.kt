@@ -12,7 +12,8 @@ import es.antonborri.home_widget.HomeWidgetProvider
 /**
  * Petit widget d'hydratation : eau bue, barre de progression et deux boutons
  * pour en ajouter sans ouvrir l'application (mêmes adresses coach://eau que le
- * grand widget).
+ * grand widget). Un autre jour que celui du total enregistré, il affiche 0 ;
+ * sans compte connecté, il invite à se connecter.
  */
 class WidgetEau : HomeWidgetProvider() {
     override fun onUpdate(
@@ -21,11 +22,17 @@ class WidgetEau : HomeWidgetProvider() {
         appWidgetIds: IntArray,
         widgetData: SharedPreferences,
     ) {
-        val objectif = (widgetData.getString("eau_objectif_ml", null)?.toIntOrNull() ?: 2000).coerceAtLeast(1)
-        val ml = (widgetData.getString("eau_ml", null)?.toIntOrNull() ?: 0).coerceIn(0, objectif)
+        val objectif = DonneesWidget.objectifEau(widgetData)
+        val ml = DonneesWidget.eauDuJour(widgetData)
+        val texte =
+            if (DonneesWidget.connecte(widgetData)) {
+                DonneesWidget.eauTexte(widgetData)
+            } else {
+                context.getString(R.string.widget_connecte_toi)
+            }
         for (id in appWidgetIds) {
             val vues = RemoteViews(context.packageName, R.layout.widget_eau)
-            vues.setTextViewText(R.id.eau_texte, widgetData.getString("eau_texte", "—"))
+            vues.setTextViewText(R.id.eau_texte, texte)
             vues.setProgressBar(R.id.eau_barre, objectif, ml, false)
             vues.setOnClickPendingIntent(
                 R.id.eau_plus250,

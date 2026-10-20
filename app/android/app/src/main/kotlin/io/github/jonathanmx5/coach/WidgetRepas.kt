@@ -10,7 +10,9 @@ import es.antonborri.home_widget.HomeWidgetProvider
 
 /**
  * Widget « repas » : calories et protéines du jour, et un bouton qui ouvre
- * directement l'écran de photo du repas (adresse coach://photo).
+ * directement l'écran de photo du repas (adresse coach://photo). Les chiffres
+ * d'un autre jour sont remplacés par « — » ; sans compte connecté, il invite à
+ * se connecter.
  */
 class WidgetRepas : HomeWidgetProvider() {
     override fun onUpdate(
@@ -19,10 +21,19 @@ class WidgetRepas : HomeWidgetProvider() {
         appWidgetIds: IntArray,
         widgetData: SharedPreferences,
     ) {
+        val (repas, proteines) =
+            when {
+                !DonneesWidget.connecte(widgetData) ->
+                    context.getString(R.string.widget_connecte_toi) to ""
+                !DonneesWidget.duJour(widgetData, "donnees_jour") -> DonneesWidget.VIDE to ""
+                else ->
+                    (widgetData.getString("repas_texte", null) ?: DonneesWidget.VIDE) to
+                        (widgetData.getString("proteines_texte", null) ?: "")
+            }
         for (id in appWidgetIds) {
             val vues = RemoteViews(context.packageName, R.layout.widget_repas)
-            vues.setTextViewText(R.id.repas_texte, widgetData.getString("repas_texte", "—"))
-            vues.setTextViewText(R.id.repas_proteines, widgetData.getString("proteines_texte", ""))
+            vues.setTextViewText(R.id.repas_texte, repas)
+            vues.setTextViewText(R.id.repas_proteines, proteines)
             vues.setOnClickPendingIntent(
                 R.id.repas_photo,
                 HomeWidgetLaunchIntent.getActivity(context, MainActivity::class.java, Uri.parse("coach://photo?source=appareil")),
