@@ -2,6 +2,8 @@ import 'dart:convert';
 
 import 'package:coach/reglages/mises_a_jour.dart';
 import 'package:coach/reglages/reglage_theme.dart';
+import 'package:coach/sauvegarde/fichiers.dart';
+import 'package:coach/sauvegarde/sauvegarde.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -271,10 +273,107 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(sauvegarde.imports.single, [9, 9]);
+      // Par défaut, les lignes déjà présentes ne sont pas remplacées.
+      expect(sauvegarde.remplacements, [false]);
+      // Des lignes ignorées : la fenêtre dit lesquelles et pourquoi.
+      expect(find.text('Import terminé'), findsOneWidget);
       expect(
         find.text('3 ligne(s) importée(s), 1 ignorée(s).'),
         findsOneWidget,
       );
+      expect(find.text('• Repas, ligne 4 : date invalide'), findsOneWidget);
+      await tester.tap(find.text('OK'));
+      await tester.pumpAndSettle();
+      expect(find.text('Import terminé'), findsNothing);
+    });
+
+    testWidgets('importer sans accroc : un simple message', (tester) async {
+      final (sauvegarde, fichiers) = await ouvrirSauvegarde(tester);
+      sauvegarde.resultat = const ResultatImport(importes: 5, dejaPresents: 2);
+      fichiers.aChoisir = Uint8List.fromList([9]);
+
+      await taper(tester, 'Importer une sauvegarde');
+      await tester.tap(find.widgetWithText(FilledButton, 'Importer'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Import terminé'), findsNothing);
+      expect(
+        find.text(
+          '5 ligne(s) importée(s), 0 ignorée(s). 2 ligne(s) déjà dans ton '
+          'compte, gardée(s) telle(s) quelle(s).',
+        ),
+        findsOneWidget,
+      );
+    });
+
+    testWidgets('importer en remplaçant les lignes existantes', (tester) async {
+      final (sauvegarde, fichiers) = await ouvrirSauvegarde(tester);
+      fichiers.aChoisir = Uint8List.fromList([9]);
+
+      await taper(tester, 'Importer une sauvegarde');
+      await tester.tap(find.text('Remplacer les lignes existantes'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.widgetWithText(FilledButton, 'Importer'));
+      await tester.pumpAndSettle();
+
+      expect(sauvegarde.remplacements, [true]);
+    });
+
+    testWidgets('import interrompu : ce qui est déjà écrit est annoncé', (
+      tester,
+    ) async {
+      final (sauvegarde, fichiers) = await ouvrirSauvegarde(tester);
+      sauvegarde.resultat = ResultatImport(
+        importes: 400,
+        ignores: [
+          for (var i = 0; i < 7; i++) Motif('Eau', i + 2, 'date invalide'),
+        ],
+        erreur: ErreurImport.interruption,
+      );
+      fichiers.aChoisir = Uint8List.fromList([9]);
+
+      await taper(tester, 'Importer une sauvegarde');
+      await tester.tap(find.widgetWithText(FilledButton, 'Importer'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Import interrompu'), findsOneWidget);
+      expect(
+        find.text('400 ligne(s) importée(s), 7 ignorée(s).'),
+        findsOneWidget,
+      );
+      expect(find.textContaining('déjà dans ton compte'), findsOneWidget);
+      expect(find.textContaining('• Eau, ligne'), findsNWidgets(5));
+      expect(find.text('… et 2 autre(s).'), findsOneWidget);
+    });
+
+    testWidgets('importer un fichier trop gros ou illisible : message', (
+      tester,
+    ) async {
+      final (sauvegarde, fichiers) = await ouvrirSauvegarde(tester);
+      fichiers.erreurChoix = const FichierTropGros();
+
+      await taper(tester, 'Importer une sauvegarde');
+      expect(find.textContaining('trop gros'), findsOneWidget);
+
+      fichiers.erreurChoix = Exception('fichier sur le cloud indisponible');
+      await taper(tester, 'Importer une sauvegarde');
+      expect(find.textContaining("n'a pas pu être lu"), findsOneWidget);
+      expect(find.text('Importer cette sauvegarde ?'), findsNothing);
+      expect(sauvegarde.imports, isEmpty);
+    });
+
+    testWidgets('enregistrer hors-ligne : refusé, la sauvegarde serait '
+        'incomplète', (tester) async {
+      final (sauvegarde, fichiers) = await ouvrirSauvegarde(
+        tester,
+        reseau: FauxReseau(false),
+      );
+
+      await taper(tester, 'Enregistrer une sauvegarde (Excel)');
+
+      expect(find.textContaining('elle serait incomplète'), findsOneWidget);
+      expect(sauvegarde.exports, isEmpty);
+      expect(fichiers.enregistres, isEmpty);
     });
 
     testWidgets('importer : refus à la confirmation, rien n\'est écrit', (

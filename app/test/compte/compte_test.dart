@@ -162,6 +162,7 @@ void main() {
       FauxConsentements? consentements,
       FauxReseau? reseau,
       FauxWidget? widgetAccueil,
+      FauxFichiers? fichiers,
     }) async {
       await racine.monter(
         tester,
@@ -171,6 +172,7 @@ void main() {
         consentements: consentements,
         reseau: reseau,
         widgetAccueil: widgetAccueil,
+        fichiers: fichiers,
       );
       await tester.tap(find.byTooltip('Réglages'));
       await tester.pumpAndSettle();
@@ -193,7 +195,14 @@ void main() {
       final auth = FauxAuth(connecte: racine.lea);
       final donnees = FauxDonnees();
       final widget = FauxWidget();
-      await ouvrir(tester, auth: auth, donnees: donnees, widgetAccueil: widget);
+      final fichiers = FauxFichiers();
+      await ouvrir(
+        tester,
+        auth: auth,
+        donnees: donnees,
+        widgetAccueil: widget,
+        fichiers: fichiers,
+      );
 
       await taper(tester, 'Supprimer mon compte et mes données');
       expect(
@@ -207,6 +216,8 @@ void main() {
       expect(find.text('Commencer'), findsOneWidget);
       // Plus rien du compte sur l'écran d'accueil du téléphone.
       expect(widget.effacements, 1);
+      // Ni dans les copies d'une sauvegarde importée, gardées en cache.
+      expect(fichiers.nettoyages, 1);
     });
 
     testWidgets('annuler : rien n\'est supprimé', (tester) async {

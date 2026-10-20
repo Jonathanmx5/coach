@@ -616,8 +616,12 @@ class FauxCatalogue implements CatalogueProduits {
 class FausseSauvegarde implements Sauvegarde {
   final exports = <String>[];
   final imports = <Uint8List>[];
+  final remplacements = <bool>[];
   bool invalide = false;
-  var resultat = const ResultatImport(importes: 3, ignores: 1);
+  var resultat = const ResultatImport(
+    importes: 3,
+    ignores: [Motif('Repas', 4, 'date invalide')],
+  );
 
   @override
   Future<Uint8List> exporter(String uid, {required DateTime maintenant}) async {
@@ -626,9 +630,15 @@ class FausseSauvegarde implements Sauvegarde {
   }
 
   @override
-  Future<ResultatImport> importer(String uid, Uint8List octets) async {
+  Future<ResultatImport> importer(
+    String uid,
+    Uint8List octets, {
+    required DateTime maintenant,
+    bool remplacer = false,
+  }) async {
     if (invalide) throw const SauvegardeInvalide();
     imports.add(octets);
+    remplacements.add(remplacer);
     return resultat;
   }
 }
@@ -639,6 +649,10 @@ class FauxFichiers implements Fichiers {
   Uint8List? aChoisir;
   bool refuse = false;
 
+  /// Exception levée par [choisir] (fichier trop gros, illisible...).
+  Object? erreurChoix;
+  var nettoyages = 0;
+
   @override
   Future<bool> enregistrer(String nom, Uint8List octets) async {
     if (refuse) return false;
@@ -647,7 +661,13 @@ class FauxFichiers implements Fichiers {
   }
 
   @override
-  Future<Uint8List?> choisir() async => aChoisir;
+  Future<Uint8List?> choisir() async {
+    if (erreurChoix case final e?) throw e;
+    return aChoisir;
+  }
+
+  @override
+  Future<void> nettoyer() async => nettoyages++;
 }
 
 /// Photos de repas en mémoire.

@@ -1274,11 +1274,22 @@ class AppLocalizationsFr extends AppLocalizations {
       'Connecte-toi à internet pour importer : les données sont envoyées à ton compte.';
 
   @override
+  String get sauvegardeExportHorsLigne =>
+      'Connecte-toi à internet pour enregistrer une sauvegarde : hors ligne, elle serait incomplète.';
+
+  @override
   String get importConfirmerTitre => 'Importer cette sauvegarde ?';
 
   @override
   String get importConfirmerTexte =>
-      'L\'historique du fichier est ajouté à ton compte. Les lignes déjà présentes sont remplacées, rien n\'est supprimé.';
+      'L\'historique du fichier est ajouté à ton compte. Les lignes déjà présentes sont gardées telles quelles, rien n\'est supprimé.';
+
+  @override
+  String get importRemplacer => 'Remplacer les lignes existantes';
+
+  @override
+  String get importRemplacerAide =>
+      'Les lignes du fichier écrasent celles de ton compte, même modifiées depuis la sauvegarde.';
 
   @override
   String get importer => 'Importer';
@@ -1289,11 +1300,49 @@ class AppLocalizationsFr extends AppLocalizations {
   }
 
   @override
+  String importDejaPresents(int n) {
+    return '$n ligne(s) déjà dans ton compte, gardée(s) telle(s) quelle(s).';
+  }
+
+  @override
+  String get importResultatTitre => 'Import terminé';
+
+  @override
+  String get importInterrompuTitre => 'Import interrompu';
+
+  @override
+  String get importInterrompu =>
+      'L\'import s\'est arrêté en route : les lignes importées ci-dessus sont déjà dans ton compte. Relance-le une fois connecté : elles ne seront pas ajoutées en double.';
+
+  @override
+  String get importRefuse =>
+      'Ton compte a refusé l\'écriture. Déconnecte-toi puis reconnecte-toi, et relance l\'import : les lignes déjà importées ne seront pas ajoutées en double.';
+
+  @override
+  String get importLignesIgnorees => 'Lignes ignorées :';
+
+  @override
+  String importAutresMotifs(int n) {
+    return '… et $n autre(s).';
+  }
+
+  @override
+  String get importTropGros =>
+      'Ce fichier est trop gros (plus de 20 Mo) pour être une sauvegarde Crunch & Go.';
+
+  @override
+  String get importLectureEchec =>
+      'Le fichier n\'a pas pu être lu. S\'il est sur un service en ligne, télécharge-le d\'abord sur le téléphone.';
+
+  @override
   String get importInvalide =>
       'Ce fichier n\'est pas une sauvegarde Crunch & Go.';
 
   @override
   String get importEchec => 'L\'import a échoué. Réessaie.';
+
+  @override
+  String get ok => 'OK';
 
   @override
   String sourceMesureDe(String source, String heure) {

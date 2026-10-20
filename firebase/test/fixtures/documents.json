@@ -15,7 +15,43 @@
     }
   },
   {
-    "chemin": "repas/repas-2",
+    "chemin": "repas/import-repas",
+    "donnees": {
+      "date": 1791712800000,
+      "moment": "dejeuner",
+      "nom": "Riz Riz Riz Riz Riz Riz Riz Riz Riz Riz Riz Riz Riz Riz Riz Riz Riz Riz Riz Riz Riz Riz Riz Riz Riz Riz Riz Riz Riz Riz Riz Riz Riz Riz Riz Riz Riz Riz Riz Riz Riz Riz Riz Riz Riz Riz Riz Riz Riz Riz Riz Riz Riz Riz Riz Riz Riz Riz Riz Riz Riz Riz Riz Riz Riz Riz Riz Riz Riz Riz Riz Riz Riz Riz Riz Riz Riz Riz Riz Riz Riz Riz Riz Riz Riz Riz Riz Riz Riz Riz Riz Riz Riz Riz Riz Riz Riz Riz Riz Riz…",
+      "macros": {
+        "kcal": 480.5,
+        "proteines": 3.0,
+        "glucides": 0.0,
+        "lipides": 0.0
+      },
+      "source": "photo",
+      "description": "Du riz",
+      "photoId": "1760000000000000",
+      "verdict": {
+        "feu": "vert",
+        "points": [
+          "ok"
+        ],
+        "conclusion": "bien"
+      },
+      "aliments": [
+        {
+          "nom": "Riz",
+          "grammes": 100.0,
+          "macros": {
+            "kcal": 130.0,
+            "proteines": 0.0,
+            "glucides": 0.0,
+            "lipides": 0.0
+          }
+        }
+      ]
+    }
+  },
+  {
+    "chemin": "repas/repas-3",
     "donnees": {
       "date": 1791808200000,
       "moment": "collation",
@@ -30,7 +66,7 @@
     }
   },
   {
-    "chemin": "repas/repas-3",
+    "chemin": "repas/repas-4",
     "donnees": {
       "date": 1791808200000,
       "moment": "petitDejeuner",
@@ -233,7 +269,15 @@
     }
   },
   {
-    "chemin": "mensurations/mensurations-1",
+    "chemin": "mensurations/import-mensuration",
+    "donnees": {
+      "date": 1760000000000,
+      "taille": 81.5,
+      "bras": 31
+    }
+  },
+  {
+    "chemin": "mensurations/mensurations-2",
     "donnees": {
       "date": 1791808200000,
       "taille": 200.0,
@@ -243,7 +287,7 @@
     }
   },
   {
-    "chemin": "mensurations/mensurations-2",
+    "chemin": "mensurations/mensurations-3",
     "donnees": {
       "date": 1791808200000,
       "taille": 40.0
@@ -259,19 +303,34 @@
   {
     "chemin": "eau/eau-2",
     "donnees": {
-      "date": 1791808200000,
-      "ml": 2000
+      "date": 1791622800000,
+      "ml": 250
     }
   },
   {
     "chemin": "eau/eau-3",
     "donnees": {
       "date": 1791808200000,
+      "ml": 2000
+    }
+  },
+  {
+    "chemin": "eau/eau-4",
+    "donnees": {
+      "date": 1791808200000,
       "ml": 250
     }
   },
   {
-    "chemin": "complements/complements-1",
+    "chemin": "complements/import-complement",
+    "donnees": {
+      "nom": "Magnésium Magnésium Magnésium Magnésium Magnésium Magnésium Magnésium Magnésium…",
+      "minutes": 1260,
+      "actif": false
+    }
+  },
+  {
+    "chemin": "complements/complements-2",
     "donnees": {
       "nom": "Vitamine D",
       "minutes": 0,
@@ -279,11 +338,20 @@
     }
   },
   {
-    "chemin": "complements/complements-2",
+    "chemin": "complements/complements-3",
     "donnees": {
       "nom": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx…",
       "minutes": 1439,
       "actif": false
+    }
+  },
+  {
+    "chemin": "prises/2026-10-11",
+    "donnees": {
+      "ids": [
+        "c1",
+        "c2"
+      ]
     }
   },
   {

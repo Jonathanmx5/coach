@@ -2320,6 +2320,12 @@ abstract class AppLocalizations {
   /// **'Connecte-toi à internet pour importer : les données sont envoyées à ton compte.'**
   String get sauvegardeHorsLigne;
 
+  /// No description provided for @sauvegardeExportHorsLigne.
+  ///
+  /// In fr, this message translates to:
+  /// **'Connecte-toi à internet pour enregistrer une sauvegarde : hors ligne, elle serait incomplète.'**
+  String get sauvegardeExportHorsLigne;
+
   /// No description provided for @importConfirmerTitre.
   ///
   /// In fr, this message translates to:
@@ -2329,8 +2335,20 @@ abstract class AppLocalizations {
   /// No description provided for @importConfirmerTexte.
   ///
   /// In fr, this message translates to:
-  /// **'L\'historique du fichier est ajouté à ton compte. Les lignes déjà présentes sont remplacées, rien n\'est supprimé.'**
+  /// **'L\'historique du fichier est ajouté à ton compte. Les lignes déjà présentes sont gardées telles quelles, rien n\'est supprimé.'**
   String get importConfirmerTexte;
+
+  /// No description provided for @importRemplacer.
+  ///
+  /// In fr, this message translates to:
+  /// **'Remplacer les lignes existantes'**
+  String get importRemplacer;
+
+  /// No description provided for @importRemplacerAide.
+  ///
+  /// In fr, this message translates to:
+  /// **'Les lignes du fichier écrasent celles de ton compte, même modifiées depuis la sauvegarde.'**
+  String get importRemplacerAide;
 
   /// No description provided for @importer.
   ///
@@ -2344,6 +2362,60 @@ abstract class AppLocalizations {
   /// **'{importes} ligne(s) importée(s), {ignores} ignorée(s).'**
   String importTermine(int importes, int ignores);
 
+  /// No description provided for @importDejaPresents.
+  ///
+  /// In fr, this message translates to:
+  /// **'{n} ligne(s) déjà dans ton compte, gardée(s) telle(s) quelle(s).'**
+  String importDejaPresents(int n);
+
+  /// No description provided for @importResultatTitre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Import terminé'**
+  String get importResultatTitre;
+
+  /// No description provided for @importInterrompuTitre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Import interrompu'**
+  String get importInterrompuTitre;
+
+  /// No description provided for @importInterrompu.
+  ///
+  /// In fr, this message translates to:
+  /// **'L\'import s\'est arrêté en route : les lignes importées ci-dessus sont déjà dans ton compte. Relance-le une fois connecté : elles ne seront pas ajoutées en double.'**
+  String get importInterrompu;
+
+  /// No description provided for @importRefuse.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton compte a refusé l\'écriture. Déconnecte-toi puis reconnecte-toi, et relance l\'import : les lignes déjà importées ne seront pas ajoutées en double.'**
+  String get importRefuse;
+
+  /// No description provided for @importLignesIgnorees.
+  ///
+  /// In fr, this message translates to:
+  /// **'Lignes ignorées :'**
+  String get importLignesIgnorees;
+
+  /// No description provided for @importAutresMotifs.
+  ///
+  /// In fr, this message translates to:
+  /// **'… et {n} autre(s).'**
+  String importAutresMotifs(int n);
+
+  /// No description provided for @importTropGros.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce fichier est trop gros (plus de 20 Mo) pour être une sauvegarde Crunch & Go.'**
+  String get importTropGros;
+
+  /// No description provided for @importLectureEchec.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le fichier n\'a pas pu être lu. S\'il est sur un service en ligne, télécharge-le d\'abord sur le téléphone.'**
+  String get importLectureEchec;
+
   /// No description provided for @importInvalide.
   ///
   /// In fr, this message translates to:
@@ -2355,6 +2427,12 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'L\'import a échoué. Réessaie.'**
   String get importEchec;
+
+  /// No description provided for @ok.
+  ///
+  /// In fr, this message translates to:
+  /// **'OK'**
+  String get ok;
 
   /// No description provided for @sourceMesureDe.
   ///

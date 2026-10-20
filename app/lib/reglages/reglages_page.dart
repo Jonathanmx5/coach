@@ -9,6 +9,7 @@ import 'package:qr_flutter/qr_flutter.dart';
 import '../compte/auth_service.dart';
 import '../compte/donnees_compte.dart';
 import '../l10n/app_localizations.dart';
+import '../sauvegarde/fichiers.dart';
 import '../sauvegarde/sauvegarde.dart';
 import '../services.dart';
 import '../theme.dart';
@@ -80,6 +81,13 @@ class _ReglagesPageState extends State<ReglagesPage> {
 
   Future<void> _exporter() async {
     final t = AppLocalizations.of(context)!;
+    // Hors ligne, seul le cache serait lu : la sauvegarde serait incomplète.
+    final enLigne = await _s.reseau.enLigne.first;
+    if (!enLigne) {
+      if (mounted) _message(t.sauvegardeExportHorsLigne);
+      return;
+    }
+    if (!mounted) return;
     setState(() => _sauvegarde = true);
     try {
       final octets = await _s.sauvegarde.exporter(
@@ -106,30 +114,61 @@ class _ReglagesPageState extends State<ReglagesPage> {
       if (mounted) _message(t.sauvegardeHorsLigne);
       return;
     }
-    final octets = await _s.fichiers.choisir();
+    final Uint8List? octets;
+    try {
+      octets = await _s.fichiers.choisir();
+    } on FichierTropGros {
+      if (mounted) _message(t.importTropGros);
+      return;
+    } catch (_) {
+      if (mounted) _message(t.importLectureEchec);
+      return;
+    }
     if (octets == null || !mounted) return;
+    var remplacer = false;
     final confirme = await showDialog<bool>(
       context: context,
-      builder: (ctx) => AlertDialog(
-        title: Text(t.importConfirmerTitre),
-        content: Text(t.importConfirmerTexte),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(ctx).pop(false),
-            child: Text(t.annuler),
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, majDialogue) => AlertDialog(
+          title: Text(t.importConfirmerTitre),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(t.importConfirmerTexte),
+              const SizedBox(height: 8),
+              CheckboxListTile(
+                contentPadding: EdgeInsets.zero,
+                controlAffinity: ListTileControlAffinity.leading,
+                value: remplacer,
+                onChanged: (v) => majDialogue(() => remplacer = v ?? false),
+                title: Text(t.importRemplacer),
+                subtitle: Text(t.importRemplacerAide),
+              ),
+            ],
           ),
-          FilledButton(
-            onPressed: () => Navigator.of(ctx).pop(true),
-            child: Text(t.importer),
-          ),
-        ],
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(ctx).pop(false),
+              child: Text(t.annuler),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.of(ctx).pop(true),
+              child: Text(t.importer),
+            ),
+          ],
+        ),
       ),
     );
     if (confirme != true || !mounted) return;
     setState(() => _sauvegarde = true);
     try {
-      final r = await _s.sauvegarde.importer(_uid, octets);
-      if (mounted) _message(t.importTermine(r.importes, r.ignores));
+      final r = await _s.sauvegarde.importer(
+        _uid,
+        octets,
+        maintenant: DateTime.now(),
+        remplacer: remplacer,
+      );
+      if (mounted) await _resultatImport(t, r);
     } on SauvegardeInvalide {
       if (mounted) _message(t.importInvalide);
     } catch (_) {
@@ -137,6 +176,58 @@ class _ReglagesPageState extends State<ReglagesPage> {
     } finally {
       if (mounted) setState(() => _sauvegarde = false);
     }
+  }
+
+  /// Un import sans accroc tient dans un message ; sinon, une fenêtre dit ce
+  /// qui est déjà écrit et pourquoi des lignes ont été laissées de côté.
+  Future<void> _resultatImport(AppLocalizations t, ResultatImport r) async {
+    final bilan = [
+      t.importTermine(r.importes, r.ignores.length),
+      if (r.dejaPresents > 0) t.importDejaPresents(r.dejaPresents),
+    ].join(' ');
+    if (r.erreur == null && r.ignores.isEmpty) {
+      _message(bilan);
+      return;
+    }
+    const montres = 5;
+    await showDialog<void>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(
+          r.erreur == null ? t.importResultatTitre : t.importInterrompuTitre,
+        ),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(bilan),
+              if (r.erreur != null) ...[
+                const SizedBox(height: 8),
+                Text(
+                  r.erreur == ErreurImport.refus
+                      ? t.importRefuse
+                      : t.importInterrompu,
+                ),
+              ],
+              if (r.ignores.isNotEmpty) ...[
+                const SizedBox(height: 12),
+                Text(t.importLignesIgnorees),
+                for (final m in r.ignores.take(montres)) Text('• $m'),
+                if (r.ignores.length > montres)
+                  Text(t.importAutresMotifs(r.ignores.length - montres)),
+              ],
+            ],
+          ),
+        ),
+        actions: [
+          FilledButton(
+            onPressed: () => Navigator.of(ctx).pop(),
+            child: Text(t.ok),
+          ),
+        ],
+      ),
+    );
   }
 
   Future<void> _nettoyerPhotos() async {
@@ -211,6 +302,8 @@ class _ReglagesPageState extends State<ReglagesPage> {
         await _s.photos.supprimer(p);
       }
       await _s.photosRepas.toutSupprimer();
+      // Copies d'une sauvegarde importée restées dans le cache.
+      await _s.fichiers.nettoyer();
       await _s.rappels.planifier(const []);
       await _s.auth.supprimerCompte();
       if (mounted) Navigator.of(context).pop();

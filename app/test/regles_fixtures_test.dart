@@ -104,8 +104,31 @@ Uint8List classeurImport() {
   }
 
   feuille('Repas', [
-    [t('Identifiant'), t('Date'), t('Moment'), t('Nom'), t('Calories')],
-    [null, t('2026-10-10 19:30'), t('diner'), t('Pâtes'), t('650')],
+    [
+      t('Identifiant'),
+      t('Date'),
+      t('Moment'),
+      t('Nom'),
+      t('Calories'),
+      t('Données (JSON, ne pas modifier)'),
+    ],
+    [null, t('2026-10-10 19:30'), t('diner'), t('Pâtes'), t('650'), null],
+    // Une ligne exportée dont le nom (très long) et les calories ont été
+    // corrigés à la main : les colonnes lisibles l'emportent.
+    [
+      t('import-repas'),
+      t('11/10/2026 12:00'),
+      t('dejeuner'),
+      t('Riz ' * 150),
+      t('480,5'),
+      t(
+        '{"date":1760000000000,"moment":"diner","nom":"Riz",'
+        '"macros":{"kcal":100,"proteines":3},"source":"photo",'
+        '"description":"Du riz","photoId":"1760000000000000",'
+        '"aliments":[{"nom":"Riz","grammes":100,"macros":{"kcal":130}}],'
+        '"verdict":{"feu":"vert","points":["ok"],"conclusion":"bien"}}',
+      ),
+    ],
   ]);
   feuille('Activités', [
     [
@@ -125,6 +148,44 @@ Uint8List classeurImport() {
   feuille('Eau', [
     [t('Identifiant'), t('Date'), t('Quantité (ml)')],
     [null, t('2026-10-10 10:00'), t('5000')],
+    // Identifiant inutilisable : un nouveau est créé.
+    [t('2026/10/10'), t('2026-10-10 11:00'), t('250')],
+  ]);
+  feuille('Mensurations', [
+    [
+      t('Identifiant'),
+      t('Date'),
+      t('Taille (cm)'),
+      t('Données (JSON, ne pas modifier)'),
+    ],
+    [
+      t('import-mensuration'),
+      null,
+      t('81,5'),
+      t('{"date":1760000000000,"taille":82,"bras":31}'),
+    ],
+  ]);
+  feuille('Compléments', [
+    [
+      t('Identifiant'),
+      t('Nom'),
+      t('Actif'),
+      t('Données (JSON, ne pas modifier)'),
+    ],
+    [
+      t('import-complement'),
+      t('Magnésium ' * 20),
+      t('faux'),
+      t('{"nom":"Magnésium","minutes":1260,"actif":true}'),
+    ],
+  ]);
+  feuille('Prises', [
+    [
+      t('Identifiant'),
+      t('Compléments pris'),
+      t('Données (JSON, ne pas modifier)'),
+    ],
+    [t('2026-10-11'), t('c1, c2'), t('{"ids":["c1"]}')],
   ]);
   feuille('Séances', [
     [t('Identifiant'), t('Date'), t('Données (JSON, ne pas modifier)')],
@@ -257,7 +318,11 @@ Future<void> ecrireTout(FakeFirebaseFirestore db) async {
   await consentements.definir(uid, Consentement.meteo, true);
   await consentements.definir(uid, Consentement.meteo, false);
 
-  await SauvegardeFirestore(db).importer(uid, classeurImport());
+  final import = await SauvegardeFirestore(db)
+      .importer(uid, classeurImport(), maintenant: midi);
+  // Le fichier est fait pour passer : rien d'ignoré, rien de refusé.
+  expect(import.ignores, isEmpty);
+  expect(import.erreur, isNull);
 }
 
 /// Une séance de 600 minutes de natation intense chez une personne lourde.
