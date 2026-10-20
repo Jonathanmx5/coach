@@ -286,14 +286,14 @@ class _JournalPageState extends State<JournalPage> {
     final reperes = calculerReperes(
       profil,
       maintenant: widget.horloge(),
-      maintienMesure: widget.suivi.maintien,
+      maintienMesure: widget.suivi.maintienPour(profil),
     );
     final cibles = ciblesDuJour(reperes, kcalExercice: kcalExercice);
     final macros = totalMacros(repas);
     _macrosDuJour = macros;
     _ciblesDuJour = cibles;
     final depense = depenseDuJour(
-      depenseBase: reperes.depenseBase,
+      maintien: reperes.maintien,
       kcalMontre: jourSante?.kcalTotales,
       kcalActivites: kcalManuelles,
     );

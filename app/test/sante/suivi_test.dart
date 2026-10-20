@@ -4,8 +4,10 @@ import 'package:flutter_test/flutter_test.dart';
 
 import '../donnees_sante.dart';
 import '../fakes.dart';
+import '../racine_test.dart' show perteSimple;
 
 final maintenant = DateTime(2026, 10, 9, 20);
+const profilMontre = perteSimple;
 
 void main() {
   test('sans montre : inactif, rien lu', () async {
@@ -15,7 +17,7 @@ void main() {
     await suivi.charger(montre: false);
 
     expect(suivi.etat, EtatSuivi.inactif);
-    expect(suivi.maintien, isNull);
+    expect(suivi.maintienPour(profilMontre), isNull);
   });
 
   test('avec montre : journée, maintien mesuré et pesées', () async {
@@ -29,7 +31,7 @@ void main() {
     expect(suivi.etat, EtatSuivi.pret);
     expect(suivi.aujourdhui?.pas, 6500);
     expect(suivi.aujourdhui?.sommeil?.endormi, const Duration(hours: 7));
-    expect(suivi.maintien, 2600);
+    expect(suivi.maintienPour(profilMontre), 2600);
     expect(suivi.pesees.single.valeur, 79.5);
     expect(suivi.jours.length, 31);
   });

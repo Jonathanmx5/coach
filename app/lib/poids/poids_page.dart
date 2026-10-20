@@ -186,7 +186,7 @@ class _PoidsPageState extends State<PoidsPage> {
               _CourbeAvecProjection(
                 journal: widget.journal,
                 uid: _uid,
-                depenseBase: widget.enregistre.reperes.depenseBase,
+                maintien: widget.enregistre.reperes.maintien,
                 maintenant: maintenant,
                 pesees: visibles,
                 debut: debut,
@@ -366,7 +366,7 @@ class _CourbeAvecProjection extends StatelessWidget {
   const _CourbeAvecProjection({
     required this.journal,
     required this.uid,
-    required this.depenseBase,
+    required this.maintien,
     required this.maintenant,
     required this.pesees,
     required this.debut,
@@ -374,7 +374,7 @@ class _CourbeAvecProjection extends StatelessWidget {
 
   final JournalRepository journal;
   final String uid;
-  final int depenseBase;
+  final int maintien;
   final DateTime maintenant;
   final List<Pesee> pesees;
   final DateTime debut;
@@ -403,7 +403,7 @@ class _CourbeAvecProjection extends StatelessWidget {
               soldes: soldesRecents(
                 repas: repas.data!,
                 activites: activites.data ?? const [],
-                depenseBase: depenseBase,
+                maintien: maintien,
                 debut: depart,
                 fin: aujourdhui,
               ),

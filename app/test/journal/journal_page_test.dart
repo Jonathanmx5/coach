@@ -147,8 +147,8 @@ void main() {
     await banc.monter(tester);
 
     expect(texteDe(tester, 'valeur-mange'), '600 kcal');
-    expect(texteDe(tester, 'valeur-depense'), '2736 kcal');
-    expect(texteDe(tester, 'valeur-solde'), '−2136 kcal');
+    expect(texteDe(tester, 'valeur-depense'), '3048 kcal');
+    expect(texteDe(tester, 'valeur-solde'), '−2448 kcal');
     expect(find.text('Déficit'), findsOneWidget);
   });
 

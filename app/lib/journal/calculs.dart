@@ -1,4 +1,6 @@
 import '../profil/besoins.dart';
+import '../profil/modele.dart';
+import '../sante/ajustements.dart' as ajustements;
 import '../sante/modele.dart' as sante;
 import 'modele.dart';
 
@@ -19,13 +21,18 @@ const _facteurIntensite = {
   Intensite.intense: 1.2,
 };
 
-/// Calories d'une activité : MET × facteur d'intensité × poids × heures.
+/// Calories NETTES d'une activité : (MET × facteur d'intensité − 1) × poids
+/// × heures. Le « − 1 » retire le métabolisme de repos de l'heure d'effort,
+/// déjà compté dans le maintien.
 double kcalActivite(
   TypeActivite type,
   int minutes,
   Intensite intensite,
   double poidsKg,
-) => _met[type]! * _facteurIntensite[intensite]! * poidsKg * minutes / 60;
+) {
+  final met = _met[type]! * _facteurIntensite[intensite]! - 1;
+  return (met < 0 ? 0 : met) * poidsKg * minutes / 60;
+}
 
 enum IntensiteJour { repos, modere, intense }
 
@@ -68,13 +75,46 @@ CiblesJour ciblesDuJour(Reperes r, {required double kcalExercice}) {
 Macros totalMacros(Iterable<Repas> repas) =>
     repas.fold(Macros.zero, (s, r) => s + r.macros);
 
-/// Dépense du jour : calories totales de la montre si elles existent, sinon le
-/// métabolisme de base × 1,2 (vie sans exercice), plus les activités saisies.
-double depenseDuJour({
+/// Calories dépensées par le corps sur la part [ecoule] (0 à 1) de la
+/// journée, hors activités saisies :
+/// - le total de la montre s'il existe ;
+/// - sinon le métabolisme de base au prorata + les calories actives de la
+///   montre (même source) ;
+/// - sinon le maintien au prorata (type de vie), plus les calories des
+///   séances de la montre ([kcalSeances]).
+double depenseCorps({
   required int depenseBase,
+  required int maintien,
+  double? kcalTotales,
+  double? kcalActives,
+  double kcalSeances = 0,
+  required double ecoule,
+}) {
+  if ((kcalTotales ?? 0) > 0) return kcalTotales!;
+  if ((kcalActives ?? 0) > 0) return depenseBase * ecoule + kcalActives!;
+  return maintien * ecoule + kcalSeances;
+}
+
+/// Dépense de la journée entière : calories totales de la montre si elles
+/// existent, sinon le maintien du profil (même chiffre que la cible), plus
+/// les activités saisies (calories nettes) que la montre n'a pas comptées.
+/// Avec [depenseBase], les calories actives de la montre remplacent le
+/// maintien estimé quand il n'y a pas de total.
+double depenseDuJour({
+  required int maintien,
   required double? kcalMontre,
   required double kcalActivites,
-}) => ((kcalMontre ?? 0) > 0 ? kcalMontre! : depenseBase * 1.2) + kcalActivites;
+  double? kcalActives,
+  int? depenseBase,
+}) =>
+    depenseCorps(
+      depenseBase: depenseBase ?? 0,
+      maintien: maintien,
+      kcalTotales: kcalMontre,
+      kcalActives: depenseBase == null ? null : kcalActives,
+      ecoule: 1,
+    ) +
+    kcalActivites;
 
 /// Négatif = déficit, positif = excédent.
 double solde({required double mange, required double depense}) =>
@@ -95,59 +135,242 @@ List<double>? projeterPoids({
   return [for (var i = 1; i <= jours; i++) poidsKg + parJour * i];
 }
 
+DateTime _jourDe(DateTime d) => DateTime(d.year, d.month, d.day);
+
 /// Solde (mangé − dépensé) de chaque jour entre [debut] (inclus) et [fin]
 /// (exclu) où au moins un repas est noté ; les jours sans repas sont ignorés
-/// (journal oublié, pas jeûne). Dépense = base × 1,2 + activités saisies.
+/// (journal oublié, pas jeûne). Dépense : le total de la montre si la journée
+/// a été mesurée jusqu'au soir ([jours]), sinon le [maintien] du profil ;
+/// plus les activités saisies que la montre n'a pas comptées.
 List<double> soldesRecents({
   required List<Repas> repas,
   required List<Activite> activites,
-  required int depenseBase,
+  required int maintien,
+  List<sante.JourSante> jours = const [],
   required DateTime debut,
   required DateTime fin,
 }) {
-  DateTime jour(DateTime d) => DateTime(d.year, d.month, d.day);
   final mange = <DateTime, double>{};
   for (final r in repas) {
     if (r.date.isBefore(debut) || !r.date.isBefore(fin)) continue;
     mange.update(
-      jour(r.date),
+      _jourDe(r.date),
       (v) => v + r.macros.kcal,
       ifAbsent: () => r.macros.kcal,
     );
   }
-  final sport = <DateTime, double>{};
+  final sport = <DateTime, List<Activite>>{};
   for (final a in activites) {
-    sport.update(jour(a.date), (v) => v + a.kcal, ifAbsent: () => a.kcal);
+    sport.putIfAbsent(_jourDe(a.date), () => []).add(a);
   }
+  final montre = {
+    for (final j in jours)
+      if (ajustements.journeeComplete(j)) j.jour: j,
+  };
   return [
     for (final e in mange.entries)
       solde(
         mange: e.value,
-        depense: depenseDuJour(
-          depenseBase: depenseBase,
-          kcalMontre: null,
-          kcalActivites: sport[e.key] ?? 0,
-        ),
+        depense: switch (montre[e.key]) {
+          final j? =>
+            j.kcalTotales! +
+                kcalActivitesNonComptees(
+                  sport[e.key] ?? const [],
+                  j.seances,
+                  kcalTotales: j.kcalTotales,
+                  derniereMesureKcal: j.derniereMesureKcal,
+                ),
+          null => depenseDuJour(
+            maintien: maintien,
+            kcalMontre: null,
+            kcalActivites: (sport[e.key] ?? const []).fold(
+              0.0,
+              (s, a) => s + a.kcal,
+            ),
+          ),
+        },
       ),
   ];
 }
 
-/// Calories des activités saisies que la montre n'a pas déjà comptées. Le
-/// total de la montre (et ses séances) inclut déjà ce qu'elle a mesuré : une
-/// activité qui chevauche une séance de la montre (à la durée près, avant ou
-/// après) serait comptée deux fois. Sans séance de la montre, tout compte.
+/// Mots des types de séance Health Connect (RUNNING, BIKING…) qui
+/// correspondent à chaque type d'activité saisie. « Autre » va avec tout.
+const _motsSeance = {
+  TypeActivite.course: ['run', 'jog', 'course'],
+  TypeActivite.velo: ['bik', 'cycl', 'velo'],
+  TypeActivite.natation: ['swim', 'natation'],
+  TypeActivite.marche: ['walk', 'hik', 'marche'],
+  TypeActivite.musculation: ['strength', 'weight', 'muscu'],
+  TypeActivite.mma: ['martial', 'box', 'wrestl', 'mma'],
+};
+
+/// Vrai si une séance de la montre de type [typeSeance] peut être l'activité
+/// saisie de type [type]. Une séance sans type précis va avec tout.
+bool typesProches(TypeActivite type, String typeSeance) {
+  final s = typeSeance.toLowerCase();
+  if (s.isEmpty || s.contains('other') || s.contains('workout')) return true;
+  final mots = _motsSeance[type];
+  return mots == null || mots.any(s.contains);
+}
+
+/// Durées à ±30 % près.
+bool _dureesProches(int minutes, Duration duree) =>
+    (duree.inMinutes - minutes).abs() <= 0.3 * minutes;
+
+/// Calories des activités saisies que la montre n'a pas déjà comptées. Une
+/// activité est déjà dans la dépense de la montre si :
+/// - la montre a un total de calories mesuré au moins jusqu'à la fin de
+///   l'activité ([kcalTotales], [derniereMesureKcal]) : portée, elle a compté
+///   l'effort même sans mode séance ;
+/// - ou une séance de la montre du même jour a un type et une durée proches,
+///   quelle que soit l'heure de saisie ;
+/// - ou une séance de la montre chevauche l'activité (à la durée près, avant
+///   ou après l'heure de saisie).
 double kcalActivitesNonComptees(
   List<Activite> activites,
-  List<sante.Seance> seancesMontre,
-) {
+  List<sante.Seance> seancesMontre, {
+  double? kcalTotales,
+  DateTime? derniereMesureKcal,
+}) {
   var total = 0.0;
   for (final a in activites) {
+    final parLeTotal =
+        (kcalTotales ?? 0) > 0 &&
+        derniereMesureKcal != null &&
+        !derniereMesureKcal.isBefore(a.date);
     final debut = a.date.subtract(Duration(minutes: a.minutes));
     final fin = a.date.add(Duration(minutes: a.minutes));
-    final dejaCompte = seancesMontre.any(
-      (s) => s.debut.isBefore(fin) && s.debut.add(s.duree).isAfter(debut),
+    final parUneSeance = seancesMontre.any(
+      (s) =>
+          (s.debut.isBefore(fin) && s.debut.add(s.duree).isAfter(debut)) ||
+          (_jourDe(s.debut) == _jourDe(a.date) &&
+              typesProches(a.type, s.type) &&
+              _dureesProches(a.minutes, s.duree)),
     );
-    if (!dejaCompte) total += a.kcal;
+    if (!parLeTotal && !parUneSeance) total += a.kcal;
   }
   return total;
+}
+
+/// Les chiffres énergétiques d'une journée, communs à l'Accueil, au Journal
+/// et au widget de l'écran d'accueil.
+class BilanJour {
+  const BilanJour({
+    required this.reperes,
+    required this.kcalExercice,
+    required this.cibles,
+    required this.brulees,
+    required this.depenseJour,
+    required this.intensite,
+    required this.macros,
+    required this.estime,
+  });
+
+  final Reperes reperes;
+
+  /// Exercice ajouté à la cible : ce qui dépasse l'activité habituelle.
+  final double kcalExercice;
+  final CiblesJour cibles;
+
+  /// Calories brûlées jusqu'à maintenant (toute la journée pour un jour
+  /// passé).
+  final double brulees;
+
+  /// Dépense de la journée, pour le bilan mangé − dépensé.
+  final double depenseJour;
+  final IntensiteJour intensite;
+  final Macros macros;
+
+  /// Vrai si aucune calorie n'a été mesurée par la montre : la dépense vient
+  /// du type de vie.
+  final bool estime;
+
+  double get mangees => macros.kcal;
+
+  /// Négatif = déficit, positif = excédent.
+  double get ecart => solde(mange: mangees, depense: depenseJour);
+}
+
+/// Bilan de [jour] : [repas] et [activites] sont ceux de ce jour, [jours]
+/// les résumés Health Connect (vide sans montre), [maintienMesure] le
+/// maintien mesuré par la montre s'il existe.
+///
+/// Exercice ajouté à la cible, jamais les calories actives de toute la
+/// journée (le maintien contient déjà l'activité habituelle) :
+/// - avec un maintien mesuré : ce qui dépasse la moyenne active des 7 jours
+///   précédents, plus les activités saisies non comptées par la montre ;
+/// - avec une montre sans maintien mesuré : les séances de la montre, plus
+///   les activités saisies non comptées ;
+/// - sans montre : les calories nettes des activités saisies.
+BilanJour bilanDuJour({
+  required Profil profil,
+  required List<sante.JourSante> jours,
+  double? maintienMesure,
+  required List<Repas> repas,
+  required List<Activite> activites,
+  required DateTime jour,
+  required DateTime maintenant,
+}) {
+  final leJour = _jourDe(jour);
+  final reperes = calculerReperes(
+    profil,
+    maintenant: maintenant,
+    maintienMesure: maintienMesure,
+  );
+  final jourSante = jours.where((j) => j.jour == leJour).firstOrNull;
+  final kcalTotales = jourSante?.kcalTotales;
+  final kcalActives = jourSante?.kcalActives;
+  final seances = jourSante?.seances ?? const <sante.Seance>[];
+  final mesure = (kcalTotales ?? 0) > 0 || (kcalActives ?? 0) > 0;
+  final kcalSeances = seances.fold<double>(0, (s, x) => s + (x.kcal ?? 0));
+
+  final saisies = jourSante == null
+      ? activites.fold<double>(0, (s, a) => s + a.kcal)
+      : kcalActivitesNonComptees(
+          activites,
+          seances,
+          kcalTotales: kcalTotales,
+          derniereMesureKcal: jourSante.derniereMesureKcal,
+        );
+
+  var exerciceMontre = 0.0;
+  if (maintienMesure != null && kcalActives != null) {
+    final moyenne = ajustements.moyenneActive(
+      jours,
+      aujourdhui: leJour,
+      depenseBase: reperes.depenseBase,
+    );
+    if (moyenne != null && kcalActives > moyenne) {
+      exerciceMontre = kcalActives - moyenne;
+    }
+  } else if (maintienMesure == null) {
+    exerciceMontre = kcalSeances;
+  }
+  final kcalExercice = exerciceMontre + saisies;
+
+  final aujourdhui = _jourDe(maintenant);
+  final ecoule = leJour.isBefore(aujourdhui)
+      ? 1.0
+      : leJour.isAfter(aujourdhui)
+      ? 0.0
+      : (maintenant.hour * 60 + maintenant.minute) / 1440;
+  double corps(double part) => depenseCorps(
+    depenseBase: reperes.depenseBase,
+    maintien: reperes.maintien,
+    kcalTotales: kcalTotales,
+    kcalActives: kcalActives,
+    kcalSeances: kcalSeances,
+    ecoule: part,
+  );
+
+  return BilanJour(
+    reperes: reperes,
+    kcalExercice: kcalExercice,
+    cibles: ciblesDuJour(reperes, kcalExercice: kcalExercice),
+    brulees: corps(ecoule) + saisies,
+    depenseJour: corps(1) + saisies,
+    intensite: intensiteDuJour(kcalExercice),
+    macros: totalMacros(repas),
+    estime: !mesure,
+  );
 }

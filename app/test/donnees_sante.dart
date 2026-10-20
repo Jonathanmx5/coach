@@ -6,8 +6,8 @@ List<PointSante> semaineType() => [
   for (var i = 1; i <= 8; i++)
     PointSante(
       type: TypeMesure.kcalTotales,
-      debut: DateTime(2026, 10, 9 - i, 12),
-      fin: DateTime(2026, 10, 9 - i, 13),
+      debut: DateTime(2026, 10, 9 - i),
+      fin: DateTime(2026, 10, 9 - i, 23, 59),
       valeur: 2600,
     ),
   PointSante(

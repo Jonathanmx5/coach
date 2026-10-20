@@ -244,17 +244,17 @@ void main() {
       await tester.pumpAndSettle();
       await taper(tester, 'Course à pied');
       await saisir(tester, 'Durée (min)', '30');
-      // 9,8 MET × 1,0 (modérée) × 60 kg × 0,5 h = 294 kcal.
-      expect(find.text('≈ 294 kcal brûlées'), findsOneWidget);
+      // (9,8 MET × 1,0 (modérée) − 1) × 60 kg × 0,5 h = 264 kcal nettes.
+      expect(find.text('≈ 264 kcal brûlées'), findsOneWidget);
       await taper(tester, 'Intense');
-      expect(find.text('≈ 353 kcal brûlées'), findsOneWidget);
+      expect(find.text('≈ 323 kcal brûlées'), findsOneWidget);
       await taper(tester, 'Enregistrer');
 
       final a = banc.journal.activitesDe('u1').single;
       expect(a.type, TypeActivite.course);
       expect(a.minutes, 30);
       expect(a.intensite, Intensite.intense);
-      expect(a.kcal, closeTo(352.8, 0.01));
+      expect(a.kcal, closeTo(322.8, 0.01));
       expect(a.date, maintenant);
     },
   );

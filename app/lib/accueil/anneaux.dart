@@ -252,7 +252,7 @@ class _CarteAujourdhuiState extends State<CarteAujourdhui> {
     final reperes = calculerReperes(
       widget.profil,
       maintenant: maintenant,
-      maintienMesure: widget.suivi.maintien,
+      maintienMesure: widget.suivi.maintienPour(widget.profil),
     );
 
     final manuelles = kcalActivitesNonComptees(

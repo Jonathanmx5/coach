@@ -1,5 +1,7 @@
 import 'package:flutter/foundation.dart';
 
+import '../profil/besoins.dart';
+import '../profil/modele.dart';
 import 'agregation.dart';
 import 'ajustements.dart' as ajustements;
 import 'modele.dart';
@@ -22,8 +24,18 @@ class Suivi extends ChangeNotifier {
   List<Mesure> pesees = const [];
   List<Mesure> masseGrasse = const [];
 
-  /// Maintien mesuré (moyenne des calories totales), ou null si insuffisant.
-  double? maintien;
+  /// Maintien mesuré pour [profil] (moyenne des journées complètes et
+  /// vraisemblables par rapport à son métabolisme de base), ou null si
+  /// insuffisant.
+  double? maintienPour(Profil profil) {
+    if (jours.isEmpty) return null;
+    final maintenant = horloge();
+    return ajustements.maintienMesure(
+      jours,
+      aujourdhui: maintenant,
+      depenseBase: calculerReperes(profil, maintenant: maintenant).depenseBase,
+    );
+  }
 
   JourSante? get aujourdhui => jours.isEmpty ? null : jours.last;
 
@@ -59,7 +71,6 @@ class Suivi extends ChangeNotifier {
       );
       pesees = mesures(points, TypeMesure.poids);
       masseGrasse = mesures(points, TypeMesure.masseGrasse);
-      maintien = ajustements.maintienMesure(jours, aujourdhui: maintenant);
       etat = EtatSuivi.pret;
     } catch (_) {
       _vider(EtatSuivi.erreur);
@@ -73,7 +84,6 @@ class Suivi extends ChangeNotifier {
     jours = const [];
     pesees = const [];
     masseGrasse = const [];
-    maintien = null;
     _points = 0;
     notifyListeners();
   }
