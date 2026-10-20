@@ -15,14 +15,16 @@ import 'poids/poids_page.dart';
 import 'profil/profil_repository.dart';
 import 'reglages/mises_a_jour.dart';
 import 'reglages/reglages_page.dart';
+import 'route_verre.dart';
 import 'services.dart';
 import 'theme.dart';
 import 'verre.dart';
 import 'sante/suivi.dart';
 
-/// Barre d'onglets de l'appli (Accueil, Journal, Poids ; d'autres viendront).
-/// Chaque onglet garde son état quand on change d'onglet. La coque possède le
-/// suivi Health Connect, partagé entre les onglets.
+/// Barre d'onglets de l'appli (Accueil, Repas, Sport, Poids, Bien-être).
+/// Un onglet n'est construit qu'à sa première visite, puis garde son état
+/// quand on change d'onglet. La coque possède le suivi Health Connect,
+/// partagé entre les onglets, et le relit à la reprise de l'appli et à minuit.
 class Coque extends StatefulWidget {
   const Coque({
     super.key,
@@ -41,8 +43,15 @@ class Coque extends StatefulWidget {
   State<Coque> createState() => _CoqueState();
 }
 
-class _CoqueState extends State<Coque> {
+class _CoqueState extends State<Coque> with WidgetsBindingObserver {
   int _onglet = 0;
+
+  /// Pages des onglets, créées à la première visite et gardées ensuite :
+  /// changer d'onglet ne reconstruit ni ne réabonne les autres pages.
+  final List<Widget?> _pages = List.filled(5, null);
+
+  /// Relecture du suivi au changement de jour, appli ouverte.
+  Timer? _minuit;
   late final SuiviMeteo _meteoSuivi = SuiviMeteo(
     meteo: _s.meteo,
     bienetre: _s.bienetre,
@@ -63,8 +72,8 @@ class _CoqueState extends State<Coque> {
   }
 
   void _ouvrirReglages() => Navigator.of(context).push<void>(
-    MaterialPageRoute(
-      builder: (_) => ReglagesPage(
+    routeVerre(
+      (_) => ReglagesPage(
         utilisateur: widget.utilisateur,
         services: _s,
         version: _version,
@@ -80,7 +89,10 @@ class _CoqueState extends State<Coque> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    _pages[0] = _page(0);
     _suivi.charger(montre: widget.enregistre.profil.montre);
+    _programmerMinuit();
     unawaited(_verifierMaj());
     _actionsWidget = _s.widgetAccueil.actions.listen(_actionWidget);
     unawaited(
@@ -90,13 +102,57 @@ class _CoqueState extends State<Coque> {
     );
   }
 
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState etat) {
+    if (etat != AppLifecycleState.resumed) return;
+    // Données trop anciennes ou d'un autre jour : relues, pour que les
+    // calories brûlées et « Ma journée » suivent la journée réelle.
+    unawaited(_suivi.rechargerSiNecessaire());
+    // Le minuteur a pu être retardé pendant la mise en veille.
+    _programmerMinuit();
+  }
+
+  /// Programme la relecture du suivi juste après le prochain minuit.
+  void _programmerMinuit() {
+    _minuit?.cancel();
+    final maintenant = widget.horloge();
+    final demain = DateTime(
+      maintenant.year,
+      maintenant.month,
+      maintenant.day + 1,
+    );
+    final attente = demain.difference(maintenant) + const Duration(seconds: 1);
+    _minuit = Timer(attente, _surMinuit);
+  }
+
+  void _surMinuit() {
+    if (!mounted) return;
+    unawaited(_suivi.charger(montre: widget.enregistre.profil.montre));
+    setState(() {});
+    _programmerMinuit();
+  }
+
+  void _choisirOnglet(int i) => setState(() {
+    _onglet = i;
+    _pages[i] ??= _page(i);
+  });
+
   void _actionWidget(String action) {
     if (action != 'photo' && action != 'photo-appareil') return;
-    setState(() => _onglet = 1);
-    _demandePhoto.value = DemandePhoto(
+    final nouvelle = _pages[1] == null;
+    _choisirOnglet(1);
+    void demander() => _demandePhoto.value = DemandePhoto(
       _demandePhoto.value.numero + 1,
       action == 'photo-appareil' ? SourcePhoto.appareil : null,
     );
+    // Le Journal tout juste créé n'écoute la demande qu'une fois construit.
+    if (nouvelle) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) demander();
+      });
+    } else {
+      demander();
+    }
   }
 
   @override
@@ -105,10 +161,18 @@ class _CoqueState extends State<Coque> {
     if (ancien.enregistre.profil.montre != widget.enregistre.profil.montre) {
       _suivi.charger(montre: widget.enregistre.profil.montre);
     }
+    // Nouveau profil : les pages déjà visitées sont recréées avec lui.
+    if (!identical(ancien.enregistre, widget.enregistre)) {
+      for (var i = 0; i < _pages.length; i++) {
+        if (_pages[i] != null) _pages[i] = _page(i);
+      }
+    }
   }
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    _minuit?.cancel();
     _suivi.dispose();
     unawaited(_actionsWidget?.cancel());
     _demandePhoto.dispose();
@@ -116,6 +180,83 @@ class _CoqueState extends State<Coque> {
     _meteoSuivi.dispose();
     super.dispose();
   }
+
+  /// Page de l'onglet [i], construite avec le profil courant.
+  Widget _page(int i) => switch (i) {
+    0 => AccueilPage(
+      utilisateur: widget.utilisateur,
+      enregistre: widget.enregistre,
+      auth: _s.auth,
+      depot: _s.depot,
+      sante: _s.sante,
+      suivi: _suivi,
+      horloge: widget.horloge,
+      onOnglet: _choisirOnglet,
+      journal: _s.journal,
+      bienetre: _s.bienetre,
+      meteoSuivi: _meteoSuivi,
+      miseAJour: _maj,
+      onReglages: _ouvrirReglages,
+      majWidget: _s.widgetAccueil,
+      onIdees: () => Navigator.of(context).push<void>(
+        routeVerre(
+          (_) => IdeesPage(
+            utilisateur: widget.utilisateur,
+            objectif: widget.enregistre.profil.objectif,
+            // La cible du jour, avec le maintien mesuré : celle du journal.
+            kcalCible: _suivi.reperesDuJour(widget.enregistre.profil).kcalCible,
+            avis: _s.avis,
+            horloge: widget.horloge,
+          ),
+        ),
+      ),
+    ),
+    1 => JournalPage(
+      utilisateur: widget.utilisateur,
+      enregistre: widget.enregistre,
+      journal: _s.journal,
+      analyse: _s.analyse,
+      planning: _s.planning,
+      avis: _s.avis,
+      consentements: _s.consentements,
+      photosRepas: _s.photosRepas,
+      catalogue: _s.catalogue,
+      demandePhoto: _demandePhoto,
+      suivi: _suivi,
+      horloge: widget.horloge,
+    ),
+    2 => EntrainementPage(
+      utilisateur: widget.utilisateur,
+      enregistre: widget.enregistre,
+      entrainement: _s.entrainement,
+      journal: _s.journal,
+      voix: _s.voix,
+      suivi: _suivi,
+      horloge: widget.horloge,
+    ),
+    3 => PoidsPage(
+      utilisateur: widget.utilisateur,
+      enregistre: widget.enregistre,
+      depot: _s.depot,
+      pesees: _s.pesees,
+      journal: _s.journal,
+      mensurations: _s.mensurations,
+      photos: _s.photos,
+      sante: _s.sante,
+      horloge: widget.horloge,
+    ),
+    _ => BienEtrePage(
+      utilisateur: widget.utilisateur,
+      enregistre: widget.enregistre,
+      bienetre: _s.bienetre,
+      journal: _s.journal,
+      meteoSuivi: _meteoSuivi,
+      rappels: _s.rappels,
+      entrainement: _s.entrainement,
+      consentements: _s.consentements,
+      horloge: widget.horloge,
+    ),
+  };
 
   @override
   Widget build(BuildContext context) {
@@ -130,78 +271,7 @@ class _CoqueState extends State<Coque> {
           child: IndexedStack(
             index: _onglet,
             children: [
-              AccueilPage(
-                utilisateur: widget.utilisateur,
-                enregistre: widget.enregistre,
-                auth: _s.auth,
-                depot: _s.depot,
-                sante: _s.sante,
-                suivi: _suivi,
-                horloge: widget.horloge,
-                onOnglet: (i) => setState(() => _onglet = i),
-                journal: _s.journal,
-                bienetre: _s.bienetre,
-                meteoSuivi: _meteoSuivi,
-                miseAJour: _maj,
-                onReglages: _ouvrirReglages,
-                majWidget: _s.widgetAccueil,
-                onIdees: () => Navigator.of(context).push<void>(
-                  MaterialPageRoute(
-                    builder: (_) => IdeesPage(
-                      utilisateur: widget.utilisateur,
-                      objectif: widget.enregistre.profil.objectif,
-                      kcalCible: widget.enregistre.reperes.kcalCible,
-                      avis: _s.avis,
-                      horloge: widget.horloge,
-                    ),
-                  ),
-                ),
-              ),
-              JournalPage(
-                utilisateur: widget.utilisateur,
-                enregistre: widget.enregistre,
-                journal: _s.journal,
-                analyse: _s.analyse,
-                planning: _s.planning,
-                avis: _s.avis,
-                consentements: _s.consentements,
-                photosRepas: _s.photosRepas,
-                catalogue: _s.catalogue,
-                demandePhoto: _demandePhoto,
-                suivi: _suivi,
-                horloge: widget.horloge,
-              ),
-              EntrainementPage(
-                utilisateur: widget.utilisateur,
-                enregistre: widget.enregistre,
-                entrainement: _s.entrainement,
-                journal: _s.journal,
-                voix: _s.voix,
-                suivi: _suivi,
-                horloge: widget.horloge,
-              ),
-              PoidsPage(
-                utilisateur: widget.utilisateur,
-                enregistre: widget.enregistre,
-                depot: _s.depot,
-                pesees: _s.pesees,
-                journal: _s.journal,
-                mensurations: _s.mensurations,
-                photos: _s.photos,
-                sante: _s.sante,
-                horloge: widget.horloge,
-              ),
-              BienEtrePage(
-                utilisateur: widget.utilisateur,
-                enregistre: widget.enregistre,
-                bienetre: _s.bienetre,
-                journal: _s.journal,
-                meteoSuivi: _meteoSuivi,
-                rappels: _s.rappels,
-                entrainement: _s.entrainement,
-                consentements: _s.consentements,
-                horloge: widget.horloge,
-              ),
+              for (final page in _pages) page ?? const SizedBox.shrink(),
             ],
           ),
         ),
@@ -223,7 +293,10 @@ class _CoqueState extends State<Coque> {
                           ),
                           child: Text(
                             t.horsLigne,
-                            style: Theme.of(context).textTheme.bodySmall,
+                            // Texte foncé fixe : sur l'orange, le texte clair
+                            // du thème sombre serait illisible.
+                            style: Theme.of(context).textTheme.bodySmall
+                                ?.copyWith(color: CouleursCoach.texte),
                           ),
                         ),
                       ),
@@ -236,7 +309,7 @@ class _CoqueState extends State<Coque> {
                 rayon: 34,
                 child: NavigationBar(
                   selectedIndex: _onglet,
-                  onDestinationSelected: (i) => setState(() => _onglet = i),
+                  onDestinationSelected: _choisirOnglet,
                   destinations: [
                     NavigationDestination(
                       icon: const Icon(Icons.home_outlined),

@@ -1,5 +1,3 @@
-import 'dart:ui' show ImageFilter;
-
 import 'package:flutter/material.dart';
 
 import 'theme.dart';
@@ -113,20 +111,15 @@ class _Tache extends StatelessWidget {
   );
 }
 
-/// Plaque de verre : le fond est flouté derrière elle, le bord capte la
-/// lumière et un reflet diagonal traverse la surface. À réserver aux
-/// éléments qui flottent (barre d'onglets) : le flou coûte à dessiner.
+/// Plaque de verre : un voile translucide, un bord qui capte la lumière et un
+/// reflet diagonal. Sans flou d'arrière-plan : le Scaffold des onglets ne
+/// passe jamais sous la barre, le flou ne traiterait que les taches déjà
+/// douces du fond, pour un effet invisible payé à chaque image.
 class VerreFlou extends StatelessWidget {
-  const VerreFlou({
-    super.key,
-    required this.child,
-    this.rayon = 32,
-    this.flou = 22,
-  });
+  const VerreFlou({super.key, required this.child, this.rayon = 32});
 
   final Widget child;
   final double rayon;
-  final double flou;
 
   @override
   Widget build(BuildContext context) {
@@ -145,32 +138,29 @@ class VerreFlou extends StatelessWidget {
       ),
       child: ClipRRect(
         borderRadius: forme,
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: flou, sigmaY: flou),
+        child: DecoratedBox(
+          decoration: BoxDecoration(
+            color: p.verre,
+            borderRadius: forme,
+            border: Border.all(color: p.verreBord),
+          ),
+          position: DecorationPosition.background,
           child: DecoratedBox(
             decoration: BoxDecoration(
-              color: p.verre,
               borderRadius: forme,
-              border: Border.all(color: p.verreBord),
-            ),
-            position: DecorationPosition.background,
-            child: DecoratedBox(
-              decoration: BoxDecoration(
-                borderRadius: forme,
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [
-                    Colors.white.withValues(alpha: 0.30),
-                    Colors.white.withValues(alpha: 0),
-                    Colors.white.withValues(alpha: 0),
-                    Colors.white.withValues(alpha: 0.10),
-                  ],
-                  stops: const [0, 0.36, 0.64, 1],
-                ),
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  Colors.white.withValues(alpha: 0.30),
+                  Colors.white.withValues(alpha: 0),
+                  Colors.white.withValues(alpha: 0),
+                  Colors.white.withValues(alpha: 0.10),
+                ],
+                stops: const [0, 0.36, 0.64, 1],
               ),
-              child: child,
             ),
+            child: child,
           ),
         ),
       ),
