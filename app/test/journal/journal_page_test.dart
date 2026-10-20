@@ -19,6 +19,7 @@ import 'package:coach/profil/profil_repository.dart';
 import 'package:coach/sante/modele.dart';
 import 'package:coach/sante/sante_service.dart';
 import 'package:coach/sante/suivi.dart';
+import 'package:coach/verre.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -1344,5 +1345,42 @@ void main() {
     await tester.pump();
     await tester.pump();
     expect(tester.widget<IdeesPage>(find.byType(IdeesPage)).kcalCible, mesuree);
+  });
+
+  testWidgets('écrans poussés : posés sur leur propre fond de verre', (
+    tester,
+  ) async {
+    final banc = Banc();
+    await banc.monter(tester);
+    // Le journal monté seul n'a pas de fond : tout FondVerre vient des routes.
+    expect(find.byType(FondVerre), findsNothing);
+
+    void surVerre(Finder page) {
+      expect(
+        find.ancestor(of: page, matching: find.byType(FondVerre)),
+        findsOneWidget,
+      );
+      expect(
+        Theme.of(tester.element(page)).scaffoldBackgroundColor,
+        Colors.transparent,
+      );
+    }
+
+    await ouvrirPhoto(tester);
+    surVerre(find.byType(PhotoRepasPage));
+    await tester.tap(find.byType(BackButton));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byTooltip('Repas de la semaine'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 500));
+    surVerre(find.byType(PlanningPage));
+    await tester.tap(find.byType(BackButton));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byTooltip('Idées de repas'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 500));
+    surVerre(find.byType(IdeesPage));
   });
 }

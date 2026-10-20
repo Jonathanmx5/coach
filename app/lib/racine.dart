@@ -9,6 +9,7 @@ import 'profil/profil_repository.dart';
 import 'profil/questionnaire/controleur.dart';
 import 'profil/questionnaire/questionnaire_page.dart';
 import 'services.dart';
+import 'route_verre.dart';
 
 /// Aiguillage : bienvenue, questionnaire ou accueil selon la connexion et le
 /// profil enregistré.
@@ -52,8 +53,8 @@ class _RacineState extends State<Racine> {
       avecConnexion: true,
     );
     Navigator.of(context).push(
-      MaterialPageRoute<void>(
-        builder: (routeContext) => QuestionnairePage(
+      routeVerre<void>(
+        (routeContext) => QuestionnairePage(
           controleur: controleur,
           auth: _s.auth,
           depot: _s.depot,

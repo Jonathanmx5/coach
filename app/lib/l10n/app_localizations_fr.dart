@@ -250,7 +250,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get montreAide =>
-      'Crunch & Go pourra lire ton activité, ton sommeil et ton cœur via Health Connect, sans rien envoyer sur internet.';
+      'Crunch & Go pourra lire ton activité, ton sommeil et ton cœur via Health Connect. Ces données restent sur ton téléphone ; seul ton poids le plus récent est enregistré dans ton profil en ligne.';
 
   @override
   String get qAppMontre => 'Quelle application l\'accompagne ?';
@@ -1008,7 +1008,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get consentPhotoTexte =>
-      'La photo de ton repas est envoyée à un service d\'IA pour estimer les aliments : Google Gemini (offre payante, qui n\'utilise pas tes photos pour entraîner ses modèles), via un relais hébergé par Cloudflare, ou à défaut Cloudflare Workers AI. Le relais ne la garde pas ; Google peut conserver la demande pendant une durée limitée pour détecter les abus, et le traitement peut avoir lieu hors de l\'Union européenne. Dans l\'appli, elle n\'est gardée que sur ton téléphone, jamais dans le cloud, pour que tu puisses revoir ton repas ; seul le résultat que tu valides est ajouté à ton journal en ligne. Tu peux retirer ton accord à tout moment dans les Réglages.';
+      'La photo de ton repas, avec la précision que tu écris éventuellement, est envoyée à un service d\'IA pour estimer les aliments : Google Gemini (offre payante, qui n\'utilise pas tes photos pour entraîner ses modèles), via un relais hébergé par Cloudflare, ou à défaut Cloudflare Workers AI. Le relais ne la garde pas. Elle peut être traitée hors de l\'Union européenne, par Google ou par Cloudflare. Dans l\'appli, elle n\'est gardée que sur ton téléphone, jamais dans le cloud, pour que tu puisses revoir ton repas ; seul le résultat que tu valides est ajouté à ton journal en ligne. Tu peux retirer ton accord à tout moment dans les Réglages.';
 
   @override
   String get consentMeteoTitre => 'Utiliser ta position ?';
@@ -1030,6 +1030,17 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get rapportsPlantageAide =>
       'Si l\'appli plante, la trace de l\'erreur, le modèle du téléphone et la version d\'Android sont envoyés à Google (Firebase Crashlytics, traitement possible hors de l\'UE) pour corriger le bug.';
+
+  @override
+  String get identifiantCompte => 'Identifiant du compte';
+
+  @override
+  String identifiantCompteAide(String uid) {
+    return '$uid\nTouche pour le copier. Note-le avant de désinstaller : il suffit pour demander l\'effacement de tes données sans l\'appli.';
+  }
+
+  @override
+  String get identifiantCopie => 'Identifiant copié.';
 
   @override
   String get supprimerCompte => 'Supprimer mon compte et mes données';

@@ -25,6 +25,7 @@ import '../recettes/idees_page.dart';
 import 'detail_repas_page.dart';
 import '../recettes/planning_page.dart';
 import '../recettes/planning_repository.dart';
+import '../route_verre.dart';
 
 /// Demande d'ouvrir l'écran de photo du repas (bouton d'un widget) ; [source]
 /// non nulle : on passe directement par l'appareil ou la bibliothèque.
@@ -173,8 +174,8 @@ class _JournalPageState extends State<JournalPage> with WidgetsBindingObserver {
 
   void _ouvrirDetail(Repas r, CiblesJour cibles, Macros totalJour) {
     Navigator.of(context).push<void>(
-      MaterialPageRoute(
-        builder: (_) => DetailRepasPage(
+      routeVerre(
+        (_) => DetailRepasPage(
           repas: r,
           dejaMange: Macros(
             kcal: totalJour.kcal - r.macros.kcal,
@@ -250,11 +251,9 @@ class _JournalPageState extends State<JournalPage> with WidgetsBindingObserver {
   Future<void> _ajouterRepas({DateTime? date}) async {
     final t = AppLocalizations.of(context)!;
     final messager = ScaffoldMessenger.of(context);
-    final repas = await Navigator.of(context).push<Repas>(
-      MaterialPageRoute(
-        builder: (_) => AjoutRepasPage(date: date ?? _dateAjout),
-      ),
-    );
+    final repas = await Navigator.of(
+      context,
+    ).push<Repas>(routeVerre((_) => AjoutRepasPage(date: date ?? _dateAjout)));
     if (repas != null) _enregistrer(repas, messager, t);
   }
 
@@ -322,8 +321,8 @@ class _JournalPageState extends State<JournalPage> with WidgetsBindingObserver {
     final (dejaMange, cibles) = await _totauxDe(_debutDeJour(date));
     if (!mounted) return;
     final resultat = await Navigator.of(context).push<Object>(
-      MaterialPageRoute(
-        builder: (_) => PhotoRepasPage(
+      routeVerre(
+        (_) => PhotoRepasPage(
           date: date,
           analyse: widget.analyse,
           prise: widget.prise,
@@ -373,8 +372,8 @@ class _JournalPageState extends State<JournalPage> with WidgetsBindingObserver {
           IconButton(
             tooltip: t.menuIdees,
             onPressed: () => Navigator.of(context).push(
-              MaterialPageRoute<void>(
-                builder: (_) => IdeesPage(
+              routeVerre<void>(
+                (_) => IdeesPage(
                   utilisateur: widget.utilisateur,
                   objectif: widget.enregistre.profil.objectif,
                   kcalCible: kcalCible(),
@@ -388,8 +387,8 @@ class _JournalPageState extends State<JournalPage> with WidgetsBindingObserver {
           IconButton(
             tooltip: t.menuPlanning,
             onPressed: () => Navigator.of(context).push(
-              MaterialPageRoute<void>(
-                builder: (_) => PlanningPage(
+              routeVerre<void>(
+                (_) => PlanningPage(
                   utilisateur: widget.utilisateur,
                   kcalCible: kcalCible(),
                   planning: widget.planning,

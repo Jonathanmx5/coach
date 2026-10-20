@@ -7,6 +7,7 @@ import '../l10n/app_localizations.dart';
 import '../theme.dart';
 import '../journal/analyse_photo.dart' show SourcePhoto;
 import 'photos.dart';
+import '../route_verre.dart';
 
 /// Largeur d'une vignette de la bande, en points.
 const largeurVignette = 90.0;
@@ -157,9 +158,7 @@ class _PhotosSectionState extends State<PhotosSection> {
                       minimumSize: const Size(0, 48),
                     ),
                     onPressed: () => Navigator.of(context).push(
-                      MaterialPageRoute<void>(
-                        builder: (_) => ComparaisonPage(photos: _liste),
-                      ),
+                      routeVerre<void>((_) => ComparaisonPage(photos: _liste)),
                     ),
                     icon: const Icon(Icons.compare),
                     label: Text(t.comparerPhotos),

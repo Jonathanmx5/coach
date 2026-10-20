@@ -2,13 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 
 import '../l10n/app_localizations.dart';
+import '../route_verre.dart';
 
 /// Ouvre la lecture d'un code-barres ; remplaçable dans les tests.
 typedef ScanCode = Future<String?> Function(BuildContext context);
 
 Future<String?> lireCodeBarres(BuildContext context) =>
-    Navigator.of(context)
-        .push<String>(MaterialPageRoute(builder: (_) => const ScannerPage()));
+    Navigator.of(context).push<String>(routeVerre((_) => const ScannerPage()));
 
 /// Lit un code-barres avec la caméra ; renvoie le code ou null.
 /// Un champ permet aussi de le taper si la caméra n'est pas disponible.

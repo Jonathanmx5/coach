@@ -13,6 +13,7 @@ import 'avis_repository.dart';
 import 'modele.dart';
 import 'planning.dart';
 import 'recette_page.dart';
+import '../route_verre.dart';
 
 /// Idées de repas à balayer : à droite « j'aime, pour plus tard », à gauche
 /// « je n'aime pas » (la recette ne revient presque plus). Toucher la carte
@@ -69,9 +70,8 @@ class _IdeesPageState extends State<IdeesPage> {
   }
 
   Future<void> _ouvrir(Recette r) => Navigator.of(context).push<void>(
-    MaterialPageRoute(
-      builder: (_) =>
-          RecettePage(recette: r, portions: _portions(r), actions: false),
+    routeVerre(
+      (_) => RecettePage(recette: r, portions: _portions(r), actions: false),
     ),
   );
 
@@ -90,8 +90,8 @@ class _IdeesPageState extends State<IdeesPage> {
             tooltip: t.mesEnvies,
             icon: const Icon(Icons.favorite_border),
             onPressed: () => Navigator.of(context).push<void>(
-              MaterialPageRoute(
-                builder: (_) => EnviesPage(
+              routeVerre(
+                (_) => EnviesPage(
                   uid: _uid,
                   avis: widget.avis,
                   portions: _portions,
@@ -160,10 +160,10 @@ class _IdeesPageState extends State<IdeesPage> {
                               ),
                               const SizedBox(height: 16),
                               FilledButton(
-                                onPressed: () =>
-                                    Navigator.of(context).push<void>(
-                                      MaterialPageRoute(
-                                        builder: (_) => EnviesPage(
+                                onPressed: () => Navigator.of(context)
+                                    .push<void>(
+                                      routeVerre(
+                                        (_) => EnviesPage(
                                           uid: _uid,
                                           avis: widget.avis,
                                           portions: _portions,
@@ -526,8 +526,8 @@ class EnviesPage extends StatelessWidget {
                     onPressed: () => unawaited(avis.noter(uid, r.id, null)),
                   ),
                   onTap: () => Navigator.of(context).push<void>(
-                    MaterialPageRoute(
-                      builder: (_) => RecettePage(
+                    routeVerre(
+                      (_) => RecettePage(
                         recette: r,
                         portions: portions(r),
                         actions: false,

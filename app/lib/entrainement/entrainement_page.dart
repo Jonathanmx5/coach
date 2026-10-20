@@ -24,6 +24,7 @@ import 'modele.dart';
 import 'seance_guidee_page.dart';
 import 'semaine.dart';
 import 'voix.dart';
+import '../route_verre.dart';
 
 String _libelleLieu(AppLocalizations t, Lieu l) => switch (l) {
   Lieu.maison => t.lieuMaison,
@@ -173,8 +174,8 @@ class _EntrainementPageState extends State<EntrainementPage> {
 
   void _lancerRoutine(Routine r) {
     Navigator.of(context).push(
-      MaterialPageRoute<void>(
-        builder: (_) => SeanceGuideePage(seance: routine(r), voix: widget.voix),
+      routeVerre<void>(
+        (_) => SeanceGuideePage(seance: routine(r), voix: widget.voix),
       ),
     );
   }
@@ -211,9 +212,7 @@ class _EntrainementPageState extends State<EntrainementPage> {
     // Une seule séance « faite » par jour.
     if (_faiteAujourdhui()) return _dire(messager, t.seanceDejaFaite);
     final fini = await Navigator.of(context).push<bool>(
-      MaterialPageRoute(
-        builder: (_) => SeanceGuideePage(seance: seance, voix: widget.voix),
-      ),
+      routeVerre((_) => SeanceGuideePage(seance: seance, voix: widget.voix)),
     );
     if (fini != true) return;
     // Une séance a pu être enregistrée entre-temps (autre appareil).
@@ -267,8 +266,8 @@ class _EntrainementPageState extends State<EntrainementPage> {
 
   Future<void> _ajouterActivite() async {
     final activite = await Navigator.of(context).push<Activite>(
-      MaterialPageRoute(
-        builder: (_) =>
+      routeVerre(
+        (_) =>
             AjoutActivitePage(date: widget.horloge(), poidsKg: _profil.poidsKg),
       ),
     );

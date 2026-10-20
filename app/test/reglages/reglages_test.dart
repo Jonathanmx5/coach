@@ -572,6 +572,32 @@ void main() {
     expect(racine.liensOuverts.single.toString(), lienConfidentialite);
   });
 
+  testWidgets(
+    "réglages : identifiant du compte affiché et copié, sans e-mail",
+    (tester) async {
+      await ouvrir(tester, FausseMiseAJour());
+      await defilerJusqua(tester, find.text('Identifiant du compte'));
+      expect(
+        find.textContaining('${racine.lea.uid}\nTouche pour le copier'),
+        findsOneWidget,
+      );
+
+      String? copie;
+      tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+        SystemChannels.platform,
+        (call) async {
+          if (call.method == 'Clipboard.setData') {
+            copie = (call.arguments as Map)['text'] as String;
+          }
+          return null;
+        },
+      );
+      await taper(tester, 'Identifiant du compte');
+      expect(copie, racine.lea.uid);
+      expect(find.text('Identifiant copié.'), findsOneWidget);
+    },
+  );
+
   testWidgets('réglages : se déconnecter ferme la page', (tester) async {
     await ouvrir(tester, FausseMiseAJour());
     await taper(tester, 'Se déconnecter');

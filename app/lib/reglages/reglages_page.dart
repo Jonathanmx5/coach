@@ -71,6 +71,16 @@ class _ReglagesPageState extends State<ReglagesPage> {
       ..showSnackBar(SnackBar(content: Text(t.lienCopie)));
   }
 
+  /// L'identifiant du compte suffit pour demander l'effacement sans l'appli :
+  /// aucune autre donnée personnelle (adresse e-mail, nom) n'est à donner.
+  Future<void> _copierIdentifiant(AppLocalizations t) async {
+    await Clipboard.setData(ClipboardData(text: _uid));
+    if (!mounted) return;
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(SnackBar(content: Text(t.identifiantCopie)));
+  }
+
   Future<void> _deconnecter() async {
     // La page se ferme d'abord : l'aiguillage de l'appli reprend la main.
     Navigator.of(context).pop();
@@ -564,6 +574,14 @@ class _ReglagesPageState extends State<ReglagesPage> {
                 ? null
                 : Text(widget.utilisateur.prenom!),
             onTap: _deconnecter,
+          ),
+          ListTile(
+            contentPadding: EdgeInsets.zero,
+            leading: const Icon(Icons.badge_outlined),
+            title: Text(t.identifiantCompte),
+            subtitle: Text(t.identifiantCompteAide(_uid)),
+            trailing: const Icon(Icons.copy),
+            onTap: () => unawaited(_copierIdentifiant(t)),
           ),
           ListTile(
             contentPadding: EdgeInsets.zero,

@@ -541,7 +541,7 @@ abstract class AppLocalizations {
   /// No description provided for @montreAide.
   ///
   /// In fr, this message translates to:
-  /// **'Crunch & Go pourra lire ton activité, ton sommeil et ton cœur via Health Connect, sans rien envoyer sur internet.'**
+  /// **'Crunch & Go pourra lire ton activité, ton sommeil et ton cœur via Health Connect. Ces données restent sur ton téléphone ; seul ton poids le plus récent est enregistré dans ton profil en ligne.'**
   String get montreAide;
 
   /// No description provided for @qAppMontre.
@@ -1855,7 +1855,7 @@ abstract class AppLocalizations {
   /// No description provided for @consentPhotoTexte.
   ///
   /// In fr, this message translates to:
-  /// **'La photo de ton repas est envoyée à un service d\'IA pour estimer les aliments : Google Gemini (offre payante, qui n\'utilise pas tes photos pour entraîner ses modèles), via un relais hébergé par Cloudflare, ou à défaut Cloudflare Workers AI. Le relais ne la garde pas ; Google peut conserver la demande pendant une durée limitée pour détecter les abus, et le traitement peut avoir lieu hors de l\'Union européenne. Dans l\'appli, elle n\'est gardée que sur ton téléphone, jamais dans le cloud, pour que tu puisses revoir ton repas ; seul le résultat que tu valides est ajouté à ton journal en ligne. Tu peux retirer ton accord à tout moment dans les Réglages.'**
+  /// **'La photo de ton repas, avec la précision que tu écris éventuellement, est envoyée à un service d\'IA pour estimer les aliments : Google Gemini (offre payante, qui n\'utilise pas tes photos pour entraîner ses modèles), via un relais hébergé par Cloudflare, ou à défaut Cloudflare Workers AI. Le relais ne la garde pas. Elle peut être traitée hors de l\'Union européenne, par Google ou par Cloudflare. Dans l\'appli, elle n\'est gardée que sur ton téléphone, jamais dans le cloud, pour que tu puisses revoir ton repas ; seul le résultat que tu valides est ajouté à ton journal en ligne. Tu peux retirer ton accord à tout moment dans les Réglages.'**
   String get consentPhotoTexte;
 
   /// No description provided for @consentMeteoTitre.
@@ -1893,6 +1893,24 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Si l\'appli plante, la trace de l\'erreur, le modèle du téléphone et la version d\'Android sont envoyés à Google (Firebase Crashlytics, traitement possible hors de l\'UE) pour corriger le bug.'**
   String get rapportsPlantageAide;
+
+  /// No description provided for @identifiantCompte.
+  ///
+  /// In fr, this message translates to:
+  /// **'Identifiant du compte'**
+  String get identifiantCompte;
+
+  /// No description provided for @identifiantCompteAide.
+  ///
+  /// In fr, this message translates to:
+  /// **'{uid}\nTouche pour le copier. Note-le avant de désinstaller : il suffit pour demander l\'effacement de tes données sans l\'appli.'**
+  String identifiantCompteAide(String uid);
+
+  /// No description provided for @identifiantCopie.
+  ///
+  /// In fr, this message translates to:
+  /// **'Identifiant copié.'**
+  String get identifiantCopie;
 
   /// No description provided for @supprimerCompte.
   ///

@@ -17,6 +17,7 @@ import 'modele.dart';
 import 'planning.dart';
 import 'planning_repository.dart';
 import 'recette_page.dart';
+import '../route_verre.dart';
 
 /// Les repas de la semaine, calculés d'après la cible calorique du profil.
 class PlanningPage extends StatefulWidget {
@@ -96,8 +97,8 @@ class _PlanningPageState extends State<PlanningPage> {
   Future<void> _ouvrir(Planning p, int jour, Moment moment) async {
     final repas = p.jours[jour]![moment]!;
     final action = await Navigator.of(context).push<ActionRecette>(
-      MaterialPageRoute(
-        builder: (_) => RecettePage(
+      routeVerre(
+        (_) => RecettePage(
           recette: recetteParId(repas.recetteId),
           portions: repas.portions,
         ),
@@ -129,9 +130,8 @@ class _PlanningPageState extends State<PlanningPage> {
           ..showSnackBar(SnackBar(content: Text(t.repasAjoute)));
       case ActionRecette.changer:
         final choix = await Navigator.of(context).push<Recette>(
-          MaterialPageRoute(
-            builder: (_) =>
-                ChoixRecettePage(moment: moment, vegetarien: p.vegetarien),
+          routeVerre(
+            (_) => ChoixRecettePage(moment: moment, vegetarien: p.vegetarien),
           ),
         );
         if (choix != null) {
@@ -172,8 +172,8 @@ class _PlanningPageState extends State<PlanningPage> {
                 onPressed: p == null
                     ? null
                     : () => Navigator.of(context).push(
-                        MaterialPageRoute<void>(
-                          builder: (_) => CoursesPage(
+                        routeVerre<void>(
+                          (_) => CoursesPage(
                             uid: _uid,
                             lundi: _lundi,
                             planning: widget.planning,

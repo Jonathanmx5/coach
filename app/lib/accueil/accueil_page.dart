@@ -24,6 +24,7 @@ import '../sante/mes_donnees_page.dart';
 import '../sante/sante_service.dart';
 import '../sante/suivi.dart';
 import '../theme.dart';
+import '../route_verre.dart';
 
 class AccueilPage extends StatefulWidget {
   const AccueilPage({
@@ -167,8 +168,8 @@ class _AccueilPageState extends State<AccueilPage> {
       maintenant: widget.horloge(),
     );
     Navigator.of(context).push(
-      MaterialPageRoute<void>(
-        builder: (routeContext) => QuestionnairePage(
+      routeVerre<void>(
+        (routeContext) => QuestionnairePage(
           controleur: controleur,
           auth: widget.auth,
           depot: widget.depot,
@@ -233,8 +234,8 @@ class _AccueilPageState extends State<AccueilPage> {
                           onConnecter: _modifierProfil,
                           onAutoriser: _autoriser,
                           onDetail: () => Navigator.of(context).push(
-                            MaterialPageRoute<void>(
-                              builder: (_) => MesDonneesPage(suivi: _suivi),
+                            routeVerre<void>(
+                              (_) => MesDonneesPage(suivi: _suivi),
                             ),
                           ),
                         ),
