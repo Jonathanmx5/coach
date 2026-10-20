@@ -4,14 +4,20 @@ export const CONSIGNE = `Tu es un diététicien sportif. La photo montre soit un
 - Plat : liste les aliments vus, avec la quantité estimée en grammes et les apports pour cette quantité.
 - Produit emballé : donne son nom (et sa marque si elle est lisible) dans "description". Si le tableau nutritionnel est lisible, utilise ses valeurs pour 100 g. La quantité est celle que la personne indique (par exemple "la moitié du pot") ; sans précision, c'est tout le contenu de l'emballage. Calcule les apports pour cette quantité.
 Réponds UNIQUEMENT avec du JSON de cette forme :
-{"description":"<ce que c'est, en une phrase courte>","aliments":[{"nom":"<nom en français>","grammes":<nombre>,"grammes_min":<nombre>,"grammes_max":<nombre>,"kcal":<nombre>,"proteines":<nombre>,"glucides":<nombre>,"sucres":<nombre>,"lipides":<nombre>,"satures":<nombre>,"confiance":<nombre entre 0 et 1>}]}
-"grammes_min" et "grammes_max" : fourchette réaliste de la quantité (la vraie valeur doit avoir de bonnes chances d'y être ; plus large quand la portion est difficile à estimer). "sucres" = part des glucides qui est du sucre ; "satures" = part des lipides qui est saturée (0 si inconnu). "confiance" : ta certitude sur l'aliment et sa quantité (1 = sûr ; moins de 0,5 pour un plat mélangé, caché ou à la portion difficile à estimer).
+{"description":"<ce que c'est, en une phrase courte>","aliments":[{"nom":"<nom en français>","grammes":<nombre>,"grammes_min":<nombre>,"grammes_max":<nombre>,"kcal":<nombre>,"proteines":<nombre>,"glucides":<nombre>,"sucres":<nombre>,"lipides":<nombre>,"satures":<nombre>,"alcool":<nombre>,"source":"etiquette" ou "estimation","confiance":<nombre entre 0 et 1>}]}
+"grammes_min" et "grammes_max" : fourchette réaliste de la quantité (la vraie valeur doit avoir de bonnes chances d'y être ; plus large quand la portion est difficile à estimer). "sucres" = part des glucides qui est du sucre ; "satures" = part des lipides qui est saturée (0 si inconnu). "alcool" : grammes d'alcool pur (7 kcal par gramme, comptés dans "kcal" ; 0 pour une boisson ou un aliment sans alcool). "source" : "etiquette" si les valeurs viennent du tableau nutritionnel lisible sur la photo, sinon "estimation". "confiance" : ta certitude sur l'aliment et sa quantité (1 = sûr ; moins de 0,5 pour un plat mélangé, caché ou à la portion difficile à estimer).
 Si la photo ne montre aucun aliment ni aucun produit alimentaire (objet, paysage, logo, image floue...), réponds exactement {"description":"","aliments":[]}. N'invente rien. Au plus 8 aliments, les plus importants.`;
+
+/** Confiance d'un aliment quand le modèle n'en donne pas, sous le seuil « à vérifier » de l'application (0,6). */
+const CONFIANCE_PAR_DEFAUT = 0.5;
+/** Confiance maximale d'un aliment pour lequel le modèle n'a donné ni calories ni macros. */
+const CONFIANCE_SANS_VALEURS = 0.3;
 
 const borne = (v, min, max) => Math.min(max, Math.max(min, v));
 const nombre = (v) => (typeof v === 'number' && Number.isFinite(v) ? v : Number.parseFloat(v));
 
-const sansAccents = (s) => s.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+// « œ » et « æ » n'ont pas de décomposition canonique : on les écrit à la main.
+const sansAccents = (s) => s.replace(/œ/gi, 'oe').replace(/æ/gi, 'ae').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
 
 const CLES_MACROS = {
   kcal: 'kcal',
@@ -23,36 +29,59 @@ const CLES_MACROS = {
   graisses: 'lipides',
   satures: 'satures',
   saturees: 'satures',
+  alcool: 'alcool',
   confiance: 'confiance',
 };
 
+// Lignes annexes d'une liste à puces : ni des aliments, ni des macros demandées.
+const CLES_IGNOREES = /fibres|sel|sodium|acides gras|satur|poids|total/;
+// Début d'un récapitulatif (« Total : », « Récapitulatif », « Bilan ») : il
+// reprend les valeurs des aliments, la liste s'arrête là.
+const RECAPITULATIF = /^(total|totaux|recapitulatif|bilan)([^a-z]|$)/;
+
+// Boissons alcoolisées : leurs calories viennent surtout de l'alcool, que
+// les macros ne comptent pas quand le modèle omet le champ "alcool".
+const ALCOOLS = /(^|[^a-z])(bieres?|vins?|cidres?|champagnes?|aperitifs?|whiskys?|whiskies|rhums?|vodkas?|cocktails?)([^a-z]|$)/;
+
 /**
  * Certains modèles répondent en texte libre (liste à puces) au lieu de JSON :
- * « * Riz : 180 g » suivi de sous-puces « * Kcal : 234 ». On en tire le même
- * objet que le JSON demandé. Null si rien d'exploitable.
+ * « * Riz : 180 g » suivi de sous-puces plus indentées « * Kcal : 234 ». On en
+ * tire le même objet que le JSON demandé. Null si rien d'exploitable.
  */
 export function depuisTexteLibre(texte) {
   if (typeof texte !== 'string') return null;
   let description = '';
   const liste = [];
   let courant = null;
+  let retraitCourant = 0;
+  let niveauAliment = null;
   for (const brute of texte.split('\n')) {
-    const ligne = brute.replace(/\*\*/g, '');
+    const ligne = brute.replace(/\*\*/g, '').replace(/\t/g, '    ');
     const desc = /^\s*description\s*:\s*(.+)$/i.exec(ligne);
     if (desc && liste.length === 0) {
       description = desc[1].trim();
       continue;
     }
     const puce = /^(\s*)[*•-]\s+(.*)$/.exec(ligne);
+    const contenu = (puce ? puce[2] : ligne).trim();
+    if (RECAPITULATIF.test(sansAccents(contenu))) break;
     if (!puce) continue;
-    const kv = /^([^:]+?)\s*:\s*(\d+(?:[.,]\d+)?)\s*(g|kcal)?(?![\p{L}])/iu.exec(puce[2].trim());
+    const retrait = puce[1].length;
+    const kv = /^([^:]+?)\s*:\s*(\d+(?:[.,]\d+)?)\s*(g|kcal)?(?![\p{L}])/iu.exec(contenu);
     if (!kv) continue;
-    const cle = CLES_MACROS[sansAccents(kv[1].trim())];
+    const libelle = sansAccents(kv[1].trim());
+    const cle = CLES_MACROS[libelle];
     const valeur = Number.parseFloat(kv[2].replace(',', '.'));
-    if (cle && courant) {
-      courant[cle] = valeur;
-    } else if (!cle && (kv[3] ?? '').toLowerCase() === 'g') {
+    if (cle) {
+      // Une macro n'appartient qu'à l'aliment au-dessus d'elle, moins indenté.
+      if (courant && retrait > retraitCourant) courant[cle] = valeur;
+    } else if (CLES_IGNOREES.test(libelle)) {
+      continue;
+    } else if ((kv[3] ?? '').toLowerCase() === 'g' && (niveauAliment === null || retrait <= niveauAliment)) {
+      // Un aliment est une puce du premier niveau de la liste.
+      niveauAliment ??= retrait;
       courant = { nom: kv[1].trim(), grammes: valeur };
+      retraitCourant = retrait;
       liste.push(courant);
     }
   }
@@ -127,31 +156,46 @@ export function extraireJson(texte) {
 
 /**
  * Nettoie la réponse du modèle : au plus 8 aliments, valeurs bornées,
- * calories recalculées depuis les macros si elles manquent.
+ * calories recalculées depuis les macros si elles manquent. Null si la
+ * réponse n'a pas de liste d'aliments, ou si aucun n'a la moindre valeur.
  * @returns {{nom: string, grammes: number, kcal: number, proteines: number, glucides: number, lipides: number}[] | null}
  */
 export function aliments(texteOuObjet) {
   const json = versObjet(texteOuObjet);
   if (!json || !Array.isArray(json.aliments)) return null;
   const sortie = [];
+  let devinesANul = 0;
   for (const a of json.aliments) {
     if (!a || typeof a.nom !== 'string' || a.nom.trim() === '') continue;
-    const grammes = borne(Math.round(nombre(a.grammes) || 100), 1, 2000);
+    const grammesLus = nombre(a.grammes);
+    const grammesParDefaut = !(grammesLus > 0);
+    const grammes = borne(Math.round(grammesParDefaut ? 100 : grammesLus), 1, 2000);
     let p = borne(nombre(a.proteines) || 0, 0, 500);
     let g = borne(nombre(a.glucides) || 0, 0, 1000);
     let l = borne(nombre(a.lipides) || 0, 0, 500);
     let sucres = borne(nombre(a.sucres) || 0, 0, g);
     let satures = borne(nombre(a.satures) || 0, 0, l);
-    const depuisMacros = p * 4 + g * 4 + l * 9;
-    let kcal = nombre(a.kcal);
+    const alcool = borne(nombre(a.alcool) || 0, 0, 300);
+    // L'alcool apporte 7 kcal par gramme.
+    const depuisMacros = p * 4 + g * 4 + l * 9 + alcool * 7;
+    const kcalLues = nombre(a.kcal);
+    let kcal = kcalLues;
+    // Ni calories ni macros : la valeur (0, ou celle du référentiel) n'est
+    // qu'un repère, l'aliment sera signalé « à vérifier ».
+    const sansValeurs = !Number.isFinite(kcalLues) && depuisMacros === 0;
+    // Boisson alcoolisée sans le champ "alcool" : les macros ignorent
+    // l'alcool, des calories plus élevées qu'elles sont donc normales.
+    const alcoolNonCompte = kcal > depuisMacros && ALCOOLS.test(sansAccents(a.nom));
     if (!Number.isFinite(kcal) || kcal <= 0) kcal = depuisMacros;
     // Les modèles se trompent souvent en arithmétique : si les calories
     // s'écartent de plus de 25 % de ce que donnent les macros, on garde les macros.
-    else if (depuisMacros > 0 && Math.abs(kcal - depuisMacros) / depuisMacros > 0.25) kcal = depuisMacros;
+    else if (depuisMacros > 0 && !alcoolNonCompte && Math.abs(kcal - depuisMacros) / depuisMacros > 0.25) kcal = depuisMacros;
     // Aliment connu : si la densité calorique du modèle s'écarte de plus de
     // 25 % du repère usuel, on garde les grammes du modèle et on reprend les
-    // apports du tableau (voir referentiel.js).
-    const repere = referentiel(a.nom);
+    // apports du tableau (voir referentiel.js). Jamais pour des valeurs lues
+    // sur l'étiquette d'un produit emballé.
+    const etiquette = typeof a.source === 'string' && sansAccents(a.source).trim() === 'etiquette';
+    const repere = etiquette ? null : referentiel(a.nom);
     if (repere && Math.abs(kcal / grammes - repere.kcal / 100) / (repere.kcal / 100) > 0.25) {
       const f = grammes / 100;
       p = repere.p * f;
@@ -161,7 +205,11 @@ export function aliments(texteOuObjet) {
       satures = repere.sat * f;
       kcal = repere.kcal * f;
     }
-    const confiance = borne(Number.isFinite(nombre(a.confiance)) ? nombre(a.confiance) : 0.7, 0, 1);
+    // Sans confiance, 0,5 : sous le seuil de l'application (0,6), l'aliment
+    // est signalé « à vérifier ». Plafonnée quand une valeur a été devinée.
+    let confiance = borne(Number.isFinite(nombre(a.confiance)) ? nombre(a.confiance) : CONFIANCE_PAR_DEFAUT, 0, 1);
+    if (grammesParDefaut) confiance = Math.min(confiance, CONFIANCE_PAR_DEFAUT);
+    if (sansValeurs) confiance = Math.min(confiance, CONFIANCE_SANS_VALEURS);
     const gMin = Math.round(nombre(a.grammes_min));
     const gMax = Math.round(nombre(a.grammes_max));
     // Fourchette gardée seulement si elle encadre l'estimation et reste plausible.
@@ -181,8 +229,13 @@ export function aliments(texteOuObjet) {
       satures: Math.round(satures * 10) / 10,
       confiance: Math.round(confiance * 100) / 100,
     });
+    if (sansValeurs && sortie.at(-1).kcal === 0) devinesANul++;
     if (sortie.length === 8) break;
   }
+  // Aucun aliment n'a de calories et le modèle n'en a donné aucune (réponse
+  // coupée, liste de noms) : rien d'exploitable, d'autres modèles peuvent
+  // être essayés. Une boisson à 0 kcal annoncée (eau, café) reste valable.
+  if (sortie.length > 0 && devinesANul === sortie.length) return null;
   return sortie;
 }
 

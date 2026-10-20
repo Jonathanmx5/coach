@@ -66,7 +66,10 @@ Le script lance un petit worker d'évaluation (`wrangler dev --remote`, quota gr
 
 - Le relais lit du JSON, du JSON sans accolades extérieures (fréquent avec Llama 3.2), du JSON coupé en route, et même une liste à puces.
 - Chaque aliment peut porter une fourchette de quantité (`grammes_min`, `grammes_max`), gardée seulement si elle encadre l'estimation.
-- Pour un aliment sans ambiguïté (riz, pâtes, poulet, œuf, pain...), si la densité calorique annoncée s'écarte de plus de 25 % de `src/referentiel.js`, les apports sont recalculés avec ce tableau (les grammes restent ceux du modèle). Les plats composés et les aliments crus ne sont jamais corrigés. Ce tableau est un ordre de grandeur, à valider avec la série de repas pesés.
+- Pour un aliment sans ambiguïté (riz, pâtes, poulet, œuf, pain...), si la densité calorique annoncée s'écarte de plus de 25 % de `src/referentiel.js`, les apports sont recalculés avec ce tableau (les grammes restent ceux du modèle). Liste blanche stricte : le nom doit être exactement un mot-clé, aux adjectifs neutres près (cuit, nature, vapeur, grillé, blanc) ; « Pain au chocolat », « Jambon cru », « Poulet pané » ou un plat composé ne sont jamais corrigés. Les valeurs lues sur une étiquette (`"source": "etiquette"`) ne le sont pas non plus. Ce tableau est un ordre de grandeur, à valider avec la série de repas pesés.
+- L'alcool compte 7 kcal par gramme (champ `alcool`) ; sans ce champ, les calories d'une bière ou d'un vin ne sont pas ramenées à celles des seuls glucides.
+- Liste à puces : seules les puces du premier niveau sont des aliments, une macro n'est rattachée qu'à l'aliment moins indenté au-dessus d'elle ; fibres, sel et poids total sont ignorés, et la lecture s'arrête au récapitulatif « Total ».
+- Confiance par défaut 0,5 (sous le seuil « à vérifier » de l'application), plafonnée à 0,5 si les grammes manquent et à 0,3 pour un aliment sans calories ni macros. Si aucun aliment n'a de valeur, la réponse est illisible (modèle de secours, puis 422).
 
 ## App Check (preuve que l'appel vient de la vraie application)
 

@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 
-import { aliments, analyse, entreeModele, extraireJson, nettoyerIndice } from '../src/analyse.js';
+import { CONSIGNE, aliments, analyse, depuisTexteLibre, entreeModele, extraireJson, nettoyerIndice } from '../src/analyse.js';
 import { traiter } from '../src/index.js';
 import { JetonInvalide, verifierAppCheck, verifierJeton } from '../src/jeton.js';
 import { consommer, jourUtc } from '../src/limites.js';
@@ -113,16 +113,19 @@ test('aliments : nettoyage, bornes, kcal recalculées', () => {
   assert.deepEqual(aliments('{"aliments":[]}'), []);
 });
 
-test('aliments : confiance bornée, 0,7 par défaut', () => {
+test('aliments : confiance bornée, 0,5 par défaut (sous le seuil « à vérifier »)', () => {
   const l = aliments({
     aliments: [
       { nom: 'a', grammes: 10, kcal: 10, confiance: 3 },
       { nom: 'b', grammes: 10, kcal: 10, confiance: -1 },
       { nom: 'c', grammes: 10, kcal: 10 },
       { nom: 'd', grammes: 10, kcal: 10, confiance: '0.4' },
+      // Grammes devinés (100 par défaut) : confiance plafonnée à 0,5.
+      { nom: 'e', kcal: 10, confiance: 0.9 },
     ],
   });
-  assert.deepEqual(l.map((x) => x.confiance), [1, 0, 0.7, 0.4]);
+  assert.deepEqual(l.map((x) => x.confiance), [1, 0, 0.5, 0.4, 0.5]);
+  assert.equal(l[4].grammes, 100);
 });
 
 test('aliments : calories incohérentes avec les macros corrigées', () => {
@@ -506,7 +509,10 @@ test('référentiel : aliments sûrs reconnus, plats composés et crus écartés
   assert.equal(referentiel('Poulet et riz'), null);
   assert.equal(referentiel('Salade composée'), null);
   assert.equal(referentiel('Pomme').kcal, 52);
-  assert.equal(referentiel('Pomme de terre sautée').kcal, 86);
+  // Pommes de terre sautées : environ 150 kcal pour 100 g, pas les 86 de la vapeur.
+  assert.equal(referentiel('Pomme de terre sautée'), null);
+  assert.equal(referentiel('Pommes de terre sautées'), null);
+  assert.equal(referentiel('Pommes de terre vapeur').kcal, 86);
   assert.equal(referentiel('Chocolat'), null);
   assert.equal(referentiel(''), null);
   assert.equal(referentiel(undefined), null);
@@ -531,4 +537,155 @@ test('un aliment connu à la densité absurde est recalculé, un plausible est l
   assert.equal(plausible.kcal, 240);
   assert.equal(plausible.glucides, 52);
   assert.equal(inconnu.kcal, 100);
+});
+
+test('référentiel : liste blanche stricte, variantes et plats jamais corrigés', () => {
+  for (const nom of [
+    'Escalope de poulet panée',
+    'Aiguillettes de poulet panées',
+    'Filets de colin panés',
+    'Yaourt à la grecque',
+    'Jambon cru',
+    'Jambon de Bayonne',
+    'Pain au chocolat',
+    'Pain aux raisins',
+    "Porridge d'avoine",
+    'Avoine cuite',
+    'Salade niçoise',
+    'Salade de chèvre chaud',
+    'Steak de thon',
+    "Thon à l'huile",
+    'Crevettes frites',
+    'Ailes de poulet frites',
+    'Riz cantonais',
+    'Riz frit',
+    'Spaghetti carbonara',
+    'Omelette au fromage',
+    'Poulet rôti aux herbes',
+  ]) {
+    assert.equal(referentiel(nom), null, nom);
+  }
+  // Adjectifs neutres retirés : le nom reste celui d'un aliment simple.
+  assert.equal(referentiel('Riz blanc').kcal, 130);
+  assert.equal(referentiel("Riz cuit à l'eau").kcal, 130);
+  assert.equal(referentiel('Fromage blanc').kcal, 60);
+  assert.equal(referentiel('Yaourt nature').kcal, 55);
+  assert.equal(referentiel('Flocons d’avoine').kcal, 370);
+});
+
+test('référentiel : la ligature « œ » est reconnue', () => {
+  assert.equal(referentiel('Œuf').kcal, 143);
+  assert.equal(referentiel('Œufs').kcal, 143);
+  assert.equal(referentiel('Bœuf').kcal, 220);
+  assert.equal(referentiel('Œufs brouillés'), null);
+});
+
+test('aliments : des valeurs justes ne sont plus remplacées par celles d\'un autre aliment', () => {
+  const r = analyse({
+    aliments: [
+      { nom: 'Pain au chocolat', grammes: 60, kcal: 250, proteines: 4.5, glucides: 27, lipides: 14, confiance: 0.8 },
+      { nom: "Porridge d'avoine", grammes: 250, kcal: 225, proteines: 8, glucides: 35, lipides: 5, confiance: 0.8 },
+      { nom: 'Pommes de terre sautées', grammes: 200, kcal: 300, proteines: 4, glucides: 40, lipides: 14, confiance: 0.8 },
+      { nom: 'Yaourt à la grecque', grammes: 150, kcal: 180, proteines: 9, glucides: 6, lipides: 13.5, confiance: 0.8 },
+    ],
+  });
+  assert.deepEqual(
+    r.aliments.map((a) => a.kcal),
+    [250, 225, 300, 180],
+  );
+  assert.equal(r.aliments[0].lipides, 14);
+});
+
+test("alcool : les calories d'une bière ou d'un verre de vin sont gardées", () => {
+  const r = analyse({
+    aliments: [
+      // Sans le champ "alcool" : le nom suffit à garder les kcal.
+      { nom: 'Bière blonde', grammes: 330, kcal: 140, glucides: 12, proteines: 1.5, confiance: 0.8 },
+      { nom: 'Vin rouge', grammes: 125, kcal: 85, glucides: 3, confiance: 0.8 },
+      // Avec le champ "alcool" : 7 kcal par gramme comptés dans les macros.
+      { nom: 'Pinte', grammes: 500, kcal: 215, glucides: 18, proteines: 2, alcool: 20, confiance: 0.8 },
+      // Une boisson sans alcool reste corrigée par ses macros.
+      { nom: 'Jus de pomme', grammes: 200, kcal: 300, glucides: 20, confiance: 0.8 },
+    ],
+  });
+  const [biere, vin, pinte, jus] = r.aliments;
+  assert.equal(biere.kcal, 140);
+  assert.equal(vin.kcal, 85);
+  assert.equal(pinte.kcal, 215); // 2×4 + 18×4 + 20×7 = 220 : à moins de 25 %
+  assert.equal(jus.kcal, 80);
+  assert.ok(CONSIGNE.includes('"alcool"'));
+});
+
+test("étiquette d'un produit emballé : le référentiel ne remplace pas ses valeurs", () => {
+  const r = analyse({
+    description: 'Riz basmati, sachet de 1 kg',
+    aliments: [
+      { nom: 'Riz basmati', grammes: 1000, kcal: 3500, proteines: 80, glucides: 770, lipides: 10, source: 'etiquette' },
+      { nom: 'Riz', grammes: 1000, kcal: 3500, proteines: 80, glucides: 770, lipides: 10, source: 'Étiquette' },
+      // Mêmes valeurs, estimées : le riz cuit du tableau s'applique.
+      { nom: 'Riz', grammes: 1000, kcal: 3500, proteines: 80, glucides: 770, lipides: 10, source: 'estimation' },
+    ],
+  });
+  const [basmati, etiquette, estimation] = r.aliments;
+  assert.equal(basmati.kcal, 3000); // bornée à 3000 kcal, pas ramenée à 1300
+  assert.equal(etiquette.glucides, 770);
+  assert.equal(estimation.kcal, 1300);
+  assert.ok(CONSIGNE.includes('"source"'));
+});
+
+test('texte libre : fibres, récapitulatif « Total » et poids total ignorés', () => {
+  const texte = [
+    '**Description :** Riz et poulet rôti.',
+    '',
+    '*   Riz : 180 g',
+    '    *   Kcal : 234',
+    '*   Poulet rôti : 150 g',
+    '    *   Kcal : 300',
+    '    *   Protéines : 40 g',
+    '    *   Lipides : 15,5 g',
+    '    *   Fibres : 3 g',
+    '    *   Acides gras saturés : 4 g',
+    '*   Poids total : 330 g',
+    '',
+    '**Total :**',
+    '',
+    '*   Kcal : 534',
+    '*   Protéines : 45 g',
+    '*   Glucides : 50 g',
+  ].join('\n');
+  const r = analyse(texte);
+  assert.deepEqual(r.aliments.map((a) => a.nom), ['Riz', 'Poulet rôti']);
+  assert.equal(r.aliments.reduce((t, a) => t + a.kcal, 0), 534);
+  assert.equal(r.aliments[1].proteines, 40);
+
+  // « Poids total » n'est pas un aliment.
+  assert.deepEqual(depuisTexteLibre('*   Poids total : 330 g\n*   Pomme : 150 g').aliments.map((a) => a.nom), ['Pomme']);
+  // Une macro au même niveau que l'aliment ne lui est pas rattachée.
+  assert.equal(depuisTexteLibre('* Pomme : 150 g\n* Kcal : 900').aliments[0].kcal, undefined);
+});
+
+test('aliment sans calories ni macros : signalé « à vérifier », ou réponse illisible', () => {
+  // Seul aliment, sans aucune valeur : rien d'exploitable (422, ou modèle de secours).
+  assert.equal(analyse({ aliments: [{ nom: 'Gratin dauphinois', grammes: 250 }] }), null);
+  assert.equal(analyse('*   Gratin dauphinois : 250 g'), null);
+  // À côté d'un aliment chiffré : gardé, mais à 0,3 de confiance au plus.
+  const r = analyse({
+    aliments: [
+      { nom: 'Gratin dauphinois', grammes: 250, confiance: 0.9 },
+      { nom: 'Steak', grammes: 150, kcal: 330, proteines: 40, lipides: 18, confiance: 0.9 },
+    ],
+  });
+  assert.equal(r.aliments[0].kcal, 0);
+  assert.equal(r.aliments[0].confiance, 0.3);
+  assert.equal(r.aliments[1].confiance, 0.9);
+  // Une boisson à 0 kcal annoncée par le modèle reste une réponse valable.
+  assert.equal(analyse({ aliments: [{ nom: 'Eau', grammes: 250, kcal: 0, confiance: 0.9 }] }).aliments[0].kcal, 0);
+});
+
+test('relais : une réponse sans aucune calorie donne 422 (illisible)', async () => {
+  const { cles, jeton } = await fabrique();
+  const vide = env(async () => ({ response: '{"aliments":[{"nom":"Gratin dauphinois","grammes":250}]}' }));
+  const r = await traiter(requete({ jeton: await jeton() }), vide, { cles, maintenant: MAINTENANT });
+  assert.equal(r.status, 422);
+  assert.equal((await r.json()).erreur, 'illisible');
 });
