@@ -24,7 +24,10 @@
     <application
         android:label="Crunch &amp; Go"
         android:name="${applicationName}"
-        android:icon="@mipmap/ic_launcher">
+        android:icon="@mipmap/ic_launcher"
+        android:allowBackup="false">
+        <!-- Pas de sauvegarde Android (Drive, transfert d'appareil) : les photos
+             de progression et de repas ne quittent jamais le téléphone. -->
         <receiver
             android:name="com.dexterous.flutterlocalnotifications.ScheduledNotificationReceiver"
             android:exported="false" />
@@ -86,7 +89,7 @@
             android:value="2" />
         <receiver
             android:name=".WidgetCoach"
-            android:exported="true"
+            android:exported="false"
             android:label="Crunch &amp; Go">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
@@ -97,7 +100,7 @@
         </receiver>
         <receiver
             android:name=".WidgetEau"
-            android:exported="true"
+            android:exported="false"
             android:label="Crunch &amp; Go">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
@@ -108,7 +111,7 @@
         </receiver>
         <receiver
             android:name=".WidgetRepas"
-            android:exported="true"
+            android:exported="false"
             android:label="Crunch &amp; Go">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
@@ -117,9 +120,11 @@
                 android:name="android.appwidget.provider"
                 android:resource="@xml/widget_repas_info" />
         </receiver>
+        <!-- Non exportés : les boutons des widgets passent par des PendingIntent
+             de l'appli, aucune autre appli ne peut ajouter de l'eau. -->
         <receiver
             android:name="es.antonborri.home_widget.HomeWidgetBackgroundReceiver"
-            android:exported="true">
+            android:exported="false">
             <intent-filter>
                 <action android:name="es.antonborri.home_widget.action.BACKGROUND" />
             </intent-filter>

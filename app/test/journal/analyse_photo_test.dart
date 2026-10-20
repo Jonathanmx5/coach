@@ -1,4 +1,6 @@
+import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:coach/journal/analyse_photo.dart';
@@ -12,9 +14,10 @@ final image = Uint8List.fromList([1, 2, 3]);
 AnalysePhotoRelais client(
   Future<http.Response> Function(http.Request) rep, {
   String? jeton = 'tok',
+  Future<String?> Function()? fonctionJeton,
 }) => AnalysePhotoRelais(
   url: 'https://relais.test',
-  jeton: () async => jeton,
+  jeton: fonctionJeton ?? () async => jeton,
   client: MockClient(rep),
 );
 
@@ -125,21 +128,60 @@ void main() {
     expect(liste.aliments.last.macros.glucides, 0);
   });
 
-  test("la précision de l'utilisateur part en paramètre", () async {
-    late Uri vue;
-    final c = client((r) async {
-      vue = r.url;
-      return json({'aliments': []});
-    });
-    await c.analyser(image, indice: '  sauce à part  ');
-    expect(vue.path, '/analyse');
-    expect(vue.queryParameters, {'indice': 'sauce à part'});
+  test(
+    "la précision part dans le corps (multipart), jamais dans l'adresse",
+    () async {
+      final vues = <http.Request>[];
+      final c = client((r) async {
+        vues.add(r);
+        return json({'aliments': []});
+      });
+      await c.analyser(image, indice: '  sauce à part  ');
+      final r = vues.single;
+      expect(r.url.toString(), 'https://relais.test/analyse');
+      expect(r.url.query, isEmpty);
+      expect(r.headers['authorization'], 'Bearer tok');
+      expect(r.headers['content-type'], startsWith('multipart/form-data'));
+      final corps = utf8.decode(r.bodyBytes, allowMalformed: true);
+      expect(corps, contains('name="indice"'));
+      expect(corps, contains('sauce à part'));
+      expect(corps, contains('name="image"'));
+      expect(corps, contains('content-type: image/jpeg'));
 
-    await c.analyser(image, indice: '   ');
-    expect(vue.query, isEmpty);
-    await c.analyser(image);
-    expect(vue.query, isEmpty);
-  });
+      // Sans précision : le JPEG brut, comme avant.
+      vues.clear();
+      await c.analyser(image, indice: '   ');
+      await c.analyser(image);
+      for (final v in vues) {
+        expect(v.url.query, isEmpty);
+        expect(v.headers['content-type'], 'image/jpeg');
+        expect(v.bodyBytes, [1, 2, 3]);
+      }
+    },
+  );
+
+  test(
+    "repli : un relais qui ne lit pas le multipart reçoit l'image seule",
+    () async {
+      final vues = <http.Request>[];
+      final c = client((r) async {
+        vues.add(r);
+        final multipart = r.headers['content-type']!.startsWith('multipart');
+        return multipart
+            ? json({'erreur': 'illisible'}, 422)
+            : json({
+                'aliments': [
+                  {'nom': 'Riz', 'grammes': 100, 'kcal': 130},
+                ],
+              });
+      });
+      final r = await c.analyser(image, indice: 'riz complet');
+      expect(r.aliments.single.nom, 'Riz');
+      expect(vues, hasLength(2));
+      expect(vues[1].url.query, isEmpty);
+      expect(vues[1].bodyBytes, [1, 2, 3]);
+    },
+  );
 
   test('confiance : lue, et « à vérifier » sous le seuil', () async {
     final c = client(
@@ -159,10 +201,17 @@ void main() {
     expect(b.confiance, 0.4);
     expect(b.nom, 'Sauce');
     expect(b.macros.kcal, 20);
+    // Corrigé par l'utilisateur : plus « à vérifier », le reste inchangé.
+    final v = b.valideParUtilisateur();
+    expect(v.aVerifier, isFalse);
+    expect(v.confiance, isNull);
+    expect(v.nom, 'Sauce');
+    expect(v.grammes, 20);
+    expect(v.macros.kcal, 20);
   });
 
   test(
-    'erreurs : pas de jeton, 401, 429, 413/422, 500, réseau, corps cassé',
+    'erreurs : jeton, 401, 429, 413, 422, 502, délai, réseau, corps cassé',
     () async {
       expect(
         await cause(client((_) async => json({}), jeton: null)),
@@ -176,9 +225,20 @@ void main() {
         await cause(client((_) async => json({}, 429))),
         CauseAnalyse.quota,
       );
+      // Jeton à renouveler hors réseau : getIdToken lève une exception.
+      expect(
+        await cause(
+          client(
+            (_) async => json({}),
+            fonctionJeton: () async =>
+                throw Exception('network-request-failed'),
+          ),
+        ),
+        CauseAnalyse.reseau,
+      );
       expect(
         await cause(client((_) async => json({}, 413))),
-        CauseAnalyse.illisible,
+        CauseAnalyse.tropGros,
       );
       expect(
         await cause(client((_) async => json({}, 422))),
@@ -193,11 +253,33 @@ void main() {
         CauseAnalyse.reseau,
       );
       expect(
+        await cause(client((_) async => throw const SocketException('coupé'))),
+        CauseAnalyse.reseau,
+      );
+      expect(
+        await cause(client((_) async => throw TimeoutException('lent'))),
+        CauseAnalyse.indisponible,
+      );
+      expect(
         await cause(client((_) async => http.Response('pas du json', 200))),
         CauseAnalyse.illisible,
       );
     },
   );
+
+  test("App Check en panne : l'analyse part quand même, sans preuve", () async {
+    late http.Request vue;
+    await AnalysePhotoRelais(
+      url: 'https://relais.test',
+      jeton: () async => 'tok',
+      preuve: () async => throw Exception('play integrity'),
+      client: MockClient((r) async {
+        vue = r;
+        return json({'aliments': []});
+      }),
+    ).analyser(image);
+    expect(vue.headers.containsKey('x-firebase-appcheck'), isFalse);
+  });
 
   test('changer la portion garde les proportions', () {
     const a = AlimentEstime(

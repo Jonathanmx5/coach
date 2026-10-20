@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
 
+import '../image_propre.dart';
 import '../journal/analyse_photo.dart' show SourcePhoto;
 
 /// Une photo de progression, stockée sur l'appareil.
@@ -69,6 +70,14 @@ class PhotosProgresLocales implements PhotosProgres {
       imageQuality: 85,
     );
     if (prise == null) return null;
+    // JPEG ré-encodé sans métadonnées (ni position GPS, ni numéro de série),
+    // et copie d'image_picker effacée du cache.
+    final propre = await lirePriseNettoyee(
+      prise,
+      largeurMax: 1600,
+      qualite: 85,
+    );
+    if (propre == null) return null;
     final dossier = await _dossier();
     // Le jour choisi, avec l'heure actuelle pour départager deux photos du
     // même jour ; le nom du fichier est la date en millisecondes.
@@ -86,7 +95,7 @@ class PhotosProgresLocales implements PhotosProgres {
       date = date.add(const Duration(seconds: 1));
     }
     final chemin = '${dossier.path}/${date.millisecondsSinceEpoch}.jpg';
-    await File(prise.path).copy(chemin);
+    await File(chemin).writeAsBytes(propre, flush: true);
     return PhotoProgres(chemin: chemin, date: date);
   }
 

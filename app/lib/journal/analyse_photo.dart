@@ -1,10 +1,13 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
+import 'package:http_parser/http_parser.dart';
 import 'package:image_picker/image_picker.dart';
 
+import '../image_propre.dart';
 import 'modele.dart';
 
 /// Sous ce seuil de certitude, l'aliment est signalé « à vérifier ».
@@ -99,6 +102,18 @@ class AlimentEstime {
     grammesMin: grammesMin,
     grammesMax: grammesMax,
   );
+
+  /// Même aliment, vérifié par l'utilisateur (nom ou portion corrigés) : il
+  /// n'est plus « à vérifier », quelle que soit la certitude de l'IA.
+  AlimentEstime valideParUtilisateur() => AlimentEstime(
+    nom: nom,
+    grammes: grammes,
+    macros: macros,
+    sucres: sucres,
+    satures: satures,
+    grammesMin: grammesMin,
+    grammesMax: grammesMax,
+  );
 }
 
 /// Calories du repas entre deux bornes, d'après les fourchettes de quantité de
@@ -131,7 +146,8 @@ class ResultatAnalyse {
   final List<AlimentEstime> aliments;
 }
 
-enum CauseAnalyse { reseau, auth, quota, illisible, indisponible }
+/// [tropGros] : la photo dépasse la taille acceptée par le relais (413).
+enum CauseAnalyse { reseau, auth, quota, illisible, tropGros, indisponible }
 
 class AnalyseEchouee implements Exception {
   const AnalyseEchouee(this.cause);
@@ -146,8 +162,9 @@ abstract class AnalysePhoto {
   /// Faux si le relais n'est pas configuré : l'analyse n'est alors pas proposée.
   bool get disponible;
 
-  /// [indice] : précision libre de l'utilisateur (« sauce à part »…).
-  /// Lève [AnalyseEchouee].
+  /// [indice] : précision libre de l'utilisateur (« sauce à part »…). Elle
+  /// part dans le corps de la requête, jamais dans l'adresse (qui peut finir
+  /// dans des journaux). Lève [AnalyseEchouee].
   Future<ResultatAnalyse> analyser(Uint8List jpeg, {String? indice});
 }
 
@@ -172,30 +189,34 @@ class AnalysePhotoRelais implements AnalysePhoto {
 
   @override
   Future<ResultatAnalyse> analyser(Uint8List jpeg, {String? indice}) async {
-    final token = await jeton();
-    if (token == null) throw const AnalyseEchouee(CauseAnalyse.auth);
-    final preuveAppCheck = await preuve?.call();
-    final precision = indice?.trim() ?? '';
-    final http.Response r;
+    // Le jeton Firebase peut devoir être renouvelé en ligne : hors réseau,
+    // getIdToken lève une exception.
+    final String? token;
     try {
-      r = await _client
-          .post(
-            Uri.parse('$url/analyse').replace(
-              queryParameters: precision.isEmpty ? null : {'indice': precision},
-            ),
-            headers: {
-              'authorization': 'Bearer $token',
-              'content-type': 'image/jpeg',
-              if (preuveAppCheck != null && preuveAppCheck.isNotEmpty)
-                'x-firebase-appcheck': preuveAppCheck,
-            },
-            body: jpeg,
-          )
-          .timeout(const Duration(seconds: 45));
-    } on TimeoutException {
+      token = await jeton();
+    } catch (_) {
       throw const AnalyseEchouee(CauseAnalyse.reseau);
-    } on http.ClientException {
-      throw const AnalyseEchouee(CauseAnalyse.reseau);
+    }
+    if (token == null) throw const AnalyseEchouee(CauseAnalyse.auth);
+    String? preuveAppCheck;
+    try {
+      preuveAppCheck = await preuve?.call();
+    } catch (_) {
+      // Sans preuve, le relais décide (il ne l'impose pas encore).
+    }
+    final entetes = {
+      'authorization': 'Bearer $token',
+      if (preuveAppCheck != null && preuveAppCheck.isNotEmpty)
+        'x-firebase-appcheck': preuveAppCheck,
+    };
+    final precision = indice?.trim() ?? '';
+    var r = await _envoyer(jpeg, precision, entetes);
+    // Repli tant que le relais n'accepte pas le multipart : l'ancien relais
+    // lit tout le corps comme une image et échoue. On renvoie alors la photo
+    // seule, sans la précision. À retirer une fois le relais à jour.
+    if (precision.isNotEmpty &&
+        const {400, 415, 422, 502}.contains(r.statusCode)) {
+      r = await _envoyer(jpeg, '', entetes);
     }
     switch (r.statusCode) {
       case 200:
@@ -204,7 +225,9 @@ class AnalysePhotoRelais implements AnalysePhoto {
         throw const AnalyseEchouee(CauseAnalyse.auth);
       case 429:
         throw const AnalyseEchouee(CauseAnalyse.quota);
-      case 413 || 422:
+      case 413:
+        throw const AnalyseEchouee(CauseAnalyse.tropGros);
+      case 422:
         throw const AnalyseEchouee(CauseAnalyse.illisible);
       default:
         throw const AnalyseEchouee(CauseAnalyse.indisponible);
@@ -236,6 +259,48 @@ class AnalysePhotoRelais implements AnalysePhoto {
       throw const AnalyseEchouee(CauseAnalyse.illisible);
     }
   }
+
+  /// Sans précision : le JPEG brut. Avec : multipart/form-data (parties
+  /// `image` et `indice`). Délai dépassé : service indisponible ; pas de
+  /// connexion : réseau.
+  Future<http.Response> _envoyer(
+    Uint8List jpeg,
+    String precision,
+    Map<String, String> entetes,
+  ) async {
+    final adresse = Uri.parse('$url/analyse');
+    final http.BaseRequest requete;
+    if (precision.isEmpty) {
+      requete = http.Request('POST', adresse)
+        ..headers.addAll(entetes)
+        ..headers['content-type'] = 'image/jpeg'
+        ..bodyBytes = jpeg;
+    } else {
+      requete = http.MultipartRequest('POST', adresse)
+        ..headers.addAll(entetes)
+        ..fields['indice'] = precision
+        ..files.add(
+          http.MultipartFile.fromBytes(
+            'image',
+            jpeg,
+            filename: 'repas.jpg',
+            contentType: MediaType('image', 'jpeg'),
+          ),
+        );
+    }
+    try {
+      return await _client
+          .send(requete)
+          .then(http.Response.fromStream)
+          .timeout(const Duration(seconds: 45));
+    } on TimeoutException {
+      throw const AnalyseEchouee(CauseAnalyse.indisponible);
+    } on SocketException {
+      throw const AnalyseEchouee(CauseAnalyse.reseau);
+    } on http.ClientException {
+      throw const AnalyseEchouee(CauseAnalyse.reseau);
+    }
+  }
 }
 
 /// D'où vient la photo.
@@ -244,6 +309,10 @@ enum SourcePhoto { appareil, galerie }
 /// Prend ou choisit une photo ; null si l'utilisateur annule.
 typedef PrisePhoto = Future<Uint8List?> Function(SourcePhoto source);
 
+/// Les octets rendus sont un JPEG ré-encodé sans métadonnées (ni position
+/// GPS, ni numéro de série) : ce sont eux qui partent à l'analyse et qui sont
+/// gardés dans photos_repas. La copie d'image_picker est effacée du cache.
+/// Null aussi si le fichier choisi n'est pas une image lisible.
 Future<Uint8List?> prisePhotoCamera(SourcePhoto source) async {
   final f = await ImagePicker().pickImage(
     source: source == SourcePhoto.appareil
@@ -252,5 +321,6 @@ Future<Uint8List?> prisePhotoCamera(SourcePhoto source) async {
     maxWidth: 1024,
     imageQuality: 80,
   );
-  return f?.readAsBytes();
+  if (f == null) return null;
+  return lirePriseNettoyee(f);
 }

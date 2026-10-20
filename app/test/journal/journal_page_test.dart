@@ -781,6 +781,22 @@ void main() {
     expect(find.text('Prendre une photo'), findsOneWidget);
   });
 
+  testWidgets('photo : trop lourde, message dédié et pas de réessai', (
+    tester,
+  ) async {
+    final banc = Banc();
+    banc.analyse.echec = CauseAnalyse.tropGros;
+    await banc.monter(tester);
+
+    await analyserUnePhoto(tester);
+    expect(find.textContaining('trop lourde'), findsOneWidget);
+    expect(find.textContaining('plus de lumière'), findsNothing);
+    expect(find.text('Réessayer'), findsNothing);
+    await taper(tester, 'Changer de photo');
+
+    expect(find.text('Prendre une photo'), findsOneWidget);
+  });
+
   testWidgets('photo : aucun aliment reconnu', (tester) async {
     final banc = Banc();
     await banc.monter(tester);

@@ -403,6 +403,7 @@
   "analyseAuth": "Ta session a expiré. Reconnecte-toi pour analyser une photo.",
   "analyseQuota": "Tu as atteint la limite de photos analysées pour aujourd'hui (ou le service est très sollicité). Saisis le repas à la main, ou réessaie demain.",
   "analyseIllisible": "Je n'ai pas réussi à lire cette photo. Essaie avec plus de lumière, ou saisis le repas à la main.",
+  "analyseTropGros": "Cette photo est trop lourde pour être analysée. Choisis-en une autre, ou saisis le repas à la main.",
   "analyseIndisponible": "Le service d'analyse est indisponible pour le moment.",
   "reessayer": "Réessayer",
   "saisirALaMain": "Saisir à la main",

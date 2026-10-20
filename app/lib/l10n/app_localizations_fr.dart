@@ -766,6 +766,10 @@ class AppLocalizationsFr extends AppLocalizations {
       'Je n\'ai pas réussi à lire cette photo. Essaie avec plus de lumière, ou saisis le repas à la main.';
 
   @override
+  String get analyseTropGros =>
+      'Cette photo est trop lourde pour être analysée. Choisis-en une autre, ou saisis le repas à la main.';
+
+  @override
   String get analyseIndisponible =>
       'Le service d\'analyse est indisponible pour le moment.';
 

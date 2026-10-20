@@ -409,15 +409,18 @@ class _PhotoRepasPageState extends State<PhotoRepasPage> {
               CauseAnalyse.auth => t.analyseAuth,
               CauseAnalyse.quota => t.analyseQuota,
               CauseAnalyse.illisible => t.analyseIllisible,
+              CauseAnalyse.tropGros => t.analyseTropGros,
               CauseAnalyse.indisponible => t.analyseIndisponible,
             },
             textAlign: TextAlign.center,
             style: Theme.of(context).textTheme.bodyLarge,
           ),
           const SizedBox(height: 16),
-          if (_cause != CauseAnalyse.quota)
+          // Renvoyer la même photo trop lourde ne servirait à rien.
+          if (_cause != CauseAnalyse.quota && _cause != CauseAnalyse.tropGros)
             FilledButton(onPressed: _analyser, child: Text(t.reessayer)),
-          if (_cause == CauseAnalyse.illisible)
+          if (_cause == CauseAnalyse.illisible ||
+              _cause == CauseAnalyse.tropGros)
             TextButton(
               onPressed: () => setState(() => _phase = _Phase.choix),
               child: Text(t.changerPhoto),

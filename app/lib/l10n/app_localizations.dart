@@ -1450,6 +1450,12 @@ abstract class AppLocalizations {
   /// **'Je n\'ai pas réussi à lire cette photo. Essaie avec plus de lumière, ou saisis le repas à la main.'**
   String get analyseIllisible;
 
+  /// No description provided for @analyseTropGros.
+  ///
+  /// In fr, this message translates to:
+  /// **'Cette photo est trop lourde pour être analysée. Choisis-en une autre, ou saisis le repas à la main.'**
+  String get analyseTropGros;
+
   /// No description provided for @analyseIndisponible.
   ///
   /// In fr, this message translates to:
