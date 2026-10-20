@@ -220,6 +220,11 @@
       }
     }
   },
+  "importPoidsTitre": "Importer {kg} kg de ta balance ?",
+  "@importPoidsTitre": {"placeholders": {"kg": {"type": "String"}}},
+  "importPoidsTexte": "C'est loin de ton dernier poids ({ancien} kg). Si quelqu'un d'autre est monté sur ta balance, ignore cette pesée.",
+  "@importPoidsTexte": {"placeholders": {"ancien": {"type": "String"}}},
+  "importPoidsIgnorer": "Ignorer",
   "imcTitre": "Ton IMC",
   "imcMaigreur": "Maigreur",
   "imcNormal": "Poids normal",

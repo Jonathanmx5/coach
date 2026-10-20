@@ -84,7 +84,7 @@ class _BienvenuePageState extends State<BienvenuePage> {
                       t.mentionMedicale,
                       textAlign: TextAlign.center,
                       style: textes.bodySmall?.copyWith(
-                        color: CouleursCoach.texteDoux,
+                        color: context.palette.texteDoux,
                       ),
                     ),
                   ],
@@ -187,13 +187,17 @@ class _Promesse extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Row(
     children: [
-      const Icon(Icons.check_circle, color: CouleursCoach.vert, size: 22),
+      Icon(
+        Icons.check_circle,
+        color: Theme.of(context).colorScheme.primary,
+        size: 22,
+      ),
       const SizedBox(width: 10),
       Expanded(
         child: Text(
           texte,
           style: Theme.of(context).textTheme.bodyLarge
-              ?.copyWith(color: CouleursCoach.texteDoux),
+              ?.copyWith(color: context.palette.texteDoux),
         ),
       ),
     ],

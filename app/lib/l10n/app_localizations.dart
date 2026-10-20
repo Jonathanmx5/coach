@@ -880,6 +880,24 @@ abstract class AppLocalizations {
   /// **'{kg} kg'**
   String poidsKgValeur(String kg);
 
+  /// No description provided for @importPoidsTitre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Importer {kg} kg de ta balance ?'**
+  String importPoidsTitre(String kg);
+
+  /// No description provided for @importPoidsTexte.
+  ///
+  /// In fr, this message translates to:
+  /// **'C\'est loin de ton dernier poids ({ancien} kg). Si quelqu\'un d\'autre est monté sur ta balance, ignore cette pesée.'**
+  String importPoidsTexte(String ancien);
+
+  /// No description provided for @importPoidsIgnorer.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ignorer'**
+  String get importPoidsIgnorer;
+
   /// No description provided for @imcTitre.
   ///
   /// In fr, this message translates to:

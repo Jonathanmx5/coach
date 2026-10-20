@@ -4,14 +4,14 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-import '../compte/auth_service.dart';
 import '../bienetre/bienetre_repository.dart';
 import '../bienetre/suivi_meteo.dart';
+import '../compte/auth_service.dart';
+import '../format.dart';
 import '../journal/journal_repository.dart';
 import '../l10n/app_localizations.dart';
 import '../widget/donnees_widget.dart';
 import 'anneaux.dart';
-import '../profil/besoins.dart';
 import '../profil/modele.dart';
 import '../profil/profil_repository.dart';
 import '../profil/questionnaire/controleur.dart';
@@ -80,17 +80,24 @@ class _AccueilPageState extends State<AccueilPage> {
 
   Profil get _profil => widget.enregistre.profil;
 
+  /// Date de la dernière pesée déjà traitée (importée, ou ignorée après la
+  /// question) : elle n'est pas reproposée à chaque relecture du Suivi.
+  DateTime? _peseeTraitee;
+  bool _questionOuverte = false;
+
   @override
   void initState() {
     super.initState();
-    _suivi.addListener(_importerPoids);
+    _suivi.addListener(_surSuivi);
   }
 
   @override
   void dispose() {
-    _suivi.removeListener(_importerPoids);
+    _suivi.removeListener(_surSuivi);
     super.dispose();
   }
+
+  void _surSuivi() => unawaited(_importerPoids());
 
   Future<void> _charger() => _suivi.charger(montre: _profil.montre);
 
@@ -99,20 +106,55 @@ class _AccueilPageState extends State<AccueilPage> {
     await _charger();
   }
 
-  /// Spec santé connectée §4 : la pesée la plus récente met le profil à jour.
-  void _importerPoids() {
-    final pesee = poidsAImporter(_suivi.pesees, _profil.poidsDate);
-    if (pesee == null) return;
-    final profil = _profil.copyWith(
-      poidsKg: (pesee.valeur * 10).round() / 10,
-      poidsDate: pesee.date,
+  /// Spec santé connectée §4 : la pesée la plus récente met le profil à jour,
+  /// avec les garde-fous santé d'une saisie à la main. Une pesée très
+  /// différente du poids du profil (autre personne sur la balance) n'est
+  /// importée qu'après confirmation.
+  Future<void> _importerPoids() async {
+    final pesee = poidsAImporter(
+      _suivi.pesees,
+      _profil.poidsDate,
+      poidsProfilKg: _profil.poidsKg,
     );
+    if (pesee == null || pesee.date == _peseeTraitee) return;
+    if (pesee.aConfirmer) {
+      if (_questionOuverte || !mounted) return;
+      _questionOuverte = true;
+      final importer = await _confirmerPesee(pesee.valeur);
+      _questionOuverte = false;
+      _peseeTraitee = pesee.date;
+      if (importer != true || !mounted) return;
+    }
+    _peseeTraitee = pesee.date;
+    final profil = profilApresImport(_profil, pesee);
+    // Mêmes repères que l'accueil et le journal (maintien mesuré compris).
     // Hors-ligne, l'écriture ne se termine qu'à la synchronisation.
     unawaited(
       widget.depot.enregistrer(
         widget.utilisateur.uid,
         profil,
-        calculerReperes(profil, maintenant: widget.horloge()),
+        _suivi.reperesDuJour(profil),
+      ),
+    );
+  }
+
+  Future<bool?> _confirmerPesee(double kg) {
+    final t = AppLocalizations.of(context)!;
+    return showDialog<bool>(
+      context: context,
+      builder: (contexte) => AlertDialog(
+        title: Text(t.importPoidsTitre(formatDecimal(kg))),
+        content: Text(t.importPoidsTexte(formatDecimal(_profil.poidsKg))),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(contexte).pop(false),
+            child: Text(t.importPoidsIgnorer),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(contexte).pop(true),
+            child: Text(t.importer),
+          ),
+        ],
       ),
     );
   }
@@ -142,8 +184,10 @@ class _AccueilPageState extends State<AccueilPage> {
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context)!;
     final prenom = widget.utilisateur.prenom;
+    // En-tête transparent sur le fond du thème : icônes de la barre d'état
+    // foncées en clair, claires en sombre.
     return AnnotatedRegion<SystemUiOverlayStyle>(
-      value: SystemUiOverlayStyle.light,
+      value: styleBarreEtat(Theme.of(context).brightness),
       child: Scaffold(
         body: ListenableBuilder(
           listenable: _suivi,
@@ -200,7 +244,7 @@ class _AccueilPageState extends State<AccueilPage> {
                           titre: t.carteProgramme,
                           sousTitre: t.carteProgrammeSous,
                           fond: context.palette.vertClair,
-                          couleur: CouleursCoach.vert,
+                          couleur: Theme.of(context).colorScheme.primary,
                           onTap: () => widget.onOnglet(2),
                         ),
                         const SizedBox(height: 12),

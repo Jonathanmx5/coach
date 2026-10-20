@@ -439,6 +439,19 @@ class AppLocalizationsFr extends AppLocalizations {
   }
 
   @override
+  String importPoidsTitre(String kg) {
+    return 'Importer $kg kg de ta balance ?';
+  }
+
+  @override
+  String importPoidsTexte(String ancien) {
+    return 'C\'est loin de ton dernier poids ($ancien kg). Si quelqu\'un d\'autre est monté sur ta balance, ignore cette pesée.';
+  }
+
+  @override
+  String get importPoidsIgnorer => 'Ignorer';
+
+  @override
   String get imcTitre => 'Ton IMC';
 
   @override

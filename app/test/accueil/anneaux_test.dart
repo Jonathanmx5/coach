@@ -8,6 +8,7 @@ import 'package:coach/profil/besoins.dart';
 import 'package:coach/profil/modele.dart';
 import 'package:coach/sante/modele.dart';
 import 'package:coach/sante/suivi.dart';
+import 'package:coach/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -33,7 +34,7 @@ class Banc {
   Banc({List<PointSante>? points, double? temperature}) {
     suivi = Suivi(
       sante: FauxSante(points: points),
-      horloge: () => maintenant,
+      horloge: () => heure,
     );
     meteo = FausseMeteo(temperature);
     if (temperature != null) bienetre.meteo['u1'] = true;
@@ -48,7 +49,19 @@ class Banc {
   final onglets = <int>[];
   final widget = FauxWidget();
 
+  /// L'heure vue par la carte, modifiable pendant le test.
+  DateTime heure = maintenant;
+
   Reperes get reperes => calculerReperes(profil, maintenant: maintenant);
+
+  /// Calories brûlées estimées sans montre à 15 h : le maintien au prorata
+  /// de la journée, plus les activités saisies.
+  double bruleesEstimees({double activites = 0}) =>
+      reperes.maintien * 15 / 24 + activites;
+
+  /// Laisse passer le délai d'envoi au widget de l'écran d'accueil.
+  Future<void> attendreWidget(WidgetTester tester) =>
+      tester.pump(const Duration(seconds: 3));
 
   Future<void> monter(WidgetTester tester) async {
     tester.view.physicalSize = const Size(1080, 2400);
@@ -68,7 +81,7 @@ class Banc {
               journal: journal,
               bienetre: bienetre,
               meteoSuivi: meteoSuivi,
-              horloge: () => maintenant,
+              horloge: () => heure,
               onOnglet: onglets.add,
               majWidget: widget,
             ),
@@ -91,40 +104,6 @@ void main() {
     expect(bilanTexte(-58.4), '−58');
     expect(bilanTexte(-1794), '−1794');
   });
-
-  test(
-    'calories brûlées : total de la montre, sinon prorata de la journée',
-    () {
-      final h15 = DateTime(2026, 10, 9, 15);
-      expect(
-        kcalBruleesJusquaMaintenant(
-          depenseBase: 1800,
-          kcalMontre: 1500,
-          kcalActivites: 200,
-          maintenant: h15,
-        ),
-        1700,
-      );
-      expect(
-        kcalBruleesJusquaMaintenant(
-          depenseBase: 1800,
-          kcalMontre: null,
-          kcalActivites: 0,
-          maintenant: h15,
-        ),
-        closeTo(1800 * 1.2 * 15 / 24, 1e-9),
-      );
-      expect(
-        kcalBruleesJusquaMaintenant(
-          depenseBase: 1800,
-          kcalMontre: 0,
-          kcalActivites: 0,
-          maintenant: DateTime(2026, 10, 9),
-        ),
-        0,
-      );
-    },
-  );
 
   testWidgets('journée vide : quatre anneaux, objectifs affichés', (
     tester,
@@ -162,11 +141,13 @@ void main() {
       find.textContaining('Estimé jusqu', findRichText: true),
       findsOneWidget,
     );
-    final brule = kcalBruleesJusquaMaintenant(
-      depenseBase: r.depenseBase,
-      kcalMontre: null,
-      kcalActivites: 0,
-      maintenant: maintenant,
+    // Sans montre, les calories brûlées suivent le maintien (le même chiffre
+    // que l'objectif), plus le métabolisme de base × 1,2.
+    final brule = banc.bruleesEstimees();
+    expect(brule, isNot(closeTo(r.depenseBase * 1.2 * 15 / 24, 1)));
+    expect(
+      find.textContaining('${brule.round()}', findRichText: true),
+      findsWidgets,
     );
     // Rien mangé : le bilan est le déficit complet, au centre des anneaux.
     expect(find.text(bilanTexte(-brule)), findsOneWidget);
@@ -220,12 +201,7 @@ void main() {
     );
     expect(find.textContaining('1,50', findRichText: true), findsOneWidget);
     // Les 300 kcal de l'activité s'ajoutent aux calories brûlées.
-    final base = kcalBruleesJusquaMaintenant(
-      depenseBase: r.depenseBase,
-      kcalMontre: null,
-      kcalActivites: 300,
-      maintenant: maintenant,
-    );
+    final base = banc.bruleesEstimees(activites: 300);
     expect(banc.progres[0], closeTo(base / r.maintien, 1e-9));
     expect(find.text(bilanTexte(1000 - base)), findsOneWidget);
   });
@@ -335,6 +311,9 @@ void main() {
       EntreeEau(date: DateTime(2026, 10, 9, 9), ml: 750),
     ];
     await banc.monter(tester);
+    // Rien d'envoyé pendant la construction : le délai court d'abord.
+    expect(banc.widget.envois, isEmpty);
+    await banc.attendreWidget(tester);
 
     expect(banc.widget.envois, hasLength(1));
     final d = banc.widget.envois.single;
@@ -361,7 +340,147 @@ void main() {
       EntreeEau(date: DateTime(2026, 10, 9, 15), ml: 250),
     );
     await tester.pumpAndSettle();
+    await banc.attendreWidget(tester);
     expect(banc.widget.envois, hasLength(2));
     expect(banc.widget.envois.last.eauMl, 1000);
+  });
+
+  testWidgets('une reconstruction sans changement n\'envoie rien au widget', (
+    tester,
+  ) async {
+    final banc = Banc();
+    await banc.monter(tester);
+    await banc.attendreWidget(tester);
+    expect(banc.widget.envois, hasLength(1));
+
+    // Le Suivi et la météo notifient, l'Accueil se reconstruit : mêmes
+    // chiffres, aucun envoi.
+    banc.suivi.notifyListeners();
+    banc.meteoSuivi.notifyListeners();
+    await tester.pump();
+    await banc.attendreWidget(tester);
+    await tester.pump(const Duration(seconds: 10));
+    expect(banc.widget.envois, hasLength(1));
+
+    // Deux minutes plus tard : l'estimation des calories brûlées a monté de
+    // moins de 10 kcal, rien n'est renvoyé.
+    banc.heure = maintenant.add(const Duration(minutes: 2));
+    banc.suivi.notifyListeners();
+    await tester.pump();
+    await banc.attendreWidget(tester);
+    expect(banc.widget.envois, hasLength(1));
+  });
+
+  testWidgets('un anneau qui change : un seul envoi, après le délai', (
+    tester,
+  ) async {
+    final banc = Banc();
+    await banc.monter(tester);
+    await banc.attendreWidget(tester);
+    expect(banc.widget.envois, hasLength(1));
+
+    // Deux repas notés coup sur coup : l'anneau « mangé » bouge de plus de 1 %.
+    for (final (heure, kcal) in [(12, 400.0), (13, 300.0)]) {
+      await banc.journal.ajouterRepas(
+        'u1',
+        Repas(
+          date: DateTime(2026, 10, 9, heure),
+          moment: Moment.dejeuner,
+          nom: 'x',
+          macros: Macros(kcal: kcal, proteines: 20),
+          source: SourceRepas.manuel,
+        ),
+      );
+      await tester.pump();
+    }
+    await tester.pump(const Duration(seconds: 2));
+    expect(banc.widget.envois, hasLength(1));
+
+    await tester.pump(const Duration(seconds: 1));
+    expect(banc.widget.envois, hasLength(2));
+    expect(banc.widget.envois.last.mangees, 700);
+    await tester.pump(const Duration(seconds: 10));
+    expect(banc.widget.envois, hasLength(2));
+  });
+
+  testWidgets('appli mise en arrière-plan : envoi immédiat au widget', (
+    tester,
+  ) async {
+    final banc = Banc();
+    await banc.monter(tester);
+    expect(banc.widget.envois, isEmpty);
+
+    tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.inactive);
+    tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.hidden);
+    expect(banc.widget.envois, hasLength(1));
+    tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.paused);
+    expect(banc.widget.envois, hasLength(1));
+    tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.hidden);
+    tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.inactive);
+    tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
+  });
+
+  testWidgets('les calories brûlées du widget sont arrondies à 10 kcal', (
+    tester,
+  ) async {
+    final banc = Banc();
+    await banc.monter(tester);
+    await banc.attendreWidget(tester);
+    final envoyees = banc.widget.envois.single.brulees;
+    expect(envoyees % 10, 0);
+    expect(envoyees, closeTo(banc.bruleesEstimees(), 5));
+  });
+
+  testWidgets('minuit passé : la carte passe au nouveau jour', (tester) async {
+    final banc = Banc();
+    banc.bienetre.eauParUid['u1'] = [
+      EntreeEau(date: DateTime(2026, 10, 9, 9), ml: 1500),
+    ];
+    await banc.monter(tester);
+    expect(find.textContaining('1,50', findRichText: true), findsOneWidget);
+
+    banc.heure = DateTime(2026, 10, 10, 0, 5);
+    banc.suivi.notifyListeners();
+    await tester.pumpAndSettle();
+
+    // L'eau de la veille n'est plus comptée, et le widget reçoit des chiffres
+    // datés du nouveau jour.
+    expect(find.textContaining('1,50', findRichText: true), findsNothing);
+    expect(find.textContaining('0,00', findRichText: true), findsOneWidget);
+    await banc.attendreWidget(tester);
+    expect(banc.widget.jours.last, DateTime(2026, 10, 10));
+    expect(banc.widget.envois.last.eauMl, 0);
+  });
+
+  testWidgets('thème clair : chiffres foncés, barres aux couleurs vives', (
+    tester,
+  ) async {
+    final banc = Banc();
+    await banc.monter(tester);
+
+    Color? couleurDe(String libelle) {
+      final ligne = find.ancestor(
+        of: find.text(libelle),
+        matching: find.byType(InkWell),
+      );
+      final riche = tester.widget<RichText>(
+        find.descendant(of: ligne, matching: find.byType(RichText)).last,
+      );
+      // Premier morceau de texte : la valeur, avant « / objectif ».
+      Color? couleur;
+      riche.text.visitChildren((span) {
+        if (span is TextSpan && span.text != null) {
+          couleur = span.style?.color;
+          return false;
+        }
+        return true;
+      });
+      return couleur;
+    }
+
+    expect(couleurDe('Calories mangées'), PaletteCoach.clair.texteOrange);
+    expect(couleurDe('Protéines'), PaletteCoach.clair.texteVert);
+    expect(couleurDe('Hydratation'), PaletteCoach.clair.texteBleu);
+    expect(couleurDe('Calories brûlées'), PaletteCoach.clair.texteVert);
   });
 }

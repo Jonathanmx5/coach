@@ -8,16 +8,18 @@ import 'package:intl/intl.dart';
 import '../bienetre/bienetre_repository.dart';
 import '../bienetre/hydratation.dart';
 import '../bienetre/suivi_meteo.dart';
+import '../format.dart';
 import '../journal/calculs.dart';
 import '../journal/journal_repository.dart';
 import '../journal/modele.dart';
 import '../l10n/app_localizations.dart';
-import '../profil/besoins.dart';
 import '../profil/modele.dart';
+import '../sante/modele.dart';
 import '../sante/sources.dart';
 import '../sante/suivi.dart';
 import '../theme.dart';
 import '../widget/donnees_widget.dart';
+import '../widget/synchro_widget.dart';
 
 /// Couleurs des anneaux, celles de l'application, sur un fond vert très clair :
 /// vert pour le sport (vert profond pour les calories brûlées, vert moyen pour
@@ -134,22 +136,6 @@ class _AnneauxPainter extends CustomPainter {
       !listEquals(ancien.valeurs, valeurs);
 }
 
-/// Calories brûlées jusqu'à maintenant : le total de la montre s'il existe,
-/// sinon le métabolisme de base × 1,2 au prorata de la journée écoulée ; plus
-/// les activités saisies que la montre n'a pas comptées.
-double kcalBruleesJusquaMaintenant({
-  required int depenseBase,
-  required double? kcalMontre,
-  required double kcalActivites,
-  required DateTime maintenant,
-}) {
-  final ecoule = (maintenant.hour * 60 + maintenant.minute) / 1440;
-  final corps = (kcalMontre ?? 0) > 0
-      ? kcalMontre!
-      : depenseBase * 1.2 * ecoule;
-  return corps + kcalActivites;
-}
-
 /// « Aujourd'hui » à la Apple : anneaux et quatre lignes de chiffres.
 class CarteAujourdhui extends StatefulWidget {
   const CarteAujourdhui({
@@ -163,6 +149,7 @@ class CarteAujourdhui extends StatefulWidget {
     required this.horloge,
     required this.onOnglet,
     this.majWidget,
+    this.delaiWidget = const Duration(seconds: 3),
   });
 
   final String uid;
@@ -179,150 +166,249 @@ class CarteAujourdhui extends StatefulWidget {
   /// Widget de l'écran d'accueil à tenir à jour avec ces chiffres.
   final MiseAJourWidget? majWidget;
 
+  /// Attente avant d'envoyer des chiffres changés au widget de l'écran
+  /// d'accueil (tout de suite si l'appli passe en arrière-plan).
+  final Duration delaiWidget;
+
   @override
   State<CarteAujourdhui> createState() => _CarteAujourdhuiState();
 }
 
-class _CarteAujourdhuiState extends State<CarteAujourdhui> {
-  DonneesWidget? _derniereEnvoyee;
-  bool _donneesPretes = false;
+/// Ce qu'affiche la carte, calculé de la même façon pour l'écran et pour le
+/// widget de l'écran d'accueil.
+class _Chiffres {
+  _Chiffres({
+    required this.bilan,
+    required this.jourSante,
+    required this.objectifEau,
+    required this.bu,
+  });
 
-  late final DateTime _jour = DateTime(
-    widget.horloge().year,
-    widget.horloge().month,
-    widget.horloge().day,
-  );
-  late final DateTime _demain = DateTime(
-    _jour.year,
-    _jour.month,
-    _jour.day + 1,
-  );
-  late final Stream<List<Repas>> _repas = widget.journal.repas(
-    widget.uid,
-    _jour,
-    _demain,
-  );
-  late final Stream<List<Activite>> _activites = widget.journal.activites(
-    widget.uid,
-    _jour,
-    _demain,
-  );
-  late final Stream<List<EntreeEau>> _eau = widget.bienetre.eau(
-    widget.uid,
-    _jour,
-    _demain,
-  );
+  final BilanJour bilan;
+  final JourSante? jourSante;
+  final int objectifEau;
+  final int bu;
+
+  double get brulees => bilan.brulees;
+  double get objectifBrule => bilan.reperes.maintien.toDouble();
+
+  /// Mangé moins brûlé jusqu'à maintenant, au centre des anneaux.
+  double get net => bilan.mangees - bilan.brulees;
+
+  static double _part(double v, double objectif) =>
+      objectif <= 0 ? 0 : v / objectif;
+
+  List<double> get progres => [
+    _part(brulees, objectifBrule),
+    _part(bilan.mangees, bilan.cibles.kcal),
+    _part(bilan.macros.proteines, bilan.cibles.proteines),
+    _part(bu.toDouble(), objectifEau.toDouble()),
+  ];
+}
+
+class _CarteAujourdhuiState extends State<CarteAujourdhui>
+    with WidgetsBindingObserver {
+  /// Le jour affiché : suit le jour réel (minuit passé, appli reprise).
+  late DateTime _jour;
+
+  /// Null tant que le flux n'a rien donné.
+  List<Repas>? _repas;
+  List<Activite>? _activites;
+  List<EntreeEau>? _eau;
+  final _abonnements = <StreamSubscription<Object?>>[];
+
+  SynchroWidget? _synchro;
+  AppLocalizations? _t;
+
+  static DateTime _jourDe(DateTime d) => DateTime(d.year, d.month, d.day);
 
   @override
-  Widget build(BuildContext context) => StreamBuilder<List<Repas>>(
-    stream: _repas,
-    builder: (context, repas) => StreamBuilder<List<Activite>>(
-      stream: _activites,
-      builder: (context, activites) => StreamBuilder<List<EntreeEau>>(
-        stream: _eau,
-        builder: (context, eau) => ListenableBuilder(
-          listenable: Listenable.merge([widget.suivi, widget.meteoSuivi]),
-          builder: (context, _) {
-            // Le widget n'est mis à jour qu'avec des données arrivées, pas avec
-            // des zéros de chargement.
-            _donneesPretes = repas.hasData && activites.hasData && eau.hasData;
-            return _contenu(
-              context,
-              repas.data ?? const [],
-              activites.data ?? const [],
-              eau.data ?? const [],
-            );
-          },
+  void initState() {
+    super.initState();
+    _jour = _jourDe(widget.horloge());
+    _ecouter();
+    widget.suivi.addListener(_auChangement);
+    widget.meteoSuivi.addListener(_auChangement);
+    WidgetsBinding.instance.addObserver(this);
+    _synchro = _nouvelleSynchro();
+  }
+
+  SynchroWidget? _nouvelleSynchro() {
+    final maj = widget.majWidget;
+    return maj == null ? null : SynchroWidget(maj, delai: widget.delaiWidget);
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _t = AppLocalizations.of(context);
+    _synchroniser();
+  }
+
+  @override
+  void didUpdateWidget(CarteAujourdhui ancien) {
+    super.didUpdateWidget(ancien);
+    if (ancien.suivi != widget.suivi) {
+      ancien.suivi.removeListener(_auChangement);
+      widget.suivi.addListener(_auChangement);
+    }
+    if (ancien.meteoSuivi != widget.meteoSuivi) {
+      ancien.meteoSuivi.removeListener(_auChangement);
+      widget.meteoSuivi.addListener(_auChangement);
+    }
+    if (ancien.majWidget != widget.majWidget) {
+      _synchro?.fermer();
+      _synchro = _nouvelleSynchro();
+    }
+    final jour = _jourDe(widget.horloge());
+    if (ancien.uid != widget.uid ||
+        ancien.journal != widget.journal ||
+        ancien.bienetre != widget.bienetre ||
+        jour != _jour) {
+      _jour = jour;
+      _ecouter();
+    }
+    _synchroniser();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) _suivreLeJour();
+  }
+
+  @override
+  void dispose() {
+    for (final a in _abonnements) {
+      unawaited(a.cancel());
+    }
+    widget.suivi.removeListener(_auChangement);
+    widget.meteoSuivi.removeListener(_auChangement);
+    WidgetsBinding.instance.removeObserver(this);
+    _synchro?.fermer();
+    super.dispose();
+  }
+
+  /// (Ré)ouvre les flux du jour affiché.
+  void _ecouter() {
+    for (final a in _abonnements) {
+      unawaited(a.cancel());
+    }
+    _abonnements.clear();
+    _repas = null;
+    _activites = null;
+    _eau = null;
+    final demain = DateTime(_jour.year, _jour.month, _jour.day + 1);
+    void recu(VoidCallback garder) {
+      if (!mounted) return;
+      setState(garder);
+      _synchroniser();
+    }
+
+    _abonnements.addAll([
+      widget.journal
+          .repas(widget.uid, _jour, demain)
+          .listen((v) => recu(() => _repas = v), onError: (Object _) {}),
+      widget.journal
+          .activites(widget.uid, _jour, demain)
+          .listen((v) => recu(() => _activites = v), onError: (Object _) {}),
+      widget.bienetre
+          .eau(widget.uid, _jour, demain)
+          .listen((v) => recu(() => _eau = v), onError: (Object _) {}),
+    ]);
+  }
+
+  /// Minuit passé : la carte passe au nouveau jour.
+  void _suivreLeJour() {
+    final jour = _jourDe(widget.horloge());
+    if (jour == _jour || !mounted) return;
+    setState(() {
+      _jour = jour;
+      _ecouter();
+    });
+  }
+
+  void _auChangement() {
+    if (!mounted) return;
+    setState(() {});
+    _suivreLeJour();
+    _synchroniser();
+  }
+
+  /// Le bilan commun à l'Accueil, au Journal et au widget (calculs.dart).
+  _Chiffres _calculer() {
+    final activites = _activites ?? const <Activite>[];
+    final bilan = bilanDuJour(
+      profil: widget.profil,
+      jours: widget.suivi.jours,
+      maintienMesure: widget.suivi.maintienPour(widget.profil),
+      repas: _repas ?? const [],
+      activites: activites,
+      jour: _jour,
+      maintenant: widget.horloge(),
+    );
+    return _Chiffres(
+      bilan: bilan,
+      jourSante: widget.suivi.jours.where((j) => j.jour == _jour).firstOrNull,
+      objectifEau: objectifEauMl(
+        poidsKg: widget.profil.poidsKg,
+        minutesEffort: activites.fold<int>(0, (s, a) => s + a.minutes),
+        tempMaxC: widget.meteoSuivi.temperature,
+      ),
+      bu: totalEauMl(_eau ?? const []),
+    );
+  }
+
+  /// Propose les chiffres au widget de l'écran d'accueil, une fois toutes les
+  /// données arrivées (pas des zéros de chargement). Jamais depuis build :
+  /// [SynchroWidget] décide quand écrire.
+  void _synchroniser() {
+    final synchro = _synchro;
+    final t = _t;
+    if (synchro == null || t == null || !mounted) return;
+    if (_repas == null || _activites == null || _eau == null) return;
+    final c = _calculer();
+    final b = c.bilan;
+    synchro.proposer(
+      DonneesWidget(
+        brulees: c.brulees,
+        objectifBrule: c.objectifBrule,
+        mangees: b.mangees,
+        objectifMange: b.cibles.kcal,
+        proteines: b.macros.proteines,
+        objectifProteines: b.cibles.proteines,
+        eauMl: c.bu,
+        objectifEauMl: c.objectifEau,
+        description: t.widgetAnneauxSemantique(
+          c.brulees.round(),
+          c.objectifBrule.round(),
+          b.mangees.round(),
+          b.cibles.kcal.round(),
+          b.macros.proteines.round(),
+          b.cibles.proteines.round(),
+          bilanTexte(c.net),
         ),
       ),
-    ),
-  );
+      // Datés du jour de la carte, pas de l'heure de l'envoi : envoyés après
+      // minuit, ils ne sont pas attribués au lendemain.
+      jour: _jour,
+      uid: widget.uid,
+    );
+  }
 
-  Widget _contenu(
-    BuildContext context,
-    List<Repas> repas,
-    List<Activite> activites,
-    List<EntreeEau> eau,
-  ) {
+  @override
+  Widget build(BuildContext context) {
     final t = AppLocalizations.of(context)!;
-    final maintenant = widget.horloge();
-    final jourSante = widget.suivi.jours
-        .where((j) => j.jour == _jour)
-        .firstOrNull;
-    final reperes = calculerReperes(
-      widget.profil,
-      maintenant: maintenant,
-      maintienMesure: widget.suivi.maintienPour(widget.profil),
-    );
-
-    final manuelles = kcalActivitesNonComptees(
-      activites,
-      jourSante?.seances ?? const [],
-    );
-    final seancesMontre = jourSante == null
-        ? 0.0
-        : (jourSante.kcalActives ??
-              jourSante.seances.fold<double>(0, (s, x) => s + (x.kcal ?? 0)));
-    final cibles = ciblesDuJour(
-      reperes,
-      kcalExercice: manuelles + seancesMontre,
-    );
-
-    final brulees = kcalBruleesJusquaMaintenant(
-      depenseBase: reperes.depenseBase,
-      kcalMontre: jourSante?.kcalTotales,
-      kcalActivites: manuelles,
-      maintenant: maintenant,
-    );
-    final objectifBrule = reperes.maintien.toDouble();
-    final macros = totalMacros(repas);
-    final objectifEau = objectifEauMl(
-      poidsKg: widget.profil.poidsKg,
-      minutesEffort: activites.fold<int>(0, (s, a) => s + a.minutes),
-      tempMaxC: widget.meteoSuivi.temperature,
-    );
-    final bu = totalEauMl(eau);
-    final mesure = (jourSante?.kcalTotales ?? 0) > 0;
-
-    double part(double v, double objectif) => objectif <= 0 ? 0 : v / objectif;
-
-    // Le widget de l'écran d'accueil reçoit les mêmes chiffres, une seule fois
-    // par changement.
-    final pour = DonneesWidget(
-      brulees: brulees,
-      objectifBrule: objectifBrule,
-      mangees: macros.kcal,
-      objectifMange: cibles.kcal,
-      proteines: macros.proteines,
-      objectifProteines: cibles.proteines,
-      eauMl: bu,
-      objectifEauMl: objectifEau,
-      description: t.widgetAnneauxSemantique(
-        brulees.round(),
-        objectifBrule.round(),
-        macros.kcal.round(),
-        cibles.kcal.round(),
-        macros.proteines.round(),
-        cibles.proteines.round(),
-        bilanTexte(macros.kcal - brulees),
-      ),
-    );
-    final majWidget = widget.majWidget;
-    if (majWidget != null && _donneesPretes && pour != _derniereEnvoyee) {
-      _derniereEnvoyee = pour;
-      // Datés du jour de la carte, pas de l'heure de l'envoi : redessinée
-      // après minuit, elle n'attribue pas ses totaux au lendemain.
-      WidgetsBinding.instance.addPostFrameCallback(
-        (_) => unawaited(majWidget.mettre(pour, jour: _jour, uid: widget.uid)),
-      );
-    }
+    final p = context.palette;
+    final c = _calculer();
+    final b = c.bilan;
+    final jourSante = c.jourSante;
 
     return Container(
       padding: const EdgeInsets.fromLTRB(20, 20, 20, 12),
       decoration: BoxDecoration(
-        color: context.palette.verre,
+        color: p.verre,
         borderRadius: BorderRadius.circular(28),
-        border: Border.all(color: context.palette.verreBord),
+        border: Border.all(color: p.verreBord),
         boxShadow: const [
           BoxShadow(
             color: Color(0x1F0F2A24),
@@ -337,38 +423,32 @@ class _CarteAujourdhuiState extends State<CarteAujourdhui> {
             alignment: Alignment.centerLeft,
             child: Text(
               t.anneauxTitre,
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                color: context.palette.texte,
-                fontWeight: FontWeight.w700,
-              ),
+              style: Theme.of(context).textTheme.titleLarge
+                  ?.copyWith(color: p.texte, fontWeight: FontWeight.w700),
             ),
           ),
           const SizedBox(height: 16),
           Anneaux(
             semantique: t.anneauxSemantique(
-              brulees.round(),
-              objectifBrule.round(),
-              macros.kcal.round(),
-              cibles.kcal.round(),
-              macros.proteines.round(),
-              cibles.proteines.round(),
-              bu,
-              objectifEau,
-              bilanTexte(macros.kcal - brulees),
+              c.brulees.round(),
+              c.objectifBrule.round(),
+              b.mangees.round(),
+              b.cibles.kcal.round(),
+              b.macros.proteines.round(),
+              b.cibles.proteines.round(),
+              c.bu,
+              c.objectifEau,
+              bilanTexte(c.net),
             ),
-            centre: _Bilan(net: macros.kcal - brulees),
-            progres: [
-              part(brulees, objectifBrule),
-              part(macros.kcal, cibles.kcal),
-              part(macros.proteines, cibles.proteines),
-              part(bu.toDouble(), objectifEau.toDouble()),
-            ],
+            centre: _Bilan(net: c.net),
+            progres: c.progres,
           ),
           const SizedBox(height: 12),
           _Ligne(
             couleur: Anneaux.couleursPour(Theme.of(context).brightness).first,
+            couleurTexte: p.texteVert,
             libelle: t.libBrule,
-            sous: !mesure
+            sous: b.estime
                 ? t.sourceEstimeJusqua
                 : (jourSante?.sourceKcal == null ||
                           nomDeSource(jourSante!.sourceKcal).isEmpty
@@ -380,37 +460,40 @@ class _CarteAujourdhuiState extends State<CarteAujourdhui> {
                               : DateFormat('HH:mm')
                                     .format(jourSante.derniereMesureKcal!),
                         )),
-            valeur: '${brulees.round()}',
-            objectif: '${objectifBrule.round()}',
+            valeur: '${c.brulees.round()}',
+            objectif: '${c.objectifBrule.round()}',
             unite: 'kcal',
             onTap: () => widget.onOnglet(2),
           ),
           _Ligne(
             couleur: _cMange,
+            couleurTexte: p.texteOrange,
             libelle: t.libMange,
             sous: t.objectifDuJour,
-            valeur: '${macros.kcal.round()}',
-            objectif: '${cibles.kcal.round()}',
+            valeur: '${b.mangees.round()}',
+            objectif: '${b.cibles.kcal.round()}',
             unite: 'kcal',
             onTap: () => widget.onOnglet(1),
           ),
           _Ligne(
             couleur: _cProteines,
+            couleurTexte: p.texteVert,
             libelle: t.libProteines,
             sous: t.objectifDuJour,
-            valeur: '${macros.proteines.round()}',
-            objectif: '${cibles.proteines.round()}',
+            valeur: '${b.macros.proteines.round()}',
+            objectif: '${b.cibles.proteines.round()}',
             unite: 'g',
             onTap: () => widget.onOnglet(1),
           ),
           _Ligne(
             couleur: _cEau,
+            couleurTexte: p.texteBleu,
             libelle: t.libEau,
             sous: widget.meteoSuivi.temperature == null
                 ? t.objectifDuJour
                 : t.eauChaleur(widget.meteoSuivi.temperature!.round()),
-            valeur: _litres(bu),
-            objectif: _litres(objectifEau),
+            valeur: formatLitres(c.bu),
+            objectif: formatLitres(c.objectifEau),
             unite: 'L',
             onTap: () => widget.onOnglet(4),
           ),
@@ -455,11 +538,10 @@ class _Bilan extends StatelessWidget {
   }
 }
 
-String _litres(int ml) => (ml / 1000).toStringAsFixed(2).replaceAll('.', ',');
-
 class _Ligne extends StatelessWidget {
   const _Ligne({
     required this.couleur,
+    required this.couleurTexte,
     required this.libelle,
     required this.sous,
     required this.valeur,
@@ -468,7 +550,11 @@ class _Ligne extends StatelessWidget {
     required this.onTap,
   });
 
+  /// Couleur vive de la barre, celle de l'anneau.
   final Color couleur;
+
+  /// Couleur du chiffre : la même teinte, lisible sur le verre.
+  final Color couleurTexte;
   final String libelle;
   final String sous;
   final String valeur;
@@ -520,7 +606,7 @@ class _Ligne extends StatelessWidget {
                   TextSpan(
                     text: valeur,
                     style: textes.headlineSmall?.copyWith(
-                      color: couleur,
+                      color: couleurTexte,
                       fontWeight: FontWeight.w700,
                     ),
                   ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 /// Palette Coach : vert pour le sport et l'identité, orange pour l'assiette.
 abstract final class CouleursCoach {
@@ -20,8 +21,10 @@ abstract final class CouleursCoach {
 }
 
 /// Couleurs qui changent entre le thème clair et le thème sombre : textes,
-/// fonds teintés, bordures. Les couleurs d'accent de [CouleursCoach] (vert,
-/// orange, bleu) restent les mêmes dans les deux thèmes.
+/// fonds teintés, bordures. Les couleurs vives de [CouleursCoach] (vert,
+/// orange, bleu) restent les mêmes dans les deux thèmes pour les barres et les
+/// anneaux ; un chiffre écrit dans une de ces teintes prend [texteOrange],
+/// [texteVert] ou [texteBleu], lisibles sur le verre.
 @immutable
 class PaletteCoach extends ThemeExtension<PaletteCoach> {
   const PaletteCoach({
@@ -39,6 +42,10 @@ class PaletteCoach extends ThemeExtension<PaletteCoach> {
     required this.verre,
     required this.verreBord,
     required this.verreDense,
+    required this.texteOrange,
+    required this.texteVert,
+    required this.texteBleu,
+    required this.accent,
   });
 
   final Color fond;
@@ -58,6 +65,16 @@ class PaletteCoach extends ThemeExtension<PaletteCoach> {
   final Color verreBord;
   final Color verreDense;
 
+  /// Texte dans la teinte de l'assiette, de l'effort et de l'eau : foncé en
+  /// clair, pâle en sombre (contraste vérifié sur le verre, taches comprises).
+  final Color texteOrange;
+  final Color texteVert;
+  final Color texteBleu;
+
+  /// Vert des icônes et des tracés : le vert profond serait illisible en
+  /// sombre, on y prend le vert vif.
+  final Color accent;
+
   static const clair = PaletteCoach(
     fond: Color(0xFFD3E3DB),
     carte: Colors.white,
@@ -73,6 +90,10 @@ class PaletteCoach extends ThemeExtension<PaletteCoach> {
     verre: Color(0x70FFFFFF),
     verreBord: Color(0xB3FFFFFF),
     verreDense: Color(0x8CFFFFFF),
+    texteOrange: CouleursCoach.orangeFonce,
+    texteVert: CouleursCoach.vertFonce,
+    texteBleu: Color(0xFF1A5794),
+    accent: CouleursCoach.vert,
   );
 
   static const sombre = PaletteCoach(
@@ -90,6 +111,10 @@ class PaletteCoach extends ThemeExtension<PaletteCoach> {
     verre: Color(0x16FFFFFF),
     verreBord: Color(0x47FFFFFF),
     verreDense: Color(0x14FFFFFF),
+    texteOrange: Color(0xFFF3C983),
+    texteVert: Color(0xFF8FE3C6),
+    texteBleu: Color(0xFF9CCBF5),
+    accent: CouleursCoach.vertVif,
   );
 
   @override
@@ -108,6 +133,10 @@ class PaletteCoach extends ThemeExtension<PaletteCoach> {
     Color? verre,
     Color? verreBord,
     Color? verreDense,
+    Color? texteOrange,
+    Color? texteVert,
+    Color? texteBleu,
+    Color? accent,
   }) => PaletteCoach(
     fond: fond ?? this.fond,
     carte: carte ?? this.carte,
@@ -123,6 +152,10 @@ class PaletteCoach extends ThemeExtension<PaletteCoach> {
     verre: verre ?? this.verre,
     verreBord: verreBord ?? this.verreBord,
     verreDense: verreDense ?? this.verreDense,
+    texteOrange: texteOrange ?? this.texteOrange,
+    texteVert: texteVert ?? this.texteVert,
+    texteBleu: texteBleu ?? this.texteBleu,
+    accent: accent ?? this.accent,
   );
 
   @override
@@ -144,6 +177,10 @@ class PaletteCoach extends ThemeExtension<PaletteCoach> {
       verre: m(verre, autre.verre),
       verreBord: m(verreBord, autre.verreBord),
       verreDense: m(verreDense, autre.verreDense),
+      texteOrange: m(texteOrange, autre.texteOrange),
+      texteVert: m(texteVert, autre.texteVert),
+      texteBleu: m(texteBleu, autre.texteBleu),
+      accent: m(accent, autre.accent),
     );
   }
 }
@@ -154,6 +191,13 @@ extension PaletteDuContexte on BuildContext {
   PaletteCoach get palette =>
       Theme.of(this).extension<PaletteCoach>() ?? PaletteCoach.clair;
 }
+
+/// Barre d'état transparente, icônes foncées en clair et claires en sombre.
+SystemUiOverlayStyle styleBarreEtat(Brightness luminosite) =>
+    (luminosite == Brightness.dark
+            ? SystemUiOverlayStyle.light
+            : SystemUiOverlayStyle.dark)
+        .copyWith(statusBarColor: Colors.transparent);
 
 const rayonCarte = 16.0;
 const rayonBouton = 14.0;
@@ -232,6 +276,9 @@ ThemeData themeCoach({Brightness luminosite = Brightness.light}) {
       elevation: 0,
       scrolledUnderElevation: 0,
       foregroundColor: p.texte,
+      // Barres transparentes : Flutter croirait le fond noir et mettrait des
+      // icônes blanches dans la barre d'état, illisibles sur le fond clair.
+      systemOverlayStyle: styleBarreEtat(luminosite),
     ),
     navigationBarTheme: NavigationBarThemeData(
       backgroundColor: Colors.transparent,

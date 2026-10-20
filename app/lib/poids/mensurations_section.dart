@@ -3,13 +3,12 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import '../format.dart';
 import '../l10n/app_localizations.dart';
 import '../profil/saisie.dart';
 import '../theme.dart';
 import 'mensurations.dart';
 import 'mensurations_repository.dart';
-
-String _nombre(double v) => v.toStringAsFixed(1).replaceAll('.', ',');
 
 String _libelle(AppLocalizations t, TypeMensuration m) => switch (m) {
   TypeMensuration.taille => t.mesureTaille,
@@ -109,14 +108,14 @@ class _Ligne extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.only(right: 12),
                 child: Text(
-                  '${e > 0 ? '+' : '−'}${_nombre(e.abs())}',
+                  '${e > 0 ? '+' : '−'}${formatDecimal(e.abs())}',
                   style: textes.bodySmall?.copyWith(
                     color: context.palette.texteDoux,
                   ),
                 ),
               ),
             Text(
-              '${_nombre(mesure!.valeur)} ${_unite(type)}',
+              '${formatDecimal(mesure!.valeur)} ${_unite(type)}',
               style: textes.titleSmall,
             ),
           ],

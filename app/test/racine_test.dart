@@ -7,6 +7,7 @@ import 'package:coach/profil/profil_repository.dart';
 import 'package:coach/profil/questionnaire/questionnaire_page.dart';
 import 'package:coach/racine.dart';
 import 'package:coach/reglages/reglage_theme.dart';
+import 'package:coach/sante/modele.dart';
 import 'package:coach/sante/sante_service.dart';
 import 'package:coach/services.dart';
 import 'package:flutter/material.dart';
@@ -258,6 +259,110 @@ void main() {
     final profil = depot.donnees['u1']!.profil;
     expect(profil.poidsKg, 79.5);
     expect(profil.poidsDate, DateTime(2026, 10, 9, 7));
+  });
+
+  testWidgets('pesée importée : repères enregistrés avec le maintien mesuré', (
+    tester,
+  ) async {
+    final depot = depotAvecProfil(avecMontre);
+    await monter(
+      tester,
+      FauxAuth(connecte: lea),
+      depot,
+      sante: FauxSante(points: semaineType()),
+    );
+
+    // Le même objectif que l'accueil et le journal, pas l'estimation du type
+    // de vie.
+    final enregistre = depot.donnees['u1']!;
+    expect(enregistre.profil.poidsKg, 79.5);
+    expect(enregistre.reperes.source, SourceMaintien.mesure);
+  });
+
+  List<PointSante> pesee(double kg) => [
+    PointSante(
+      type: TypeMesure.poids,
+      debut: DateTime(2026, 10, 9, 7),
+      fin: DateTime(2026, 10, 9, 7),
+      valeur: kg,
+    ),
+  ];
+
+  testWidgets('pesée importée à IMC 18,3 : objectif « garder la forme »', (
+    tester,
+  ) async {
+    // 59,3 kg pour 1,80 m : IMC 18,3, sous 18,5. La dernière pesée du profil
+    // date d'un mois : pas de question.
+    final depot = depotAvecProfil(
+      avecMontre.copyWith(poidsDate: DateTime(2026, 9, 1)),
+    );
+    await monter(
+      tester,
+      FauxAuth(connecte: lea),
+      depot,
+      sante: FauxSante(points: pesee(59.3)),
+    );
+
+    expect(find.byType(AlertDialog), findsNothing);
+    final profil = depot.donnees['u1']!.profil;
+    expect(profil.poidsKg, 59.3);
+    expect(profil.objectif, Objectif.forme);
+  });
+
+  final peseeRecente = avecMontre.copyWith(poidsDate: DateTime(2026, 10, 5));
+
+  testWidgets('pesée très différente : importée seulement si confirmée', (
+    tester,
+  ) async {
+    final depot = depotAvecProfil(peseeRecente);
+    await monter(
+      tester,
+      FauxAuth(connecte: lea),
+      depot,
+      sante: FauxSante(points: pesee(72.4)),
+    );
+
+    expect(find.text('Importer 72,4 kg de ta balance ?'), findsOneWidget);
+    // Rien n'est enregistré avant la réponse.
+    expect(depot.donnees['u1']!.profil.poidsKg, 80);
+
+    await taper(tester, 'Importer');
+
+    expect(find.byType(AlertDialog), findsNothing);
+    expect(depot.donnees['u1']!.profil.poidsKg, 72.4);
+  });
+
+  testWidgets('pesée très différente ignorée : profil inchangé', (
+    tester,
+  ) async {
+    final depot = depotAvecProfil(peseeRecente);
+    await monter(
+      tester,
+      FauxAuth(connecte: lea),
+      depot,
+      sante: FauxSante(points: pesee(72.4)),
+    );
+
+    await taper(tester, 'Ignorer');
+
+    expect(find.byType(AlertDialog), findsNothing);
+    expect(depot.donnees['u1']!.profil.poidsKg, 80);
+    expect(depot.donnees['u1']!.profil.poidsDate, DateTime(2026, 10, 5));
+  });
+
+  testWidgets('pesée invraisemblable (12 kg) : ignorée sans question', (
+    tester,
+  ) async {
+    final depot = depotAvecProfil(peseeRecente);
+    await monter(
+      tester,
+      FauxAuth(connecte: lea),
+      depot,
+      sante: FauxSante(points: pesee(12)),
+    );
+
+    expect(find.byType(AlertDialog), findsNothing);
+    expect(depot.donnees['u1']!.profil.poidsKg, 80);
   });
 
   testWidgets('sans montre : invitation à en connecter une', (tester) async {

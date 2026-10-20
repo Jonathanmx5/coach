@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 
 import '../compte/auth_service.dart';
+import '../format.dart';
 import '../journal/calculs.dart';
 import '../journal/journal_repository.dart';
 import '../journal/modele.dart';
@@ -163,7 +164,7 @@ class _PoidsPageState extends State<PoidsPage> {
                     ? null
                     : t.poidsDepuis(
                         '${ecart > 0 ? '+' : '−'}'
-                        '${_virgule(ecart.abs())}',
+                        '${formatDecimal(ecart.abs())}',
                         DateFormat.yMMMd('fr').format(toutes.first.date),
                       ),
               ),
@@ -225,8 +226,6 @@ class _PoidsPageState extends State<PoidsPage> {
   }
 }
 
-String _virgule(double v) => v.toStringAsFixed(1).replaceAll('.', ',');
-
 class _CartePoids extends StatelessWidget {
   const _CartePoids({required this.kg, required this.depuis});
 
@@ -252,7 +251,7 @@ class _CartePoids extends StatelessWidget {
           ),
           const SizedBox(height: 4),
           Text(
-            t.poidsKgValeur(_virgule(kg)),
+            t.poidsKgValeur(formatDecimal(kg)),
             style: textes.displaySmall?.copyWith(
               color: Colors.white,
               fontWeight: FontWeight.w700,
@@ -306,7 +305,7 @@ class _CarteImc extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Text(
-                  _virgule(imc),
+                  formatDecimal(imc),
                   style: textes.headlineMedium?.copyWith(color: couleur),
                 ),
                 const SizedBox(width: 12),
@@ -619,7 +618,7 @@ class _LignePesee extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 8),
       child: ListTile(
         title: Text(
-          t.poidsKgValeur(_virgule(pesee.kg)),
+          t.poidsKgValeur(formatDecimal(pesee.kg)),
           style: textes.titleMedium,
         ),
         subtitle: Text(DateFormat.yMMMd('fr').format(pesee.date)),

@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:home_widget/home_widget.dart';
 
 import '../accueil/anneaux.dart';
+import '../format.dart';
 
 /// Noms complets des classes Android des widgets (voir WidgetCoach.kt,
 /// WidgetEau.kt et WidgetRepas.kt).
@@ -124,10 +125,8 @@ class DonneesWidget {
 }
 
 /// « 1,25 / 2,65 L ».
-String texteEau(int ml, int objectifMl) {
-  String litres(int v) => (v / 1000).toStringAsFixed(2).replaceAll('.', ',');
-  return '${litres(ml)} / ${litres(objectifMl)} L';
-}
+String texteEau(int ml, int objectifMl) =>
+    '${formatLitres(ml)} / ${formatLitres(objectifMl)} L';
 
 /// Envoie les chiffres du jour au widget de l'écran d'accueil.
 abstract class MiseAJourWidget {

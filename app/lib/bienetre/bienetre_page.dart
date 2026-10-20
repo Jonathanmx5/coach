@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 import '../compte/auth_service.dart';
 import '../compte/donnees_compte.dart';
+import '../format.dart';
 import '../journal/journal_repository.dart';
 import '../journal/modele.dart';
 import '../l10n/app_localizations.dart';
@@ -212,8 +213,6 @@ class _BienEtrePageState extends State<BienEtrePage> {
   }
 }
 
-String _litres(int ml) => (ml / 1000).toStringAsFixed(2).replaceAll('.', ',');
-
 class _CarteHydratation extends StatelessWidget {
   const _CarteHydratation({
     required this.objectifMl,
@@ -249,7 +248,7 @@ class _CarteHydratation extends StatelessWidget {
             Text(t.hydratationTitre, style: textes.titleMedium),
             const SizedBox(height: 8),
             Text(
-              t.eauBueSur(_litres(bu), _litres(objectifMl)),
+              t.eauBueSur(formatLitres(bu), formatLitres(objectifMl)),
               style: textes.headlineSmall?.copyWith(
                 color: atteint
                     ? CouleursCoach.vertMoyen
