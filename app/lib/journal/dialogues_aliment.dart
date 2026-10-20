@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 
 import '../l10n/app_localizations.dart';
@@ -105,6 +107,28 @@ class DialoguePortionState extends State<DialoguePortion> {
 Macros totalAliments(Iterable<AlimentEstime> aliments) =>
     aliments.fold(Macros.zero, (s, a) => s + a.macros);
 
+/// Au plus 40 aliments par repas (borne des règles Firestore).
+const maxAliments = 40;
+
+/// Longueur maximale du nom d'un repas construit à partir de ses aliments.
+const maxNomRepas = 200;
+
+/// Nom d'un repas analysé : ses aliments, coupés à [maxNomRepas] caractères.
+String nomDuRepas(Iterable<AlimentEstime> aliments) {
+  final nom = aliments.map((a) => a.nom).join(', ');
+  return nom.length <= maxNomRepas
+      ? nom
+      : '${nom.substring(0, maxNomRepas - 1)}…';
+}
+
+/// Portion après un appui sur + ([sens] = 1) ou − (−1) : environ 10 %, arrondi
+/// à 5 g, mais toujours au moins 5 g d'écart (une petite portion d'huile ou
+/// de sauce bouge aussi), et jamais moins de 5 g.
+double portionSuivante(double grammes, int sens) {
+  final pas = math.max(5.0, (grammes * 0.1 / 5).round() * 5.0);
+  return math.max(5.0, grammes + sens * pas);
+}
+
 /// Modifie le nom et la portion d'un aliment estimé, ou en crée un nouveau
 /// (avec ses calories et macros) quand [modele] est null.
 class DialogueAliment extends StatefulWidget {
@@ -150,7 +174,9 @@ class DialogueAlimentState extends State<DialogueAliment> {
     }
     if (!_creation) {
       final base = widget.modele!;
-      Navigator.of(context).pop(base.avecGrammes(g).avecNom(nom));
+      // Corrigé par l'utilisateur : il n'est plus « à vérifier ».
+      Navigator.of(context)
+          .pop(base.avecGrammes(g).avecNom(nom).valideParUtilisateur());
       return;
     }
     final kcal = lireNombre(_kcal.text);
@@ -174,23 +200,28 @@ class DialogueAlimentState extends State<DialogueAliment> {
     );
   }
 
-  Widget _champ(TextEditingController c, String label, {bool texte = false}) =>
-      Padding(
-        padding: const EdgeInsets.only(bottom: 8),
-        child: TextField(
-          controller: c,
-          keyboardType: texte
-              ? TextInputType.text
-              : const TextInputType.numberWithOptions(decimal: true),
-          textCapitalization: texte
-              ? TextCapitalization.sentences
-              : TextCapitalization.none,
-          decoration: InputDecoration(labelText: label),
-          onChanged: (_) {
-            if (_erreur != null) setState(() => _erreur = null);
-          },
-        ),
-      );
+  Widget _champ(
+    TextEditingController c,
+    String label, {
+    bool texte = false,
+    int? longueurMax,
+  }) => Padding(
+    padding: const EdgeInsets.only(bottom: 8),
+    child: TextField(
+      controller: c,
+      maxLength: longueurMax,
+      keyboardType: texte
+          ? TextInputType.text
+          : const TextInputType.numberWithOptions(decimal: true),
+      textCapitalization: texte
+          ? TextCapitalization.sentences
+          : TextCapitalization.none,
+      decoration: InputDecoration(labelText: label),
+      onChanged: (_) {
+        if (_erreur != null) setState(() => _erreur = null);
+      },
+    ),
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -201,7 +232,7 @@ class DialogueAlimentState extends State<DialogueAliment> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            _champ(_nom, t.nomAliment, texte: true),
+            _champ(_nom, t.nomAliment, texte: true, longueurMax: 60),
             _champ(_grammes, t.champQuantite),
             if (_creation) ...[
               _champ(_kcal, t.champKcal),

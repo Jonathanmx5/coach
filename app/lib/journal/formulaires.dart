@@ -51,12 +51,14 @@ Widget _champ(
   String? erreur,
   bool decimal = true,
   bool focus = false,
+  int? longueurMax,
   ValueChanged<String>? onChanged,
 }) => Padding(
   padding: const EdgeInsets.only(bottom: 12),
   child: TextField(
     controller: c,
     autofocus: focus,
+    maxLength: longueurMax,
     keyboardType: decimal
         ? const TextInputType.numberWithOptions(decimal: true)
         : TextInputType.text,
@@ -85,6 +87,10 @@ DropdownButtonFormField<Moment> _choixMoment(
 /// Lit un nombre facultatif (vide = 0) ; null si invalide.
 double? _facultatif(String texte) =>
     texte.trim().isEmpty ? 0 : lireNombre(texte);
+
+/// Longueur maximale du nom d'un repas saisi à la main (les règles Firestore
+/// refusent au-delà de 400 caractères).
+const longueurNomRepas = 120;
 
 /// Saisie manuelle d'un repas. Renvoie le [Repas] enregistré (ou null).
 class AjoutRepasPage extends StatefulWidget {
@@ -150,7 +156,12 @@ class _AjoutRepasPageState extends State<AjoutRepasPage> {
       body: ListView(
         padding: const EdgeInsets.all(20),
         children: [
-          _champ(_nom, t.champNomRepas, decimal: false),
+          _champ(
+            _nom,
+            t.champNomRepas,
+            decimal: false,
+            longueurMax: longueurNomRepas,
+          ),
           _choixMoment(t, _moment, (m) => setState(() => _moment = m)),
           const SizedBox(height: 12),
           _champ(_kcal, t.champKcal, erreur: _erreurKcal),
@@ -189,6 +200,10 @@ class _AjoutActivitePageState extends State<AjoutActivitePage> {
   Intensite _intensite = Intensite.moderee;
   String? _erreur;
 
+  /// Heure de début choisie ; null tant que l'utilisateur n'en a pas choisi
+  /// (l'effort vient alors de se terminer).
+  TimeOfDay? _heureDebut;
+
   @override
   void dispose() {
     _duree.dispose();
@@ -200,6 +215,30 @@ class _AjoutActivitePageState extends State<AjoutActivitePage> {
     return (m == null || m <= 0 || m > 600 || m != m.roundToDouble())
         ? null
         : m.toInt();
+  }
+
+  /// Début de l'effort : l'heure choisie, ou par défaut maintenant moins la
+  /// durée. C'est cette date qui sert à reconnaître une séance déjà comptée
+  /// par la montre.
+  DateTime _debut(int? minutes) {
+    final h = _heureDebut;
+    if (h == null) {
+      return widget.date.subtract(Duration(minutes: minutes ?? 0));
+    }
+    final d = widget.date;
+    final choisi = DateTime(d.year, d.month, d.day, h.hour, h.minute);
+    // Une heure « dans le futur » désigne la veille (saisie après minuit).
+    return choisi.isAfter(d)
+        ? choisi.subtract(const Duration(days: 1))
+        : choisi;
+  }
+
+  Future<void> _choisirHeure(int? minutes) async {
+    final h = await showTimePicker(
+      context: context,
+      initialTime: TimeOfDay.fromDateTime(_debut(minutes)),
+    );
+    if (h != null && mounted) setState(() => _heureDebut = h);
   }
 
   @override
@@ -244,7 +283,19 @@ class _AjoutActivitePageState extends State<AjoutActivitePage> {
             selected: {_intensite},
             onSelectionChanged: (s) => setState(() => _intensite = s.first),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 8),
+          ListTile(
+            contentPadding: EdgeInsets.zero,
+            leading: const Icon(Icons.schedule),
+            title: Text(t.champHeureDebut),
+            trailing: Text(
+              MaterialLocalizations.of(context)
+                  .formatTimeOfDay(TimeOfDay.fromDateTime(_debut(minutes))),
+              style: textes.titleMedium,
+            ),
+            onTap: () => _choisirHeure(minutes),
+          ),
+          const SizedBox(height: 8),
           if (minutes != null)
             Text(
               t.activiteEstimation(
@@ -267,7 +318,7 @@ class _AjoutActivitePageState extends State<AjoutActivitePage> {
               }
               Navigator.of(context).pop(
                 Activite(
-                  date: widget.date,
+                  date: _debut(m),
                   type: _type,
                   minutes: m,
                   intensite: _intensite,

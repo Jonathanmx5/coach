@@ -1,7 +1,8 @@
 import 'dart:async';
-import 'dart:typed_data';
+import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../l10n/app_localizations.dart';
 import '../theme.dart';
@@ -16,11 +17,13 @@ import 'formulaires.dart';
 import '../profil/modele.dart';
 import 'modele.dart';
 import 'photos_repas.dart';
+import 'signalement.dart';
 import 'verdict.dart';
 
 // Réexportés : d'autres écrans s'en servent.
 export 'carte_verdict.dart';
-export 'dialogues_aliment.dart' show totalAliments;
+export 'dialogues_aliment.dart'
+    show totalAliments, portionSuivante, nomDuRepas, maxAliments;
 
 /// Résultat de [PhotoRepasPage] quand l'utilisateur préfère tout saisir à la
 /// main (ou que l'analyse est impossible).
@@ -76,11 +79,17 @@ class _PhotoRepasPageState extends State<PhotoRepasPage> {
   String _description = '';
   final _gardes = <int>{};
 
+  /// Aliments ajoutés à la main : gardés quand on relance l'analyse.
+  final _manuels = <int>{};
+
   /// Corrections à la main du total (boutons + et − des tuiles).
   Ajustement _ajustement = const Ajustement();
 
   /// Vrai quand l'aliment vient d'un code-barres plutôt que d'une photo.
   bool _viaCode = false;
+
+  /// Vrai pendant l'enregistrement : un second appui ne fait rien.
+  bool _enregistrement = false;
   final _precision = TextEditingController();
   late Moment _moment = momentPourHeure(widget.date);
 
@@ -102,7 +111,31 @@ class _PhotoRepasPageState extends State<PhotoRepasPage> {
   }
 
   Future<void> _choisir(SourcePhoto source) async {
-    final image = await widget.prise(source);
+    final t = AppLocalizations.of(context)!;
+    final Uint8List? image;
+    try {
+      image = await widget.prise(source);
+    } on PlatformException catch (e, s) {
+      if (!mounted) return;
+      if (source == SourcePhoto.appareil && e.code.contains('access_denied')) {
+        // Accès à l'appareil photo refusé : la galerie reste possible.
+        _signaler(
+          t.cameraRefusee,
+          action: SnackBarAction(
+            label: t.galerieCourt,
+            onPressed: () => unawaited(_choisir(SourcePhoto.galerie)),
+          ),
+        );
+      } else {
+        signalerErreur(e, s);
+        _signaler(t.photoIndisponible);
+      }
+      return;
+    } catch (e, s) {
+      signalerErreur(e, s);
+      if (mounted) _signaler(t.photoIndisponible);
+      return;
+    }
     if (image == null || !mounted) return;
     setState(() {
       _image = image;
@@ -110,10 +143,31 @@ class _PhotoRepasPageState extends State<PhotoRepasPage> {
     });
   }
 
-  void _signaler(String texte) {
+  void _signaler(String texte, {SnackBarAction? action}) {
     ScaffoldMessenger.of(context)
       ..hideCurrentSnackBar()
-      ..showSnackBar(SnackBar(content: Text(texte)));
+      ..showSnackBar(SnackBar(content: Text(texte), action: action));
+  }
+
+  /// Remplace le résultat par [liste] (nouvelle analyse ou produit scanné) :
+  /// les aliments ajoutés à la main restent, et la correction des tuiles,
+  /// faite pour l'ancien résultat, est oubliée.
+  void _remplacer(List<AlimentEstime> liste) {
+    final manuels = [
+      for (final i in _manuels.toList()..sort())
+        if (i < _aliments.length)
+          (aliment: _aliments[i], garde: _gardes.contains(i)),
+    ];
+    _aliments = [...liste, for (final m in manuels) m.aliment];
+    _ajustement = const Ajustement();
+    _gardes
+      ..clear()
+      ..addAll([for (var i = 0; i < liste.length; i++) i]);
+    _manuels.clear();
+    for (var j = 0; j < manuels.length; j++) {
+      _manuels.add(liste.length + j);
+      if (manuels[j].garde) _gardes.add(liste.length + j);
+    }
   }
 
   /// Produit emballé : le code-barres donne des valeurs exactes pour 100 g,
@@ -122,7 +176,10 @@ class _PhotoRepasPageState extends State<PhotoRepasPage> {
     final t = AppLocalizations.of(context)!;
     final code = await widget.scan(context);
     if (code == null || !mounted) return;
-    setState(() => _phase = _Phase.analyse);
+    setState(() {
+      _ajustement = const Ajustement();
+      _phase = _Phase.analyse;
+    });
     final ProduitOff? produit;
     try {
       produit = await widget.catalogue.chercher(code);
@@ -130,6 +187,14 @@ class _PhotoRepasPageState extends State<PhotoRepasPage> {
       if (!mounted) return;
       setState(() => _phase = _Phase.choix);
       _signaler(t.catalogueErreur);
+      return;
+    } catch (e, s) {
+      // Réponse inattendue (une donnée d'un autre type…) : pas de sablier
+      // infini, retour au choix.
+      signalerErreur(e, s);
+      if (!mounted) return;
+      setState(() => _phase = _Phase.choix);
+      _signaler(t.produitIllisible);
       return;
     }
     if (!mounted) return;
@@ -154,7 +219,7 @@ class _PhotoRepasPageState extends State<PhotoRepasPage> {
       _viaCode = true;
       _image = null;
       _description = produit!.nom;
-      _aliments = [
+      _remplacer([
         AlimentEstime(
           nom: produit.nom,
           grammes: grammes,
@@ -164,35 +229,39 @@ class _PhotoRepasPageState extends State<PhotoRepasPage> {
               ? null
               : produit.satures100g! * f,
         ),
-      ];
-      _gardes
-        ..clear()
-        ..add(0);
+      ]);
       _phase = _Phase.resultat;
     });
   }
 
   Future<void> _analyser() async {
-    setState(() => _phase = _Phase.analyse);
+    setState(() {
+      _ajustement = const Ajustement();
+      _phase = _Phase.analyse;
+    });
     try {
       final analyse = await widget.analyse.analyser(
         _image!,
         indice: _precision.text,
       );
       if (!mounted) return;
-      final liste = analyse.aliments;
       setState(() {
         _description = analyse.description;
-        _aliments = liste;
-        _gardes
-          ..clear()
-          ..addAll([for (var i = 0; i < liste.length; i++) i]);
+        _remplacer(analyse.aliments);
         _phase = _Phase.resultat;
       });
     } on AnalyseEchouee catch (e) {
       if (!mounted) return;
       setState(() {
         _cause = e.cause;
+        _phase = _Phase.erreur;
+      });
+    } catch (e, s) {
+      // Erreur imprévue : on propose de réessayer plutôt qu'un sablier infini.
+      signalerErreur(e, s);
+      if (!mounted) return;
+      setState(() {
+        _cause = CauseAnalyse.indisponible;
         _phase = _Phase.erreur;
       });
     }
@@ -212,14 +281,20 @@ class _PhotoRepasPageState extends State<PhotoRepasPage> {
     return valeurs.isEmpty ? null : valeurs.fold<double>(0, (s, v) => s + v);
   }
 
-  /// ±10 % de la portion, arrondi à 5 g.
-  void _ajuster(int i, double facteur) {
+  /// Change les aliments retenus ou leurs portions : la correction des tuiles
+  /// est ramenée dans les bornes du nouveau total.
+  void _changerBase(VoidCallback changement) => setState(() {
+    changement();
+    _ajustement = _ajustement.reborne(totalAliments(_retenus));
+  });
+
+  /// ±10 % de la portion, arrondi à 5 g (au moins 5 g d'écart).
+  void _ajuster(int i, int sens) {
     final g = _aliments[i].grammes;
-    final nouveau = ((g * facteur) / 5).round() * 5.0;
-    setState(
-      () =>
-          _aliments = [..._aliments]
-            ..[i] = _aliments[i].avecGrammes(nouveau < 5 ? 5 : nouveau),
+    final nouveau = portionSuivante(g, sens);
+    if (nouveau == g) return;
+    _changerBase(
+      () => _aliments = [..._aliments]..[i] = _aliments[i].avecGrammes(nouveau),
     );
   }
 
@@ -228,27 +303,56 @@ class _PhotoRepasPageState extends State<PhotoRepasPage> {
       context: context,
       builder: (_) => DialogueAliment(modele: _aliments[i]),
     );
-    if (a != null) setState(() => _aliments = [..._aliments]..[i] = a);
+    if (a != null && mounted) {
+      _changerBase(() => _aliments = [..._aliments]..[i] = a);
+    }
   }
 
   Future<void> _ajouter() async {
+    if (_aliments.length >= maxAliments) {
+      _signaler(AppLocalizations.of(context)!.tropDAliments(maxAliments));
+      return;
+    }
     final a = await showDialog<AlimentEstime>(
       context: context,
       builder: (_) => const DialogueAliment(),
     );
-    if (a == null) return;
-    setState(() {
+    if (a == null || !mounted || _aliments.length >= maxAliments) return;
+    _changerBase(() {
       _aliments = [..._aliments, a];
       _gardes.add(_aliments.length - 1);
+      _manuels.add(_aliments.length - 1);
     });
   }
 
   /// Total des aliments gardés, avec les corrections faites à la main.
   Macros get _total => _ajustement.appliquer(totalAliments(_retenus));
 
+  /// Sucres et saturés des aliments retenus, mis à l'échelle des glucides et
+  /// lipides corrigés à la main.
+  ({double? sucres, double? satures}) _parts(List<AlimentEstime> retenus) {
+    final base = totalAliments(retenus);
+    final total = _ajustement.appliquer(base);
+    return (
+      sucres: partCorrigee(
+        _somme(retenus, (a) => a.sucres),
+        avant: base.glucides,
+        apres: total.glucides,
+      ),
+      satures: partCorrigee(
+        _somme(retenus, (a) => a.satures),
+        avant: base.lipides,
+        apres: total.lipides,
+      ),
+    );
+  }
+
   Future<void> _valider() async {
+    if (_enregistrement) return;
+    setState(() => _enregistrement = true);
     final gardes = _retenus;
     final total = _total;
+    final parts = _parts(gardes);
     // La photo reste sur le téléphone ; si elle ne peut pas être gardée, le
     // repas est enregistré quand même.
     final cibles = widget.cibles;
@@ -256,8 +360,8 @@ class _PhotoRepasPageState extends State<PhotoRepasPage> {
         ? null
         : verdictRepas(
             repas: total,
-            sucres: _somme(gardes, (a) => a.sucres),
-            satures: _somme(gardes, (a) => a.satures),
+            sucres: parts.sucres,
+            satures: parts.satures,
             dejaMange: widget.dejaMange,
             cibles: cibles,
             objectif: widget.objectif,
@@ -266,12 +370,17 @@ class _PhotoRepasPageState extends State<PhotoRepasPage> {
     try {
       if (_image != null) photoId = await widget.photos.enregistrer(_image!);
     } catch (_) {}
-    if (!mounted) return;
+    // Page déjà quittée pendant l'écriture (retour arrière) : la photo n'est
+    // rattachée à aucun repas, elle n'est pas gardée.
+    if (!mounted || ModalRoute.of(context)?.isCurrent != true) {
+      if (photoId != null) unawaited(widget.photos.supprimer(photoId));
+      return;
+    }
     Navigator.of(context).pop(
       Repas(
         date: widget.date,
         moment: _moment,
-        nom: gardes.map((a) => a.nom).join(', '),
+        nom: nomDuRepas(gardes),
         macros: total,
         source: _viaCode ? SourceRepas.codeBarres : SourceRepas.photo,
         description: _description,
@@ -325,7 +434,11 @@ class _PhotoRepasPageState extends State<PhotoRepasPage> {
           padding: const EdgeInsets.symmetric(vertical: 28, horizontal: 16),
           child: Column(
             children: [
-              Icon(icone, size: 40, color: CouleursCoach.vert),
+              Icon(
+                icone,
+                size: 40,
+                color: Theme.of(context).colorScheme.primary,
+              ),
               const SizedBox(height: 10),
               Text(texte, style: textes.titleMedium),
             ],
@@ -343,11 +456,13 @@ class _PhotoRepasPageState extends State<PhotoRepasPage> {
           t.prendrePhotoRepas,
           SourcePhoto.appareil,
         ),
+        const SizedBox(height: 12),
         carte(
           Icons.photo_library_outlined,
           t.galerieChoix,
           SourcePhoto.galerie,
         ),
+        const SizedBox(height: 12),
         carte(Icons.qr_code_scanner, t.scanTitre, null),
         const SizedBox(height: 8),
         TextButton(onPressed: _manuel, child: Text(t.saisirALaMain)),
@@ -435,10 +550,10 @@ class _PhotoRepasPageState extends State<PhotoRepasPage> {
     final textes = Theme.of(context).textTheme;
     final retenus = _retenus;
     final cibles = widget.cibles;
-    double? somme(double? Function(AlimentEstime) f) {
-      final valeurs = [for (final a in retenus) f(a)].whereType<double>();
-      return valeurs.isEmpty ? null : valeurs.fold<double>(0, (s, v) => s + v);
-    }
+    final total = _total;
+    final parts = _parts(retenus);
+    // La fourchette suit la correction faite à la main sur les calories.
+    final ecartKcal = total.kcal - totalAliments(retenus).kcal;
 
     return ListView(
       padding: const EdgeInsets.all(20),
@@ -450,7 +565,7 @@ class _PhotoRepasPageState extends State<PhotoRepasPage> {
         else if (retenus.isNotEmpty && cibles != null)
           CarteVerdict(
             description: _description,
-            repas: _total,
+            repas: total,
             onAjuster: (champ, sens) => setState(
               () => _ajustement = _ajustement.avec(
                 champ,
@@ -458,12 +573,12 @@ class _PhotoRepasPageState extends State<PhotoRepasPage> {
                 totalAliments(retenus),
               ),
             ),
-            sucres: somme((a) => a.sucres),
-            satures: somme((a) => a.satures),
+            sucres: parts.sucres,
+            satures: parts.satures,
             verdict: verdictRepas(
-              repas: _total,
-              sucres: somme((a) => a.sucres),
-              satures: somme((a) => a.satures),
+              repas: total,
+              sucres: parts.sucres,
+              satures: parts.satures,
               dejaMange: widget.dejaMange,
               cibles: cibles,
               objectif: widget.objectif,
@@ -476,7 +591,13 @@ class _PhotoRepasPageState extends State<PhotoRepasPage> {
         ],
         if (fourchetteKcal(retenus) case final f?) ...[
           const SizedBox(height: 8),
-          Text(t.fourchetteKcal(f.min, f.max), style: textes.titleSmall),
+          Text(
+            t.fourchetteKcal(
+              math.max(0, (f.min + ecartKcal).round()),
+              math.max(0, (f.max + ecartKcal).round()),
+            ),
+            style: textes.titleSmall,
+          ),
         ],
         if (_aliments.isNotEmpty) ...[
           const SizedBox(height: 12),
@@ -487,7 +608,7 @@ class _PhotoRepasPageState extends State<PhotoRepasPage> {
         ],
         for (var i = 0; i < _aliments.length; i++) _ligne(t, i),
         OutlinedButton.icon(
-          onPressed: _ajouter,
+          onPressed: _aliments.length >= maxAliments ? null : _ajouter,
           icon: const Icon(Icons.add),
           label: Text(t.ajouterAliment),
         ),
@@ -505,8 +626,13 @@ class _PhotoRepasPageState extends State<PhotoRepasPage> {
         ),
         const SizedBox(height: 12),
         FilledButton(
-          onPressed: _gardes.isEmpty ? null : _valider,
-          child: Text(t.enregistrer),
+          onPressed: _gardes.isEmpty || _enregistrement ? null : _valider,
+          child: _enregistrement
+              ? const SizedBox.square(
+                  dimension: 20,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                )
+              : Text(t.enregistrer),
         ),
         TextButton(onPressed: _manuel, child: Text(t.saisirALaMain)),
       ],
@@ -525,7 +651,8 @@ class _PhotoRepasPageState extends State<PhotoRepasPage> {
           children: [
             Checkbox(
               value: garde,
-              onChanged: (v) => setState(
+              semanticLabel: a.nom,
+              onChanged: (v) => _changerBase(
                 () => v == true ? _gardes.add(i) : _gardes.remove(i),
               ),
             ),
@@ -542,7 +669,10 @@ class _PhotoRepasPageState extends State<PhotoRepasPage> {
                       ),
                     ),
                     Text(
-                      '${a.grammes.round()} g · ${a.macros.kcal.round()} kcal',
+                      t.portionGrammes(
+                        a.grammes.round(),
+                        a.macros.kcal.round(),
+                      ),
                       style: textes.bodySmall,
                     ),
                     if (a.aFourchette)
@@ -568,13 +698,13 @@ class _PhotoRepasPageState extends State<PhotoRepasPage> {
               ),
             ),
             IconButton(
-              tooltip: t.moinsPortion,
-              onPressed: () => _ajuster(i, 1 / 1.1),
+              tooltip: t.ajusterMoins(a.nom),
+              onPressed: () => _ajuster(i, -1),
               icon: const Icon(Icons.remove_circle_outline),
             ),
             IconButton(
-              tooltip: t.plusPortion,
-              onPressed: () => _ajuster(i, 1.1),
+              tooltip: t.ajusterPlus(a.nom),
+              onPressed: () => _ajuster(i, 1),
               icon: const Icon(Icons.add_circle_outline),
             ),
           ],

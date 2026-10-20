@@ -1948,18 +1948,6 @@ abstract class AppLocalizations {
   /// **'À vérifier'**
   String get aVerifier;
 
-  /// No description provided for @moinsPortion.
-  ///
-  /// In fr, this message translates to:
-  /// **'Diminuer la portion'**
-  String get moinsPortion;
-
-  /// No description provided for @plusPortion.
-  ///
-  /// In fr, this message translates to:
-  /// **'Augmenter la portion'**
-  String get plusPortion;
-
   /// No description provided for @ajouterAliment.
   ///
   /// In fr, this message translates to:
@@ -2803,6 +2791,54 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Entre une durée en minutes.'**
   String get erreurDuree;
+
+  /// No description provided for @champHeureDebut.
+  ///
+  /// In fr, this message translates to:
+  /// **'Heure de début'**
+  String get champHeureDebut;
+
+  /// No description provided for @cameraRefusee.
+  ///
+  /// In fr, this message translates to:
+  /// **'Accès à l\'appareil photo refusé. Choisis une photo dans la galerie, ou autorise l\'appareil photo dans les réglages du téléphone.'**
+  String get cameraRefusee;
+
+  /// No description provided for @galerieCourt.
+  ///
+  /// In fr, this message translates to:
+  /// **'Galerie'**
+  String get galerieCourt;
+
+  /// No description provided for @photoIndisponible.
+  ///
+  /// In fr, this message translates to:
+  /// **'Impossible d\'ouvrir cette photo. Réessaie.'**
+  String get photoIndisponible;
+
+  /// No description provided for @produitIllisible.
+  ///
+  /// In fr, this message translates to:
+  /// **'Les informations de ce produit sont illisibles. Essaie avec la photo du repas.'**
+  String get produitIllisible;
+
+  /// No description provided for @tropDAliments.
+  ///
+  /// In fr, this message translates to:
+  /// **'Un repas compte au plus {max} aliments.'**
+  String tropDAliments(int max);
+
+  /// No description provided for @modificationRefusee.
+  ///
+  /// In fr, this message translates to:
+  /// **'La modification du repas n\'a pas pu être enregistrée.'**
+  String get modificationRefusee;
+
+  /// No description provided for @grammesValeur.
+  ///
+  /// In fr, this message translates to:
+  /// **'{g} g'**
+  String grammesValeur(int g);
 }
 
 class _AppLocalizationsDelegate

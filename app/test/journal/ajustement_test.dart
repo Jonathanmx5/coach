@@ -56,6 +56,67 @@ void main() {
     expect(a.estNul, isTrue);
   });
 
+  group('reborne : aliment décoché après une correction', () {
+    // Steak (250 kcal, 16 g de lipides) et salade.
+    const salade = Macros(kcal: 40, proteines: 2, glucides: 5, lipides: 1.5);
+    const steakSalade = Macros(
+      kcal: 290,
+      proteines: 28,
+      glucides: 5,
+      lipides: 17.5,
+    );
+
+    test('les lipides baissés de 15 g ne retirent pas plus que la salade', () {
+      var a = const Ajustement();
+      for (var i = 0; i < 15; i++) {
+        a = a.avec(ChampMacro.lipides, -1, steakSalade);
+      }
+      expect(a.appliquer(steakSalade).lipides, closeTo(2.5, 0.001));
+
+      // On décoche le steak : sans reborne, 0 kcal pour 2 g de protéines.
+      final b = a.reborne(salade);
+      final m = b.appliquer(salade);
+      expect(m.lipides, 0);
+      expect(m.proteines, 2);
+      expect(m.glucides, 5);
+      // Seuls les 1,5 g de lipides de la salade sont retirés : 40 − 13,5.
+      expect(m.kcal, closeTo(26.5, 0.001));
+    });
+
+    test('les calories baissées à la main ne passent jamais sous zéro', () {
+      var a = const Ajustement();
+      for (var i = 0; i < 20; i++) {
+        a = a.avec(ChampMacro.kcal, -1, steakSalade);
+      }
+      expect(a.appliquer(steakSalade).kcal, 90);
+      final m = a.reborne(salade).appliquer(salade);
+      expect(m.kcal, 0);
+      // Et l'ajustement borné reste valide : + le fait remonter tout de suite.
+      final plus = a
+          .reborne(salade)
+          .avec(ChampMacro.kcal, 1, salade)
+          .appliquer(salade);
+      expect(plus.kcal, 10);
+    });
+
+    test('une correction encore valide est gardée telle quelle', () {
+      final a = const Ajustement()
+          .avec(ChampMacro.proteines, 1, steakSalade)
+          .avec(ChampMacro.kcal, -1, steakSalade);
+      expect(identical(a.reborne(salade), a), isTrue);
+      expect(const Ajustement().reborne(salade).estNul, isTrue);
+    });
+  });
+
+  test('partCorrigee : les sucres suivent les glucides corrigés', () {
+    expect(partCorrigee(null, avant: 30, apres: 10), isNull);
+    // 30 g de glucides dont 30 g de sucres, ramenés à 10 g : 10 g de sucres.
+    expect(partCorrigee(30, avant: 30, apres: 10), 10);
+    expect(partCorrigee(15, avant: 30, apres: 20), 10);
+    expect(partCorrigee(5, avant: 30, apres: 30), 5);
+    expect(partCorrigee(5, avant: 0, apres: 2), 2);
+  });
+
   test('entre : retrouve la correction qui mène d\'une base à une cible', () {
     const cible = Macros(kcal: 350, proteines: 25, glucides: 30, lipides: 10);
     final a = Ajustement.entre(cible, base);

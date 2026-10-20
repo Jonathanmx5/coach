@@ -255,7 +255,8 @@ void main() {
       expect(a.minutes, 30);
       expect(a.intensite, Intensite.intense);
       expect(a.kcal, closeTo(322.8, 0.01));
-      expect(a.date, maintenant);
+      // Datée du début de l'effort : maintenant moins sa durée.
+      expect(a.date, maintenant.subtract(const Duration(minutes: 30)));
     },
   );
 

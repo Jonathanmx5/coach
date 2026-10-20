@@ -8,6 +8,19 @@ enum ChampMacro { kcal, proteines, glucides, lipides }
 /// Pas d'un bouton + ou − : 10 kcal, ou 1 g.
 double pasDe(ChampMacro champ) => champ == ChampMacro.kcal ? 10 : 1;
 
+/// La part [part] (sucres d'une quantité de glucides, saturés d'une quantité
+/// de lipides) mise à l'échelle quand cette quantité passe de [avant] à
+/// [apres] par une correction à la main ; jamais plus que [apres].
+double? partCorrigee(
+  double? part, {
+  required double avant,
+  required double apres,
+}) {
+  if (part == null) return null;
+  final mise = avant > 0 ? part * apres / avant : part;
+  return mise > apres ? apres : mise;
+}
+
 /// Corrections faites à la main par-dessus les apports estimés d'un repas.
 ///
 /// Les calories suivent les macros (4 kcal par gramme de protéines ou de
@@ -75,6 +88,21 @@ class Ajustement {
         base.lipides + suivant.lipides >= 0 &&
         suivant._kcalTotal(base) >= 0;
     return valide ? suivant : this;
+  }
+
+  /// Le même ajustement, ramené dans les bornes valides pour [nouvelleBase]
+  /// (un aliment décoché, une portion changée) : une baisse ne peut pas
+  /// retirer plus que ce que la base contient, et les calories ne passent
+  /// jamais sous zéro. Les hausses restent telles quelles.
+  Ajustement reborne(Macros nouvelleBase) {
+    double borne(double decalage, double base) =>
+        decalage < -base ? -base : decalage;
+    final p = borne(proteines, nouvelleBase.proteines);
+    final g = borne(glucides, nouvelleBase.glucides);
+    final l = borne(lipides, nouvelleBase.lipides);
+    final k = borne(kcal, nouvelleBase.kcal + 4 * p + 4 * g + 9 * l);
+    final suivant = Ajustement(kcal: k, proteines: p, glucides: g, lipides: l);
+    return suivant == this ? this : suivant;
   }
 
   @override

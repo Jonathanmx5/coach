@@ -528,8 +528,6 @@
   "analyserRepas": "Analyser ce repas",
   "changerPhoto": "Changer de photo",
   "aVerifier": "À vérifier",
-  "moinsPortion": "Diminuer la portion",
-  "plusPortion": "Augmenter la portion",
   "ajouterAliment": "Ajouter un aliment",
   "modifierAliment": "Modifier l'aliment",
   "nomAliment": "Nom de l'aliment",
@@ -779,5 +777,15 @@
     }
   },
   "supprimer": "Supprimer",
-  "erreurDuree": "Entre une durée en minutes."
+  "erreurDuree": "Entre une durée en minutes.",
+  "champHeureDebut": "Heure de début",
+  "cameraRefusee": "Accès à l'appareil photo refusé. Choisis une photo dans la galerie, ou autorise l'appareil photo dans les réglages du téléphone.",
+  "galerieCourt": "Galerie",
+  "photoIndisponible": "Impossible d'ouvrir cette photo. Réessaie.",
+  "produitIllisible": "Les informations de ce produit sont illisibles. Essaie avec la photo du repas.",
+  "tropDAliments": "Un repas compte au plus {max} aliments.",
+  "@tropDAliments": {"placeholders": {"max": {"type": "int"}}},
+  "modificationRefusee": "La modification du repas n'a pas pu être enregistrée.",
+  "grammesValeur": "{g} g",
+  "@grammesValeur": {"placeholders": {"g": {"type": "int"}}}
 }

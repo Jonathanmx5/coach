@@ -1,5 +1,7 @@
+import 'dart:async';
 import 'dart:typed_data';
 
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -13,6 +15,7 @@ import 'formulaires.dart';
 import 'modele.dart';
 import 'photo_repas_page.dart';
 import 'photos_repas.dart';
+import 'signalement.dart';
 import 'verdict.dart';
 
 /// Un repas du journal : l'analyse telle qu'elle avait été enregistrée
@@ -58,6 +61,14 @@ class _DetailRepasPageState extends State<DetailRepasPage> {
   );
   late Ajustement _ajustement = _initial;
 
+  /// Vrai dès le premier appui sur « Enregistrer » : les suivants sont ignorés.
+  bool _enregistrement = false;
+
+  /// La photo, lue une seule fois (pas à chaque appui sur + ou −).
+  late final Future<Uint8List?>? _photo = widget.repas.photoId == null
+      ? null
+      : widget.photos.lire(widget.repas.photoId!);
+
   /// Vrai quand les apports ne sont plus ceux qui sont enregistrés.
   bool get _apportsChanges => _portionsChangees || _ajustement != _initial;
 
@@ -76,34 +87,60 @@ class _DetailRepasPageState extends State<DetailRepasPage> {
     return valeurs.isEmpty ? null : valeurs.fold<double>(0, (s, v) => s + v);
   }
 
+  /// Sucres et saturés des aliments, mis à l'échelle des glucides et lipides
+  /// affichés (corrigés à la main ou non).
+  ({double? sucres, double? satures}) get _parts {
+    final base = totalAliments(_aliments);
+    final m = _macros;
+    return (
+      sucres: partCorrigee(
+        _somme(_aliments, (a) => a.sucres),
+        avant: base.glucides,
+        apres: m.glucides,
+      ),
+      satures: partCorrigee(
+        _somme(_aliments, (a) => a.satures),
+        avant: base.lipides,
+        apres: m.lipides,
+      ),
+    );
+  }
+
   Verdict _calculerVerdict() => verdictRepas(
     repas: _macros,
-    sucres: _somme(_aliments, (a) => a.sucres),
-    satures: _somme(_aliments, (a) => a.satures),
+    sucres: _parts.sucres,
+    satures: _parts.satures,
     dejaMange: widget.dejaMange,
     cibles: widget.cibles,
     objectif: widget.objectif,
   );
 
-  /// ±10 % de la portion, arrondi à 5 g.
-  void _ajuster(int i, double facteur) {
+  /// ±10 % de la portion, arrondi à 5 g (au moins 5 g d'écart). Un appui
+  /// sans effet (déjà au minimum) ne compte pas comme une modification.
+  void _ajuster(int i, int sens) {
     final g = _aliments[i].grammes;
-    final nouveau = ((g * facteur) / 5).round() * 5.0;
+    final nouveau = portionSuivante(g, sens);
+    if (nouveau == g) return;
     setState(() {
-      _aliments = [..._aliments]
-        ..[i] = _aliments[i].avecGrammes(nouveau < 5 ? 5 : nouveau);
+      _aliments = [..._aliments]..[i] = _aliments[i].avecGrammes(nouveau);
       _portionsChangees = true;
+      // La correction des tuiles reste dans les bornes du nouveau total.
+      _ajustement = _ajustement.reborne(totalAliments(_aliments));
     });
   }
 
-  Future<void> _enregistrer() async {
+  void _enregistrer() {
+    if (_enregistrement) return;
+    _enregistrement = true;
     final r = widget.repas;
-    await widget.onModifier(
+    final t = AppLocalizations.of(context)!;
+    final messager = ScaffoldMessenger.of(context);
+    final ecriture = widget.onModifier(
       Repas(
         id: r.id,
         date: r.date,
         moment: _moment,
-        nom: _portionsChangees ? _aliments.map((a) => a.nom).join(', ') : r.nom,
+        nom: _portionsChangees ? nomDuRepas(_aliments) : r.nom,
         macros: _macros,
         source: r.source,
         description: r.description,
@@ -115,7 +152,17 @@ class _DetailRepasPageState extends State<DetailRepasPage> {
             : r.verdict,
       ),
     );
-    if (mounted) Navigator.of(context).pop();
+    // Hors ligne, l'accusé du serveur n'arrive qu'au retour du réseau : on
+    // ne l'attend pas, le cache local est déjà à jour. Un refus est signalé.
+    unawaited(
+      ecriture.catchError((Object e, StackTrace s) {
+        signalerErreur(e, s);
+        if (e is FirebaseException && e.code == 'permission-denied') {
+          messager.showSnackBar(SnackBar(content: Text(t.modificationRefusee)));
+        }
+      }),
+    );
+    if (ModalRoute.of(context)?.isCurrent == true) Navigator.of(context).pop();
   }
 
   @override
@@ -135,9 +182,9 @@ class _DetailRepasPageState extends State<DetailRepasPage> {
             style: textes.bodySmall?.copyWith(color: context.palette.texteDoux),
           ),
           const SizedBox(height: 12),
-          if (repas.photoId != null)
+          if (_photo != null)
             FutureBuilder<Uint8List?>(
-              future: widget.photos.lire(repas.photoId!),
+              future: _photo,
               builder: (_, snap) {
                 final octets = snap.data;
                 if (octets == null) return const SizedBox.shrink();
@@ -150,6 +197,7 @@ class _DetailRepasPageState extends State<DetailRepasPage> {
                       height: 220,
                       width: double.infinity,
                       fit: BoxFit.cover,
+                      gaplessPlayback: true,
                       errorBuilder: (_, _, _) => const SizedBox.shrink(),
                     ),
                   ),
@@ -177,8 +225,8 @@ class _DetailRepasPageState extends State<DetailRepasPage> {
             CarteVerdict(
               description: repas.description,
               repas: _macros,
-              sucres: _somme(aliments, (a) => a.sucres),
-              satures: _somme(aliments, (a) => a.satures),
+              sucres: _parts.sucres,
+              satures: _parts.satures,
               // Le jugement de l'époque ; refait si on change les portions, ou
               // pour un ancien repas qui n'en avait pas.
               onAjuster: (champ, sens) => setState(
@@ -220,13 +268,13 @@ class _DetailRepasPageState extends State<DetailRepasPage> {
                           ),
                         ),
                       IconButton(
-                        tooltip: t.moinsPortion,
-                        onPressed: () => _ajuster(i, 1 / 1.1),
+                        tooltip: t.ajusterMoins(aliments[i].nom),
+                        onPressed: () => _ajuster(i, -1),
                         icon: const Icon(Icons.remove_circle_outline),
                       ),
                       IconButton(
-                        tooltip: t.plusPortion,
-                        onPressed: () => _ajuster(i, 1.1),
+                        tooltip: t.ajusterPlus(aliments[i].nom),
+                        onPressed: () => _ajuster(i, 1),
                         icon: const Icon(Icons.add_circle_outline),
                       ),
                     ],

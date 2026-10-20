@@ -67,10 +67,19 @@ class CarteVerdict extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(libelle, style: textes.labelSmall),
-            Row(
-              children: [
-                Expanded(child: Text(valeur, style: textes.titleMedium)),
-                if (onAjuster != null) ...[
+            // La valeur a toute la largeur de la tuile : elle ne se coupe
+            // pas en deux lignes, et rétrécit plutôt qu'elle ne déborde.
+            FittedBox(
+              fit: BoxFit.scaleDown,
+              alignment: AlignmentDirectional.centerStart,
+              child: Text(valeur, style: textes.titleMedium, maxLines: 1),
+            ),
+            if (onAjuster != null)
+              // Boutons sous la valeur, écartés l'un de l'autre, avec une
+              // zone tactile de 48 dp.
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
                   _BoutonAjuster(
                     icone: Icons.remove,
                     tooltip: t.ajusterMoins(libelle),
@@ -82,8 +91,7 @@ class CarteVerdict extends StatelessWidget {
                     onTap: () => onAjuster!(champ, 1),
                   ),
                 ],
-              ],
-            ),
+              ),
             if (detail != null)
               Text(
                 detail,
@@ -138,13 +146,13 @@ class CarteVerdict extends StatelessWidget {
             children: [
               tuile(
                 t.tuileCalories,
-                '${repas.kcal.round()} kcal',
+                t.kcalValeur('${repas.kcal.round()}'),
                 null,
                 ChampMacro.kcal,
               ),
               tuile(
                 t.tuileProteines,
-                '${repas.proteines.round()} g',
+                t.grammesValeur(repas.proteines.round()),
                 null,
                 ChampMacro.proteines,
               ),
@@ -155,13 +163,13 @@ class CarteVerdict extends StatelessWidget {
             children: [
               tuile(
                 t.tuileGlucides,
-                '${repas.glucides.round()} g',
+                t.grammesValeur(repas.glucides.round()),
                 sucres == null ? null : t.dontSucres(sucres!.round()),
                 ChampMacro.glucides,
               ),
               tuile(
                 t.tuileLipides,
-                '${repas.lipides.round()} g',
+                t.grammesValeur(repas.lipides.round()),
                 satures == null ? null : t.dontSatures(satures!.round()),
                 ChampMacro.lipides,
               ),
@@ -203,12 +211,9 @@ class _BoutonAjuster extends StatelessWidget {
     tooltip: tooltip,
     onPressed: onTap,
     icon: Icon(icone, size: 18),
-    padding: EdgeInsets.zero,
-    constraints: const BoxConstraints.tightFor(width: 36, height: 36),
-    visualDensity: VisualDensity.compact,
     style: IconButton.styleFrom(
-      minimumSize: const Size(36, 36),
-      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+      minimumSize: const Size(40, 40),
+      tapTargetSize: MaterialTapTargetSize.padded,
     ),
   );
 }

@@ -372,7 +372,7 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('Enregistrer les modifications'), findsNothing);
 
-    await tester.tap(find.byTooltip('Augmenter la portion').first);
+    await tester.tap(find.byTooltip('Augmenter : Riz'));
     await tester.pump();
     await tester.tap(find.widgetWithText(ChoiceChip, 'Collation'));
     await tester.pump();
@@ -526,7 +526,7 @@ void main() {
     expect(find.text('Enregistrer les modifications'), findsNothing);
 
     // Une portion changée garde la correction à la main par-dessus.
-    await tester.tap(find.byTooltip('Augmenter la portion').first);
+    await tester.tap(find.byTooltip('Augmenter : Riz'));
     await tester.pump();
     expect(find.text('Enregistrer les modifications'), findsOneWidget);
   });
@@ -551,7 +551,7 @@ void main() {
     expect(find.text('entre 150 et 260 g'), findsOneWidget);
     expect(find.text('Environ 195 à 338 kcal en tout'), findsOneWidget);
 
-    await tester.tap(find.byTooltip('Augmenter la portion'));
+    await tester.tap(find.byTooltip('Augmenter : Riz'));
     await tester.pump();
     expect(find.text('entre 165 et 286 g'), findsOneWidget);
 
@@ -588,12 +588,12 @@ void main() {
     await banc.monter(tester);
     await analyserUnePhoto(tester);
 
-    await tester.tap(find.byTooltip('Augmenter la portion'));
+    await tester.tap(find.byTooltip('Augmenter : Riz'));
     await tester.pump();
     expect(find.text('110 g · 143 kcal'), findsOneWidget);
 
-    await tester.tap(find.byTooltip('Diminuer la portion'));
-    await tester.tap(find.byTooltip('Diminuer la portion'));
+    await tester.tap(find.byTooltip('Diminuer : Riz'));
+    await tester.tap(find.byTooltip('Diminuer : Riz'));
     await tester.pump();
     expect(find.text('90 g · 117 kcal'), findsOneWidget);
     await taper(tester, 'Enregistrer');

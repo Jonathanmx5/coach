@@ -1042,12 +1042,6 @@ class AppLocalizationsFr extends AppLocalizations {
   String get aVerifier => 'À vérifier';
 
   @override
-  String get moinsPortion => 'Diminuer la portion';
-
-  @override
-  String get plusPortion => 'Augmenter la portion';
-
-  @override
   String get ajouterAliment => 'Ajouter un aliment';
 
   @override
@@ -1531,4 +1525,35 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get erreurDuree => 'Entre une durée en minutes.';
+
+  @override
+  String get champHeureDebut => 'Heure de début';
+
+  @override
+  String get cameraRefusee =>
+      'Accès à l\'appareil photo refusé. Choisis une photo dans la galerie, ou autorise l\'appareil photo dans les réglages du téléphone.';
+
+  @override
+  String get galerieCourt => 'Galerie';
+
+  @override
+  String get photoIndisponible => 'Impossible d\'ouvrir cette photo. Réessaie.';
+
+  @override
+  String get produitIllisible =>
+      'Les informations de ce produit sont illisibles. Essaie avec la photo du repas.';
+
+  @override
+  String tropDAliments(int max) {
+    return 'Un repas compte au plus $max aliments.';
+  }
+
+  @override
+  String get modificationRefusee =>
+      'La modification du repas n\'a pas pu être enregistrée.';
+
+  @override
+  String grammesValeur(int g) {
+    return '$g g';
+  }
 }
