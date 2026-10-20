@@ -3,16 +3,24 @@ import 'dart:async';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/foundation.dart';
 
+/// Faux si l'utilisateur a refusé les rapports de plantage (Réglages) : plus
+/// aucune erreur n'est alors notée. Branché sur le réglage au démarrage.
+bool Function() rapportsAutorises = () => true;
+
+/// Note l'erreur dans le journal d'erreurs (Crashlytics dans l'appli).
+@visibleForTesting
+Future<void> Function(Object erreur, StackTrace pile) noterErreur = (
+  erreur,
+  pile,
+) => FirebaseCrashlytics.instance.recordError(erreur, pile, fatal: false);
+
 /// Note une erreur inattendue dans le journal d'erreurs, sans la rendre
 /// fatale : l'écran l'a déjà prise en charge (message, retour en arrière).
 /// Sans Firebase (tests), l'erreur est seulement affichée en mode debug.
 void signalerErreur(Object erreur, StackTrace pile) {
   if (kDebugMode) debugPrint('Erreur non fatale : $erreur');
+  if (!rapportsAutorises()) return;
   try {
-    unawaited(
-      FirebaseCrashlytics.instance
-          .recordError(erreur, pile, fatal: false)
-          .catchError((Object _) {}),
-    );
+    unawaited(noterErreur(erreur, pile).catchError((Object _) {}));
   } catch (_) {}
 }

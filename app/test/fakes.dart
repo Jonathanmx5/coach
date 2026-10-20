@@ -628,6 +628,9 @@ class FausseSauvegarde implements Sauvegarde {
   final imports = <Uint8List>[];
   final remplacements = <bool>[];
   bool invalide = false;
+
+  /// Exception levée par [exporter] (lecture du serveur impossible...).
+  Object? echecExport;
   var resultat = const ResultatImport(
     importes: 3,
     ignores: [Motif('Repas', 4, 'date invalide')],
@@ -635,6 +638,7 @@ class FausseSauvegarde implements Sauvegarde {
 
   @override
   Future<Uint8List> exporter(String uid, {required DateTime maintenant}) async {
+    if (echecExport != null) throw echecExport!;
     exports.add(uid);
     return Uint8List.fromList([1, 2, 3]);
   }

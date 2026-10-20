@@ -12,6 +12,29 @@ abstract class ReglageRapports {
 /// Applique le choix au service de rapports (Crashlytics dans l'appli).
 typedef AppliquerRapports = Future<void> Function(bool actif);
 
+/// Règle la collecte : jamais en [debug], sinon selon [actif]. Un refus
+/// coupe d'abord la collecte, puis efface les rapports en attente d'envoi :
+/// rien de ce qui a été noté avant le refus ne part plus tard. Une erreur du
+/// service n'empêche pas l'appli de démarrer.
+Future<void> appliquerChoixRapports({
+  required bool actif,
+  required bool debug,
+  required Future<void> Function(bool) activerCollecte,
+  required Future<void> Function() effacerEnAttente,
+}) async {
+  try {
+    await activerCollecte(actif && !debug);
+  } catch (_) {
+    // Service indisponible : il ne peut rien envoyer non plus.
+  }
+  if (actif) return;
+  try {
+    await effacerEnAttente();
+  } catch (_) {
+    // Rien en attente, ou service indisponible.
+  }
+}
+
 class ReglageRapportsLocal implements ReglageRapports {
   ReglageRapportsLocal._(this._prefs, bool initial, this._appliquer)
     : _actif = ValueNotifier(initial);
@@ -39,9 +62,15 @@ class ReglageRapportsLocal implements ReglageRapports {
 
   @override
   Future<void> definir(bool v) async {
+    // Appliqué d'abord : un refus vaut tout de suite, même si l'écriture
+    // du choix échoue (il vaut alors jusqu'à la fermeture de l'appli).
     _actif.value = v;
-    await _prefs.setBool(_cle, v);
     await _appliquer(v);
+    try {
+      await _prefs.setBool(_cle, v);
+    } catch (_) {
+      // Stockage indisponible.
+    }
   }
 }
 

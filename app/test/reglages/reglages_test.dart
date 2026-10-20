@@ -1,6 +1,8 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:coach/journal/signalement.dart';
 import 'package:coach/reglages/mises_a_jour.dart';
 import 'package:coach/reglages/reglage_rapports.dart';
 import 'package:coach/reglages/reglage_theme.dart';
@@ -228,6 +230,67 @@ void main() {
     expect(relance.actif.value, isFalse);
   });
 
+  group('rapports de plantage appliqués au service', () {
+    Future<List<String>> appliquer({
+      required bool actif,
+      bool debug = false,
+      bool collectePlante = false,
+    }) async {
+      final appels = <String>[];
+      await appliquerChoixRapports(
+        actif: actif,
+        debug: debug,
+        activerCollecte: (v) async {
+          appels.add('collecte $v');
+          if (collectePlante) throw Exception('indisponible');
+        },
+        effacerEnAttente: () async => appels.add('effacement'),
+      );
+      return appels;
+    }
+
+    test('accepté : collecte active, rien d\'effacé', () async {
+      expect(await appliquer(actif: true), ['collecte true']);
+    });
+
+    test('refusé : collecte coupée puis rapports en attente effacés', () async {
+      expect(await appliquer(actif: false), ['collecte false', 'effacement']);
+    });
+
+    test('jamais de collecte en debug', () async {
+      expect(await appliquer(actif: true, debug: true), ['collecte false']);
+    });
+
+    test(
+      'service en panne : le refus efface quand même, sans erreur',
+      () async {
+        expect(await appliquer(actif: false, collectePlante: true), [
+          'collecte false',
+          'effacement',
+        ]);
+      },
+    );
+
+    test('refusé : les erreurs prises en charge ne sont plus notées', () {
+      final notees = <Object>[];
+      final noterAvant = noterErreur;
+      final autorisesAvant = rapportsAutorises;
+      addTearDown(() {
+        noterErreur = noterAvant;
+        rapportsAutorises = autorisesAvant;
+      });
+      noterErreur = (e, _) async => notees.add(e);
+      final rapports = ReglageRapportsFixe();
+      rapportsAutorises = () => rapports.actif.value;
+
+      signalerErreur('accepté', StackTrace.current);
+      unawaited(rapports.definir(false));
+      signalerErreur('refusé', StackTrace.current);
+
+      expect(notees, ['accepté']);
+    });
+  });
+
   test('vider le cache efface fichiers et dossiers, sans erreur', () async {
     final cache = await Directory.systemTemp.createTemp('cache_coach');
     addTearDown(() async {
@@ -407,6 +470,42 @@ void main() {
       expect(find.textContaining('elle serait incomplète'), findsOneWidget);
       expect(sauvegarde.exports, isEmpty);
       expect(fichiers.enregistres, isEmpty);
+    });
+
+    testWidgets('enregistrer : lecture du serveur impossible, aucun fichier', (
+      tester,
+    ) async {
+      final (sauvegarde, fichiers) = await ouvrirSauvegarde(tester);
+      sauvegarde.echecExport = Exception('serveur injoignable');
+
+      await taper(tester, 'Enregistrer une sauvegarde (Excel)');
+
+      expect(find.textContaining("n'a pas pu être créée"), findsOneWidget);
+      expect(find.text('Sauvegarde enregistrée.'), findsNothing);
+      expect(fichiers.enregistres, isEmpty);
+    });
+
+    testWidgets('import refusé par le compte : pas de « Réessaie » trompeur', (
+      tester,
+    ) async {
+      final (sauvegarde, fichiers) = await ouvrirSauvegarde(tester);
+      sauvegarde.resultat = const ResultatImport(
+        importes: 400,
+        erreur: ErreurImport.refus,
+      );
+      fichiers.aChoisir = Uint8List.fromList([9]);
+
+      await taper(tester, 'Importer une sauvegarde');
+      await tester.tap(find.widgetWithText(FilledButton, 'Importer'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Import interrompu'), findsOneWidget);
+      expect(
+        find.text('400 ligne(s) importée(s), 0 ignorée(s).'),
+        findsOneWidget,
+      );
+      expect(find.textContaining("a refusé l'écriture"), findsOneWidget);
+      expect(find.textContaining('Réessaie'), findsNothing);
     });
 
     testWidgets('importer : refus à la confirmation, rien n\'est écrit', (

@@ -18,6 +18,7 @@ import 'poids/mensurations_repository.dart';
 import 'poids/pesees_repository.dart';
 import 'journal/catalogue.dart';
 import 'journal/photos_repas.dart';
+import 'journal/signalement.dart';
 import 'poids/photos.dart';
 import 'entrainement/entrainement_repository.dart';
 import 'journal/analyse_photo.dart';
@@ -57,16 +58,14 @@ Future<ReglageRapports> _chargerRapports(AppliquerRapports appliquer) async {
   }
 }
 
-/// Jamais en debug. Un refus efface aussi les rapports en attente d'envoi :
-/// rien de ce qui a été noté pendant le refus ne part plus tard.
-Future<void> _appliquerRapports(FirebaseCrashlytics c, bool actif) async {
-  try {
-    if (!actif) await c.deleteUnsentReports();
-    await c.setCrashlyticsCollectionEnabled(!kDebugMode && actif);
-  } catch (_) {
-    // Crashlytics indisponible : rien ne part de toute façon.
-  }
-}
+/// Le choix appliqué à Crashlytics (jamais d'envoi en debug).
+Future<void> _appliquerRapports(FirebaseCrashlytics c, bool actif) =>
+    appliquerChoixRapports(
+      actif: actif,
+      debug: kDebugMode,
+      activerCollecte: c.setCrashlyticsCollectionEnabled,
+      effacerEnAttente: c.deleteUnsentReports,
+    );
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -74,14 +73,16 @@ Future<void> main() async {
   // Boutons d'eau du widget de l'écran d'accueil (application fermée).
   unawaited(HomeWidget.registerInteractivityCallback(rappelWidget));
 
-  // Une erreur Firebase non rattrapée (écriture refusée, réseau) est notée
-  // sans compter comme un plantage.
-  // Envoi refusable dans les Réglages, appliqué avant toute erreur possible.
+  // Envoi refusable dans les Réglages, appliqué avant toute erreur possible ;
+  // en cas de refus, aucune erreur n'est même notée sur le téléphone. Une
+  // erreur Firebase non rattrapée (écriture refusée, réseau) est notée sans
+  // compter comme un plantage.
   final crashlytics = FirebaseCrashlytics.instance;
   final rapports = await _chargerRapports(
     (actif) => _appliquerRapports(crashlytics, actif),
   );
   await _appliquerRapports(crashlytics, rapports.actif.value);
+  rapportsAutorises = () => rapports.actif.value;
   FlutterError.onError = (details) {
     if (!rapports.actif.value) {
       FlutterError.presentError(details);

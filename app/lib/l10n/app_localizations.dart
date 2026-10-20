@@ -1801,7 +1801,7 @@ abstract class AppLocalizations {
   /// No description provided for @consentPhotoTexte.
   ///
   /// In fr, this message translates to:
-  /// **'La photo de ton repas est envoyée à un service d\'IA pour estimer les aliments : Google Gemini (offre payante, qui n\'utilise pas tes photos pour entraîner ses modèles), via un relais hébergé par Cloudflare, ou à défaut Cloudflare Workers AI. Elle n\'est pas conservée par ces services. Elle reste seulement sur ton téléphone, jamais dans le cloud, pour que tu puisses revoir ton repas ; seul le résultat que tu valides est ajouté à ton journal en ligne. Tu peux retirer ton accord à tout moment dans les Réglages.'**
+  /// **'La photo de ton repas est envoyée à un service d\'IA pour estimer les aliments : Google Gemini (offre payante, qui n\'utilise pas tes photos pour entraîner ses modèles), via un relais hébergé par Cloudflare, ou à défaut Cloudflare Workers AI. Le relais ne la garde pas ; Google peut conserver la demande pendant une durée limitée pour détecter les abus, et le traitement peut avoir lieu hors de l\'Union européenne. Dans l\'appli, elle n\'est gardée que sur ton téléphone, jamais dans le cloud, pour que tu puisses revoir ton repas ; seul le résultat que tu valides est ajouté à ton journal en ligne. Tu peux retirer ton accord à tout moment dans les Réglages.'**
   String get consentPhotoTexte;
 
   /// No description provided for @consentMeteoTitre.
@@ -1825,7 +1825,7 @@ abstract class AppLocalizations {
   /// No description provided for @consentPhotoReglageAide.
   ///
   /// In fr, this message translates to:
-  /// **'Autorise l\'envoi de tes photos de repas au service d\'analyse.'**
+  /// **'Autorise l\'envoi de tes photos de repas à l\'analyse par IA (Google Gemini via un relais Cloudflare). Le détail s\'affiche avant d\'accepter.'**
   String get consentPhotoReglageAide;
 
   /// No description provided for @rapportsPlantage.
