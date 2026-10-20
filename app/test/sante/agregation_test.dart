@@ -58,7 +58,6 @@ void main() {
       );
       final j = jour(jours, lundi);
       expect(j.pas, 3000);
-      expect(j.sourcePas, 'montre');
     },
   );
 
@@ -122,7 +121,6 @@ void main() {
         fin: mardi,
       );
       expect(jour(jours, lundi).pas, 3500);
-      expect(jour(jours, lundi).sourcePas, isNull);
     },
   );
 
@@ -222,11 +220,9 @@ void main() {
     expect(jour(jours, mardi).pas, isNull);
   });
 
-  test('FC moyenne : moyenne ; FC au repos : dernière valeur du jour', () {
+  test('FC au repos : dernière valeur du jour', () {
     final jours = agregerParJour(
       [
-        instant(TypeMesure.fc, lundi.add(const Duration(hours: 8)), 60),
-        instant(TypeMesure.fc, lundi.add(const Duration(hours: 9)), 80),
         instant(TypeMesure.fcRepos, lundi.add(const Duration(hours: 6)), 58),
         instant(TypeMesure.fcRepos, lundi.add(const Duration(hours: 22)), 55),
       ],
@@ -234,8 +230,155 @@ void main() {
       fin: lundi,
     );
 
-    expect(jour(jours, lundi).fcMoyenne, 70);
     expect(jour(jours, lundi).fcRepos, 55);
+  });
+
+  test('un total coupé au présent garde sa source (pas de fausse source)', () {
+    final maintenant = DateTime(2026, 10, 12, 8);
+    final jours = agregerParJour(
+      [
+        src(
+          TypeMesure.kcalTotales,
+          'fit',
+          DateTime(2026, 10, 12),
+          DateTime(2026, 10, 12, 7),
+          500,
+        ),
+        // Écrit d'avance jusqu'à 9 h : coupé à 8 h, toujours de « fit ».
+        src(
+          TypeMesure.kcalTotales,
+          'fit',
+          DateTime(2026, 10, 12, 7),
+          DateTime(2026, 10, 12, 9),
+          200,
+        ),
+      ],
+      debut: DateTime(2026, 10, 12),
+      fin: maintenant,
+      maintenant: maintenant,
+    );
+    final j = jour(jours, DateTime(2026, 10, 12));
+    expect(j.kcalTotales, closeTo(600, 0.01));
+    expect(j.sourceKcal, 'fit');
+  });
+
+  group('sommeil', () {
+    DateTime h(int heures, [int minutes = 0]) =>
+        lundi.add(Duration(hours: heures, minutes: minutes));
+
+    test('nuit de 22 h à 6 h en phases de 30 min : 8 h le jour du lever', () {
+      const types = [
+        TypeMesure.sommeilLeger,
+        TypeMesure.sommeilProfond,
+        TypeMesure.sommeilParadoxal,
+      ];
+      final jours = agregerParJour(
+        [
+          // Trois phases finissent avant minuit, une à minuit pile.
+          for (var i = 0; i < 16; i++)
+            src(types[i % 3], 'mi', h(22, 30 * i), h(22, 30 * (i + 1)), 30),
+        ],
+        debut: lundi,
+        fin: mardi,
+      );
+
+      expect(jour(jours, lundi).sommeil, isNull);
+      expect(jour(jours, mardi).sommeil!.endormi, const Duration(hours: 8));
+    });
+
+    test('phases séparées par un réveil de moins de 2 h : une seule nuit', () {
+      final jours = agregerParJour(
+        [
+          src(TypeMesure.sommeilLeger, 'mi', h(22), h(23, 30), 90),
+          src(TypeMesure.sommeilLeger, 'mi', h(24, 30), h(30), 330),
+        ],
+        debut: lundi,
+        fin: mardi,
+      );
+
+      expect(jour(jours, lundi).sommeil, isNull);
+      expect(jour(jours, mardi).sommeil!.endormi, const Duration(hours: 7));
+    });
+
+    test("phases d'une session rattachées au jour de fin de la session", () {
+      final jours = agregerParJour(
+        [
+          src(TypeMesure.sommeilSession, 'mi', h(21), h(30), 540),
+          // Un réveil de plus de 2 h dans la même session : même nuit.
+          src(TypeMesure.sommeilProfond, 'mi', h(21), h(22), 60),
+          src(TypeMesure.sommeilLeger, 'mi', h(25), h(30), 300),
+        ],
+        debut: lundi,
+        fin: mardi,
+      );
+
+      expect(jour(jours, lundi).sommeil, isNull);
+      final nuit = jour(jours, mardi).sommeil!;
+      expect(nuit.endormi, const Duration(hours: 6));
+      expect(nuit.profond, const Duration(hours: 1));
+    });
+
+    test('deux sources qui classent différemment la même heure : 1 h', () {
+      final resume = resumerSommeil([
+        src(TypeMesure.sommeilProfond, 'mi', h(25), h(26), 60),
+        src(TypeMesure.sommeilLeger, 'autre', h(25), h(26), 60),
+      ])!;
+
+      expect(resume.endormi, const Duration(hours: 1));
+      expect(resume.profond + resume.leger, const Duration(hours: 1));
+    });
+
+    test('deux sources : celle qui couvre le plus longtemps la nuit', () {
+      final jours = agregerParJour(
+        [
+          src(TypeMesure.sommeilProfond, 'mi', h(23), h(25), 120),
+          src(TypeMesure.sommeilLeger, 'mi', h(25), h(30), 300),
+          src(TypeMesure.sommeilLeger, 'autre', h(24), h(26), 120),
+        ],
+        debut: lundi,
+        fin: mardi,
+      );
+
+      final nuit = jour(jours, mardi).sommeil!;
+      expect(nuit.endormi, const Duration(hours: 7));
+      expect(nuit.profond, const Duration(hours: 2));
+      expect(nuit.leger, const Duration(hours: 5));
+    });
+
+    test('session sans phases : sa durée, moins les éveils', () {
+      final jours = agregerParJour(
+        [
+          src(TypeMesure.sommeilSession, 'sommeil', h(23), h(30), 420),
+          src(TypeMesure.sommeilEveil, 'sommeil', h(27), h(27, 30), 30),
+        ],
+        debut: lundi,
+        fin: mardi,
+      );
+
+      final nuit = jour(jours, mardi).sommeil!;
+      expect(nuit.endormi, const Duration(hours: 6, minutes: 30));
+      expect(nuit.aDesPhases, isFalse);
+      expect(nuit.eveil, const Duration(minutes: 30));
+    });
+
+    test('session seule : durée lue', () {
+      final resume = resumerSommeil([
+        src(TypeMesure.sommeilSession, 'sommeil', h(23), h(30), 420),
+      ])!;
+      expect(resume.endormi, const Duration(hours: 7));
+    });
+
+    test('nuit puis sieste le même jour : additionnées', () {
+      final jours = agregerParJour(
+        [
+          src(TypeMesure.sommeilLeger, 'mi', h(23), h(30), 420),
+          src(TypeMesure.sommeilLeger, 'mi', h(38), h(39), 60),
+        ],
+        debut: lundi,
+        fin: mardi,
+      );
+      expect(jour(jours, mardi).sommeil!.endormi, const Duration(hours: 8));
+    });
   });
 
   test('nuit de 23 h à 7 h rattachée au jour du lever', () {
@@ -299,14 +442,14 @@ void main() {
   });
 
   test('séance rattachée au jour de son début', () {
-    final debut = lundi.add(const Duration(hours: 23, minutes: 30));
+    final debut = lundi.add(const Duration(hours: 23));
     final jours = agregerParJour(
       [
         pt(
           TypeMesure.seance,
           debut,
-          debut.add(const Duration(hours: 1)),
-          320,
+          debut.add(const Duration(minutes: 45)),
+          0,
           'Course',
         ),
       ],
@@ -316,9 +459,72 @@ void main() {
 
     final seance = jour(jours, lundi).seances.single;
     expect(seance.type, 'Course');
-    expect(seance.duree, const Duration(hours: 1));
-    expect(seance.kcal, 320);
+    expect(seance.duree, const Duration(minutes: 45));
+    expect(seance.kcal, isNull);
     expect(jour(jours, mardi).seances, isEmpty);
+  });
+
+  test('course de 45 min écrite par deux applications : une seule séance, '
+      'calories actives au prorata', () {
+    DateTime h(int heures, [int minutes = 0]) =>
+        lundi.add(Duration(hours: heures, minutes: minutes));
+    PointSante seance(String source, DateTime debut, DateTime fin) =>
+        PointSante(
+          type: TypeMesure.seance,
+          debut: debut,
+          fin: fin,
+          valeur: 0,
+          libelle: 'RUNNING',
+          source: source,
+        );
+    final jours = agregerParJour(
+      [
+        seance('autre', h(18, 2), h(18, 44)),
+        seance('mi', h(18), h(18, 45)),
+        // Calories actives de Mi Fitness, source retenue du jour : 600 sur
+        // 17:30-18:30 (dont 30 min dans la séance) et 300 sur 18:30-19:00
+        // (dont 15 min).
+        src(TypeMesure.kcalActives, 'mi', h(17, 30), h(18, 30), 600),
+        src(TypeMesure.kcalActives, 'mi', h(18, 30), h(19), 300),
+        src(TypeMesure.kcalActives, 'mi', h(8), h(9), 200),
+        // Une autre application, moins complète : ignorée.
+        src(TypeMesure.kcalActives, 'autre', h(18), h(18, 45), 900),
+        // Des calories totales sur le créneau : jamais dans la séance.
+        src(TypeMesure.kcalTotales, 'mi', h(18), h(18, 45), 2000),
+      ],
+      debut: lundi,
+      fin: mardi,
+    );
+
+    final seance0 = jour(jours, lundi).seances.single;
+    expect(seance0.debut, h(18));
+    expect(seance0.duree, const Duration(minutes: 45));
+    expect(seance0.kcal, closeTo(300 + 150, 0.01));
+  });
+
+  test('deux séances distinctes de deux applications : gardées', () {
+    DateTime h(int heures) => lundi.add(Duration(hours: heures));
+    final jours = agregerParJour(
+      [
+        PointSante(
+          type: TypeMesure.seance,
+          debut: h(7),
+          fin: h(8),
+          valeur: 0,
+          source: 'mi',
+        ),
+        PointSante(
+          type: TypeMesure.seance,
+          debut: h(18),
+          fin: h(19),
+          valeur: 0,
+          source: 'autre',
+        ),
+      ],
+      debut: lundi,
+      fin: mardi,
+    );
+    expect(jour(jours, lundi).seances.map((s) => s.debut), [h(7), h(18)]);
   });
 
   test('mesures triées par date', () {

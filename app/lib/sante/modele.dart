@@ -7,7 +7,6 @@ enum TypeMesure {
   etages,
   kcalActives,
   kcalTotales,
-  fc,
   fcRepos,
   variabilite,
   spo2,
@@ -19,6 +18,10 @@ enum TypeMesure {
   sommeilParadoxal,
   sommeilEveil,
   sommeilEndormi,
+
+  /// Session de sommeil entière (de l'endormissement au lever), avec ou sans
+  /// phases détaillées.
+  sommeilSession,
   seance,
 }
 
@@ -93,7 +96,6 @@ class JourSante {
     this.etages,
     this.kcalActives,
     this.kcalTotales,
-    this.fcMoyenne,
     this.fcRepos,
     this.variabiliteMs,
     this.spo2,
@@ -102,7 +104,6 @@ class JourSante {
     this.seances = const [],
     this.sourceKcal,
     this.derniereMesureKcal,
-    this.sourcePas,
   });
 
   final DateTime jour;
@@ -111,7 +112,6 @@ class JourSante {
   final int? etages;
   final double? kcalActives;
   final double? kcalTotales;
-  final double? fcMoyenne;
   final double? fcRepos;
   final double? variabiliteMs;
   final double? spo2;
@@ -120,10 +120,9 @@ class JourSante {
   final List<Seance> seances;
 
   /// D'où viennent les calories du jour (identifiant de paquet) et l'heure de
-  /// la dernière mesure ; de même pour les pas.
+  /// la dernière mesure.
   final String? sourceKcal;
   final DateTime? derniereMesureKcal;
-  final String? sourcePas;
 }
 
 @immutable

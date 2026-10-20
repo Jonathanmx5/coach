@@ -19,10 +19,43 @@ class Suivi extends ChangeNotifier {
 
   static const joursLus = 30;
 
+  /// Au-delà, les données sont rechargées à la reprise de l'appli.
+  static const fraicheur = Duration(minutes: 10);
+
+  /// Les mesures réellement utilisées par l'appli, et elles seules.
+  static const typesLus = {
+    TypeMesure.pas,
+    TypeMesure.distance,
+    TypeMesure.etages,
+    TypeMesure.kcalActives,
+    TypeMesure.kcalTotales,
+    TypeMesure.fcRepos,
+    TypeMesure.variabilite,
+    TypeMesure.spo2,
+    TypeMesure.freqResp,
+    TypeMesure.poids,
+    TypeMesure.masseGrasse,
+    TypeMesure.sommeilProfond,
+    TypeMesure.sommeilLeger,
+    TypeMesure.sommeilParadoxal,
+    TypeMesure.sommeilEveil,
+    TypeMesure.sommeilEndormi,
+    TypeMesure.sommeilSession,
+    TypeMesure.seance,
+  };
+
   EtatSuivi etat = EtatSuivi.inactif;
   List<JourSante> jours = const [];
   List<Mesure> pesees = const [];
   List<Mesure> masseGrasse = const [];
+
+  /// Vrai si la dernière lecture a échoué alors que des données déjà lues
+  /// restent affichées (spec santé connectée §6 : message discret).
+  bool erreurLecture = false;
+
+  bool? _montre;
+  DateTime? _dernierChargement;
+  Future<void>? _enCours;
 
   /// Maintien mesuré pour [profil] (moyenne des journées complètes et
   /// vraisemblables par rapport à son métabolisme de base), ou null si
@@ -37,31 +70,67 @@ class Suivi extends ChangeNotifier {
     );
   }
 
-  JourSante? get aujourdhui => jours.isEmpty ? null : jours.last;
+  /// Repères du jour pour [profil], avec le maintien mesuré s'il existe : la
+  /// même cible pour tous les écrans (journal, accueil, idées, planning).
+  Reperes reperesDuJour(Profil profil) => calculerReperes(
+    profil,
+    maintenant: horloge(),
+    maintienMesure: maintienPour(profil),
+  );
+
+  /// Le jour en cours, s'il a été lu ; jamais la veille après minuit.
+  JourSante? get aujourdhui {
+    final jour = jourDe(horloge());
+    return jours.where((j) => j.jour == jour).firstOrNull;
+  }
 
   bool get sansDonnees => etat == EtatSuivi.pret && _points == 0;
   int _points = 0;
 
-  Future<void> charger({required bool montre}) async {
-    if (!montre) {
-      _vider(EtatSuivi.inactif);
+  /// Relit les données si le dernier chargement date de plus de [fraicheur]
+  /// ou d'un autre jour (à la reprise de l'appli).
+  Future<void> rechargerSiNecessaire() async {
+    final montre = _montre;
+    final dernier = _dernierChargement;
+    if (montre == null || dernier == null) return;
+    final maintenant = horloge();
+    if (maintenant.difference(dernier) < fraicheur &&
+        jourDe(maintenant) == jourDe(dernier)) {
       return;
     }
-    etat = EtatSuivi.chargement;
-    notifyListeners();
+    await charger(montre: montre);
+  }
+
+  Future<void> charger({required bool montre}) {
+    _montre = montre;
+    if (!montre) {
+      _dernierChargement = horloge();
+      _vider(EtatSuivi.inactif);
+      return Future.value();
+    }
+    return _enCours ??= _lire().whenComplete(() => _enCours = null);
+  }
+
+  Future<void> _lire() async {
+    // Les données déjà lues restent affichées pendant la relecture.
+    if (jours.isEmpty) {
+      etat = EtatSuivi.chargement;
+      notifyListeners();
+    }
+    final maintenant = horloge();
+    _dernierChargement = maintenant;
     try {
       if (await sante.disponibilite() != DispoSante.disponible) {
         _vider(EtatSuivi.inactif);
         return;
       }
-      final maintenant = horloge();
       final aujourdhui = jourDe(maintenant);
       final debut = DateTime(
         aujourdhui.year,
         aujourdhui.month,
         aujourdhui.day - joursLus,
       );
-      final points = await sante.lire(debut, maintenant);
+      final points = await sante.lire(debut, maintenant, types: typesLus);
       _points = points.length;
       jours = agregerParJour(
         points,
@@ -72,9 +141,16 @@ class Suivi extends ChangeNotifier {
       pesees = mesures(points, TypeMesure.poids);
       masseGrasse = mesures(points, TypeMesure.masseGrasse);
       etat = EtatSuivi.pret;
+      erreurLecture = false;
     } catch (_) {
-      _vider(EtatSuivi.erreur);
-      return;
+      // Les données déjà lues restent affichées ; sans elles, l'erreur est
+      // montrée (souvent un accès retiré).
+      if (jours.isEmpty) {
+        etat = EtatSuivi.erreur;
+      } else {
+        etat = EtatSuivi.pret;
+        erreurLecture = true;
+      }
     }
     notifyListeners();
   }
@@ -84,6 +160,7 @@ class Suivi extends ChangeNotifier {
     jours = const [];
     pesees = const [];
     masseGrasse = const [];
+    erreurLecture = false;
     _points = 0;
     notifyListeners();
   }
