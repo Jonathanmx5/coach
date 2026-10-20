@@ -11,12 +11,11 @@ import '../racine_test.dart' show perteSimple;
 final maintenant = DateTime(2026, 10, 9, 20);
 const profilMontre = perteSimple;
 
-/// Health Connect qui compte ses lectures et peut échouer à la demande.
+/// Health Connect qui peut échouer à la demande.
 class SanteInstable extends FauxSante {
   SanteInstable({super.points});
 
   bool echoue = false;
-  int lectures = 0;
   Set<TypeMesure>? derniersTypes;
 
   @override
@@ -25,10 +24,11 @@ class SanteInstable extends FauxSante {
     DateTime fin, {
     Set<TypeMesure>? types,
   }) async {
-    lectures++;
     derniersTypes = types;
+    // La lecture est comptée par FauxSante, même quand elle échoue.
+    final points = await super.lire(debut, fin, types: types);
     if (echoue) throw Exception('lecture impossible');
-    return super.lire(debut, fin, types: types);
+    return points;
   }
 }
 

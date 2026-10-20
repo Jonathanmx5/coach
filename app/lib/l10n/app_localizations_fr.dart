@@ -1553,6 +1553,12 @@ class AppLocalizationsFr extends AppLocalizations {
       'La modification du repas n\'a pas pu être enregistrée.';
 
   @override
+  String get repasNonEnregistre => 'Repas non enregistré.';
+
+  @override
+  String get repasSupprime => 'Repas supprimé';
+
+  @override
   String grammesValeur(int g) {
     return '$g g';
   }

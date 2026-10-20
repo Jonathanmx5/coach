@@ -199,8 +199,10 @@ class CarteBilan extends StatelessWidget {
                   cle: 'valeur-solde',
                   libelle: deficit ? t.soldeDeficit : t.soldeExcedent,
                   valeur: t.kcalValeur('$signe${ecart.abs().round()}'),
+                  // Vert vif en thème sombre : le vert profond y serait
+                  // illisible.
                   couleur: deficit
-                      ? CouleursCoach.vert
+                      ? Theme.of(context).colorScheme.primary
                       : context.palette.orangeFonce,
                 ),
               ],
@@ -268,7 +270,7 @@ class CarteMacros extends StatelessWidget {
               t.macroProteines,
               macros.proteines,
               cibles.proteines,
-              CouleursCoach.vert,
+              Theme.of(context).colorScheme.primary,
             ),
             _BarreMacro(
               t.macroGlucides,
@@ -371,7 +373,7 @@ class Ligne extends StatelessWidget {
     return Card(
       margin: const EdgeInsets.only(bottom: 8),
       child: ListTile(
-        leading: Icon(icone, color: CouleursCoach.vert),
+        leading: Icon(icone, color: Theme.of(context).colorScheme.primary),
         title: Text(titre),
         subtitle: Text(sousTitre),
         onTap: onTap,

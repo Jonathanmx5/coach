@@ -2834,6 +2834,18 @@ abstract class AppLocalizations {
   /// **'La modification du repas n\'a pas pu être enregistrée.'**
   String get modificationRefusee;
 
+  /// No description provided for @repasNonEnregistre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Repas non enregistré.'**
+  String get repasNonEnregistre;
+
+  /// No description provided for @repasSupprime.
+  ///
+  /// In fr, this message translates to:
+  /// **'Repas supprimé'**
+  String get repasSupprime;
+
   /// No description provided for @grammesValeur.
   ///
   /// In fr, this message translates to:

@@ -7,6 +7,11 @@ import 'dart:typed_data';
 import 'package:coach/app.dart';
 import 'package:coach/compte/auth_service.dart';
 import 'package:coach/journal/journal_page.dart';
+import 'package:coach/journal/photo_repas_page.dart';
+import 'package:coach/recettes/idees_page.dart';
+import 'package:coach/recettes/planning_page.dart';
+import 'package:firebase_core/firebase_core.dart' show FirebaseException;
+import 'package:intl/intl.dart';
 import 'package:coach/journal/modele.dart';
 import 'package:coach/profil/besoins.dart';
 import 'package:coach/profil/modele.dart';
@@ -17,6 +22,7 @@ import 'package:coach/sante/suivi.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import '../donnees_sante.dart';
 import '../fakes.dart';
 import '../parcours.dart';
 
@@ -39,16 +45,22 @@ const profil = Profil(
 );
 
 class Banc {
-  Banc({Suivi? suivi})
-    : suivi =
-          suivi ??
-          Suivi(
-            sante: FauxSante(dispo: DispoSante.indisponible),
-            horloge: () => maintenant,
-          );
+  Banc({Suivi? suivi, this.demandePhoto}) {
+    this.suivi =
+        suivi ??
+        Suivi(
+          sante: FauxSante(dispo: DispoSante.indisponible),
+          horloge: () => heure,
+        );
+  }
 
+  /// L'heure de l'appli, qu'un test peut avancer (passage de minuit).
+  DateTime heure = maintenant;
   final journal = FauxJournal();
-  final Suivi suivi;
+  late final Suivi suivi;
+
+  /// Les demandes de photo du widget d'écran d'accueil.
+  final ValueNotifier<DemandePhoto>? demandePhoto;
   final analyse = FausseAnalyse();
   final consentements = FauxConsentements({Consentement.photo});
   final planning = FauxPlanning();
@@ -73,13 +85,14 @@ class Banc {
           ),
           journal: journal,
           suivi: suivi,
-          horloge: () => maintenant,
+          horloge: () => heure,
           analyse: analyse,
           planning: planning,
           avis: FauxAvis(),
           consentements: consentements,
           photosRepas: photosRepas,
           catalogue: catalogue,
+          demandePhoto: demandePhoto,
           scan: (_) async => codeScanne,
           prise: (source) async {
             sources.add(source);
@@ -345,12 +358,18 @@ void main() {
     expect(banc.photosRepas.photos, hasLength(1));
     expect(find.byType(Image), findsOneWidget);
 
-    // Supprimer le repas efface aussi sa photo.
+    // Supprimer le repas efface aussi sa photo, une fois le délai pour
+    // annuler écoulé.
     await tester.tap(find.byType(BackButton));
     await tester.pumpAndSettle();
     await tester.tap(find.byTooltip('Supprimer'));
     await tester.pumpAndSettle();
     expect(banc.journal.repasDe('u1'), isEmpty);
+    expect(find.text('Repas supprimé'), findsOneWidget);
+    expect(banc.photosRepas.photos, hasLength(1));
+    await tester.pump(const Duration(seconds: 7));
+    await tester.pumpAndSettle();
+    expect(find.text('Repas supprimé'), findsNothing);
     expect(banc.photosRepas.photos, isEmpty);
   });
 
@@ -1061,5 +1080,269 @@ void main() {
     final banc = Banc();
     await banc.monter(tester);
     expect(find.text('Total de la journée'), findsNothing);
+  });
+
+  group('jour courant', () {
+    Repas repasLe(DateTime date, double kcal) => Repas(
+      date: date,
+      moment: Moment.dejeuner,
+      nom: 'x',
+      macros: Macros(kcal: kcal, proteines: 20),
+      source: SourceRepas.manuel,
+    );
+
+    Future<void> reprendre(WidgetTester tester) async {
+      tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.paused);
+      tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
+      await tester.pumpAndSettle();
+    }
+
+    testWidgets('minuit passé, appli reprise : le journal passe au lendemain', (
+      tester,
+    ) async {
+      final banc = Banc();
+      await banc.repas(600);
+      await banc.monter(tester);
+      expect(texteDe(tester, 'valeur-mange'), '600 kcal');
+
+      banc.heure = DateTime(2026, 10, 10, 8);
+      await reprendre(tester);
+
+      expect(find.text("Aujourd'hui"), findsOneWidget);
+      expect(texteDe(tester, 'valeur-mange'), '0 kcal');
+      await saisieManuelle(tester);
+      await saisir(tester, 'Calories (kcal)', '400');
+      await taper(tester, 'Enregistrer');
+      expect(banc.journal.repasDe('u1').last.date, DateTime(2026, 10, 10, 8));
+    });
+
+    testWidgets('minuit passé sur un jour choisi : ce jour reste affiché', (
+      tester,
+    ) async {
+      final banc = Banc();
+      await banc.journal.ajouterRepas(
+        'u1',
+        repasLe(DateTime(2026, 10, 8, 12), 700),
+      );
+      await banc.monter(tester);
+      await tester.tap(find.byTooltip('Jour précédent'));
+      await tester.pumpAndSettle();
+
+      banc.heure = DateTime(2026, 10, 10, 8);
+      await reprendre(tester);
+
+      expect(
+        find.text(DateFormat.MMMEd('fr').format(DateTime(2026, 10, 8))),
+        findsOneWidget,
+      );
+      expect(texteDe(tester, 'valeur-mange'), '700 kcal');
+    });
+
+    testWidgets("revenu sur aujourd'hui, le journal suit de nouveau le jour", (
+      tester,
+    ) async {
+      final banc = Banc();
+      await banc.monter(tester);
+      await tester.tap(find.byTooltip('Jour précédent'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byTooltip('Jour suivant'));
+      await tester.pumpAndSettle();
+
+      banc.heure = DateTime(2026, 10, 10, 8);
+      await reprendre(tester);
+
+      await saisieManuelle(tester);
+      await saisir(tester, 'Calories (kcal)', '400');
+      await taper(tester, 'Enregistrer');
+      expect(banc.journal.repasDe('u1').single.date, DateTime(2026, 10, 10, 8));
+    });
+
+    testWidgets(
+      'demande du widget sur la veille : repas daté de maintenant, totaux du jour',
+      (tester) async {
+        final demande = ValueNotifier(const DemandePhoto(0));
+        addTearDown(demande.dispose);
+        final banc = Banc(demandePhoto: demande);
+        banc.analyse.aliments = [riz];
+        await banc.journal.ajouterRepas(
+          'u1',
+          repasLe(DateTime(2026, 10, 8, 12), 1500),
+        );
+        await banc.journal.ajouterRepas('u1', repasLe(maintenant, 500));
+        await banc.monter(tester);
+        await tester.tap(find.byTooltip('Jour précédent'));
+        await tester.pumpAndSettle();
+
+        demande.value = const DemandePhoto(1);
+        await tester.pumpAndSettle();
+        await taper(tester, 'Prendre une photo');
+        await taper(tester, 'Analyser ce repas');
+
+        // Objectif 2080 kcal, 500 déjà mangés aujourd'hui (pas les 1500 de
+        // la veille), plus le riz.
+        expect(
+          find.textContaining('Il te resterait 1450 kcal'),
+          findsOneWidget,
+        );
+        await taper(tester, 'Enregistrer');
+
+        expect(banc.journal.repasDe('u1').last.date, maintenant);
+        expect(find.text("Aujourd'hui"), findsOneWidget);
+        expect(texteDe(tester, 'valeur-mange'), '630 kcal');
+      },
+    );
+
+    testWidgets('deux demandes du widget : un seul écran photo', (
+      tester,
+    ) async {
+      final demande = ValueNotifier(const DemandePhoto(0));
+      addTearDown(demande.dispose);
+      final banc = Banc(demandePhoto: demande);
+      await banc.monter(tester);
+
+      demande.value = const DemandePhoto(1);
+      await tester.pump();
+      demande.value = const DemandePhoto(2);
+      await tester.pumpAndSettle();
+      expect(find.byType(PhotoRepasPage, skipOffstage: false), findsOneWidget);
+      demande.value = const DemandePhoto(3);
+      await tester.pumpAndSettle();
+      expect(find.byType(PhotoRepasPage, skipOffstage: false), findsOneWidget);
+
+      // Une fois l'écran refermé, une nouvelle demande l'ouvre de nouveau.
+      await tester.tap(find.byType(BackButton));
+      await tester.pumpAndSettle();
+      expect(find.byType(PhotoRepasPage, skipOffstage: false), findsNothing);
+      demande.value = const DemandePhoto(4);
+      await tester.pumpAndSettle();
+      expect(find.byType(PhotoRepasPage, skipOffstage: false), findsOneWidget);
+    });
+
+    testWidgets(
+      'appli reprise : les données de la montre relues si anciennes',
+      (tester) async {
+        var heure = maintenant;
+        final sante = FauxSante();
+        final suivi = Suivi(sante: sante, horloge: () => heure);
+        await tester.runAsync(() => suivi.charger(montre: true));
+        final banc = Banc(suivi: suivi);
+        await banc.monter(tester);
+        expect(sante.lectures, 1);
+
+        heure = maintenant.add(const Duration(minutes: 5));
+        await reprendre(tester);
+        expect(sante.lectures, 1);
+
+        heure = maintenant.add(const Duration(minutes: 11));
+        await reprendre(tester);
+        expect(sante.lectures, 2);
+      },
+    );
+  });
+
+  group('écriture refusée', () {
+    FirebaseException refus() =>
+        FirebaseException(plugin: 'cloud_firestore', code: 'permission-denied');
+
+    testWidgets('repas photographié refusé : message, photo effacée', (
+      tester,
+    ) async {
+      final banc = Banc();
+      banc.analyse.aliments = [riz];
+      banc.journal.refusAjout = refus();
+      await banc.monter(tester);
+
+      await analyserUnePhoto(tester);
+      await taper(tester, 'Enregistrer');
+
+      expect(find.text('Repas non enregistré.'), findsOneWidget);
+      expect(banc.journal.repasDe('u1'), isEmpty);
+      expect(banc.photosRepas.photos, isEmpty);
+    });
+
+    testWidgets('repas saisi à la main refusé : message', (tester) async {
+      final banc = Banc();
+      banc.journal.refusAjout = refus();
+      await banc.monter(tester);
+
+      await saisieManuelle(tester);
+      await saisir(tester, 'Calories (kcal)', '400');
+      await taper(tester, 'Enregistrer');
+
+      expect(find.text('Repas non enregistré.'), findsOneWidget);
+    });
+
+    testWidgets('autre erreur : notée sans message, photo gardée', (
+      tester,
+    ) async {
+      final banc = Banc();
+      banc.analyse.aliments = [riz];
+      banc.journal.refusAjout = Exception('réseau');
+      await banc.monter(tester);
+
+      await analyserUnePhoto(tester);
+      await taper(tester, 'Enregistrer');
+
+      expect(find.text('Repas non enregistré.'), findsNothing);
+      expect(banc.photosRepas.photos, hasLength(1));
+    });
+  });
+
+  testWidgets('suppression annulée : repas restauré, photo gardée', (
+    tester,
+  ) async {
+    final banc = Banc();
+    banc.analyse.aliments = [riz];
+    await banc.monter(tester);
+    await analyserUnePhoto(tester);
+    await taper(tester, 'Enregistrer');
+    final avant = banc.journal.repasDe('u1').single;
+
+    await tester.tap(find.byTooltip('Supprimer'));
+    await tester.pumpAndSettle();
+    expect(banc.journal.repasDe('u1'), isEmpty);
+    await tester.tap(find.text('Annuler'));
+    await tester.pumpAndSettle();
+
+    final apres = banc.journal.repasDe('u1').single;
+    expect(apres.id, avant.id);
+    expect(apres.photoId, avant.photoId);
+    expect(apres.macros.kcal, avant.macros.kcal);
+    await tester.pump(const Duration(seconds: 7));
+    await tester.pumpAndSettle();
+    expect(banc.photosRepas.photos, hasLength(1));
+    expect(texteDe(tester, 'valeur-mange'), '130 kcal');
+  });
+
+  testWidgets('idées et planning : la cible avec le maintien mesuré', (
+    tester,
+  ) async {
+    final suivi = Suivi(
+      sante: FauxSante(points: semaineType()),
+      horloge: () => maintenant,
+    );
+    await tester.runAsync(() => suivi.charger(montre: true));
+    final banc = Banc(suivi: suivi);
+    await banc.monter(tester);
+    final mesuree = suivi.reperesDuJour(profil).kcalCible;
+    expect(
+      mesuree,
+      isNot(calculerReperes(profil, maintenant: maintenant).kcalCible),
+    );
+
+    await tester.tap(find.byTooltip('Repas de la semaine'));
+    await tester.pump();
+    await tester.pump();
+    expect(
+      tester.widget<PlanningPage>(find.byType(PlanningPage)).kcalCible,
+      mesuree,
+    );
+    await tester.tap(find.byType(BackButton));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byTooltip('Idées de repas'));
+    await tester.pump();
+    await tester.pump();
+    expect(tester.widget<IdeesPage>(find.byType(IdeesPage)).kcalCible, mesuree);
   });
 }

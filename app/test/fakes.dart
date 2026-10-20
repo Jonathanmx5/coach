@@ -121,6 +121,9 @@ class FauxSante implements SanteService {
   int autorisationsDemandees = 0;
   int installations = 0;
 
+  /// Nombre de lectures demandées.
+  int lectures = 0;
+
   @override
   Future<DispoSante> disponibilite() async => dispo;
 
@@ -138,13 +141,16 @@ class FauxSante implements SanteService {
     DateTime debut,
     DateTime fin, {
     Set<TypeMesure>? types,
-  }) async => [
-    for (final p in points)
-      if (!p.fin.isBefore(debut) &&
-          !p.debut.isAfter(fin) &&
-          (types == null || types.contains(p.type)))
-        p,
-  ];
+  }) async {
+    lectures++;
+    return [
+      for (final p in points)
+        if (!p.fin.isBefore(debut) &&
+            !p.debut.isAfter(fin) &&
+            (types == null || types.contains(p.type)))
+          p,
+    ];
+  }
 }
 
 /// Pesées saisies, en mémoire.
@@ -758,17 +764,28 @@ class FauxJournal implements JournalRepository {
         ]..sort((a, b) => a.date.compareTo(b.date)),
       );
 
+  /// Comme `set` de Firestore : un repas supprimé revient avec son id.
   @override
   Future<void> modifierRepas(String uid, Repas repas) async {
+    final existe = repasDe(uid).any((r) => r.id == repas.id);
     repasParUid[uid] = [
       for (final r in repasDe(uid))
         if (r.id == repas.id) repas else r,
+      if (!existe) repas,
     ];
     _flux.add(null);
   }
 
+  /// Non nul : le prochain ajout de repas est refusé avec cette erreur.
+  Object? refusAjout;
+
   @override
   Future<void> ajouterRepas(String uid, Repas repas) async {
+    final refus = refusAjout;
+    if (refus != null) {
+      refusAjout = null;
+      throw refus;
+    }
     repasParUid[uid] = [
       ...repasDe(uid),
       Repas(

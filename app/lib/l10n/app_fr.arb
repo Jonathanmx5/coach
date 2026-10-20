@@ -786,6 +786,8 @@
   "tropDAliments": "Un repas compte au plus {max} aliments.",
   "@tropDAliments": {"placeholders": {"max": {"type": "int"}}},
   "modificationRefusee": "La modification du repas n'a pas pu être enregistrée.",
+  "repasNonEnregistre": "Repas non enregistré.",
+  "repasSupprime": "Repas supprimé",
   "grammesValeur": "{g} g",
   "@grammesValeur": {"placeholders": {"g": {"type": "int"}}}
 }
