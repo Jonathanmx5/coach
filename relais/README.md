@@ -2,10 +2,21 @@
 
 Reçoit la photo d'un repas depuis l'application, vérifie le jeton Firebase de l'utilisateur, applique des plafonds journaliers, interroge un modèle de vision (Google Gemini si une clé est configurée, sinon un modèle gratuit de Cloudflare Workers AI) et renvoie la liste des aliments estimés. L'image n'est ni enregistrée ni journalisée.
 
-- `POST /analyse` — corps : image JPEG (1,5 Mo max) ; `Authorization: Bearer <jeton Firebase>`.
-- Réponse : `{"aliments":[{"nom","grammes","kcal","proteines","glucides","lipides"}]}` ou `{"erreur":"auth|quota|taille|illisible|ia"}` (401, 429, 413, 422, 502).
-- Plafonds (par jour UTC) : 30 photos par utilisateur et 500 au total (une photo coûte environ 10 neurones, le quota gratuit de Workers AI est de 10 000 par jour). Réglables dans `wrangler.toml`.
+- `POST /analyse` — corps : `multipart/form-data` avec les parties `image` (JPEG, 1,5 Mo max) et `indice` (précision facultative, 200 caractères utiles) ; `Authorization: Bearer <jeton Firebase>`. L'ancien format (image brute dans le corps, précision dans `?indice=`) reste accepté pour les applications pas encore à jour. Seul le JPEG est accepté (octets magiques `FF D8 FF`) ; un corps annoncé trop gros (`Content-Length`) est refusé sans être lu.
+- Réponse : `{"aliments":[{"nom","grammes","kcal","proteines","glucides","lipides"}],"restantes":n}` (`restantes` : photos encore permises aujourd'hui) ou `{"erreur":"auth|quota|taille|format|illisible|ia"}` (401, 429, 413, 415, 422, 502, 503). Le relais répond toujours en JSON, même en cas d'erreur imprévue ou de panne de KV (503).
+- Plafonds (par jour UTC) : 30 photos par utilisateur et 500 au total, réglables dans `wrangler.toml`. Ce plafond global est un garde-fou grossier : le coût réel d'une photo dépend du modèle qui répond (Gemini, principal, secours) et de la longueur de la réponse ; il est à recalculer avec l'usage journalisé (voir plus bas). L'unité est prise avant l'appel au modèle et rendue si aucune réponse exploitable n'est produite (panne, réponse illisible, délai dépassé). Quand le quota de neurones de Workers AI est épuisé, le relais répond 429 `{"erreur":"quota","raison":"service"}` plutôt qu'une panne. KV n'étant pas atomique, une rafale de N requêtes simultanées peut dépasser un plafond de N-1.
+- Délais : 15 s au plus pour Gemini, 35 s au total pour une analyse (l'application abandonne à 45 s) ; le modèle de secours n'est pas lancé s'il reste moins de 12 s. Une réponse de Gemini coupée (`finishReason` autre que `STOP`, par exemple `MAX_TOKENS`) est refusée et le relais passe au modèle suivant ; la réflexion de Gemini est limitée (`thinkingConfig`).
 - Le modèle est interchangeable (`MODELE`) : Llama 3.2 11B Vision par défaut ; si sa réponse est illisible (texte libre au lieu de JSON, constaté sur des photos de test) ou en panne, `MODELE_SECOURS` (Llama 4 Scout 17B) prend le relais. Le format de l'entrée est dans `src/analyse.js` (`entreeModele`).
+
+## Journal d'usage
+
+Chaque analyse écrit une ligne JSON dans les journaux du Worker (`npx wrangler tail`) : statut, durée, et pour chaque modèle essayé son nom, les jetons d'entrée et de sortie (et de réflexion pour Gemini) et l'issue. Par exemple :
+
+```json
+{"analyse":200,"ms":6200,"essais":[{"modele":"gemini-3.8-flash","entree":1300,"sortie":420,"reflexion":60,"ok":true}]}
+```
+
+Ni l'image, ni la précision, ni la réponse, ni l'identifiant de l'utilisateur n'y figurent. Ces mesures servent à recalculer les plafonds avec le barème réel de chaque fournisseur.
 
 ## Tests
 
@@ -61,8 +72,8 @@ Le script lance un petit worker d'évaluation (`wrangler dev --remote`, quota gr
 
 L'application envoie un jeton App Check (Play Integrity) dans l'en-tête `X-Firebase-AppCheck`. Le relais le vérifie selon `APP_CHECK` dans `wrangler.toml` :
 
-- `off` (défaut) : rien n'est vérifié ;
-- `observe` : les appels sans preuve valide sont notés dans les journaux (`wrangler tail`) mais acceptés ;
+- `off` : rien n'est vérifié ;
+- `observe` (réglage actuel, avec `PROJECT_NUMBER` renseigné) : les appels sans preuve valide sont notés dans les journaux (`wrangler tail`) mais acceptés ;
 - `enforce` : ils sont refusés (401).
 
 Mise en route : Console Firebase → App Check → enregistrer l'application Android avec Play Integrity ; renseigner `PROJECT_NUMBER` (numéro du projet, dans les paramètres du projet) ; passer `APP_CHECK` à `observe`, puis à `enforce` **seulement une fois l'application distribuée par le Play Store** : un APK installé à la main (GitHub) n'a pas de preuve Play Integrity et serait refusé.

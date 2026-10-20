@@ -152,7 +152,10 @@ test('aliments : 8 au plus', () => {
   assert.equal(aliments(beaucoup).length, 8);
 });
 
-function requete({ jeton, corps = new Uint8Array([1, 2, 3]), methode = 'POST', chemin = '/analyse' } = {}) {
+// Début d'un JPEG (octets magiques FF D8 FF) : le relais refuse les autres formats.
+const JPEG = new Uint8Array([0xff, 0xd8, 0xff, 0xe0]);
+
+function requete({ jeton, corps = JPEG, methode = 'POST', chemin = '/analyse' } = {}) {
   return new Request(`https://relais.test${chemin}`, {
     method: methode,
     headers: jeton ? { authorization: `Bearer ${jeton}` } : {},
@@ -275,7 +278,7 @@ test('relais : App Check observe laisse passer, enforce refuse sans preuve', asy
     return new Request(r.url, {
       method: 'POST',
       headers: { authorization: `Bearer ${deps.jetonFirebase}`, ...enTete },
-      body: new Uint8Array([1, 2, 3]),
+      body: JPEG,
     });
   };
   deps.jetonFirebase = await jeton();
@@ -304,6 +307,7 @@ const REPONSE_GEMINI = {
           },
         ],
       },
+      finishReason: 'STOP',
     },
   ],
 };
@@ -328,7 +332,7 @@ test('Gemini : la photo part avec la clé en en-tête, le résultat est nettoyé
     new Request('https://relais.test/analyse?indice=' + encodeURIComponent('la moitié'), {
       method: 'POST',
       headers: { authorization: `Bearer ${await jeton()}` },
-      body: new Uint8Array([1, 2, 3]),
+      body: JPEG,
     }),
     e,
     { cles, maintenant: MAINTENANT, fetcher: f },
@@ -346,7 +350,7 @@ test('Gemini : la photo part avec la clé en en-tête, le résultat est nettoyé
   const parties = corps.contents[0].parts;
   assert.match(parties[0].text, /la moitié/);
   assert.equal(parties[1].inline_data.mime_type, 'image/jpeg');
-  assert.equal(parties[1].inline_data.data, 'AQID');
+  assert.equal(parties[1].inline_data.data, '/9j/4A==');
   assert.equal(corps.generationConfig.responseMimeType, 'application/json');
 });
 
