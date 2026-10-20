@@ -48,6 +48,38 @@ List<Pesee> peseesDepuis(List<Pesee> triees, DateTime debut) => [
     if (!p.date.isBefore(debut)) p,
 ];
 
+/// Un point de la tendance du poids.
+typedef PointPoids = ({DateTime date, double kg});
+
+/// Moyenne mobile sur [jours] jours : pour chaque pesée (liste triée), la
+/// moyenne des pesées de son jour et des [jours] − 1 jours précédents. Lisse
+/// les variations d'eau d'un jour à l'autre, qui masquent la tendance.
+List<PointPoids> moyenneMobile(List<Pesee> triees, {int jours = 7}) {
+  final points = <PointPoids>[];
+  var debut = 0;
+  var somme = 0.0;
+  for (var i = 0; i < triees.length; i++) {
+    final d = triees[i].date;
+    final limite = DateTime(d.year, d.month, d.day - (jours - 1));
+    somme += triees[i].kg;
+    while (triees[debut].date.isBefore(limite)) {
+      somme -= triees[debut].kg;
+      debut++;
+    }
+    points.add((date: d, kg: somme / (i - debut + 1)));
+  }
+  return points;
+}
+
+/// Ancienneté maximale de la dernière pesée pour projeter le poids.
+const ageMaxPeseeProjection = Duration(days: 7);
+
+/// Vrai si la dernière pesée (liste triée) date de [ageMaxPeseeProjection]
+/// au plus : partir d'un poids de plusieurs semaines fausserait la projection.
+bool peseeRecente(List<Pesee> triees, DateTime maintenant) =>
+    triees.isNotEmpty &&
+    maintenant.difference(triees.last.date) <= ageMaxPeseeProjection;
+
 /// Profil mis à jour si la pesée est plus récente que celle qu'il connaît
 /// (garde-fous réappliqués) ; sinon null.
 Profil? profilAvecPesee(

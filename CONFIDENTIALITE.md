@@ -15,7 +15,7 @@ Si vous l'autorisez, Crunch & Go **lit** dans Health Connect :
 
 - activité : pas, distance, étages, calories actives et totales, séances d'exercice ;
 - sommeil : durée et phases (léger, profond, paradoxal, éveil) ;
-- cœur et respiration : fréquence cardiaque, fréquence cardiaque au repos, variabilité, saturation en oxygène, fréquence respiratoire ;
+- cœur et respiration : fréquence cardiaque au repos, variabilité, saturation en oxygène, fréquence respiratoire ;
 - corps : poids, masse grasse.
 
 Ces données servent à :

@@ -14,7 +14,7 @@ String _libelle(AppLocalizations t, TypeMensuration m) => switch (m) {
   TypeMensuration.taille => t.mesureTaille,
   TypeMensuration.poitrine => t.mesurePoitrine,
   TypeMensuration.bras => t.mesureBras,
-  TypeMensuration.masseGrasse => t.mesureMasseGrasse,
+  TypeMensuration.masseGrasse => t.mensurationMasseGrasse,
 };
 
 String _unite(TypeMensuration m) =>
@@ -22,7 +22,7 @@ String _unite(TypeMensuration m) =>
 
 /// Tour de taille, de poitrine, de bras et masse grasse : dernière valeur et
 /// évolution depuis la première saisie.
-class MensurationsSection extends StatelessWidget {
+class MensurationsSection extends StatefulWidget {
   const MensurationsSection({
     super.key,
     required this.depot,
@@ -34,14 +34,31 @@ class MensurationsSection extends StatelessWidget {
   final String uid;
   final DateTime Function() horloge;
 
-  Future<void> _ajouter(BuildContext context) async {
+  @override
+  State<MensurationsSection> createState() => _MensurationsSectionState();
+}
+
+class _MensurationsSectionState extends State<MensurationsSection> {
+  /// Gardé d'une reconstruction à l'autre : un nouveau flux à chaque build
+  /// rouvrirait l'écoute Firestore.
+  late Stream<List<Mensuration>> _flux = widget.depot.observer(widget.uid);
+
+  @override
+  void didUpdateWidget(MensurationsSection ancien) {
+    super.didUpdateWidget(ancien);
+    if (ancien.uid != widget.uid || ancien.depot != widget.depot) {
+      _flux = widget.depot.observer(widget.uid);
+    }
+  }
+
+  Future<void> _ajouter() async {
     final m = await showModalBottomSheet<Mensuration>(
       context: context,
       isScrollControlled: true,
       showDragHandle: true,
-      builder: (_) => _FeuilleMesures(maintenant: horloge()),
+      builder: (_) => _FeuilleMesures(maintenant: widget.horloge()),
     );
-    if (m != null) unawaited(depot.ajouter(uid, m));
+    if (m != null) unawaited(widget.depot.ajouter(widget.uid, m));
   }
 
   @override
@@ -49,7 +66,7 @@ class MensurationsSection extends StatelessWidget {
     final t = AppLocalizations.of(context)!;
     final textes = Theme.of(context).textTheme;
     return StreamBuilder<List<Mensuration>>(
-      stream: depot.observer(uid),
+      stream: _flux,
       builder: (context, snap) {
         final liste = snap.data ?? const <Mensuration>[];
         return Card(
@@ -72,7 +89,7 @@ class MensurationsSection extends StatelessWidget {
                     _Ligne(type: type, mesure: derniereMesure(liste, type)),
                 const SizedBox(height: 8),
                 OutlinedButton.icon(
-                  onPressed: () => _ajouter(context),
+                  onPressed: _ajouter,
                   icon: const Icon(Icons.straighten),
                   label: Text(t.ajouterMesures),
                 ),
@@ -157,9 +174,10 @@ class _FeuilleMesuresState extends State<_FeuilleMesures> {
       final plage = plagesMensuration[e.key]!;
       if (v == null || v < plage.min || v > plage.max) {
         setState(
-          () => _erreur =
-              '${_libelle(t, e.key)} : '
-              '${t.erreurPlage(plage.min.round(), plage.max.round())}',
+          () => _erreur = t.erreurMesure(
+            _libelle(t, e.key),
+            t.erreurPlage(plage.min.round(), plage.max.round()),
+          ),
         );
         return;
       }
@@ -199,7 +217,7 @@ class _FeuilleMesuresState extends State<_FeuilleMesures> {
                 FilteringTextInputFormatter.allow(RegExp('[0-9.,]')),
               ],
               decoration: InputDecoration(
-                labelText: '${_libelle(t, type)} (${_unite(type)})',
+                labelText: t.libelleUnite(_libelle(t, type), _unite(type)),
               ),
               onChanged: (_) {
                 if (_erreur != null) setState(() => _erreur = null);

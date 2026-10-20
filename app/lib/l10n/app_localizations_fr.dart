@@ -409,7 +409,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get mesurePoids => 'Poids (kg)';
 
   @override
-  String get mesureMasseGrasse => 'Masse grasse';
+  String get mesureMasseGrassePct => 'Masse grasse (%)';
 
   @override
   String derniereValeur(String valeur) {
@@ -472,7 +472,47 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get projectionLegende =>
-      'Pointillés : projection sur 5 jours d\'après ton journal des 7 derniers jours.';
+      'Pointillés : projection sur 5 jours d\'après les journées complètes de ton journal des 7 derniers jours (au moins 2 repas et 60 % de ta cible).';
+
+  @override
+  String get courbeLegende =>
+      'Trait épais : moyenne sur 7 jours, qui lisse les variations d\'eau. Points : tes pesées.';
+
+  @override
+  String courbeSemantique(
+    String debut,
+    String dateDebut,
+    String fin,
+    String dateFin,
+    String tendance,
+  ) {
+    return 'Évolution du poids : $debut kg le $dateDebut, $fin kg le $dateFin. Moyenne sur 7 jours : $tendance kg.';
+  }
+
+  @override
+  String projectionSemantique(String kg) {
+    return 'Projection dans 5 jours : $kg kg.';
+  }
+
+  @override
+  String dateChoisie(String date) {
+    return 'Date : $date';
+  }
+
+  @override
+  String photoDateChoisie(String date) {
+    return 'Date de la photo : $date';
+  }
+
+  @override
+  String libelleUnite(String libelle, String unite) {
+    return '$libelle ($unite)';
+  }
+
+  @override
+  String erreurMesure(String mesure, String erreur) {
+    return '$mesure : $erreur';
+  }
 
   @override
   String get mensurationsTitre => 'Mensurations';
@@ -485,6 +525,9 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get mesureBras => 'Tour de bras';
+
+  @override
+  String get mensurationMasseGrasse => 'Masse grasse';
 
   @override
   String get ajouterMesures => 'Ajouter des mesures';
@@ -1157,9 +1200,6 @@ class AppLocalizationsFr extends AppLocalizations {
   String get photoBibliotheque => 'Bibliothèque de photos';
 
   @override
-  String get photoDate => 'Date de la photo';
-
-  @override
   String get photoAjoutAide =>
       'Choisis la date de la photo (aujourd\'hui par défaut), puis d\'où elle vient.';
 
@@ -1394,9 +1434,6 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get enregistrer => 'Enregistrer';
-
-  @override
-  String get champDate => 'Date';
 
   @override
   String get historiquePoids => 'Historique';

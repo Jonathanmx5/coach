@@ -832,11 +832,11 @@ abstract class AppLocalizations {
   /// **'Poids (kg)'**
   String get mesurePoids;
 
-  /// No description provided for @mesureMasseGrasse.
+  /// No description provided for @mesureMasseGrassePct.
   ///
   /// In fr, this message translates to:
-  /// **'Masse grasse'**
-  String get mesureMasseGrasse;
+  /// **'Masse grasse (%)'**
+  String get mesureMasseGrassePct;
 
   /// No description provided for @derniereValeur.
   ///
@@ -937,8 +937,56 @@ abstract class AppLocalizations {
   /// No description provided for @projectionLegende.
   ///
   /// In fr, this message translates to:
-  /// **'Pointillés : projection sur 5 jours d\'après ton journal des 7 derniers jours.'**
+  /// **'Pointillés : projection sur 5 jours d\'après les journées complètes de ton journal des 7 derniers jours (au moins 2 repas et 60 % de ta cible).'**
   String get projectionLegende;
+
+  /// No description provided for @courbeLegende.
+  ///
+  /// In fr, this message translates to:
+  /// **'Trait épais : moyenne sur 7 jours, qui lisse les variations d\'eau. Points : tes pesées.'**
+  String get courbeLegende;
+
+  /// No description provided for @courbeSemantique.
+  ///
+  /// In fr, this message translates to:
+  /// **'Évolution du poids : {debut} kg le {dateDebut}, {fin} kg le {dateFin}. Moyenne sur 7 jours : {tendance} kg.'**
+  String courbeSemantique(
+    String debut,
+    String dateDebut,
+    String fin,
+    String dateFin,
+    String tendance,
+  );
+
+  /// No description provided for @projectionSemantique.
+  ///
+  /// In fr, this message translates to:
+  /// **'Projection dans 5 jours : {kg} kg.'**
+  String projectionSemantique(String kg);
+
+  /// No description provided for @dateChoisie.
+  ///
+  /// In fr, this message translates to:
+  /// **'Date : {date}'**
+  String dateChoisie(String date);
+
+  /// No description provided for @photoDateChoisie.
+  ///
+  /// In fr, this message translates to:
+  /// **'Date de la photo : {date}'**
+  String photoDateChoisie(String date);
+
+  /// No description provided for @libelleUnite.
+  ///
+  /// In fr, this message translates to:
+  /// **'{libelle} ({unite})'**
+  String libelleUnite(String libelle, String unite);
+
+  /// No description provided for @erreurMesure.
+  ///
+  /// In fr, this message translates to:
+  /// **'{mesure} : {erreur}'**
+  String erreurMesure(String mesure, String erreur);
 
   /// No description provided for @mensurationsTitre.
   ///
@@ -963,6 +1011,12 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Tour de bras'**
   String get mesureBras;
+
+  /// No description provided for @mensurationMasseGrasse.
+  ///
+  /// In fr, this message translates to:
+  /// **'Masse grasse'**
+  String get mensurationMasseGrasse;
 
   /// No description provided for @ajouterMesures.
   ///
@@ -2140,12 +2194,6 @@ abstract class AppLocalizations {
   /// **'Bibliothèque de photos'**
   String get photoBibliotheque;
 
-  /// No description provided for @photoDate.
-  ///
-  /// In fr, this message translates to:
-  /// **'Date de la photo'**
-  String get photoDate;
-
   /// No description provided for @photoAjoutAide.
   ///
   /// In fr, this message translates to:
@@ -2511,12 +2559,6 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Enregistrer'**
   String get enregistrer;
-
-  /// No description provided for @champDate.
-  ///
-  /// In fr, this message translates to:
-  /// **'Date'**
-  String get champDate;
 
   /// No description provided for @historiquePoids.
   ///

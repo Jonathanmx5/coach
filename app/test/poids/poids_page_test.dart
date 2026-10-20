@@ -10,9 +10,12 @@ import 'package:coach/profil/besoins.dart';
 import 'package:coach/profil/modele.dart';
 import 'package:coach/profil/profil_repository.dart';
 import 'package:coach/sante/modele.dart';
+import 'package:coach/sante/suivi.dart';
+import 'package:coach/theme.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import '../donnees_sante.dart';
 import '../fakes.dart';
 import '../parcours.dart';
 
@@ -57,8 +60,15 @@ class Banc {
   final mensurations = FauxMensurations();
   final photos = FausPhotos();
   late final FauxSante sante;
+  late final suivi = Suivi(sante: sante, horloge: () => maintenant);
 
   Profil get profil => depot.donnees['u1']!.profil;
+
+  /// Remplace le profil enregistré, comme une modification depuis le profil.
+  void changerProfil(Profil p) => depot.donnees['u1'] = ProfilEnregistre(
+    profil: p,
+    reperes: calculerReperes(p, maintenant: maintenant),
+  );
 
   Future<void> monter(WidgetTester tester) async {
     await tester.pumpWidget(
@@ -72,6 +82,7 @@ class Banc {
           mensurations: mensurations,
           photos: photos,
           sante: sante,
+          suivi: suivi,
           horloge: () => maintenant,
         ),
       ),
@@ -93,6 +104,25 @@ int pointsDeLaCourbe(WidgetTester tester) => tester
     .first
     .spots
     .length;
+
+List<LineChartBarData> courbes(WidgetTester tester) =>
+    tester.widget<LineChart>(find.byType(LineChart)).data.lineBarsData;
+
+/// Le tracé en pointillés de la projection, s'il existe.
+LineChartBarData? projection(WidgetTester tester) =>
+    courbes(tester).where((c) => c.dashArray != null).firstOrNull;
+
+/// [n] repas de [kcal] le [jour] octobre 2026.
+List<Repas> repasDu(int jour, {int n = 2, double kcal = 1500}) => [
+  for (var i = 0; i < n; i++)
+    Repas(
+      date: DateTime(2026, 10, jour, 8 + 4 * i),
+      moment: i == 0 ? Moment.petitDejeuner : Moment.dejeuner,
+      nom: 'x',
+      macros: Macros(kcal: kcal),
+      source: SourceRepas.manuel,
+    ),
+];
 
 void main() {
   testWidgets('poids actuel, IMC et catégorie', (tester) async {
@@ -187,7 +217,7 @@ void main() {
     await banc.monter(tester);
 
     // Les pesées les plus récentes sont en haut de l'historique.
-    await defilerJusqua(tester, find.byTooltip('Supprimer'));
+    await defilerJusqua(tester, find.text('8 oct. 2026'));
     await tester.tap(find.byTooltip('Supprimer').first);
     await tester.pumpAndSettle();
 
@@ -229,33 +259,174 @@ void main() {
     tester,
   ) async {
     final banc = Banc();
-    await banc.ajouterEnBase(62, DateTime(2026, 10, 1));
+    await banc.ajouterEnBase(62, DateTime(2026, 10, 5));
     await banc.monter(tester);
     expect(find.textContaining('projection sur 5 jours'), findsNothing);
-    expect(
-      tester.widget<LineChart>(find.byType(LineChart)).data.lineBarsData,
-      hasLength(1),
-    );
+    // Pesées brutes et tendance, sans projection.
+    expect(courbes(tester), hasLength(2));
+    expect(projection(tester), isNull);
 
+    // Le journal se remplit pendant que l'onglet est ouvert.
+    for (final jour in [4, 5, 6, 8]) {
+      for (final r in repasDu(jour)) {
+        await banc.journal.ajouterRepas('u1', r);
+      }
+    }
+    await tester.pumpAndSettle();
+    expect(courbes(tester), hasLength(3));
+    expect(projection(tester)!.spots, hasLength(6));
+    expect(projection(tester)!.spots.last.y, greaterThan(62));
+    expect(find.textContaining('projection sur 5 jours'), findsOneWidget);
+  });
+
+  testWidgets('dernière pesée de plus de 7 jours : pas de projection', (
+    tester,
+  ) async {
+    final banc = Banc();
+    await banc.ajouterEnBase(62, DateTime(2026, 10, 1));
     banc.journal.repasParUid['u1'] = [
-      Repas(
-        date: DateTime(2026, 10, 8, 12),
-        moment: Moment.dejeuner,
-        nom: 'x',
-        macros: const Macros(kcal: 3000),
-        source: SourceRepas.manuel,
-      ),
+      for (final jour in [4, 5, 6, 8]) ...repasDu(jour),
     ];
     await banc.monter(tester);
-    final courbes = tester
-        .widget<LineChart>(find.byType(LineChart))
-        .data
-        .lineBarsData;
-    expect(courbes, hasLength(2));
-    expect(courbes.last.dashArray, isNotNull);
-    expect(courbes.last.spots, hasLength(6));
-    expect(courbes.last.spots.last.y, greaterThan(62));
-    expect(find.textContaining('projection sur 5 jours'), findsOneWidget);
+
+    expect(projection(tester), isNull);
+    expect(find.textContaining('projection sur 5 jours'), findsNothing);
+  });
+
+  testWidgets('journées notées en partie : pas de projection', (tester) async {
+    final banc = Banc();
+    await banc.ajouterEnBase(62, DateTime(2026, 10, 5));
+    banc.journal.repasParUid['u1'] = [
+      // Seul le petit-déjeuner noté : ce n'est pas un jeûne.
+      for (final jour in [3, 7, 8]) ...repasDu(jour, n: 1, kcal: 400),
+      // Trois journées complètes seulement : moins de 4.
+      for (final jour in [4, 5, 6]) ...repasDu(jour),
+    ];
+    await banc.monter(tester);
+
+    expect(projection(tester), isNull);
+  });
+
+  testWidgets('tendance sur 7 jours en trait épais, pesées en trait discret', (
+    tester,
+  ) async {
+    final banc = Banc();
+    await banc.ajouterEnBase(62, DateTime(2026, 10, 2));
+    await banc.ajouterEnBase(63, DateTime(2026, 10, 3));
+    await banc.ajouterEnBase(61, DateTime(2026, 10, 4));
+    await banc.monter(tester);
+
+    final [brute, tendance] = courbes(tester);
+    expect(brute.spots.map((s) => s.y), [62, 63, 61]);
+    expect(tendance.spots.map((s) => s.y), [62, 62.5, 62]);
+    expect(tendance.barWidth, greaterThan(brute.barWidth));
+    expect(find.textContaining('moyenne sur 7 jours'), findsOneWidget);
+  });
+
+  testWidgets("la courbe est décrite aux lecteurs d'écran", (tester) async {
+    final banc = Banc();
+    await banc.ajouterEnBase(62, DateTime(2026, 10, 2));
+    await banc.ajouterEnBase(61, DateTime(2026, 10, 6));
+    banc.journal.repasParUid['u1'] = [
+      for (final jour in [4, 5, 6, 8]) ...repasDu(jour),
+    ];
+    await banc.monter(tester);
+
+    // Le graphique entier est remplacé par une phrase (excludeSemantics).
+    final description = tester
+        .widgetList<Semantics>(find.byType(Semantics))
+        .where((s) => s.excludeSemantics)
+        .map((s) => s.properties.label)
+        .whereType<String>()
+        .toList();
+    expect(
+      description,
+      anyElement(
+        matches(
+          r'^Évolution du poids : 62,0 kg le 2 oct\. 2026, 61,0 kg le 6 oct\. '
+          r'2026\. Moyenne sur 7 jours : 61,5 kg\. Projection dans 5 jours : '
+          r'\d+,\d kg\.$',
+        ),
+      ),
+    );
+  });
+
+  testWidgets('activer la montre lit ses pesées ; la couper les retire', (
+    tester,
+  ) async {
+    final banc = Banc(
+      sante: FauxSante(points: [peseeMontre(61.2, DateTime(2026, 10, 6, 7))]),
+    );
+    await banc.monter(tester);
+    expect(find.text('61,2 kg'), findsNothing);
+    expect(banc.sante.lectures, 0);
+
+    banc.changerProfil(profilDe(montre: true));
+    await banc.monter(tester);
+    expect(banc.sante.lectures, 1);
+    expect(find.text('61,2 kg'), findsWidgets);
+
+    banc.changerProfil(profilDe());
+    await banc.monter(tester);
+    expect(find.text('61,2 kg'), findsNothing);
+    expect(find.text('60,0 kg'), findsWidgets);
+  });
+
+  testWidgets('pesée : repères enregistrés avec le maintien de la montre', (
+    tester,
+  ) async {
+    final banc = Banc(
+      profil: profilDe(montre: true),
+      sante: FauxSante(points: semaineType()),
+    );
+    await banc.suivi.charger(montre: true);
+    await banc.monter(tester);
+
+    await taper(tester, 'Ajouter une pesée');
+    await saisir(tester, 'Poids (kg)', '61');
+    await taper(tester, 'Enregistrer');
+
+    final reperes = banc.depot.donnees['u1']!.reperes;
+    final attendus = banc.suivi.reperesDuJour(banc.profil);
+    expect(reperes.source, SourceMaintien.mesure);
+    expect(reperes.maintien, attendus.maintien);
+    expect(reperes.kcalCible, attendus.kcalCible);
+  });
+
+  testWidgets(
+    'changer de période ou noter un repas ne rouvre pas les écoutes',
+    (tester) async {
+      final banc = Banc();
+      await banc.ajouterEnBase(62, DateTime(2026, 10, 5));
+      await banc.monter(tester);
+      final avant = (
+        banc.journal.fluxRepas,
+        banc.journal.fluxActivites,
+        banc.mensurations.flux,
+      );
+      expect(avant, (1, 1, 1));
+
+      await taper(tester, '90 jours');
+      await banc.journal.ajouterRepas('u1', repasDu(8).first);
+      await tester.pumpAndSettle();
+      await taper(tester, '30 jours');
+
+      expect((
+        banc.journal.fluxRepas,
+        banc.journal.fluxActivites,
+        banc.mensurations.flux,
+      ), avant);
+    },
+  );
+
+  testWidgets('IMC : chiffre écrit dans une teinte lisible sur le verre', (
+    tester,
+  ) async {
+    final banc = Banc(profil: profilDe(kg: 75));
+    await banc.monter(tester);
+
+    final imc = tester.widget<Text>(find.text('26,0'));
+    expect(imc.style?.color, PaletteCoach.clair.texteOrange);
   });
 
   testWidgets('mensurations : saisie partielle, affichage, valeur absurde', (
@@ -318,6 +489,14 @@ void main() {
 
       // Une date choisie dans le calendrier, depuis l'appareil.
       await taper(tester, 'Ajouter une photo');
+      // Vignettes décodées à leur taille d'affichage, pas en 1600 px.
+      final vignette = tester.widget<Image>(find.byType(Image).first);
+      expect(vignette.image, isA<ResizeImage>());
+      expect(
+        (vignette.image as ResizeImage).width,
+        (90 * tester.view.devicePixelRatio).round(),
+      );
+
       await taper(tester, 'Date de la photo : 9 oct. 2026');
       await tester.tap(find.text('3'));
       await tester.tap(find.text('OK'));

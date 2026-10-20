@@ -766,8 +766,16 @@ class FauxMensurations implements MensurationsRepository {
 
   List<Mensuration> de(String uid) => donnees[uid] ?? const [];
 
+  /// Nombre de flux demandés (une écoute Firestore chacun).
+  int flux = 0;
+
   @override
-  Stream<List<Mensuration>> observer(String uid) async* {
+  Stream<List<Mensuration>> observer(String uid) {
+    flux++;
+    return _observer(uid);
+  }
+
+  Stream<List<Mensuration>> _observer(String uid) async* {
     yield de(uid);
     yield* _flux.stream.where((u) => u == uid).map((_) => de(uid));
   }
@@ -801,6 +809,11 @@ class FauxJournal implements JournalRepository {
   List<Repas> repasDe(String uid) => repasParUid[uid] ?? const [];
   List<Activite> activitesDe(String uid) => activitesParUid[uid] ?? const [];
 
+  /// Nombre de flux de repas et d'activités demandés (une écoute Firestore
+  /// chacun).
+  int fluxRepas = 0;
+  int fluxActivites = 0;
+
   Stream<T> _suivre<T>(T Function() lire) async* {
     yield lire();
     yield* _flux.stream.map((_) => lire());
@@ -810,22 +823,26 @@ class FauxJournal implements JournalRepository {
       !d.isBefore(debut) && d.isBefore(fin);
 
   @override
-  Stream<List<Repas>> repas(String uid, DateTime debut, DateTime fin) =>
-      _suivre(
-        () => [
-          for (final r in repasDe(uid))
-            if (_dans(r.date, debut, fin)) r,
-        ]..sort((a, b) => a.date.compareTo(b.date)),
-      );
+  Stream<List<Repas>> repas(String uid, DateTime debut, DateTime fin) {
+    fluxRepas++;
+    return _suivre(
+      () => [
+        for (final r in repasDe(uid))
+          if (_dans(r.date, debut, fin)) r,
+      ]..sort((a, b) => a.date.compareTo(b.date)),
+    );
+  }
 
   @override
-  Stream<List<Activite>> activites(String uid, DateTime debut, DateTime fin) =>
-      _suivre(
-        () => [
-          for (final a in activitesDe(uid))
-            if (_dans(a.date, debut, fin)) a,
-        ]..sort((a, b) => a.date.compareTo(b.date)),
-      );
+  Stream<List<Activite>> activites(String uid, DateTime debut, DateTime fin) {
+    fluxActivites++;
+    return _suivre(
+      () => [
+        for (final a in activitesDe(uid))
+          if (_dans(a.date, debut, fin)) a,
+      ]..sort((a, b) => a.date.compareTo(b.date)),
+    );
+  }
 
   /// Comme `set` de Firestore : un repas supprimé revient avec son id.
   @override

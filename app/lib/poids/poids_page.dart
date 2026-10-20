@@ -11,7 +11,6 @@ import '../journal/calculs.dart';
 import '../journal/journal_repository.dart';
 import '../journal/modele.dart';
 import '../l10n/app_localizations.dart';
-import '../profil/besoins.dart';
 import '../profil/garde_fous.dart';
 import '../profil/modele.dart';
 import '../profil/profil_repository.dart';
@@ -20,6 +19,7 @@ import '../profil/saisie.dart';
 import '../sante/agregation.dart';
 import '../sante/modele.dart';
 import '../sante/sante_service.dart';
+import '../sante/suivi.dart';
 import '../theme.dart';
 import 'mensurations_repository.dart';
 import 'mensurations_section.dart';
@@ -40,6 +40,7 @@ class PoidsPage extends StatefulWidget {
     required this.mensurations,
     required this.photos,
     required this.sante,
+    required this.suivi,
     required this.horloge,
   });
 
@@ -51,6 +52,9 @@ class PoidsPage extends StatefulWidget {
   final MensurationsRepository mensurations;
   final PhotosProgres photos;
   final SanteService sante;
+
+  /// Maintien mesuré et journées de la montre : la même cible que le journal.
+  final Suivi suivi;
   final DateTime Function() horloge;
 
   @override
@@ -60,6 +64,10 @@ class PoidsPage extends StatefulWidget {
 class _PoidsPageState extends State<PoidsPage> {
   int _jours = 30;
   List<Mesure> _montre = const [];
+
+  /// Numéro de la dernière lecture de la montre : une lecture dépassée (montre
+  /// désactivée ou relue entre-temps) n'écrase pas la plus récente.
+  int _lecture = 0;
   late final Stream<List<Pesee>> _saisies = widget.pesees.observer(
     widget.utilisateur.uid,
   );
@@ -70,11 +78,28 @@ class _PoidsPageState extends State<PoidsPage> {
   @override
   void initState() {
     super.initState();
+    // L'onglet n'est construit qu'à sa première visite : la lecture aussi.
     _lireMontre();
+  }
+
+  @override
+  void didUpdateWidget(PoidsPage ancien) {
+    super.didUpdateWidget(ancien);
+    // Montre activée depuis le profil : ses pesées sont lues ; désactivée :
+    // elles disparaissent de la courbe et de l'historique.
+    if (ancien.enregistre.profil.montre != _profil.montre) {
+      if (_profil.montre) {
+        _lireMontre();
+      } else {
+        _lecture++;
+        _montre = const [];
+      }
+    }
   }
 
   /// Un an de pesées Health Connect, pour que la courbe soit pleine d'emblée.
   Future<void> _lireMontre() async {
+    final lecture = ++_lecture;
     if (!_profil.montre) return;
     try {
       if (await widget.sante.disponibilite() != DispoSante.disponible) return;
@@ -84,7 +109,8 @@ class _PoidsPageState extends State<PoidsPage> {
         maintenant,
         types: {TypeMesure.poids},
       );
-      if (mounted) setState(() => _montre = mesures(points, TypeMesure.poids));
+      if (!mounted || lecture != _lecture) return;
+      setState(() => _montre = mesures(points, TypeMesure.poids));
     } catch (_) {
       // Pas de pesées de la montre : seules les saisies s'affichent.
     }
@@ -93,10 +119,12 @@ class _PoidsPageState extends State<PoidsPage> {
   void _enregistrerProfil(Profil profil) {
     // Hors-ligne, l'écriture ne se termine qu'à la synchronisation.
     unawaited(
+      // Avec le maintien mesuré par la montre : les repères enregistrés (idées,
+      // planning) gardent la cible du journal et de l'accueil.
       widget.depot.enregistrer(
         _uid,
         profil,
-        calculerReperes(profil, maintenant: widget.horloge()),
+        widget.suivi.reperesDuJour(profil),
       ),
     );
   }
@@ -155,6 +183,16 @@ class _PoidsPageState extends State<PoidsPage> {
             maintenant.day - _jours,
           );
           final visibles = peseesDepuis(toutes, debut);
+          // Tendance calculée sur toutes les pesées : le début de la période
+          // tient compte des jours qui la précèdent.
+          final tendance = [
+            for (final p in moyenneMobile(toutes))
+              if (!p.date.isBefore(debut)) p,
+          ];
+          // Une projection partie d'une pesée ancienne serait fausse.
+          final depart = peseeRecente(toutes, maintenant)
+              ? tendance.last
+              : null;
           return ListView(
             padding: const EdgeInsets.fromLTRB(20, 8, 20, 96),
             children: [
@@ -184,13 +222,23 @@ class _PoidsPageState extends State<PoidsPage> {
                 onSelectionChanged: (s) => setState(() => _jours = s.first),
               ),
               const SizedBox(height: 12),
-              _CourbeAvecProjection(
-                journal: widget.journal,
-                uid: _uid,
-                maintien: widget.enregistre.reperes.maintien,
-                maintenant: maintenant,
-                pesees: visibles,
-                debut: debut,
+              ListenableBuilder(
+                listenable: widget.suivi,
+                builder: (context, _) {
+                  final reperes = widget.suivi.reperesDuJour(_profil);
+                  return _CourbeAvecProjection(
+                    journal: widget.journal,
+                    uid: _uid,
+                    maintien: reperes.maintien,
+                    kcalCible: reperes.kcalCible,
+                    joursMontre: widget.suivi.jours,
+                    maintenant: maintenant,
+                    pesees: visibles,
+                    tendance: tendance,
+                    depart: depart,
+                    debut: debut,
+                  );
+                },
               ),
               const SizedBox(height: 24),
               MensurationsSection(
@@ -268,11 +316,21 @@ class _CartePoids extends StatelessWidget {
   }
 }
 
+/// Couleurs des barres de catégorie (pastilles vives).
 const _couleursImc = {
   CategorieImc.maigreur: Color(0xFF378ADD),
   CategorieImc.normal: CouleursCoach.vertMoyen,
   CategorieImc.surpoids: CouleursCoach.orange,
   CategorieImc.obesite: Color(0xFFE24B4A),
+};
+
+/// Couleur de la valeur de l'IMC : une teinte de texte lisible sur le verre,
+/// dans les deux thèmes (les couleurs vives y seraient illisibles en clair).
+Color _texteImc(BuildContext context, CategorieImc c) => switch (c) {
+  CategorieImc.maigreur => context.palette.texteBleu,
+  CategorieImc.normal => context.palette.texteVert,
+  CategorieImc.surpoids => context.palette.texteOrange,
+  CategorieImc.obesite => Theme.of(context).colorScheme.error,
 };
 
 String _libelleImc(AppLocalizations t, CategorieImc c) => switch (c) {
@@ -306,7 +364,9 @@ class _CarteImc extends StatelessWidget {
               children: [
                 Text(
                   formatDecimal(imc),
-                  style: textes.headlineMedium?.copyWith(color: couleur),
+                  style: textes.headlineMedium?.copyWith(
+                    color: _texteImc(context, categorie),
+                  ),
                 ),
                 const SizedBox(width: 12),
                 Container(
@@ -359,60 +419,111 @@ class _CarteImc extends StatelessWidget {
   }
 }
 
-/// Courbe + projection à 5 jours d'après le solde moyen des 7 derniers jours
-/// renseignés dans le journal (aujourd'hui exclu : journée incomplète).
-class _CourbeAvecProjection extends StatelessWidget {
+/// Courbe + projection à 5 jours d'après le solde moyen des journées
+/// complètes des 7 derniers jours du journal (aujourd'hui exclu : journée en
+/// cours).
+class _CourbeAvecProjection extends StatefulWidget {
   const _CourbeAvecProjection({
     required this.journal,
     required this.uid,
     required this.maintien,
+    required this.kcalCible,
+    required this.joursMontre,
     required this.maintenant,
     required this.pesees,
+    required this.tendance,
+    required this.depart,
     required this.debut,
   });
 
   final JournalRepository journal;
   final String uid;
   final int maintien;
+  final int kcalCible;
+  final List<JourSante> joursMontre;
   final DateTime maintenant;
   final List<Pesee> pesees;
+  final List<PointPoids> tendance;
+
+  /// Point de départ de la projection (tendance à la dernière pesée), ou null
+  /// si la dernière pesée est trop ancienne.
+  final PointPoids? depart;
   final DateTime debut;
 
   @override
+  State<_CourbeAvecProjection> createState() => _CourbeAvecProjectionState();
+}
+
+class _CourbeAvecProjectionState extends State<_CourbeAvecProjection> {
+  late DateTime _aujourdhui;
+
+  /// Gardés d'une reconstruction à l'autre : un nouveau flux à chaque build
+  /// rouvrirait l'écoute Firestore.
+  late Stream<List<Repas>> _repas;
+  late Stream<List<Activite>> _activites;
+
+  DateTime get _debutJournal =>
+      DateTime(_aujourdhui.year, _aujourdhui.month, _aujourdhui.day - 7);
+
+  static DateTime _jour(DateTime d) => DateTime(d.year, d.month, d.day);
+
+  void _ecouter() {
+    _aujourdhui = _jour(widget.maintenant);
+    _repas = widget.journal.repas(widget.uid, _debutJournal, _aujourdhui);
+    _activites = widget.journal.activites(
+      widget.uid,
+      _debutJournal,
+      _aujourdhui,
+    );
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _ecouter();
+  }
+
+  @override
+  void didUpdateWidget(_CourbeAvecProjection ancien) {
+    super.didUpdateWidget(ancien);
+    // Nouvel utilisateur ou nouveau jour seulement.
+    if (ancien.uid != widget.uid ||
+        ancien.journal != widget.journal ||
+        _jour(widget.maintenant) != _aujourdhui) {
+      _ecouter();
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final aujourdhui = DateTime(
-      maintenant.year,
-      maintenant.month,
-      maintenant.day,
-    );
-    final depart = DateTime(
-      aujourdhui.year,
-      aujourdhui.month,
-      aujourdhui.day - 7,
-    );
     return StreamBuilder<List<Repas>>(
-      stream: journal.repas(uid, depart, aujourdhui),
+      stream: _repas,
       builder: (context, repas) => StreamBuilder<List<Activite>>(
-        stream: journal.activites(uid, depart, aujourdhui),
+        stream: _activites,
         builder: (context, activites) {
+          final depart = widget.depart;
           List<double>? projection;
-          if (pesees.isNotEmpty && repas.hasData) {
+          if (depart != null && repas.hasData) {
             projection = projeterPoids(
-              poidsKg: pesees.last.kg,
+              poidsKg: depart.kg,
               soldes: soldesRecents(
                 repas: repas.data!,
                 activites: activites.data ?? const [],
-                maintien: maintien,
-                debut: depart,
-                fin: aujourdhui,
+                maintien: widget.maintien,
+                kcalCible: widget.kcalCible,
+                jours: widget.joursMontre,
+                debut: _debutJournal,
+                fin: _aujourdhui,
               ),
             );
           }
           return _Courbe(
-            pesees: pesees,
-            debut: debut,
+            pesees: widget.pesees,
+            tendance: widget.tendance,
+            debut: widget.debut,
+            depart: projection == null ? null : depart,
             projection: projection,
-            aujourdhui: aujourdhui,
+            aujourdhui: _aujourdhui,
           );
         },
       ),
@@ -456,20 +567,43 @@ GrilleCourbe grilleCourbe({
 class _Courbe extends StatelessWidget {
   const _Courbe({
     required this.pesees,
+    required this.tendance,
     required this.debut,
+    this.depart,
     this.projection,
     required this.aujourdhui,
   });
 
   final List<Pesee> pesees;
+  final List<PointPoids> tendance;
   final DateTime debut;
+  final PointPoids? depart;
   final List<double>? projection;
   final DateTime aujourdhui;
+
+  double _x(DateTime d) => d.difference(debut).inHours / 24;
+
+  /// Ce que le graphique montre, pour les lecteurs d'écran.
+  String _semantique(AppLocalizations t) {
+    String date(DateTime d) => DateFormat.yMMMd('fr').format(d);
+    final courbe = t.courbeSemantique(
+      formatDecimal(pesees.first.kg),
+      date(pesees.first.date),
+      formatDecimal(pesees.last.kg),
+      date(pesees.last.date),
+      formatDecimal(tendance.last.kg),
+    );
+    final p = projection;
+    return p == null
+        ? courbe
+        : '$courbe ${t.projectionSemantique(formatDecimal(p.last))}';
+  }
 
   @override
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context)!;
     final textes = Theme.of(context).textTheme;
+    final accent = context.palette.accent;
     final g = grilleCourbe(
       jours: aujourdhui.difference(debut).inDays,
       poids: [for (final p in pesees) p.kg, ...?projection],
@@ -485,108 +619,128 @@ class _Courbe extends StatelessWidget {
               height: 230,
               child: pesees.isEmpty
                   ? const SizedBox.shrink()
-                  : LineChart(
-                      LineChartData(
-                        minX: 0,
-                        maxX: g.maxX,
-                        minY: g.minY,
-                        maxY: g.maxY,
-                        gridData: FlGridData(
-                          horizontalInterval: g.pasKg,
-                          verticalInterval: g.pasJours,
-                          getDrawingHorizontalLine: (_) => trait,
-                          getDrawingVerticalLine: (_) => trait,
-                        ),
-                        borderData: FlBorderData(
-                          border: Border.all(color: context.palette.bordure),
-                        ),
-                        titlesData: FlTitlesData(
-                          topTitles: const AxisTitles(),
-                          rightTitles: const AxisTitles(),
-                          bottomTitles: AxisTitles(
-                            sideTitles: SideTitles(
-                              showTitles: true,
-                              reservedSize: 26,
-                              interval: g.pasJours,
-                              getTitlesWidget: (v, meta) => v % g.pasJours != 0
-                                  ? const SizedBox.shrink()
-                                  : Padding(
-                                      padding: const EdgeInsets.only(top: 6),
-                                      child: Text(
-                                        DateFormat('d/M', 'fr').format(
-                                          DateTime(
-                                            debut.year,
-                                            debut.month,
-                                            debut.day + v.round(),
-                                          ),
-                                        ),
-                                        style: textes.labelSmall,
-                                      ),
-                                    ),
-                            ),
+                  : Semantics(
+                      label: _semantique(t),
+                      excludeSemantics: true,
+                      child: LineChart(
+                        LineChartData(
+                          minX: 0,
+                          maxX: g.maxX,
+                          minY: g.minY,
+                          maxY: g.maxY,
+                          gridData: FlGridData(
+                            horizontalInterval: g.pasKg,
+                            verticalInterval: g.pasJours,
+                            getDrawingHorizontalLine: (_) => trait,
+                            getDrawingVerticalLine: (_) => trait,
                           ),
-                          leftTitles: AxisTitles(
-                            sideTitles: SideTitles(
-                              showTitles: true,
-                              reservedSize: 40,
-                              interval: g.pasKg,
-                              getTitlesWidget: (v, meta) => Text(
-                                v.toStringAsFixed(0),
-                                style: Theme.of(context).textTheme.bodySmall,
+                          borderData: FlBorderData(
+                            border: Border.all(color: context.palette.bordure),
+                          ),
+                          titlesData: FlTitlesData(
+                            topTitles: const AxisTitles(),
+                            rightTitles: const AxisTitles(),
+                            bottomTitles: AxisTitles(
+                              sideTitles: SideTitles(
+                                showTitles: true,
+                                reservedSize: 26,
+                                interval: g.pasJours,
+                                getTitlesWidget: (v, meta) =>
+                                    v % g.pasJours != 0
+                                    ? const SizedBox.shrink()
+                                    : Padding(
+                                        padding: const EdgeInsets.only(top: 6),
+                                        child: Text(
+                                          DateFormat('d/M', 'fr').format(
+                                            DateTime(
+                                              debut.year,
+                                              debut.month,
+                                              debut.day + v.round(),
+                                            ),
+                                          ),
+                                          style: textes.labelSmall,
+                                        ),
+                                      ),
+                              ),
+                            ),
+                            leftTitles: AxisTitles(
+                              sideTitles: SideTitles(
+                                showTitles: true,
+                                reservedSize: 40,
+                                interval: g.pasKg,
+                                getTitlesWidget: (v, meta) => Text(
+                                  v.toStringAsFixed(0),
+                                  style: Theme.of(context).textTheme.bodySmall,
+                                ),
                               ),
                             ),
                           ),
-                        ),
-                        lineBarsData: [
-                          LineChartBarData(
-                            isCurved: true,
-                            color: CouleursCoach.vert,
-                            barWidth: 3,
-                            spots: [
-                              for (final p in pesees)
-                                FlSpot(
-                                  p.date.difference(debut).inHours / 24,
-                                  p.kg,
-                                ),
-                            ],
-                            dotData: FlDotData(
-                              getDotPainter: (spot, _, _, i) =>
-                                  FlDotCirclePainter(
-                                    radius: 4,
-                                    color:
-                                        pesees[i].source == SourcePesee.montre
-                                        ? CouleursCoach.orange
-                                        : CouleursCoach.vert,
-                                    strokeColor: Colors.white,
-                                    strokeWidth: 1.5,
-                                  ),
-                            ),
-                          ),
-                          if (projection != null)
+                          lineBarsData: [
+                            // Pesées brutes : discrètes, les variations d'eau
+                            // d'un jour à l'autre y restent visibles.
                             LineChartBarData(
-                              color: context.palette.texteDoux,
-                              barWidth: 2,
-                              dashArray: [6, 5],
+                              color: accent.withValues(alpha: 0.45),
+                              barWidth: 1.5,
+                              spots: [
+                                for (final p in pesees)
+                                  FlSpot(_x(p.date), p.kg),
+                              ],
+                              dotData: FlDotData(
+                                getDotPainter: (spot, _, _, i) =>
+                                    FlDotCirclePainter(
+                                      radius: 3,
+                                      color:
+                                          pesees[i].source == SourcePesee.montre
+                                          ? context.palette.texteOrange
+                                          : accent,
+                                      strokeColor: Colors.white,
+                                      strokeWidth: 1,
+                                    ),
+                              ),
+                            ),
+                            // Tendance : moyenne mobile sur 7 jours.
+                            LineChartBarData(
+                              isCurved: true,
+                              preventCurveOverShooting: true,
+                              color: accent,
+                              barWidth: 3,
                               dotData: const FlDotData(show: false),
                               spots: [
-                                FlSpot(
-                                  pesees.last.date.difference(debut).inHours /
-                                      24,
-                                  pesees.last.kg,
-                                ),
-                                for (var i = 0; i < projection!.length; i++)
-                                  FlSpot(
-                                    aujourdhui.difference(debut).inDays +
-                                        i +
-                                        1.0,
-                                    projection![i],
-                                  ),
+                                for (final p in tendance)
+                                  FlSpot(_x(p.date), p.kg),
                               ],
                             ),
-                        ],
+                            if (projection != null && depart != null)
+                              LineChartBarData(
+                                color: context.palette.texteDoux,
+                                barWidth: 2,
+                                dashArray: [6, 5],
+                                dotData: const FlDotData(show: false),
+                                spots: [
+                                  FlSpot(_x(depart!.date), depart!.kg),
+                                  for (var i = 0; i < projection!.length; i++)
+                                    FlSpot(
+                                      aujourdhui.difference(debut).inDays +
+                                          i +
+                                          1.0,
+                                      projection![i],
+                                    ),
+                                ],
+                              ),
+                          ],
+                        ),
                       ),
                     ),
             ),
+            if (pesees.isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.only(top: 8, left: 8),
+                child: Text(
+                  t.courbeLegende,
+                  style: Theme.of(context).textTheme.bodySmall
+                      ?.copyWith(color: context.palette.texteDoux),
+                ),
+              ),
             if (projection != null)
               Padding(
                 padding: const EdgeInsets.only(top: 8, left: 8),
@@ -624,7 +778,7 @@ class _LignePesee extends StatelessWidget {
         subtitle: Text(DateFormat.yMMMd('fr').format(pesee.date)),
         leading: Icon(
           montre ? Icons.watch_outlined : Icons.edit_outlined,
-          color: montre ? CouleursCoach.orange : CouleursCoach.vert,
+          color: montre ? context.palette.texteOrange : context.palette.accent,
         ),
         trailing: onSupprimer == null
             ? Text(
@@ -736,9 +890,7 @@ class _FeuilleAjoutState extends State<_FeuilleAjout> {
           OutlinedButton.icon(
             onPressed: _choisirDate,
             icon: const Icon(Icons.calendar_today_outlined),
-            label: Text(
-              '${t.champDate} : ${DateFormat.yMMMd('fr').format(_jour)}',
-            ),
+            label: Text(t.dateChoisie(DateFormat.yMMMd('fr').format(_jour))),
           ),
           const SizedBox(height: 16),
           FilledButton(

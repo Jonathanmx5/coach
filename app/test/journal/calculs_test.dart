@@ -141,19 +141,23 @@ void main() {
 
   group('projection du poids à 5 jours', () {
     test('déficit moyen de 770 kcal/jour : −0,1 kg par jour', () {
-      final p = projeterPoids(poidsKg: 80, soldes: [-770, -770, -770])!;
+      final p = projeterPoids(poidsKg: 80, soldes: [-770, -770, -770, -770])!;
       expect(p.length, 5);
       expect(p.first, closeTo(79.9, 1e-9));
       expect(p.last, closeTo(79.5, 1e-9));
     });
 
     test('excédent : le poids monte', () {
-      final p = projeterPoids(poidsKg: 80, soldes: [770])!;
+      final p = projeterPoids(poidsKg: 80, soldes: [770, 770, 770, 770])!;
       expect(p.last, closeTo(80.5, 1e-9));
     });
 
     test('aucun jour renseigné : pas de projection', () {
       expect(projeterPoids(poidsKg: 80, soldes: const []), isNull);
+    });
+
+    test('moins de 4 journées complètes : pas de projection', () {
+      expect(projeterPoids(poidsKg: 80, soldes: [-500, -500, -500]), isNull);
     });
   });
 }
@@ -175,11 +179,12 @@ void soldesTests() {
       kcal: 300,
     );
 
-    test('un solde par jour avec repas, jours vides ignorés', () {
+    test('un solde par journée complète, jours vides ignorés', () {
       final soldes = soldesRecents(
-        repas: [le(5, 1000), le(5, 1000), le(7, 2000)],
+        repas: [le(5, 1000), le(5, 1000), le(7, 1000), le(7, 1000)],
         activites: [course],
         maintien: 1200,
+        kcalCible: 1000,
         debut: DateTime(2026, 10, 3),
         fin: DateTime(2026, 10, 9),
       );
@@ -190,9 +195,10 @@ void soldesTests() {
     test('hors fenêtre ignoré', () {
       expect(
         soldesRecents(
-          repas: [le(9, 1000)],
+          repas: [le(9, 1000), le(9, 1000)],
           activites: const [],
           maintien: 1200,
+          kcalCible: 1000,
           debut: DateTime(2026, 10, 3),
           fin: DateTime(2026, 10, 9),
         ),
@@ -200,11 +206,59 @@ void soldesTests() {
       );
     });
 
-    test('journée complète mesurée par la montre : son total sert', () {
+    test('journée notée en partie : ignorée, pas comptée comme un jeûne', () {
       final soldes = soldesRecents(
-        repas: [le(5, 2000), le(7, 2000)],
+        repas: [
+          // Jour 4 : seulement le petit-déjeuner.
+          le(4, 400),
+          // Jour 5 : deux repas mais 1000 kcal sur 2000 (moins de 60 %).
+          le(5, 500), le(5, 500),
+          // Jour 6 : deux repas, 1200 kcal, juste 60 % de la cible.
+          le(6, 600), le(6, 600),
+        ],
+        activites: const [],
+        maintien: 2400,
+        kcalCible: 2000,
+        debut: DateTime(2026, 10, 3),
+        fin: DateTime(2026, 10, 9),
+      );
+      expect(soldes, [1200 - 2400]);
+    });
+
+    test('la cible du jour compte la part mangée des activités saisies', () {
+      // Cible 1000 + 70 % de 300 = 1210 ; 60 % = 726 : 700 ne suffit plus.
+      final soldes = soldesRecents(
+        repas: [le(7, 350), le(7, 350), le(6, 350), le(6, 350)],
         activites: [course],
         maintien: 1200,
+        kcalCible: 1000,
+        debut: DateTime(2026, 10, 3),
+        fin: DateTime(2026, 10, 9),
+      );
+      expect(soldes, [700 - 1200]);
+    });
+
+    test('journée complète : 2 repas et 60 % de la cible', () {
+      expect(
+        journalComplet(nombreRepas: 2, kcalMangees: 1200, kcalCibleJour: 2000),
+        isTrue,
+      );
+      expect(
+        journalComplet(nombreRepas: 1, kcalMangees: 2400, kcalCibleJour: 2000),
+        isFalse,
+      );
+      expect(
+        journalComplet(nombreRepas: 3, kcalMangees: 1199, kcalCibleJour: 2000),
+        isFalse,
+      );
+    });
+
+    test('journée complète mesurée par la montre : son total sert', () {
+      final soldes = soldesRecents(
+        repas: [le(5, 1000), le(5, 1000), le(7, 1000), le(7, 1000)],
+        activites: [course],
+        maintien: 1200,
+        kcalCible: 1000,
         jours: [
           sante.JourSante(
             jour: DateTime(2026, 10, 7),

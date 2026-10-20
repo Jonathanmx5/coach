@@ -100,4 +100,49 @@ void main() {
     expect(p.poidsKg, 61.0);
     expect(p.poidsDate, DateTime(2026, 10, 5));
   });
+
+  group('tendance : moyenne mobile sur 7 jours', () {
+    test('chaque point moyenne les pesées des 7 derniers jours', () {
+      final points = moyenneMobile([
+        manuelle(1, 70),
+        manuelle(3, 72),
+        manuelle(7, 71),
+        // Le 1er sort de la fenêtre du 8 (du 2 au 8).
+        manuelle(8, 69),
+      ]);
+      expect([for (final p in points) p.date.day], [1, 3, 7, 8]);
+      expect(points[0].kg, 70);
+      expect(points[1].kg, closeTo(71, 1e-9));
+      expect(points[2].kg, closeTo(71, 1e-9));
+      expect(points[3].kg, closeTo((72 + 71 + 69) / 3, 1e-9));
+    });
+
+    test("un pic d'un jour est lissé", () {
+      final points = moyenneMobile([
+        for (var j = 1; j <= 6; j++) manuelle(j, 70),
+        manuelle(7, 73.5),
+      ]);
+      expect(points.last.kg, closeTo(70.5, 1e-9));
+    });
+
+    test('aucune pesée : aucun point', () {
+      expect(moyenneMobile(const []), isEmpty);
+    });
+  });
+
+  group('projection : dernière pesée récente', () {
+    final maintenant = DateTime(2026, 10, 9, 20);
+    test('7 jours au plus : la projection peut partir', () {
+      expect(peseeRecente([manuelle(3, 70)], maintenant), isTrue);
+    });
+    test('plus de 7 jours : pas de projection', () {
+      expect(
+        peseeRecente([manuelle(1, 70), manuelle(2, 70)], maintenant),
+        isFalse,
+      );
+    });
+    test('aucune pesée', () {
+      expect(peseeRecente(const [], maintenant), isFalse);
+    });
+  });
 }

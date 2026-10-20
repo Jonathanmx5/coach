@@ -7,8 +7,6 @@ import 'package:coach/compte/auth_service.dart';
 import 'package:coach/coque.dart';
 import 'package:coach/entrainement/entrainement_page.dart';
 import 'package:coach/journal/journal_page.dart';
-import 'package:coach/journal/modele.dart';
-import 'package:coach/poids/mensurations.dart';
 import 'package:coach/poids/poids_page.dart';
 import 'package:coach/profil/besoins.dart';
 import 'package:coach/profil/modele.dart';
@@ -45,35 +43,6 @@ const profil = Profil(
   problemeSante: false,
 );
 
-/// Journal qui compte les flux ouverts (chaque appel crée une écoute).
-class JournalCompte extends FauxJournal {
-  int fluxRepas = 0;
-  int fluxActivites = 0;
-
-  @override
-  Stream<List<Repas>> repas(String uid, DateTime debut, DateTime fin) {
-    fluxRepas++;
-    return super.repas(uid, debut, fin);
-  }
-
-  @override
-  Stream<List<Activite>> activites(String uid, DateTime debut, DateTime fin) {
-    fluxActivites++;
-    return super.activites(uid, debut, fin);
-  }
-}
-
-/// Mensurations qui comptent les flux ouverts (seul l'onglet Poids en lit).
-class MensurationsCompte extends FauxMensurations {
-  int flux = 0;
-
-  @override
-  Stream<List<Mensuration>> observer(String uid) {
-    flux++;
-    return super.observer(uid);
-  }
-}
-
 /// Le vrai widget d'accueil (action de lancement rendue une seule fois),
 /// sans le canal des boutons, absent des tests.
 class WidgetSansCanal extends WidgetAccueil {
@@ -97,8 +66,9 @@ class Banc {
   final FauxSante sante;
   final MiseAJourWidget widgetAccueil;
   final bool montre;
-  final journal = JournalCompte();
-  final mensurations = MensurationsCompte();
+  // Les faux comptent les flux ouverts (chaque appel crée une écoute).
+  final journal = FauxJournal();
+  final mensurations = FauxMensurations();
   final reseau = FauxReseau();
   DateTime heure = DateTime(2026, 10, 9, 20);
 

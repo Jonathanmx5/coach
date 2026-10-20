@@ -97,7 +97,7 @@ class _MesDonneesPageState extends State<MesDonneesPage> {
           ),
           ?_graphe(
             'masse-grasse',
-            t.mesureMasseGrasse,
+            t.mesureMasseGrassePct,
             parJour(widget.suivi.masseGrasse),
             ligne: true,
             decimales: 1,
@@ -162,7 +162,7 @@ class _MesDonneesPageState extends State<MesDonneesPage> {
                     for (var i = 0; i < valeurs.length; i++)
                       if (valeurs[i] != null) FlSpot(i.toDouble(), valeurs[i]!),
                   ],
-                  color: CouleursCoach.vert,
+                  color: context.palette.accent,
                   barWidth: 3,
                   isCurved: true,
                   dotData: const FlDotData(show: true),
@@ -183,7 +183,7 @@ class _MesDonneesPageState extends State<MesDonneesPage> {
                     barRods: [
                       BarChartRodData(
                         toY: valeurs[i] ?? 0,
-                        color: CouleursCoach.vert,
+                        color: context.palette.accent,
                         width: valeurs.length > 10 ? 5 : 14,
                         borderRadius: BorderRadius.circular(4),
                       ),

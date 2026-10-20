@@ -243,6 +243,7 @@ class _CoqueState extends State<Coque> with WidgetsBindingObserver {
       mensurations: _s.mensurations,
       photos: _s.photos,
       sante: _s.sante,
+      suivi: _suivi,
       horloge: widget.horloge,
     ),
     _ => BienEtrePage(

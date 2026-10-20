@@ -188,7 +188,7 @@
   "mesureSpo2": "Oxygène sanguin (%)",
   "mesureFreqResp": "Fréquence respiratoire (/min)",
   "mesurePoids": "Poids (kg)",
-  "mesureMasseGrasse": "Masse grasse (%)",
+  "mesureMasseGrassePct": "Masse grasse (%)",
   "derniereValeur": "Dernière valeur : {valeur}",
   "@derniereValeur": {
     "placeholders": {
@@ -231,12 +231,79 @@
   "imcSurpoids": "Surpoids",
   "imcObesite": "Obésité",
   "imcAide": "L'IMC est un repère général : il ne tient pas compte de ta masse musculaire.",
-  "projectionLegende": "Pointillés : projection sur 5 jours d'après ton journal des 7 derniers jours.",
+  "projectionLegende": "Pointillés : projection sur 5 jours d'après les journées complètes de ton journal des 7 derniers jours (au moins 2 repas et 60 % de ta cible).",
+  "courbeLegende": "Trait épais : moyenne sur 7 jours, qui lisse les variations d'eau. Points : tes pesées.",
+  "courbeSemantique": "Évolution du poids : {debut} kg le {dateDebut}, {fin} kg le {dateFin}. Moyenne sur 7 jours : {tendance} kg.",
+  "@courbeSemantique": {
+    "placeholders": {
+      "debut": {
+        "type": "String"
+      },
+      "dateDebut": {
+        "type": "String"
+      },
+      "fin": {
+        "type": "String"
+      },
+      "dateFin": {
+        "type": "String"
+      },
+      "tendance": {
+        "type": "String"
+      }
+    }
+  },
+  "projectionSemantique": "Projection dans 5 jours : {kg} kg.",
+  "@projectionSemantique": {
+    "placeholders": {
+      "kg": {
+        "type": "String"
+      }
+    }
+  },
+  "dateChoisie": "Date : {date}",
+  "@dateChoisie": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "photoDateChoisie": "Date de la photo : {date}",
+  "@photoDateChoisie": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "libelleUnite": "{libelle} ({unite})",
+  "@libelleUnite": {
+    "placeholders": {
+      "libelle": {
+        "type": "String"
+      },
+      "unite": {
+        "type": "String"
+      }
+    }
+  },
+  "erreurMesure": "{mesure} : {erreur}",
+  "@erreurMesure": {
+    "placeholders": {
+      "mesure": {
+        "type": "String"
+      },
+      "erreur": {
+        "type": "String"
+      }
+    }
+  },
   "mensurationsTitre": "Mensurations",
   "mesureTaille": "Tour de taille",
   "mesurePoitrine": "Tour de poitrine",
   "mesureBras": "Tour de bras",
-  "mesureMasseGrasse": "Masse grasse",
+  "mensurationMasseGrasse": "Masse grasse",
   "ajouterMesures": "Ajouter des mesures",
   "aucuneMesure": "Pas encore de mesure. Un mètre ruban suffit !",
   "mesuresAide": "Remplis seulement ce que tu as mesuré.",
@@ -294,17 +361,6 @@
     "placeholders": {
       "nom": {
         "type": "String"
-      }
-    }
-  },
-  "etapeSur": "Étape {n} sur {total}",
-  "@etapeSur": {
-    "placeholders": {
-      "n": {
-        "type": "int"
-      },
-      "total": {
-        "type": "int"
       }
     }
   },
@@ -625,7 +681,6 @@
   "ajouterPhotoProgres": "Ajouter une photo",
   "photoAppareil": "Appareil photo",
   "photoBibliotheque": "Bibliothèque de photos",
-  "photoDate": "Date de la photo",
   "photoAjoutAide": "Choisis la date de la photo (aujourd'hui par défaut), puis d'où elle vient.",
   "composition": "Composition",
   "repasSansAnalyse": "Ce repas a été saisi à la main : il n'y a pas d'analyse détaillée à revoir.",
@@ -697,7 +752,6 @@
   "periode1an": "1 an",
   "ajouterPesee": "Ajouter une pesée",
   "enregistrer": "Enregistrer",
-  "champDate": "Date",
   "historiquePoids": "Historique",
   "supprimerPesee": "Supprimer",
   "aucunePesee": "Aucune pesée pour l'instant. Ajoute la première !",

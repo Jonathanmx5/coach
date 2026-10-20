@@ -8,9 +8,19 @@ import '../theme.dart';
 import '../journal/analyse_photo.dart' show SourcePhoto;
 import 'photos.dart';
 
-Widget _image(PhotoProgres p, {BoxFit fit = BoxFit.cover}) => Image.file(
+/// Largeur d'une vignette de la bande, en points.
+const largeurVignette = 90.0;
+
+/// Photo de progrès ; [largeurDecodee] (en pixels) décode une version réduite,
+/// pour une vignette : la photo enregistrée fait jusqu'à 1600 px de large.
+Widget _image(
+  PhotoProgres p, {
+  BoxFit fit = BoxFit.cover,
+  int? largeurDecodee,
+}) => Image.file(
   File(p.chemin),
   fit: fit,
+  cacheWidth: largeurDecodee,
   errorBuilder: (_, _, _) => ColoredBox(
     color: CouleursCoach.vertPale,
     child: Center(child: Icon(Icons.image_outlined)),
@@ -81,42 +91,51 @@ class _PhotosSectionState extends State<PhotosSection> {
               const SizedBox(height: 12),
               SizedBox(
                 height: 120,
-                child: ListView(
+                child: ListView.builder(
                   scrollDirection: Axis.horizontal,
-                  children: [
-                    for (final p in _liste)
-                      Padding(
-                        padding: const EdgeInsets.only(right: 8),
-                        child: Column(
-                          children: [
-                            Expanded(
-                              child: ClipRRect(
-                                borderRadius: BorderRadius.circular(10),
-                                child: AspectRatio(
-                                  aspectRatio: 3 / 4,
-                                  child: _image(p),
+                  itemCount: _liste.length,
+                  itemBuilder: (context, i) {
+                    final p = _liste[i];
+                    return Padding(
+                      padding: const EdgeInsets.only(right: 8),
+                      child: Column(
+                        children: [
+                          Expanded(
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(10),
+                              child: AspectRatio(
+                                aspectRatio: 3 / 4,
+                                child: _image(
+                                  p,
+                                  largeurDecodee:
+                                      (largeurVignette *
+                                              MediaQuery.devicePixelRatioOf(
+                                                context,
+                                              ))
+                                          .round(),
                                 ),
                               ),
                             ),
-                            Row(
-                              children: [
-                                Text(
-                                  DateFormat.yMMMd('fr').format(p.date),
-                                  style: textes.labelSmall,
-                                ),
-                                IconButton(
-                                  tooltip: t.supprimerPhoto,
-                                  visualDensity: VisualDensity.compact,
-                                  iconSize: 16,
-                                  onPressed: () => _supprimer(p),
-                                  icon: const Icon(Icons.delete_outline),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
+                          ),
+                          Row(
+                            children: [
+                              Text(
+                                DateFormat.yMMMd('fr').format(p.date),
+                                style: textes.labelSmall,
+                              ),
+                              IconButton(
+                                tooltip: t.supprimerPhoto,
+                                visualDensity: VisualDensity.compact,
+                                iconSize: 16,
+                                onPressed: () => _supprimer(p),
+                                icon: const Icon(Icons.delete_outline),
+                              ),
+                            ],
+                          ),
+                        ],
                       ),
-                  ],
+                    );
+                  },
                 ),
               ),
             ],
@@ -279,7 +298,7 @@ class _FeuillePhotoState extends State<_FeuillePhoto> {
               onPressed: _changerDate,
               icon: const Icon(Icons.calendar_today_outlined),
               label: Text(
-                '${t.photoDate} : ${DateFormat.yMMMd('fr').format(_jour)}',
+                t.photoDateChoisie(DateFormat.yMMMd('fr').format(_jour)),
               ),
             ),
             const SizedBox(height: 8),

@@ -57,10 +57,13 @@ class CiblesJour {
   final double lipides;
 }
 
+/// Part des calories d'exercice ajoutée à la cible du jour.
+const partExerciceMangee = 0.7;
+
 /// Repères du profil + 70 % des calories d'exercice du jour. Protéines
 /// inchangées, lipides à 25 % des calories, glucides pour le reste.
 CiblesJour ciblesDuJour(Reperes r, {required double kcalExercice}) {
-  final kcal = r.kcalCible + 0.7 * kcalExercice;
+  final kcal = r.kcalCible + partExerciceMangee * kcalExercice;
   final lipides = kcal * 0.25 / 9;
   final proteines = r.proteinesG.toDouble();
   final glucides = (kcal - proteines * 4 - lipides * 9) / 4;
@@ -122,14 +125,19 @@ double solde({required double mange, required double depense}) =>
 
 const kcalParKg = 7700.0;
 
+/// Nombre minimal de journées complètes pour projeter le poids.
+const joursMinProjection = 4;
+
 /// Poids prévus pour les [jours] prochains jours d'après le solde moyen des
-/// jours renseignés ; null s'il n'y a aucun jour.
+/// journées complètes ; null s'il y en a moins de [joursMin] (une moyenne sur
+/// un ou deux jours serait trompeuse).
 List<double>? projeterPoids({
   required double poidsKg,
   required List<double> soldes,
   int jours = 5,
+  int joursMin = joursMinProjection,
 }) {
-  if (soldes.isEmpty) return null;
+  if (soldes.isEmpty || soldes.length < joursMin) return null;
   final moyenne = soldes.reduce((a, b) => a + b) / soldes.length;
   final parJour = moyenne / kcalParKg;
   return [for (var i = 1; i <= jours; i++) poidsKg + parJour * i];
@@ -137,59 +145,82 @@ List<double>? projeterPoids({
 
 DateTime _jourDe(DateTime d) => DateTime(d.year, d.month, d.day);
 
-/// Solde (mangé − dépensé) de chaque jour entre [debut] (inclus) et [fin]
-/// (exclu) où au moins un repas est noté ; les jours sans repas sont ignorés
-/// (journal oublié, pas jeûne). Dépense : le total de la montre si la journée
-/// a été mesurée jusqu'au soir ([jours]), sinon le [maintien] du profil ;
-/// plus les activités saisies que la montre n'a pas comptées.
+/// Repas notés au minimum pour qu'une journée du journal compte.
+const repasMinJournee = 2;
+
+/// Part de la cible du jour à atteindre pour qu'une journée du journal compte.
+const partMinCible = 0.6;
+
+/// Vrai si la journée semble entièrement notée : au moins [repasMinJournee]
+/// repas et au moins [partMinCible] de [kcalCibleJour]. Une journée où seul le
+/// petit-déjeuner est noté passerait sinon pour un jeûne.
+bool journalComplet({
+  required int nombreRepas,
+  required double kcalMangees,
+  required double kcalCibleJour,
+}) =>
+    nombreRepas >= repasMinJournee &&
+    kcalMangees >= partMinCible * kcalCibleJour;
+
+/// Solde (mangé − dépensé) de chaque journée complète du journal entre
+/// [debut] (inclus) et [fin] (exclu) ; voir [journalComplet], avec pour cible
+/// du jour [kcalCible] plus la part mangée des activités saisies (comme
+/// [ciblesDuJour]). Les autres jours sont ignorés (journal oublié ou noté en
+/// partie, pas jeûne). Dépense : le total de la montre si la journée a été
+/// mesurée jusqu'au soir ([jours]), sinon le [maintien] du profil ; plus les
+/// activités saisies que la montre n'a pas comptées.
 List<double> soldesRecents({
   required List<Repas> repas,
   required List<Activite> activites,
   required int maintien,
+  required int kcalCible,
   List<sante.JourSante> jours = const [],
   required DateTime debut,
   required DateTime fin,
 }) {
   final mange = <DateTime, double>{};
+  final nombre = <DateTime, int>{};
   for (final r in repas) {
     if (r.date.isBefore(debut) || !r.date.isBefore(fin)) continue;
-    mange.update(
-      _jourDe(r.date),
-      (v) => v + r.macros.kcal,
-      ifAbsent: () => r.macros.kcal,
-    );
+    final jour = _jourDe(r.date);
+    mange.update(jour, (v) => v + r.macros.kcal, ifAbsent: () => r.macros.kcal);
+    nombre.update(jour, (n) => n + 1, ifAbsent: () => 1);
   }
   final sport = <DateTime, List<Activite>>{};
   for (final a in activites) {
     sport.putIfAbsent(_jourDe(a.date), () => []).add(a);
   }
+  double saisies(DateTime jour) =>
+      (sport[jour] ?? const []).fold(0.0, (s, a) => s + a.kcal);
   final montre = {
     for (final j in jours)
       if (ajustements.journeeComplete(j)) j.jour: j,
   };
   return [
     for (final e in mange.entries)
-      solde(
-        mange: e.value,
-        depense: switch (montre[e.key]) {
-          final j? =>
-            j.kcalTotales! +
-                kcalActivitesNonComptees(
-                  sport[e.key] ?? const [],
-                  j.seances,
-                  kcalTotales: j.kcalTotales,
-                  derniereMesureKcal: j.derniereMesureKcal,
-                ),
-          null => depenseDuJour(
-            maintien: maintien,
-            kcalMontre: null,
-            kcalActivites: (sport[e.key] ?? const []).fold(
-              0.0,
-              (s, a) => s + a.kcal,
+      if (journalComplet(
+        nombreRepas: nombre[e.key]!,
+        kcalMangees: e.value,
+        kcalCibleJour: kcalCible + partExerciceMangee * saisies(e.key),
+      ))
+        solde(
+          mange: e.value,
+          depense: switch (montre[e.key]) {
+            final j? =>
+              j.kcalTotales! +
+                  kcalActivitesNonComptees(
+                    sport[e.key] ?? const [],
+                    j.seances,
+                    kcalTotales: j.kcalTotales,
+                    derniereMesureKcal: j.derniereMesureKcal,
+                  ),
+            null => depenseDuJour(
+              maintien: maintien,
+              kcalMontre: null,
+              kcalActivites: saisies(e.key),
             ),
-          ),
-        },
-      ),
+          },
+        ),
   ];
 }
 
