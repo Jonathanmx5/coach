@@ -14,6 +14,7 @@ import 'package:coach/profil/besoins.dart';
 import 'package:coach/profil/modele.dart';
 import 'package:coach/profil/profil_repository.dart';
 import 'package:coach/recettes/idees_page.dart';
+import 'package:coach/reglages/reglage_rapports.dart';
 import 'package:coach/reglages/reglage_theme.dart';
 import 'package:coach/reglages/reglages_page.dart';
 import 'package:coach/route_verre.dart';
@@ -116,6 +117,7 @@ class Banc {
     photos: FausPhotos(),
     photosRepas: FausPhotosRepas(),
     theme: ReglageThemeFixe(),
+    rapports: ReglageRapportsFixe(),
     sauvegarde: FausseSauvegarde(),
     fichiers: FauxFichiers(),
     catalogue: FauxCatalogue(),

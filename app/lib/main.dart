@@ -28,6 +28,7 @@ import 'racine.dart';
 import 'recettes/avis_repository.dart';
 import 'recettes/planning_repository.dart';
 import 'reglages/mises_a_jour.dart';
+import 'reglages/reglage_rapports.dart';
 import 'reglages/reglage_theme.dart';
 import 'sauvegarde/fichiers.dart';
 import 'sauvegarde/sauvegarde.dart';
@@ -46,6 +47,27 @@ Future<ReglageTheme> _chargerTheme() async {
   }
 }
 
+/// Le choix d'envoyer les rapports de plantage ; s'il est illisible, l'envoi
+/// reste activé (valeur par défaut) jusqu'au prochain choix.
+Future<ReglageRapports> _chargerRapports(AppliquerRapports appliquer) async {
+  try {
+    return await ReglageRapportsLocal.charger(appliquer: appliquer);
+  } catch (_) {
+    return ReglageRapportsFixe(true, appliquer);
+  }
+}
+
+/// Jamais en debug. Un refus efface aussi les rapports en attente d'envoi :
+/// rien de ce qui a été noté pendant le refus ne part plus tard.
+Future<void> _appliquerRapports(FirebaseCrashlytics c, bool actif) async {
+  try {
+    if (!actif) await c.deleteUnsentReports();
+    await c.setCrashlyticsCollectionEnabled(!kDebugMode && actif);
+  } catch (_) {
+    // Crashlytics indisponible : rien ne part de toute façon.
+  }
+}
+
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await initialiserFirebase();
@@ -54,12 +76,23 @@ Future<void> main() async {
 
   // Une erreur Firebase non rattrapée (écriture refusée, réseau) est notée
   // sans compter comme un plantage.
+  // Envoi refusable dans les Réglages, appliqué avant toute erreur possible.
   final crashlytics = FirebaseCrashlytics.instance;
-  await crashlytics.setCrashlyticsCollectionEnabled(!kDebugMode);
-  FlutterError.onError = (details) => erreurFatale(details.exception)
-      ? crashlytics.recordFlutterFatalError(details)
-      : crashlytics.recordFlutterError(details);
+  final rapports = await _chargerRapports(
+    (actif) => _appliquerRapports(crashlytics, actif),
+  );
+  await _appliquerRapports(crashlytics, rapports.actif.value);
+  FlutterError.onError = (details) {
+    if (!rapports.actif.value) {
+      FlutterError.presentError(details);
+    } else if (erreurFatale(details.exception)) {
+      unawaited(crashlytics.recordFlutterFatalError(details));
+    } else {
+      unawaited(crashlytics.recordFlutterError(details));
+    }
+  };
   PlatformDispatcher.instance.onError = (erreur, pile) {
+    if (!rapports.actif.value) return true;
     unawaited(
       crashlytics.recordError(erreur, pile, fatal: erreurFatale(erreur)),
     );
@@ -81,6 +114,7 @@ Future<void> main() async {
           catalogue: CatalogueOpenFoodFacts(),
           photosRepas: PhotosRepasLocales(),
           theme: theme,
+          rapports: rapports,
           sauvegarde: SauvegardeFirestore(),
           fichiers: FichiersSysteme(),
           entrainement: FirestoreEntrainementRepository(),

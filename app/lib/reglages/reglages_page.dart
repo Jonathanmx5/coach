@@ -258,6 +258,21 @@ class _ReglagesPageState extends State<ReglagesPage> {
     _message(t.photosRepasNettoyees(n));
   }
 
+  /// L'accord passe par le texte complet, comme à la première photo ; le
+  /// retrait est immédiat.
+  Future<void> _changerConsentementPhoto(bool accorder) async {
+    if (accorder) {
+      await assurerConsentement(
+        context,
+        _s.consentements,
+        _uid,
+        Consentement.photo,
+      );
+    } else {
+      await _s.consentements.definir(_uid, Consentement.photo, false);
+    }
+  }
+
   void _message(String texte) {
     ScaffoldMessenger.of(context)
       ..hideCurrentSnackBar()
@@ -295,6 +310,16 @@ class _ReglagesPageState extends State<ReglagesPage> {
       if (mounted) _message(t.supprimerHorsLigne);
       return;
     }
+    // Firebase n'accepte la suppression qu'après une connexion récente : le
+    // compte Google est redemandé AVANT d'effacer quoi que ce soit, pour ne
+    // jamais laisser un compte vide si l'utilisateur renonce.
+    try {
+      await _s.auth.preparerSuppression();
+    } catch (_) {
+      if (mounted) _message(t.supprimerReauthEchec);
+      return;
+    }
+    if (!mounted) return;
     setState(() => _suppression = true);
     try {
       await _s.donnees.supprimerTout(_uid);
@@ -302,8 +327,8 @@ class _ReglagesPageState extends State<ReglagesPage> {
         await _s.photos.supprimer(p);
       }
       await _s.photosRepas.toutSupprimer();
-      // Copies d'une sauvegarde importée restées dans le cache.
-      await _s.fichiers.nettoyer();
+      // Copies d'une sauvegarde importée ou de l'appareil photo.
+      await _s.fichiers.viderCache();
       await _s.rappels.planifier(const []);
       await _s.auth.supprimerCompte();
       if (mounted) Navigator.of(context).pop();
@@ -472,11 +497,20 @@ class _ReglagesPageState extends State<ReglagesPage> {
               title: Text(t.consentPhotoReglage),
               subtitle: Text(t.consentPhotoReglageAide),
               value: snap.data?.contains(Consentement.photo) ?? false,
-              onChanged: (v) => unawaited(
-                _s.consentements.definir(_uid, Consentement.photo, v),
-              ),
+              onChanged: (v) => unawaited(_changerConsentementPhoto(v)),
             ),
           ),
+          ValueListenableBuilder<bool>(
+            valueListenable: _s.rapports.actif,
+            builder: (context, actif, _) => SwitchListTile(
+              contentPadding: EdgeInsets.zero,
+              title: Text(t.rapportsPlantage),
+              subtitle: Text(t.rapportsPlantageAide),
+              value: actif,
+              onChanged: (v) => unawaited(_s.rapports.definir(v)),
+            ),
+          ),
+          const SizedBox(height: 8),
           Text(
             t.sauvegardeTitre,
             style: Theme.of(context).textTheme.titleMedium,

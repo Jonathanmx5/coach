@@ -66,6 +66,16 @@ class FauxAuth implements AuthService {
   bool compteSupprime = false;
   Object? echecSuppression;
 
+  /// Réauthentification avant suppression : levée si renseignée (annulation).
+  Object? echecPreparation;
+  var preparations = 0;
+
+  @override
+  Future<void> preparerSuppression() async {
+    preparations++;
+    if (echecPreparation != null) throw echecPreparation!;
+  }
+
   @override
   Future<void> supprimerCompte() async {
     if (echecSuppression != null) throw echecSuppression!;
@@ -668,6 +678,11 @@ class FauxFichiers implements Fichiers {
 
   @override
   Future<void> nettoyer() async => nettoyages++;
+
+  var cachesVides = 0;
+
+  @override
+  Future<void> viderCache() async => cachesVides++;
 }
 
 /// Photos de repas en mémoire.

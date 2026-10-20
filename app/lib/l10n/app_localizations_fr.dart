@@ -982,6 +982,13 @@ class AppLocalizationsFr extends AppLocalizations {
       'Autorise l\'envoi de tes photos de repas au service d\'analyse.';
 
   @override
+  String get rapportsPlantage => 'Envoyer les rapports de plantage';
+
+  @override
+  String get rapportsPlantageAide =>
+      'Si l\'appli plante, la trace de l\'erreur, le modèle du téléphone et la version d\'Android sont envoyés à Google (Firebase Crashlytics, traitement possible hors de l\'UE) pour corriger le bug.';
+
+  @override
   String get supprimerCompte => 'Supprimer mon compte et mes données';
 
   @override
@@ -989,7 +996,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get supprimerCompteTexte =>
-      'Ton profil, tes repas, ton poids, tes séances, ton eau et tes compléments seront effacés pour toujours, ainsi que les photos de progression de ce téléphone. Cette action est irréversible.';
+      'Ton profil, tes repas, ton poids, tes séances, ton eau et tes compléments seront effacés pour toujours, ainsi que les photos de progression de ce téléphone. Cette action est irréversible. Ton compte Google peut t\'être redemandé pour confirmer.';
 
   @override
   String get supprimerConfirmer => 'Tout supprimer';
@@ -1004,6 +1011,10 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get supprimerEchec =>
       'La suppression a échoué. Réessaie ; si besoin, reconnecte-toi puis recommence.';
+
+  @override
+  String get supprimerReauthEchec =>
+      'Suppression annulée : ton compte Google n\'a pas été confirmé. Rien n\'a été effacé.';
 
   @override
   String get anneauxTitre => 'Aujourd\'hui';

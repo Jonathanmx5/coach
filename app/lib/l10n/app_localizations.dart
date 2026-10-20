@@ -1828,6 +1828,18 @@ abstract class AppLocalizations {
   /// **'Autorise l\'envoi de tes photos de repas au service d\'analyse.'**
   String get consentPhotoReglageAide;
 
+  /// No description provided for @rapportsPlantage.
+  ///
+  /// In fr, this message translates to:
+  /// **'Envoyer les rapports de plantage'**
+  String get rapportsPlantage;
+
+  /// No description provided for @rapportsPlantageAide.
+  ///
+  /// In fr, this message translates to:
+  /// **'Si l\'appli plante, la trace de l\'erreur, le modèle du téléphone et la version d\'Android sont envoyés à Google (Firebase Crashlytics, traitement possible hors de l\'UE) pour corriger le bug.'**
+  String get rapportsPlantageAide;
+
   /// No description provided for @supprimerCompte.
   ///
   /// In fr, this message translates to:
@@ -1843,7 +1855,7 @@ abstract class AppLocalizations {
   /// No description provided for @supprimerCompteTexte.
   ///
   /// In fr, this message translates to:
-  /// **'Ton profil, tes repas, ton poids, tes séances, ton eau et tes compléments seront effacés pour toujours, ainsi que les photos de progression de ce téléphone. Cette action est irréversible.'**
+  /// **'Ton profil, tes repas, ton poids, tes séances, ton eau et tes compléments seront effacés pour toujours, ainsi que les photos de progression de ce téléphone. Cette action est irréversible. Ton compte Google peut t\'être redemandé pour confirmer.'**
   String get supprimerCompteTexte;
 
   /// No description provided for @supprimerConfirmer.
@@ -1869,6 +1881,12 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'La suppression a échoué. Réessaie ; si besoin, reconnecte-toi puis recommence.'**
   String get supprimerEchec;
+
+  /// No description provided for @supprimerReauthEchec.
+  ///
+  /// In fr, this message translates to:
+  /// **'Suppression annulée : ton compte Google n\'a pas été confirmé. Rien n\'a été effacé.'**
+  String get supprimerReauthEchec;
 
   /// No description provided for @anneauxTitre.
   ///

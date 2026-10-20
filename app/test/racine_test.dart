@@ -6,6 +6,7 @@ import 'package:coach/profil/modele.dart';
 import 'package:coach/profil/profil_repository.dart';
 import 'package:coach/profil/questionnaire/questionnaire_page.dart';
 import 'package:coach/racine.dart';
+import 'package:coach/reglages/reglage_rapports.dart';
 import 'package:coach/reglages/reglage_theme.dart';
 import 'package:coach/sante/modele.dart';
 import 'package:coach/sante/sante_service.dart';
@@ -51,6 +52,7 @@ Future<void> monter(
   ReglageTheme? theme,
   FausseSauvegarde? sauvegarde,
   FauxFichiers? fichiers,
+  ReglageRapports? rapports,
 }) async {
   final reglageTheme = theme ?? ReglageThemeFixe();
   await tester.pumpWidget(
@@ -67,6 +69,7 @@ Future<void> monter(
           photos: FausPhotos(),
           photosRepas: FausPhotosRepas(),
           theme: reglageTheme,
+          rapports: rapports ?? ReglageRapportsFixe(),
           sauvegarde: sauvegarde ?? FausseSauvegarde(),
           fichiers: fichiers ?? FauxFichiers(),
           catalogue: FauxCatalogue(),

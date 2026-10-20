@@ -4,6 +4,7 @@ import 'package:coach/compte/auth_service.dart';
 import 'package:coach/compte/donnees_compte.dart';
 import 'package:coach/journal/calculs.dart';
 import 'package:coach/journal/modele.dart';
+import 'package:coach/reglages/reglage_rapports.dart';
 import 'package:coach/sante/modele.dart' as sante;
 import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -154,6 +155,38 @@ void main() {
     });
   });
 
+  group('connexion récente avant suppression', () {
+    final maintenant = DateTime(2026, 10, 20, 12);
+
+    test('connexion de moins de 4 minutes : rien à redemander', () {
+      expect(
+        reconnexionNecessaire(
+          maintenant.subtract(const Duration(minutes: 3)),
+          maintenant,
+        ),
+        isFalse,
+      );
+    });
+
+    test('connexion ancienne ou inconnue : compte Google redemandé', () {
+      expect(
+        reconnexionNecessaire(
+          maintenant.subtract(const Duration(minutes: 5)),
+          maintenant,
+        ),
+        isTrue,
+      );
+      expect(
+        reconnexionNecessaire(
+          maintenant.subtract(const Duration(days: 7)),
+          maintenant,
+        ),
+        isTrue,
+      );
+      expect(reconnexionNecessaire(null, maintenant), isTrue);
+    });
+  });
+
   group('réglages', () {
     Future<void> ouvrir(
       WidgetTester tester, {
@@ -163,6 +196,7 @@ void main() {
       FauxReseau? reseau,
       FauxWidget? widgetAccueil,
       FauxFichiers? fichiers,
+      ReglageRapports? rapports,
     }) async {
       await racine.monter(
         tester,
@@ -173,20 +207,91 @@ void main() {
         reseau: reseau,
         widgetAccueil: widgetAccueil,
         fichiers: fichiers,
+        rapports: rapports,
       );
       await tester.tap(find.byTooltip('Réglages'));
       await tester.pumpAndSettle();
     }
 
+    final interrupteurPhoto = find.widgetWithText(
+      SwitchListTile,
+      'Photo de repas analysée par IA',
+    );
+
     testWidgets('retirer son accord pour la photo', (tester) async {
       final consentements = FauxConsentements({Consentement.photo});
       await ouvrir(tester, consentements: consentements);
 
-      await defilerJusqua(tester, find.text('Photo de repas analysée par IA'));
-      await tester.tap(find.byType(Switch));
+      await defilerJusqua(tester, interrupteurPhoto);
+      await tester.tap(interrupteurPhoto);
       await tester.pumpAndSettle();
 
       expect(consentements.accordesMaintenant, isEmpty);
+    });
+
+    testWidgets('donner son accord passe par le texte complet', (tester) async {
+      final consentements = FauxConsentements();
+      await ouvrir(tester, consentements: consentements);
+
+      await defilerJusqua(tester, interrupteurPhoto);
+      await tester.tap(interrupteurPhoto);
+      await tester.pumpAndSettle();
+
+      // Le dialogue d'accord s'ouvre : rien n'est accordé sans lui.
+      expect(find.text("Envoyer la photo pour l'analyse ?"), findsOneWidget);
+      expect(consentements.accordesMaintenant, isEmpty);
+      await taper(tester, 'Refuser');
+      expect(consentements.accordesMaintenant, isEmpty);
+
+      await tester.tap(interrupteurPhoto);
+      await tester.pumpAndSettle();
+      await taper(tester, 'Accepter');
+      expect(consentements.accordesMaintenant, {Consentement.photo});
+    });
+
+    testWidgets('rapports de plantage : activés par défaut, refusables', (
+      tester,
+    ) async {
+      final appliques = <bool>[];
+      final rapports = ReglageRapportsFixe(true, (v) async => appliques.add(v));
+      await ouvrir(tester, rapports: rapports);
+
+      final interrupteur = find.widgetWithText(
+        SwitchListTile,
+        'Envoyer les rapports de plantage',
+      );
+      await defilerJusqua(tester, interrupteur);
+      expect(tester.widget<SwitchListTile>(interrupteur).value, isTrue);
+
+      await tester.tap(interrupteur);
+      await tester.pumpAndSettle();
+      expect(rapports.actif.value, isFalse);
+      expect(appliques, [false]);
+      expect(tester.widget<SwitchListTile>(interrupteur).value, isFalse);
+
+      await tester.tap(interrupteur);
+      await tester.pumpAndSettle();
+      expect(appliques, [false, true]);
+    });
+
+    testWidgets("compte Google non confirmé : rien n'est effacé", (
+      tester,
+    ) async {
+      final auth = FauxAuth(connecte: racine.lea)
+        ..echecPreparation = const ConnexionEchouee('annulée');
+      final donnees = FauxDonnees();
+      final fichiers = FauxFichiers();
+      await ouvrir(tester, auth: auth, donnees: donnees, fichiers: fichiers);
+
+      await taper(tester, 'Supprimer mon compte et mes données');
+      await taper(tester, 'Tout supprimer');
+
+      expect(auth.preparations, 1);
+      expect(donnees.supprimes, isEmpty);
+      expect(fichiers.cachesVides, 0);
+      expect(auth.compteSupprime, isFalse);
+      expect(find.textContaining("Rien n'a été effacé"), findsOneWidget);
+      expect(find.text('Réglages'), findsOneWidget);
     });
 
     testWidgets('supprimer le compte : données, compte, retour à l\'accueil', (
@@ -211,13 +316,15 @@ void main() {
       );
       await taper(tester, 'Tout supprimer');
 
+      // Le compte Google est confirmé avant tout effacement.
+      expect(auth.preparations, 1);
       expect(donnees.supprimes, ['u1']);
       expect(auth.compteSupprime, isTrue);
       expect(find.text('Commencer'), findsOneWidget);
       // Plus rien du compte sur l'écran d'accueil du téléphone.
       expect(widget.effacements, 1);
-      // Ni dans les copies d'une sauvegarde importée, gardées en cache.
-      expect(fichiers.nettoyages, 1);
+      // Ni dans le cache : sauvegarde importée, photos de l'appareil photo.
+      expect(fichiers.cachesVides, 1);
     });
 
     testWidgets('annuler : rien n\'est supprimé', (tester) async {
@@ -246,6 +353,7 @@ void main() {
       await taper(tester, 'Tout supprimer');
 
       expect(find.textContaining('Connecte-toi à internet'), findsOneWidget);
+      expect(auth.preparations, 0);
       expect(donnees.supprimes, isEmpty);
       expect(auth.compteSupprime, isFalse);
     });

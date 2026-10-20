@@ -1,6 +1,8 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:coach/reglages/mises_a_jour.dart';
+import 'package:coach/reglages/reglage_rapports.dart';
 import 'package:coach/reglages/reglage_theme.dart';
 import 'package:coach/sauvegarde/fichiers.dart';
 import 'package:coach/sauvegarde/sauvegarde.dart';
@@ -210,6 +212,37 @@ void main() {
 
     SharedPreferences.setMockInitialValues({'theme': 'n-importe-quoi'});
     expect((await ReglageThemeLocal.charger()).mode.value, ThemeMode.system);
+  });
+
+  test('le choix des rapports de plantage est gardé et appliqué', () async {
+    SharedPreferences.setMockInitialValues({});
+    final appliques = <bool>[];
+    Future<void> appliquer(bool v) async => appliques.add(v);
+
+    final premier = await ReglageRapportsLocal.charger(appliquer: appliquer);
+    expect(premier.actif.value, isTrue, reason: 'activé par défaut');
+
+    await premier.definir(false);
+    expect(appliques, [false]);
+    final relance = await ReglageRapportsLocal.charger(appliquer: appliquer);
+    expect(relance.actif.value, isFalse);
+  });
+
+  test('vider le cache efface fichiers et dossiers, sans erreur', () async {
+    final cache = await Directory.systemTemp.createTemp('cache_coach');
+    addTearDown(() async {
+      if (await cache.exists()) await cache.delete(recursive: true);
+    });
+    await File('${cache.path}/scaled_photo.jpg').writeAsBytes([1, 2, 3]);
+    await Directory('${cache.path}/file_picker').create();
+    await File('${cache.path}/file_picker/sauvegarde.xlsx').writeAsBytes([4]);
+
+    await FichiersSysteme(cache: () async => cache).viderCache();
+
+    expect(await cache.list().toList(), isEmpty);
+    // Un cache absent ne fait pas échouer la suppression du compte.
+    await FichiersSysteme(cache: () async => Directory('${cache.path}/absent'))
+        .viderCache();
   });
 
   group('sauvegarde Excel', () {
