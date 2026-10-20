@@ -1,3 +1,4 @@
+import 'package:firebase_core/firebase_core.dart' show FirebaseException;
 import 'package:flutter/material.dart';
 import 'package:coach/app.dart';
 import 'package:coach/compte/auth_service.dart';
@@ -33,13 +34,20 @@ Profil profilDe(Set<TypeEntrainement> types) => Profil(
   problemeSante: false,
 );
 
+final refus = FirebaseException(
+  plugin: 'cloud_firestore',
+  code: 'permission-denied',
+);
+
 class Banc {
-  Banc(Set<TypeEntrainement> types, {bool montre = false})
+  Banc(Set<TypeEntrainement> types, {bool montre = false, DateTime? horloge})
     : profil = profilDe(types),
-      sante = FauxSante(points: montre ? semaineType() : []);
+      sante = FauxSante(points: montre ? semaineType() : []),
+      horloge = horloge ?? maintenant;
   final Profil profil;
   final FauxSante sante;
-  late final suivi = Suivi(sante: sante, horloge: () => maintenant);
+  final DateTime horloge;
+  late final suivi = Suivi(sante: sante, horloge: () => horloge);
   final entrainement = FauxEntrainement();
   final journal = FauxJournal();
   final voix = FausseVoix();
@@ -58,7 +66,7 @@ class Banc {
           journal: journal,
           voix: voix,
           suivi: suivi,
-          horloge: () => maintenant,
+          horloge: () => horloge,
         ),
       ),
     );
@@ -75,14 +83,42 @@ void main() {
       [Lieu.salle, Lieu.course],
     );
     expect(lieuxDuProfil(profilDe({})), [Lieu.maison]);
-    final faites = [
-      SeanceFaite(date: maintenant, lieu: Lieu.maison, minutes: 30),
-      SeanceFaite(date: maintenant, lieu: Lieu.salle, minutes: 30),
-      SeanceFaite(date: maintenant, lieu: Lieu.course, minutes: 30),
-    ];
-    expect(seancesDuProgramme(faites, Lieu.maison), 2);
-    expect(seancesDuProgramme(faites, Lieu.course), 1);
-    expect(seancesDuProgramme(faites, Lieu.marche), 0);
+    expect(lieuxDuProgramme(Lieu.maison), {Lieu.maison, Lieu.salle});
+    expect(lieuxDuProgramme(Lieu.salle), {Lieu.maison, Lieu.salle});
+    expect(lieuxDuProgramme(Lieu.course), {Lieu.course});
+    expect(lieuxDuProgramme(Lieu.marche), {Lieu.marche});
+  });
+
+  test('dépôt : seances(depuis:) ne lit que la fenêtre', () async {
+    final depot = FirestoreEntrainementRepository(FakeFirebaseFirestore());
+    for (final jours in [90, 8, 3, 0]) {
+      await depot.ajouterSeance(
+        'u1',
+        SeanceFaite(
+          date: maintenant.subtract(Duration(days: jours)),
+          lieu: Lieu.maison,
+          minutes: 30,
+        ),
+      );
+    }
+    final lundi = DateTime(2026, 10, 5);
+    final semaine = await depot.seances('u1', depuis: lundi).first;
+    expect(semaine.map((s) => s.date.day), [6, 9]);
+    expect((await depot.seances('u1').first), hasLength(4));
+  });
+
+  test('dépôt : nombre de séances du programme, sans les lire', () async {
+    final depot = FirestoreEntrainementRepository(FakeFirebaseFirestore());
+    for (final lieu in [Lieu.maison, Lieu.salle, Lieu.course, Lieu.maison]) {
+      await depot.ajouterSeance(
+        'u1',
+        SeanceFaite(date: maintenant, lieu: lieu, minutes: 30),
+      );
+    }
+    expect(await depot.nombreSeances('u1', {Lieu.maison, Lieu.salle}), 3);
+    expect(await depot.nombreSeances('u1', {Lieu.course}), 1);
+    expect(await depot.nombreSeances('u1', {Lieu.marche}), 0);
+    expect(await depot.nombreSeances('u1', {}), 0);
   });
 
   test('dépôt : réglages et séances', () async {
@@ -105,9 +141,37 @@ void main() {
     expect(l.single.minutes, 25);
   });
 
+  testWidgets('lectures bornées : la semaine en cours et un compte', (
+    tester,
+  ) async {
+    final banc = Banc({TypeEntrainement.marche});
+    // Trois marches il y a des mois : elles comptent dans la progression,
+    // sans être lues.
+    banc.entrainement.seancesParUid['u1'] = [
+      for (final j in [100, 90, 80])
+        SeanceFaite(
+          date: maintenant.subtract(Duration(days: j)),
+          lieu: Lieu.marche,
+          minutes: 20,
+        ),
+    ];
+    await banc.monter(tester);
+
+    expect(banc.entrainement.depuisDemandes, [DateTime(2026, 10, 5)]);
+    expect(banc.entrainement.comptes, [
+      {Lieu.marche},
+    ]);
+    expect(find.text('Marche active · 25 min'), findsOneWidget);
+    expect(find.text('Cette semaine : 0 séance(s) sur 3'), findsOneWidget);
+  });
+
   testWidgets('maison : matériel enregistré, séance proposée', (tester) async {
     final banc = Banc({TypeEntrainement.maison});
     await banc.monter(tester);
+    expect(
+      find.text('Jours prévus : lundi, mercredi, vendredi'),
+      findsOneWidget,
+    );
 
     expect(find.text('Séance à la maison'), findsOneWidget);
     expect(find.text('Commencer la séance'), findsOneWidget);
@@ -167,6 +231,124 @@ void main() {
     await tester.drag(find.byType(ListView), const Offset(0, 2000));
     await tester.pumpAndSettle();
     expect(find.text('Cette semaine : 1 séance(s) sur 3'), findsOneWidget);
+    // Une seule séance par jour : la carte annonce la suivante.
+    expect(find.text('Séance du jour faite, bravo !'), findsOneWidget);
+    expect(
+      find.text('Prochaine séance : lundi. D\'ici là, repos ou mobilité.'),
+      findsOneWidget,
+    );
+    expect(find.text('Commencer la séance'), findsNothing);
+  });
+
+  testWidgets('séance déjà faite aujourd\'hui : pas de seconde séance', (
+    tester,
+  ) async {
+    final banc = Banc({TypeEntrainement.maison});
+    banc.entrainement.seancesParUid['u1'] = [
+      SeanceFaite(
+        date: DateTime(2026, 10, 9, 7),
+        lieu: Lieu.maison,
+        minutes: 30,
+      ),
+    ];
+    await banc.monter(tester);
+
+    expect(find.text('Séance du jour faite, bravo !'), findsOneWidget);
+    expect(find.text('Commencer la séance'), findsNothing);
+    expect(find.text('Commencer quand même'), findsNothing);
+  });
+
+  testWidgets('séance enregistrée pendant la séance guidée : refusée', (
+    tester,
+  ) async {
+    final banc = Banc({TypeEntrainement.marche});
+    await banc.monter(tester);
+
+    await taper(tester, 'Commencer la séance');
+    // Une autre séance du jour arrive pendant ce temps (autre appareil).
+    await banc.entrainement.ajouterSeance(
+      'u1',
+      SeanceFaite(date: maintenant, lieu: Lieu.maison, minutes: 30),
+    );
+    await taper(tester, 'Passer');
+    await taper(tester, 'Passer');
+    await taper(tester, 'Passer');
+    await taper(tester, 'Terminer');
+
+    expect(
+      find.text(
+        "Une séance par jour : celle d'aujourd'hui est déjà faite. "
+        'Place à la récupération.',
+      ),
+      findsOneWidget,
+    );
+    expect(banc.entrainement.seancesDe('u1'), hasLength(1));
+    expect(banc.journal.activitesDe('u1'), isEmpty);
+  });
+
+  testWidgets('jour de repos : message, séance possible quand même', (
+    tester,
+  ) async {
+    // Jeudi : lundi et mercredi faits, prochaine séance vendredi.
+    final banc = Banc({
+      TypeEntrainement.marche,
+    }, horloge: DateTime(2026, 10, 8, 18));
+    // Écran haut : la liste tient sans défiler (le faux flux d'activités,
+    // contrairement à celui de Firestore, ne se relit pas).
+    tester.view.physicalSize = const Size(1080, 4000);
+    addTearDown(tester.view.resetPhysicalSize);
+    banc.entrainement.seancesParUid['u1'] = [
+      for (final j in [5, 7])
+        SeanceFaite(
+          date: DateTime(2026, 10, j, 18),
+          lieu: Lieu.marche,
+          minutes: 20,
+        ),
+    ];
+    await banc.monter(tester);
+
+    expect(
+      find.text('Aujourd\'hui : repos. Prochaine séance : vendredi.'),
+      findsOneWidget,
+    );
+    expect(find.text('Commencer la séance'), findsNothing);
+    await taper(tester, 'Commencer quand même');
+    expect(find.text('Étape 1 sur 3'), findsOneWidget);
+  });
+
+  testWidgets('séance manquée : rattrapée le lendemain', (tester) async {
+    // Jeudi : seul lundi est fait, la séance de mercredi est à rattraper.
+    final banc = Banc({
+      TypeEntrainement.marche,
+    }, horloge: DateTime(2026, 10, 8, 18));
+    banc.entrainement.seancesParUid['u1'] = [
+      SeanceFaite(
+        date: DateTime(2026, 10, 5, 18),
+        lieu: Lieu.marche,
+        minutes: 20,
+      ),
+    ];
+    await banc.monter(tester);
+
+    expect(find.text('Commencer la séance'), findsOneWidget);
+    expect(find.textContaining('repos'), findsNothing);
+  });
+
+  testWidgets('séance refusée par les règles : message affiché', (
+    tester,
+  ) async {
+    final banc = Banc({TypeEntrainement.marche});
+    banc.entrainement.refusSeance = refus;
+    await banc.monter(tester);
+
+    await taper(tester, 'Commencer la séance');
+    await taper(tester, 'Passer');
+    await taper(tester, 'Passer');
+    await taper(tester, 'Passer');
+    await taper(tester, 'Terminer');
+
+    expect(find.text('Séance non enregistrée.'), findsOneWidget);
+    expect(banc.entrainement.seancesDe('u1'), isEmpty);
   });
 
   testWidgets('séance en répétitions : « Fait » passe à la suite', (
@@ -259,6 +441,23 @@ void main() {
       expect(a.date, maintenant.subtract(const Duration(minutes: 30)));
     },
   );
+
+  testWidgets('activité refusée par les règles : message affiché', (
+    tester,
+  ) async {
+    final banc = Banc({TypeEntrainement.maison});
+    banc.journal.refusActivite = refus;
+    await banc.monter(tester);
+
+    await tester.tap(find.byType(FloatingActionButton));
+    await tester.pumpAndSettle();
+    await taper(tester, 'Course à pied');
+    await saisir(tester, 'Durée (min)', '30');
+    await taper(tester, 'Enregistrer');
+
+    expect(find.text('Activité non enregistrée.'), findsOneWidget);
+    expect(banc.journal.activitesDe('u1'), isEmpty);
+  });
 
   testWidgets('activité sans durée valide : refusée', (tester) async {
     final banc = Banc({TypeEntrainement.maison});

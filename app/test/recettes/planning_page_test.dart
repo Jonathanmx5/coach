@@ -4,6 +4,7 @@ import 'package:coach/journal/modele.dart';
 import 'package:coach/recettes/catalogue.dart';
 import 'package:coach/recettes/planning.dart';
 import 'package:coach/recettes/planning_page.dart';
+import 'package:firebase_core/firebase_core.dart' show FirebaseException;
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -48,6 +49,35 @@ void main() {
     expect(banc.plan!.jours.length, 7);
     expect(find.textContaining('tes 2000 kcal'), findsOneWidget);
     expect(find.textContaining('Lun. 5 oct.'), findsOneWidget);
+  });
+
+  testWidgets('planning refusé par les règles : message affiché', (
+    tester,
+  ) async {
+    final banc = Banc();
+    banc.planning.refus = FirebaseException(
+      plugin: 'cloud_firestore',
+      code: 'permission-denied',
+    );
+    // Sans planning, la page attend (indicateur animé) : pas de settle.
+    await tester.pumpWidget(
+      CoachApp(
+        accueil: PlanningPage(
+          utilisateur: lea,
+          kcalCible: 2000,
+          planning: banc.planning,
+          avis: FauxAvis(),
+          journal: banc.journal,
+          horloge: () => maintenant,
+        ),
+      ),
+    );
+    for (var i = 0; i < 5; i++) {
+      await tester.pump(const Duration(milliseconds: 100));
+    }
+
+    expect(find.text('Planning non enregistré.'), findsOneWidget);
+    expect(banc.plan, isNull);
   });
 
   testWidgets('végétarien : tout le planning est régénéré sans viande', (

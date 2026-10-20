@@ -6,7 +6,15 @@ import 'modele.dart';
 /// (users/{uid}/seances).
 abstract class EntrainementRepository {
   Stream<Reglages> reglages(String uid);
-  Stream<List<SeanceFaite>> seances(String uid);
+
+  /// Séances terminées, de la plus ancienne à la plus récente. Avec
+  /// [depuis], seulement celles faites à partir de cette date : la collection
+  /// grandit sans fin, chaque écran ne lit que la fenêtre dont il a besoin.
+  Stream<List<SeanceFaite>> seances(String uid, {DateTime? depuis});
+
+  /// Nombre total de séances faites dans l'un de ces [lieux] (la progression
+  /// d'un programme), sans lire les séances elles-mêmes.
+  Future<int> nombreSeances(String uid, Set<Lieu> lieux);
 
   /// Ressenti du matin (1 fatigué, 2 moyen, 3 en forme) pour ce jour, ou null.
   Stream<int?> ressenti(String uid, DateTime jour);
@@ -38,12 +46,40 @@ class FirestoreEntrainementRepository implements EntrainementRepository {
       .map((d) => d.exists ? Reglages.fromMap(d.data()!) : const Reglages());
 
   @override
-  Stream<List<SeanceFaite>> seances(String uid) => _seances(uid)
-      .orderBy('date')
-      .snapshots()
-      .map(
-        (s) => [for (final d in s.docs) SeanceFaite.fromMap(d.id, d.data())],
+  Stream<List<SeanceFaite>> seances(String uid, {DateTime? depuis}) {
+    Query<Map<String, dynamic>> requete = _seances(uid);
+    if (depuis != null) {
+      requete = requete.where(
+        'date',
+        isGreaterThanOrEqualTo: depuis.millisecondsSinceEpoch,
       );
+    }
+    return requete
+        .orderBy('date')
+        .snapshots()
+        .map(
+          (s) => [for (final d in s.docs) SeanceFaite.fromMap(d.id, d.data())],
+        );
+  }
+
+  /// Agrégation `count()` : le serveur compte, une seule lecture facturée
+  /// par tranche de 1 000 séances. Hors ligne, le serveur ne répond pas : on
+  /// compte alors les séances du cache local (lecture gratuite).
+  @override
+  Future<int> nombreSeances(String uid, Set<Lieu> lieux) async {
+    if (lieux.isEmpty) return 0;
+    final requete = _seances(uid)
+        .where('lieu', whereIn: [for (final l in lieux) l.name]);
+    try {
+      final r = await requete.count().get().timeout(
+        const Duration(seconds: 10),
+      );
+      return r.count ?? 0;
+    } on Exception {
+      final cache = await requete.get(const GetOptions(source: Source.cache));
+      return cache.size;
+    }
+  }
 
   DocumentReference<Map<String, dynamic>> _ressenti(String uid, DateTime j) =>
       _db

@@ -25,15 +25,22 @@ class SuiviMeteo extends ChangeNotifier {
   /// Température maximale d'aujourd'hui, ou null (désactivé, refusé, hors-ligne).
   double? temperature;
 
+  /// Réglage « Adapter à la météo » : l'onglet Bien-être le lit ici plutôt
+  /// que d'ouvrir une seconde écoute du même document.
+  bool actif = false;
+
   void _changement(bool actif) {
+    final change = actif != this.actif;
+    this.actif = actif;
     if (!actif) {
       _demandee = false;
-      if (temperature != null) {
+      if (temperature != null || change) {
         temperature = null;
         notifyListeners();
       }
       return;
     }
+    if (change) notifyListeners();
     if (_demandee) return;
     _demandee = true;
     unawaited(_charger());

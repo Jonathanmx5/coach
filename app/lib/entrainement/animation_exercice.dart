@@ -2,6 +2,8 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
+import '../l10n/app_localizations.dart';
+
 /// Exercices pour lesquels on a deux photos (début et fin du mouvement) dans
 /// assets/exercices/ : {id}_0.jpg et {id}_1.jpg. Photos du jeu libre de droits
 /// « free-exercise-db » (licence Unlicense, domaine public).
@@ -108,7 +110,7 @@ class _AnimationExerciceState extends State<AnimationExercice> {
     );
     return Semantics(
       image: true,
-      label: 'Démonstration de l\'exercice',
+      label: AppLocalizations.of(context)!.demonstrationExercice,
       child: widget.hauteur != null
           ? SizedBox(height: widget.hauteur, child: contenu)
           : AspectRatio(aspectRatio: 3 / 2, child: contenu),

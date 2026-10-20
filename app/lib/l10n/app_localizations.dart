@@ -3021,6 +3021,90 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'{g} g'**
   String grammesValeur(int g);
+
+  /// No description provided for @modificationNonEnregistree.
+  ///
+  /// In fr, this message translates to:
+  /// **'Modification non enregistrée.'**
+  String get modificationNonEnregistree;
+
+  /// No description provided for @eauNonEnregistree.
+  ///
+  /// In fr, this message translates to:
+  /// **'Eau non enregistrée.'**
+  String get eauNonEnregistree;
+
+  /// No description provided for @activiteNonEnregistree.
+  ///
+  /// In fr, this message translates to:
+  /// **'Activité non enregistrée.'**
+  String get activiteNonEnregistree;
+
+  /// No description provided for @seanceNonEnregistree.
+  ///
+  /// In fr, this message translates to:
+  /// **'Séance non enregistrée.'**
+  String get seanceNonEnregistree;
+
+  /// No description provided for @planningNonEnregistre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Planning non enregistré.'**
+  String get planningNonEnregistre;
+
+  /// No description provided for @demonstrationExercice.
+  ///
+  /// In fr, this message translates to:
+  /// **'Démonstration de l\'exercice'**
+  String get demonstrationExercice;
+
+  /// No description provided for @seanceDuJourFaite.
+  ///
+  /// In fr, this message translates to:
+  /// **'Séance du jour faite, bravo !'**
+  String get seanceDuJourFaite;
+
+  /// No description provided for @seanceDejaFaite.
+  ///
+  /// In fr, this message translates to:
+  /// **'Une séance par jour : celle d\'aujourd\'hui est déjà faite. Place à la récupération.'**
+  String get seanceDejaFaite;
+
+  /// No description provided for @prochaineSeance.
+  ///
+  /// In fr, this message translates to:
+  /// **'Prochaine séance : {jour}.'**
+  String prochaineSeance(String jour);
+
+  /// No description provided for @reposOuMobilite.
+  ///
+  /// In fr, this message translates to:
+  /// **'D\'ici là, repos ou mobilité.'**
+  String get reposOuMobilite;
+
+  /// No description provided for @jourDeRepos.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aujourd\'hui : repos.'**
+  String get jourDeRepos;
+
+  /// No description provided for @semaineFaite.
+  ///
+  /// In fr, this message translates to:
+  /// **'Séances de la semaine faites.'**
+  String get semaineFaite;
+
+  /// No description provided for @commencerQuandMeme.
+  ///
+  /// In fr, this message translates to:
+  /// **'Commencer quand même'**
+  String get commencerQuandMeme;
+
+  /// No description provided for @joursPrevus.
+  ///
+  /// In fr, this message translates to:
+  /// **'Jours prévus : {jours}'**
+  String joursPrevus(String jours);
 }
 
 class _AppLocalizationsDelegate

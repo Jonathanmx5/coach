@@ -1,5 +1,7 @@
 import 'package:coach/entrainement/modele.dart';
 import 'package:coach/bienetre/complements.dart';
+import 'package:coach/bienetre/series.dart';
+import 'package:firebase_core/firebase_core.dart' show FirebaseException;
 import 'package:flutter/material.dart';
 import 'package:coach/app.dart';
 import 'package:coach/bienetre/bienetre_page.dart';
@@ -113,6 +115,34 @@ void main() {
 
     await taper(tester, 'Annuler le dernier');
     expect(find.text('0,25 L sur 2,00 L'), findsOneWidget);
+  });
+
+  testWidgets('eau refusée par les règles : message affiché', (tester) async {
+    final banc = Banc();
+    banc.bienetre.refusEau = FirebaseException(
+      plugin: 'cloud_firestore',
+      code: 'permission-denied',
+    );
+    await banc.monter(tester);
+
+    await taper(tester, '+ 250 ml');
+    expect(find.text('Eau non enregistrée.'), findsOneWidget);
+    expect(banc.bienetre.eauDe('u1'), isEmpty);
+  });
+
+  testWidgets('compléments et météo : une seule écoute chacun', (tester) async {
+    final banc = Banc();
+    banc.bienetre.complementsParUid['u1'] = const [
+      Complement(id: 'x', nom: 'Magnésium', minutes: 1290),
+    ];
+    await banc.monter(tester);
+
+    expect(banc.bienetre.fluxComplements, 1);
+    // Celle de SuiviMeteo, partagée avec l'Accueil.
+    expect(banc.bienetre.fluxMeteo, 1);
+    expect(banc.rappels.planifications.last.single.nom, 'Magnésium');
+    await defilerJusqua(tester, find.text('Rappel à 21h30'));
+    expect(find.text('Rappel à 21h30'), findsOneWidget);
   });
 
   testWidgets('hydratation : l\'effort du jour augmente l\'objectif', (
@@ -231,6 +261,82 @@ void main() {
     expect(find.text('3 jours'), findsOneWidget); // journal
     expect(find.text('1 jour'), findsOneWidget); // séance d'hier
     expect(find.text('2 jours'), findsOneWidget); // eau
+    // Séries courtes : une seule lecture d'une semaine chacune.
+    final semaine = DateTime(2026, 10, 2);
+    expect(banc.journal.debutsRepas, [semaine]);
+    expect(banc.entrainement.depuisDemandes, [semaine]);
+    expect(banc.bienetre.debutsEau, contains(semaine));
+    expect(banc.bienetre.debutsEau, isNot(contains(DateTime(2026, 9, 9))));
+  });
+
+  testWidgets(
+    'séries sur 60 jours : même résultat qu\'avant, lues par paliers',
+    (tester) async {
+      final banc = Banc();
+      DateTime jour(int avant, int heure) =>
+          DateTime(2026, 10, 9 - avant, heure);
+      // Journal tenu 45 jours d'affilée (deux repas par jour), puis un trou
+      // et encore des repas plus anciens ; eau atteinte 20 jours d'affilée.
+      final repas = [
+        for (var j = 0; j < 60; j++)
+          if (j != 45)
+            for (final h in [8, 19])
+              Repas(
+                date: jour(j, h),
+                moment: Moment.dejeuner,
+                nom: 'x',
+                macros: const Macros(kcal: 500),
+                source: SourceRepas.manuel,
+              ),
+      ];
+      final eau = [
+        for (var j = 0; j < 60; j++)
+          if (j != 20) EntreeEau(date: jour(j, 10), ml: 2000),
+      ];
+      banc.journal.repasParUid['u1'] = repas;
+      banc.bienetre.eauParUid['u1'] = eau;
+      await banc.monter(tester);
+
+      // Le calcul d'avant : toute la fenêtre de 60 jours d'un coup.
+      final journalAvant = serieEnCours(
+        joursDe(repas.map((r) => r.date)),
+        maintenant,
+      );
+      final eauAvant = serieEnCours(joursEauAtteinte(eau, 2000), maintenant);
+      expect(journalAvant, 45);
+      expect(eauAvant, 20);
+      await defilerJusqua(tester, find.text('Tes séries'));
+      expect(find.text('45 jours'), findsOneWidget);
+      expect(find.text('20 jours'), findsOneWidget);
+
+      // Paliers : 7 jours, puis 30, puis 90 tant que la série touche le
+      // début de la fenêtre.
+      expect(banc.journal.debutsRepas, [
+        DateTime(2026, 10, 2),
+        DateTime(2026, 9, 9),
+        DateTime(2026, 7, 11),
+      ]);
+      expect(banc.bienetre.debutsEau, isNot(contains(DateTime(2026, 7, 11))));
+      expect(banc.bienetre.debutsEau, contains(DateTime(2026, 9, 9)));
+    },
+  );
+
+  testWidgets('séries : les jours de repos ne coupent pas les séances', (
+    tester,
+  ) async {
+    final banc = Banc();
+    // Programme de 3 jours (lundi, mercredi, vendredi) : 2 semaines tenues.
+    banc.entrainement.seancesParUid['u1'] = [
+      for (final j in [28, 30, 2, 5, 7, 9])
+        SeanceFaite(
+          date: DateTime(2026, j > 20 ? 9 : 10, j, 18),
+          lieu: Lieu.maison,
+          minutes: 30,
+        ),
+    ];
+    await banc.monter(tester);
+    await defilerJusqua(tester, find.text('Tes séries'));
+    expect(find.text('6 jours'), findsOneWidget);
   });
 
   testWidgets('météo : accord demandé la première fois', (tester) async {

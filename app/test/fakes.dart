@@ -266,8 +266,16 @@ class FauxPlanning implements PlanningRepository {
     yield* _flux.stream.map((_) => parSemaine[_cle(uid, lundi)]);
   }
 
+  /// Non nul : le prochain enregistrement est refusé avec cette erreur.
+  Object? refus;
+
   @override
   Future<void> enregistrer(String uid, Planning p) async {
+    final r = refus;
+    if (r != null) {
+      refus = null;
+      throw r;
+    }
     parSemaine[_cle(uid, p.lundi)] = p;
     _flux.add(null);
   }
@@ -453,30 +461,56 @@ class FauxBienEtre implements BienEtreRepository {
     yield* _flux.stream.map((_) => lire());
   }
 
-  @override
-  Stream<List<EntreeEau>> eau(String uid, DateTime debut, DateTime fin) =>
-      _suivre(
-        () => [
-          for (final e in eauDe(uid))
-            if (!e.date.isBefore(debut) && e.date.isBefore(fin)) e,
-        ]..sort((a, b) => a.date.compareTo(b.date)),
-      );
+  /// Nombre d'écoutes ouvertes sur les compléments.
+  int fluxComplements = 0;
+
+  /// Nombre d'écoutes ouvertes sur le réglage météo.
+  int fluxMeteo = 0;
 
   @override
-  Stream<bool> meteoActive(String uid) => _suivre(() => meteo[uid] ?? false);
+  Stream<List<EntreeEau>> eau(String uid, DateTime debut, DateTime fin) {
+    debutsEau.add(debut);
+    return _suivre(
+      () => [
+        for (final e in eauDe(uid))
+          if (!e.date.isBefore(debut) && e.date.isBefore(fin)) e,
+      ]..sort((a, b) => a.date.compareTo(b.date)),
+    );
+  }
 
   @override
-  Stream<List<Complement>> complements(String uid) => _suivre(
-    () =>
-        [...complementsDe(uid)]..sort((a, b) => a.minutes.compareTo(b.minutes)),
-  );
+  Stream<bool> meteoActive(String uid) {
+    fluxMeteo++;
+    return _suivre(() => meteo[uid] ?? false);
+  }
+
+  @override
+  Stream<List<Complement>> complements(String uid) {
+    fluxComplements++;
+    return _suivre(
+      () =>
+          [...complementsDe(uid)]
+            ..sort((a, b) => a.minutes.compareTo(b.minutes)),
+    );
+  }
 
   @override
   Stream<Set<String>> prises(String uid, DateTime jour) =>
       _suivre(() => {...prisesDe(uid, jour)});
 
+  /// Non nul : le prochain ajout d'eau est refusé avec cette erreur.
+  Object? refusEau;
+
+  /// Fenêtres d'eau demandées (début de chaque lecture).
+  final debutsEau = <DateTime>[];
+
   @override
   Future<void> ajouterEau(String uid, EntreeEau e) async {
+    final refus = refusEau;
+    if (refus != null) {
+      refusEau = null;
+      throw refus;
+    }
     eauParUid[uid] = [
       ...eauDe(uid),
       EntreeEau(id: 'e${_compteur++}', date: e.date, ml: e.ml),
@@ -587,10 +621,27 @@ class FauxEntrainement implements EntrainementRepository {
     yield* _flux.stream.map((_) => reglagesDe(uid));
   }
 
+  /// Bornes `depuis` demandées, dans l'ordre (null : toute la collection).
+  final depuisDemandes = <DateTime?>[];
+
+  /// Comptes de séances demandés (lieux du programme).
+  final comptes = <Set<Lieu>>[];
+
   @override
-  Stream<List<SeanceFaite>> seances(String uid) async* {
-    yield seancesDe(uid);
-    yield* _flux.stream.map((_) => seancesDe(uid));
+  Stream<List<SeanceFaite>> seances(String uid, {DateTime? depuis}) async* {
+    depuisDemandes.add(depuis);
+    List<SeanceFaite> lire() => [
+      for (final s in seancesDe(uid))
+        if (depuis == null || !s.date.isBefore(depuis)) s,
+    ];
+    yield lire();
+    yield* _flux.stream.map((_) => lire());
+  }
+
+  @override
+  Future<int> nombreSeances(String uid, Set<Lieu> lieux) async {
+    comptes.add(lieux);
+    return seancesDe(uid).where((s) => lieux.contains(s.lieu)).length;
   }
 
   @override
@@ -599,8 +650,16 @@ class FauxEntrainement implements EntrainementRepository {
     _flux.add(null);
   }
 
+  /// Non nul : le prochain ajout de séance est refusé avec cette erreur.
+  Object? refusSeance;
+
   @override
   Future<void> ajouterSeance(String uid, SeanceFaite s) async {
+    final refus = refusSeance;
+    if (refus != null) {
+      refusSeance = null;
+      throw refus;
+    }
     seancesParUid[uid] = [...seancesDe(uid), s];
     _flux.add(null);
   }
@@ -822,9 +881,13 @@ class FauxJournal implements JournalRepository {
   bool _dans(DateTime d, DateTime debut, DateTime fin) =>
       !d.isBefore(debut) && d.isBefore(fin);
 
+  /// Début de chaque fenêtre de repas demandée.
+  final debutsRepas = <DateTime>[];
+
   @override
   Stream<List<Repas>> repas(String uid, DateTime debut, DateTime fin) {
     fluxRepas++;
+    debutsRepas.add(debut);
     return _suivre(
       () => [
         for (final r in repasDe(uid))
@@ -893,8 +956,16 @@ class FauxJournal implements JournalRepository {
     _flux.add(null);
   }
 
+  /// Non nul : le prochain ajout d'activité est refusé avec cette erreur.
+  Object? refusActivite;
+
   @override
   Future<void> ajouterActivite(String uid, Activite activite) async {
+    final refus = refusActivite;
+    if (refus != null) {
+      refusActivite = null;
+      throw refus;
+    }
     activitesParUid[uid] = [
       ...activitesDe(uid),
       Activite(

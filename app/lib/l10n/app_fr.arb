@@ -868,5 +868,21 @@
   "repasNonEnregistre": "Repas non enregistré.",
   "repasSupprime": "Repas supprimé",
   "grammesValeur": "{g} g",
-  "@grammesValeur": {"placeholders": {"g": {"type": "int"}}}
+  "@grammesValeur": {"placeholders": {"g": {"type": "int"}}},
+  "modificationNonEnregistree": "Modification non enregistrée.",
+  "eauNonEnregistree": "Eau non enregistrée.",
+  "activiteNonEnregistree": "Activité non enregistrée.",
+  "seanceNonEnregistree": "Séance non enregistrée.",
+  "planningNonEnregistre": "Planning non enregistré.",
+  "demonstrationExercice": "Démonstration de l'exercice",
+  "seanceDuJourFaite": "Séance du jour faite, bravo !",
+  "seanceDejaFaite": "Une séance par jour : celle d'aujourd'hui est déjà faite. Place à la récupération.",
+  "prochaineSeance": "Prochaine séance : {jour}.",
+  "@prochaineSeance": {"placeholders": {"jour": {"type": "String"}}},
+  "reposOuMobilite": "D'ici là, repos ou mobilité.",
+  "jourDeRepos": "Aujourd'hui : repos.",
+  "semaineFaite": "Séances de la semaine faites.",
+  "commencerQuandMeme": "Commencer quand même",
+  "joursPrevus": "Jours prévus : {jours}",
+  "@joursPrevus": {"placeholders": {"jours": {"type": "String"}}}
 }

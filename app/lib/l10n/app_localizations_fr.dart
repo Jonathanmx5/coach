@@ -1685,4 +1685,51 @@ class AppLocalizationsFr extends AppLocalizations {
   String grammesValeur(int g) {
     return '$g g';
   }
+
+  @override
+  String get modificationNonEnregistree => 'Modification non enregistrée.';
+
+  @override
+  String get eauNonEnregistree => 'Eau non enregistrée.';
+
+  @override
+  String get activiteNonEnregistree => 'Activité non enregistrée.';
+
+  @override
+  String get seanceNonEnregistree => 'Séance non enregistrée.';
+
+  @override
+  String get planningNonEnregistre => 'Planning non enregistré.';
+
+  @override
+  String get demonstrationExercice => 'Démonstration de l\'exercice';
+
+  @override
+  String get seanceDuJourFaite => 'Séance du jour faite, bravo !';
+
+  @override
+  String get seanceDejaFaite =>
+      'Une séance par jour : celle d\'aujourd\'hui est déjà faite. Place à la récupération.';
+
+  @override
+  String prochaineSeance(String jour) {
+    return 'Prochaine séance : $jour.';
+  }
+
+  @override
+  String get reposOuMobilite => 'D\'ici là, repos ou mobilité.';
+
+  @override
+  String get jourDeRepos => 'Aujourd\'hui : repos.';
+
+  @override
+  String get semaineFaite => 'Séances de la semaine faites.';
+
+  @override
+  String get commencerQuandMeme => 'Commencer quand même';
+
+  @override
+  String joursPrevus(String jours) {
+    return 'Jours prévus : $jours';
+  }
 }

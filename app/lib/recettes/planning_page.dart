@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 import '../compte/auth_service.dart';
+import '../ecriture.dart';
 import '../journal/formulaires.dart';
 import '../journal/journal_repository.dart';
 import '../journal/modele.dart';
@@ -46,12 +47,23 @@ class _PlanningPageState extends State<PlanningPage> {
   late final Stream<Planning?> _flux = widget.planning.planning(_uid, _lundi);
   bool _creation = false;
 
-  void _enregistrer(Planning p) =>
-      unawaited(widget.planning.enregistrer(_uid, p));
+  /// Écrit le planning sans attendre l'accusé du serveur ; un refus des
+  /// règles (la semaine reviendrait en arrière sans prévenir) est signalé.
+  void _enregistrer(Planning p) {
+    final messager = ScaffoldMessenger.of(context);
+    final t = AppLocalizations.of(context)!;
+    ecrireSansAttendre(
+      widget.planning.enregistrer(_uid, p),
+      surRefus: () => messager
+        ..hideCurrentSnackBar()
+        ..showSnackBar(SnackBar(content: Text(t.planningNonEnregistre))),
+    );
+  }
 
   /// Génère la semaine en tenant compte des recettes aimées et refusées.
   Future<void> _generer({bool vegetarien = false}) async {
     final avis = await widget.avis.avis(_uid).first;
+    if (!mounted) return;
     _enregistrer(
       genererPlanning(
         lundi: _lundi,
@@ -95,7 +107,9 @@ class _PlanningPageState extends State<PlanningPage> {
     switch (action) {
       case ActionRecette.ajouterAuJournal:
         final r = recetteParId(repas.recetteId);
-        unawaited(
+        final t = AppLocalizations.of(context)!;
+        final messager = ScaffoldMessenger.of(context);
+        ecrireSansAttendre(
           widget.journal.ajouterRepas(
             _uid,
             Repas(
@@ -106,12 +120,13 @@ class _PlanningPageState extends State<PlanningPage> {
               source: SourceRepas.manuel,
             ),
           ),
+          surRefus: () => messager
+            ..hideCurrentSnackBar()
+            ..showSnackBar(SnackBar(content: Text(t.repasNonEnregistre))),
         );
-        ScaffoldMessenger.of(context)
+        messager
           ..hideCurrentSnackBar()
-          ..showSnackBar(
-            SnackBar(content: Text(AppLocalizations.of(context)!.repasAjoute)),
-          );
+          ..showSnackBar(SnackBar(content: Text(t.repasAjoute)));
       case ActionRecette.changer:
         final choix = await Navigator.of(context).push<Recette>(
           MaterialPageRoute(

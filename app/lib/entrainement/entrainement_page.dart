@@ -1,11 +1,12 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 import '../compte/auth_service.dart';
+import '../ecriture.dart';
 import '../journal/calculs.dart';
 import '../journal/journal_repository.dart';
 import '../journal/modele.dart';
+import '../journal/signalement.dart';
 import '../l10n/app_localizations.dart';
 import '../profil/modele.dart';
 import '../profil/profil_repository.dart';
@@ -21,6 +22,7 @@ import 'generateur.dart';
 import 'mobilite.dart';
 import 'modele.dart';
 import 'seance_guidee_page.dart';
+import 'semaine.dart';
 import 'voix.dart';
 
 String _libelleLieu(AppLocalizations t, Lieu l) => switch (l) {
@@ -51,13 +53,22 @@ List<Lieu> lieuxDuProfil(Profil p) {
   return l.isEmpty ? [Lieu.maison] : l;
 }
 
-/// Séances déjà faites du même programme (renforcement maison + salle
-/// confondus ; course et marche chacune à part).
-int seancesDuProgramme(List<SeanceFaite> faites, Lieu lieu) {
-  bool renfo(Lieu l) => l == Lieu.maison || l == Lieu.salle;
-  return faites
-      .where((s) => renfo(lieu) ? renfo(s.lieu) : s.lieu == lieu)
-      .length;
+/// Lieux d'un même programme : renforcement maison + salle confondus ;
+/// course et marche chacune à part. Ses séances faites règlent la
+/// progression.
+Set<Lieu> lieuxDuProgramme(Lieu lieu) => switch (lieu) {
+  Lieu.maison || Lieu.salle => {Lieu.maison, Lieu.salle},
+  _ => {lieu},
+};
+
+/// Noms des jours de séance prévus (« lundi, mercredi, vendredi »).
+String nomsJoursPrevus(int joursParSemaine) {
+  final format = DateFormat.EEEE('fr');
+  // Le 1er janvier 2024 est un lundi.
+  return [
+    for (final j in joursPrevus(joursParSemaine).toList()..sort())
+      format.format(DateTime(2024, 1, j)),
+  ].join(', ');
 }
 
 TypeActivite _typeActivite(Lieu l) => switch (l) {
@@ -96,9 +107,56 @@ class _EntrainementPageState extends State<EntrainementPage> {
   late final Stream<Reglages> _reglages = widget.entrainement.reglages(
     widget.utilisateur.uid,
   );
-  late final Stream<List<SeanceFaite>> _faites = widget.entrainement.seances(
-    widget.utilisateur.uid,
-  );
+
+  DateTime? _lundiSeances;
+  Stream<List<SeanceFaite>>? _fluxSemaine;
+
+  /// Dernières séances reçues depuis lundi.
+  List<SeanceFaite> _semaine = const [];
+
+  /// Séances faites depuis lundi (seule fenêtre utile à l'écran, la
+  /// collection grandissant sans fin) ; le flux change chaque lundi.
+  Stream<List<SeanceFaite>> _seancesDeLaSemaine(DateTime maintenant) {
+    final lundi = lundiDe(maintenant);
+    if (_lundiSeances != lundi) {
+      _lundiSeances = lundi;
+      _semaine = const [];
+      _fluxSemaine = widget.entrainement.seances(_uid, depuis: lundi);
+    }
+    return _fluxSemaine!;
+  }
+
+  DateTime? _jourNombres;
+  final _nombres = <Lieu, Future<int>>{};
+
+  /// Séances déjà faites du programme de [lieu], comptées par le serveur.
+  /// Une seule séance par jour : le compte n'est relu que le lendemain.
+  Future<int> _nombreDuProgramme(Lieu lieu, DateTime maintenant) {
+    final jour = DateTime(maintenant.year, maintenant.month, maintenant.day);
+    if (_jourNombres != jour) {
+      _jourNombres = jour;
+      _nombres.clear();
+    }
+    final programme = lieuxDuProgramme(lieu);
+    return _nombres.putIfAbsent(
+      programme.first,
+      () => widget.entrainement.nombreSeances(_uid, programme).catchError((
+        Object e,
+        StackTrace s,
+      ) {
+        signalerErreur(e, s);
+        return 0;
+      }),
+    );
+  }
+
+  bool _faiteAujourdhui() =>
+      etatDuJour(
+        maintenant: widget.horloge(),
+        joursParSemaine: _profil.joursParSemaine,
+        semaine: _semaine,
+      ) ==
+      EtatDuJour.faite;
 
   DateTime? _jourRessenti;
   Stream<int?>? _fluxRessenti;
@@ -124,34 +182,53 @@ class _EntrainementPageState extends State<EntrainementPage> {
   String get _uid => widget.utilisateur.uid;
   Profil get _profil => widget.enregistre.profil;
 
+  /// Affiche [message] à la place du message en cours.
+  void _dire(ScaffoldMessengerState messager, String message) => messager
+    ..hideCurrentSnackBar()
+    ..showSnackBar(SnackBar(content: Text(message)));
+
+  /// Écriture sans attente ; un refus des règles est signalé par [message].
+  void _ecrire(Future<void> ecriture, String message) {
+    final messager = ScaffoldMessenger.of(context);
+    ecrireSansAttendre(ecriture, surRefus: () => _dire(messager, message));
+  }
+
   void _basculerMateriel(Reglages r, Materiel m, bool actif) {
     final nouveau = {...r.materiel};
     actif ? nouveau.add(m) : nouveau.remove(m);
-    unawaited(
+    _ecrire(
       widget.entrainement.enregistrerReglages(
         _uid,
         Reglages(materiel: nouveau),
       ),
+      AppLocalizations.of(context)!.modificationNonEnregistree,
     );
   }
 
   Future<void> _commencer(Seance seance) async {
+    final t = AppLocalizations.of(context)!;
+    final messager = ScaffoldMessenger.of(context);
+    // Une seule séance « faite » par jour.
+    if (_faiteAujourdhui()) return _dire(messager, t.seanceDejaFaite);
     final fini = await Navigator.of(context).push<bool>(
       MaterialPageRoute(
         builder: (_) => SeanceGuideePage(seance: seance, voix: widget.voix),
       ),
     );
     if (fini != true) return;
+    // Une séance a pu être enregistrée entre-temps (autre appareil).
+    if (_faiteAujourdhui()) return _dire(messager, t.seanceDejaFaite);
     final maintenant = widget.horloge();
     final minutes = seance.minutes;
-    unawaited(
+    ecrireSansAttendre(
       widget.entrainement.ajouterSeance(
         _uid,
         SeanceFaite(date: maintenant, lieu: seance.lieu, minutes: minutes),
       ),
+      surRefus: () => _dire(messager, t.seanceNonEnregistree),
     );
     // La séance compte dans le bilan énergétique du journal.
-    unawaited(
+    ecrireSansAttendre(
       widget.journal.ajouterActivite(
         _uid,
         Activite(
@@ -167,6 +244,7 @@ class _EntrainementPageState extends State<EntrainementPage> {
           ),
         ),
       ),
+      surRefus: () => _dire(messager, t.activiteNonEnregistree),
     );
   }
 
@@ -194,8 +272,11 @@ class _EntrainementPageState extends State<EntrainementPage> {
             AjoutActivitePage(date: widget.horloge(), poidsKg: _profil.poidsKg),
       ),
     );
-    if (activite != null) {
-      unawaited(widget.journal.ajouterActivite(_uid, activite));
+    if (activite != null && mounted) {
+      _ecrire(
+        widget.journal.ajouterActivite(_uid, activite),
+        AppLocalizations.of(context)!.activiteNonEnregistree,
+      );
     }
   }
 
@@ -230,25 +311,28 @@ class _EntrainementPageState extends State<EntrainementPage> {
               stream: _reglages,
               builder: (context, snapReglages) =>
                   StreamBuilder<List<SeanceFaite>>(
-                    stream: _faites,
+                    stream: _seancesDeLaSemaine(widget.horloge()),
                     builder: (context, snapFaites) {
                       final reglages = snapReglages.data ?? const Reglages();
-                      final faites = snapFaites.data ?? const <SeanceFaite>[];
-                      final seance = genererSeance(
-                        lieu: _lieu,
-                        materiel: reglages.materiel,
-                        profil: _profil,
-                        seancesFaites: seancesDuProgramme(faites, _lieu),
-                      );
+                      final faites = _semaine =
+                          snapFaites.data ?? const <SeanceFaite>[];
                       final maintenant = widget.horloge();
-                      final lundi = DateTime(
-                        maintenant.year,
-                        maintenant.month,
-                        maintenant.day - (maintenant.weekday - 1),
-                      );
+                      final lundi = lundiDe(maintenant);
                       final cetteSemaine = faites
                           .where((s) => !s.date.isBefore(lundi))
                           .length;
+                      final etat = etatDuJour(
+                        maintenant: maintenant,
+                        joursParSemaine: _profil.joursParSemaine,
+                        semaine: faites,
+                      );
+                      final prochaine = DateFormat.EEEE('fr').format(
+                        prochaineSeance(
+                          maintenant: maintenant,
+                          joursParSemaine: _profil.joursParSemaine,
+                          faitesSemaine: cetteSemaine,
+                        ),
+                      );
                       return ListView(
                         padding: const EdgeInsets.fromLTRB(20, 8, 20, 96),
                         children: [
@@ -259,16 +343,25 @@ class _EntrainementPageState extends State<EntrainementPage> {
                             ),
                             style: textes.titleMedium,
                           ),
+                          Text(
+                            t.joursPrevus(
+                              nomsJoursPrevus(_profil.joursParSemaine),
+                            ),
+                            style: textes.bodySmall?.copyWith(
+                              color: context.palette.texteDoux,
+                            ),
+                          ),
                           const SizedBox(height: 12),
                           CarteRecuperation(
                             recuperation: recuperation,
                             ressenti: snapRessenti.data,
-                            onRessenti: (v) => unawaited(
+                            onRessenti: (v) => _ecrire(
                               widget.entrainement.noterRessenti(
                                 _uid,
                                 maintenant,
                                 v,
                               ),
+                              t.modificationNonEnregistree,
                             ),
                           ),
                           const SizedBox(height: 12),
@@ -328,19 +421,47 @@ class _EntrainementPageState extends State<EntrainementPage> {
                             ),
                           ],
                           const SizedBox(height: 16),
-                          _CarteSeance(
-                            seance: seance,
-                            onCommencer: () => _commencer(seance),
-                          ),
+                          if (etat == EtatDuJour.faite)
+                            _CarteSeanceFaite(prochaine: prochaine)
+                          else
+                            FutureBuilder<int>(
+                              future: _nombreDuProgramme(_lieu, maintenant),
+                              builder: (context, snapNombre) {
+                                if (!snapNombre.hasData) {
+                                  return const Card(
+                                    child: Padding(
+                                      padding: EdgeInsets.all(24),
+                                      child: Center(
+                                        child: CircularProgressIndicator(),
+                                      ),
+                                    ),
+                                  );
+                                }
+                                final seance = genererSeance(
+                                  lieu: _lieu,
+                                  materiel: reglages.materiel,
+                                  profil: _profil,
+                                  seancesFaites: snapNombre.data!,
+                                );
+                                return _CarteSeance(
+                                  seance: seance,
+                                  repos: switch (etat) {
+                                    EtatDuJour.repos =>
+                                      '${t.jourDeRepos} '
+                                          '${t.prochaineSeance(prochaine)}',
+                                    EtatDuJour.semaineFaite =>
+                                      '${t.semaineFaite} '
+                                          '${t.prochaineSeance(prochaine)}',
+                                    _ => null,
+                                  },
+                                  onCommencer: () => _commencer(seance),
+                                );
+                              },
+                            ),
                           const SizedBox(height: 16),
                           CarteMobilite(
                             conseillee: routineConseillee(
-                              seanceAujourdhui: faites.any(
-                                (s) =>
-                                    s.date.year == maintenant.year &&
-                                    s.date.month == maintenant.month &&
-                                    s.date.day == maintenant.day,
-                              ),
+                              seanceAujourdhui: etat == EtatDuJour.faite,
                               recuperationFaible:
                                   recuperation?.niveau ==
                                   NiveauRecuperation.faible,
@@ -353,11 +474,12 @@ class _EntrainementPageState extends State<EntrainementPage> {
                             builder: (context, snapActivites) =>
                                 _CarteActivites(
                                   activites: snapActivites.data ?? const [],
-                                  onSupprimer: (a) => unawaited(
+                                  onSupprimer: (a) => _ecrire(
                                     widget.journal.supprimerActivite(
                                       _uid,
                                       a.id!,
                                     ),
+                                    t.modificationNonEnregistree,
                                   ),
                                 ),
                           ),
@@ -373,10 +495,61 @@ class _EntrainementPageState extends State<EntrainementPage> {
   }
 }
 
+/// La séance du jour est faite : plus de seconde séance, place au repos.
+class _CarteSeanceFaite extends StatelessWidget {
+  const _CarteSeanceFaite({required this.prochaine});
+
+  /// Jour de la prochaine séance (« lundi »).
+  final String prochaine;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
+    final textes = Theme.of(context).textTheme;
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Row(
+          children: [
+            const Icon(
+              Icons.check_circle,
+              color: CouleursCoach.vertMoyen,
+              size: 36,
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(t.seanceDuJourFaite, style: textes.titleMedium),
+                  const SizedBox(height: 4),
+                  Text(
+                    '${t.prochaineSeance(prochaine)} ${t.reposOuMobilite}',
+                    style: textes.bodyMedium?.copyWith(
+                      color: context.palette.texteDoux,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 class _CarteSeance extends StatelessWidget {
-  const _CarteSeance({required this.seance, required this.onCommencer});
+  const _CarteSeance({
+    required this.seance,
+    required this.repos,
+    required this.onCommencer,
+  });
 
   final Seance seance;
+
+  /// Non nul un jour de repos : le message, et la séance reste possible.
+  final String? repos;
   final VoidCallback onCommencer;
 
   @override
@@ -389,6 +562,19 @@ class _CarteSeance extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            if (repos != null) ...[
+              Row(
+                children: [
+                  Icon(
+                    Icons.bedtime_outlined,
+                    color: context.palette.texteDoux,
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(child: Text(repos!, style: textes.bodyMedium)),
+                ],
+              ),
+              const SizedBox(height: 12),
+            ],
             Text(seance.titre, style: textes.titleLarge),
             Text(
               t.dureeEstimee(seance.minutes),
@@ -433,11 +619,17 @@ class _CarteSeance extends StatelessWidget {
             const SizedBox(height: 12),
             SizedBox(
               width: double.infinity,
-              child: FilledButton.icon(
-                onPressed: onCommencer,
-                icon: const Icon(Icons.play_arrow),
-                label: Text(t.commencerSeance),
-              ),
+              child: repos == null
+                  ? FilledButton.icon(
+                      onPressed: onCommencer,
+                      icon: const Icon(Icons.play_arrow),
+                      label: Text(t.commencerSeance),
+                    )
+                  : OutlinedButton.icon(
+                      onPressed: onCommencer,
+                      icon: const Icon(Icons.play_arrow),
+                      label: Text(t.commencerQuandMeme),
+                    ),
             ),
           ],
         ),

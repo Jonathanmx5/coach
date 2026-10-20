@@ -32,3 +32,29 @@ int serieEnCours(Set<DateTime> jours, DateTime aujourdhui) {
   }
   return n;
 }
+
+/// Série en cours lue sur une fenêtre qui commence à [debut] : les jours
+/// consécutifs comme [serieEnCours], mais un jour absent de [joursPrevus]
+/// (1 = lundi … 7 = dimanche ; tous si null) est un jour de repos qui ne
+/// coupe pas la série. [tronquee] : la série remonte jusqu'à [debut], elle
+/// continue peut-être avant et il faut lire plus loin pour la connaître.
+({int jours, bool tronquee}) serieSurFenetre(
+  Set<DateTime> jours,
+  DateTime aujourdhui, {
+  required DateTime debut,
+  Set<int>? joursPrevus,
+}) {
+  final premier = _jour(debut);
+  var j = _jour(aujourdhui);
+  if (!jours.contains(j)) j = DateTime(j.year, j.month, j.day - 1);
+  var n = 0;
+  while (!j.isBefore(premier)) {
+    if (jours.contains(j)) {
+      n++;
+    } else if (joursPrevus == null || joursPrevus.contains(j.weekday)) {
+      return (jours: n, tronquee: false);
+    }
+    j = DateTime(j.year, j.month, j.day - 1);
+  }
+  return (jours: n, tronquee: true);
+}
