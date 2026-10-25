@@ -19,6 +19,7 @@ import 'cartes_journal.dart';
 import 'catalogue.dart';
 import 'scanner_page.dart' show ScanCode, lireCodeBarres;
 import 'photos_repas.dart';
+import 'preferences_analyse.dart';
 import 'repas_recents.dart';
 import 'signalement.dart';
 import '../recettes/avis_repository.dart';
@@ -56,6 +57,7 @@ class JournalPage extends StatefulWidget {
     this.demandePhoto,
     this.scan = lireCodeBarres,
     this.prise = prisePhotoCamera,
+    this.preferencesAnalyse = const PreferencesAnalyseNeutres(),
   });
 
   final Utilisateur utilisateur;
@@ -74,6 +76,9 @@ class JournalPage extends StatefulWidget {
   /// Chaque changement ouvre l'écran de photo du repas (bouton d'un widget).
   final ValueListenable<DemandePhoto>? demandePhoto;
   final PrisePhoto prise;
+
+  /// Taille des assiettes et portions apprises, pour l'analyse photo.
+  final PreferencesAnalyse preferencesAnalyse;
 
   @override
   State<JournalPage> createState() => _JournalPageState();
@@ -343,6 +348,7 @@ class _JournalPageState extends State<JournalPage> with WidgetsBindingObserver {
           dejaMange: dejaMange,
           cibles: cibles,
           objectif: widget.enregistre.profil.objectif,
+          preferences: widget.preferencesAnalyse,
         ),
       ),
     );

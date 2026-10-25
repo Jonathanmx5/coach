@@ -6,6 +6,7 @@ import 'package:coach/journal/calculs.dart';
 import 'package:coach/journal/catalogue.dart';
 import 'package:coach/journal/modele.dart';
 import 'package:coach/journal/photo_repas_page.dart';
+import 'package:coach/journal/preferences_analyse.dart';
 import 'package:coach/journal/repas_recents.dart';
 import 'package:coach/journal/verdict.dart';
 import 'package:flutter/material.dart';
@@ -77,9 +78,10 @@ class Banc {
   /// Repas des derniers jours proposés ; null : pas de liste.
   List<Repas>? recents;
   Macros dejaMange = Macros.zero;
+  PreferencesAnalyse preferences = PreferencesAnalyseMemoire();
 
   Future<void> monter(WidgetTester tester) async {
-    tester.view.physicalSize = const Size(1080, 4200);
+    tester.view.physicalSize = const Size(1080, 6000);
     tester.view.devicePixelRatio = 2.75;
     addTearDown(tester.view.reset);
     await tester.pumpWidget(
@@ -105,6 +107,7 @@ class Banc {
                           return accord;
                         },
                         recents: recents == null ? null : Future.value(recents),
+                        preferences: preferences,
                       ),
                     ),
                   ),
@@ -165,6 +168,108 @@ void main() {
     expect(nom.length, 200);
     expect(nom.endsWith('…'), isTrue);
     expect(nomDuRepas([riz, poulet]), 'Riz, Poulet');
+  });
+
+  group('analyse plus juste', () {
+    testWidgets('la taille de l\'assiette part avec la photo', (tester) async {
+      final banc = Banc()
+        ..preferences = PreferencesAnalyseMemoire(assietteCm: 26);
+      await banc.monter(tester);
+      await banc.analyser(tester);
+
+      expect(banc.analyse.indices.single, 'Assiette de 26 cm de diamètre.');
+    });
+
+    testWidgets('sans assiette réglée, rien de plus n\'est envoyé', (
+      tester,
+    ) async {
+      final banc = Banc();
+      await banc.monter(tester);
+      await banc.analyser(tester);
+
+      expect(banc.analyse.indices.single, '');
+    });
+
+    testWidgets('huile et sauce peu visibles : ajoutées au repas', (
+      tester,
+    ) async {
+      final banc = Banc();
+      await banc.monter(tester);
+      await banc.analyser(tester);
+      expect(find.text('295 kcal'), findsOneWidget);
+
+      await tester.tap(find.widgetWithText(ChoiceChip, 'Beaucoup').first);
+      await tester.pump();
+      expect(find.text('430 kcal'), findsOneWidget); // + 15 g d'huile
+
+      await tester.tap(find.widgetWithText(ChoiceChip, 'Un peu').last);
+      await tester.pump();
+      expect(find.text('505 kcal'), findsOneWidget); // + un peu de sauce
+
+      await taper(tester, 'Enregistrer');
+      final repas = banc.resultats.single! as Repas;
+      expect(repas.macros.kcal, 505);
+      expect(repas.aliments.map((a) => a.nom), [
+        'Riz',
+        'Poulet',
+        'Huile de cuisson',
+        'Sauce',
+      ]);
+    });
+
+    testWidgets('portion apprise : appliquée, signalée, puis réapprise', (
+      tester,
+    ) async {
+      final prefs = PreferencesAnalyseMemoire();
+      // Deux repas où le riz gardé faisait 1,5 fois l'estimation.
+      await prefs.apprendre('Riz', estime: 100, retenu: 150);
+      await prefs.apprendre('Riz', estime: 100, retenu: 150);
+      final banc = Banc()..preferences = prefs;
+      await banc.monter(tester);
+      await banc.analyser(tester);
+
+      expect(find.text('150 g · 195 kcal'), findsOneWidget);
+      expect(
+        find.text("Portion ajustée d'après tes corrections (+50 %)"),
+        findsOneWidget,
+      );
+      expect(find.text('100 g · 165 kcal'), findsOneWidget); // poulet intact
+
+      // L'utilisateur garde 110 g de poulet : c'est appris.
+      await tester.tap(find.byTooltip('Augmenter : Poulet'));
+      await tester.pump();
+      await taper(tester, 'Enregistrer');
+      await tester.pumpAndSettle();
+
+      expect(prefs.appris['poulet']!.facteur, closeTo(1.1, 1e-9));
+      expect(prefs.appris['riz']!.nombre, 3);
+      expect(prefs.appris['riz']!.facteur, closeTo(1.5, 1e-9));
+    });
+
+    testWidgets('code-barres : rien n\'est appris', (tester) async {
+      final prefs = PreferencesAnalyseMemoire();
+      final banc = Banc()
+        ..preferences = prefs
+        ..catalogue = FauxCatalogue(
+          produit: const ProduitOff(
+            nom: 'Muesli',
+            pour100g: Macros(
+              kcal: 400,
+              proteines: 10,
+              glucides: 60,
+              lipides: 12,
+            ),
+          ),
+        );
+      await banc.monter(tester);
+      await taper(tester, 'Scanner un produit');
+      await saisir(tester, 'Quantité mangée (g)', '50');
+      await taper(tester, 'Ajouter');
+      expect(find.text('Gras peu visible'), findsNothing);
+      await taper(tester, 'Enregistrer');
+
+      expect(prefs.appris, isEmpty);
+    });
   });
 
   testWidgets('petite portion : + et − la font bouger de 5 g', (tester) async {

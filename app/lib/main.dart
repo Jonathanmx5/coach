@@ -30,6 +30,7 @@ import 'recettes/avis_repository.dart';
 import 'recettes/planning_repository.dart';
 import 'reglages/mises_a_jour.dart';
 import 'reglages/reglage_rapports.dart';
+import 'journal/preferences_analyse.dart';
 import 'reglages/reglage_theme.dart';
 import 'sauvegarde/fichiers.dart';
 import 'sauvegarde/sauvegarde.dart';
@@ -38,6 +39,15 @@ import 'widget/donnees_widget.dart';
 import 'widget/rappel_widget.dart';
 import 'sante/sante_service.dart';
 import 'services.dart';
+
+/// Réglages de l'analyse photo ; si le stockage échoue, rien d'appris.
+Future<PreferencesAnalyse> _chargerPreferencesAnalyse() async {
+  try {
+    return await PreferencesAnalyseLocales.charger();
+  } catch (_) {
+    return PreferencesAnalyseMemoire();
+  }
+}
 
 /// Le thème enregistré ; si le stockage échoue, celui du téléphone.
 Future<ReglageTheme> _chargerTheme() async {
@@ -102,6 +112,7 @@ Future<void> main() async {
 
   final auth = FirebaseAuthService();
   final theme = await _chargerTheme();
+  final preferencesAnalyse = await _chargerPreferencesAnalyse();
   runApp(
     CoachApp(
       theme: theme.mode,
@@ -115,6 +126,7 @@ Future<void> main() async {
           catalogue: CatalogueOpenFoodFacts(),
           photosRepas: PhotosRepasLocales(),
           theme: theme,
+          preferencesAnalyse: preferencesAnalyse,
           rapports: rapports,
           sauvegarde: SauvegardeFirestore(),
           fichiers: FichiersSysteme(),

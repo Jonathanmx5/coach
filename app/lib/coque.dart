@@ -222,6 +222,7 @@ class _CoqueState extends State<Coque> with WidgetsBindingObserver {
       consentements: _s.consentements,
       photosRepas: _s.photosRepas,
       catalogue: _s.catalogue,
+      preferencesAnalyse: _s.preferencesAnalyse,
       demandePhoto: _demandePhoto,
       suivi: _suivi,
       horloge: widget.horloge,

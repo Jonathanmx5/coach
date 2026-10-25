@@ -17,6 +17,7 @@ import 'formulaires.dart';
 import '../profil/modele.dart';
 import 'modele.dart';
 import 'photos_repas.dart';
+import 'preferences_analyse.dart';
 import 'repas_recents.dart';
 import 'signalement.dart';
 import 'verdict.dart';
@@ -56,6 +57,7 @@ class PhotoRepasPage extends StatefulWidget {
     this.dejaMange = Macros.zero,
     this.cibles,
     this.objectif = Objectif.forme,
+    this.preferences = const PreferencesAnalyseNeutres(),
   });
 
   final DateTime date;
@@ -82,6 +84,9 @@ class PhotoRepasPage extends StatefulWidget {
   final CiblesJour? cibles;
   final Objectif objectif;
 
+  /// Taille des assiettes et portions apprises des corrections passées.
+  final PreferencesAnalyse preferences;
+
   @override
   State<PhotoRepasPage> createState() => _PhotoRepasPageState();
 }
@@ -104,6 +109,18 @@ class _PhotoRepasPageState extends State<PhotoRepasPage> {
 
   /// Vrai quand l'aliment vient d'un code-barres plutôt que d'une photo.
   bool _viaCode = false;
+
+  /// Huile de cuisson et sauce que la photo montre mal, ajoutées au repas.
+  QuantiteGras _huile = QuantiteGras.aucune;
+  QuantiteGras _sauce = QuantiteGras.aucune;
+
+  /// Ce que l'IA avait estimé pour chacun des premiers aliments (même ordre),
+  /// pour apprendre des corrections ; vide pour un code-barres.
+  List<({String nom, double grammes})> _ia = const [];
+
+  /// Aliments dont la portion a été ajustée d'après les corrections passées,
+  /// avec le facteur appliqué.
+  final _calibres = <int, double>{};
 
   /// Vrai pendant l'enregistrement : un second appui ne fait rien.
   bool _enregistrement = false;
@@ -201,6 +218,8 @@ class _PhotoRepasPageState extends State<PhotoRepasPage> {
     ];
     _aliments = [...liste, for (final m in manuels) m.aliment];
     _ajustement = const Ajustement();
+    _ia = const [];
+    _calibres.clear();
     _gardes
       ..clear()
       ..addAll([for (var i = 0; i < liste.length; i++) i]);
@@ -283,13 +302,24 @@ class _PhotoRepasPageState extends State<PhotoRepasPage> {
     try {
       final analyse = await widget.analyse.analyser(
         _image!,
-        indice: _precision.text,
+        indice: indiceAvecAssiette(
+          _precision.text,
+          widget.preferences.assietteCm,
+        ),
       );
       if (!mounted) return;
       setState(() {
         _restantes = analyse.restantes;
         _description = analyse.description;
-        _remplacer(analyse.aliments);
+        final calibres = <int, double>{};
+        _remplacer([
+          for (var i = 0; i < analyse.aliments.length; i++)
+            _calibrer(analyse.aliments[i], i, calibres),
+        ]);
+        _ia = [
+          for (final a in analyse.aliments) (nom: a.nom, grammes: a.grammes),
+        ];
+        _calibres.addAll(calibres);
         _phase = _Phase.resultat;
       });
     } on AnalyseEchouee catch (e) {
@@ -335,9 +365,43 @@ class _PhotoRepasPageState extends State<PhotoRepasPage> {
     );
   }
 
-  List<AlimentEstime> get _retenus => [
-    for (final i in _gardes.toList()..sort()) _aliments[i],
-  ];
+  List<AlimentEstime> get _retenus {
+    final t = AppLocalizations.of(context)!;
+    return [
+      for (final i in _gardes.toList()..sort()) _aliments[i],
+      if (_aliments.isNotEmpty)
+        ...grasAjoutes(
+          huile: _huile,
+          sauce: _sauce,
+          nomHuile: t.grasHuile,
+          nomSauce: t.grasSauce,
+        ),
+    ];
+  }
+
+  /// Portion de l'IA corrigée d'après les corrections passées de la personne
+  /// pour cet aliment (arrondie à 5 g).
+  AlimentEstime _calibrer(AlimentEstime a, int i, Map<int, double> calibres) {
+    final f = widget.preferences.facteurPour(a.nom);
+    if (f == 1 || a.grammes <= 0) return a;
+    calibres[i] = f;
+    return a.avecGrammes(math.max(5, ((a.grammes * f) / 5).round() * 5.0));
+  }
+
+  /// Retient l'écart entre la portion estimée par l'IA et celle gardée.
+  void _apprendre() {
+    if (_viaCode) return;
+    for (final i in _gardes) {
+      if (i >= _ia.length || i >= _aliments.length) continue;
+      unawaited(
+        widget.preferences.apprendre(
+          _ia[i].nom,
+          estime: _ia[i].grammes,
+          retenu: _aliments[i].grammes,
+        ),
+      );
+    }
+  }
 
   static double? _somme(
     List<AlimentEstime> l,
@@ -442,6 +506,7 @@ class _PhotoRepasPageState extends State<PhotoRepasPage> {
       if (photoId != null) unawaited(widget.photos.supprimer(photoId));
       return;
     }
+    _apprendre();
     Navigator.of(context).pop(
       Repas(
         date: widget.date,
@@ -690,6 +755,7 @@ class _PhotoRepasPageState extends State<PhotoRepasPage> {
           ),
         ],
         for (var i = 0; i < _aliments.length; i++) _ligne(t, i),
+        if (_aliments.isNotEmpty && !_viaCode) _carteGras(t),
         OutlinedButton.icon(
           onPressed: _aliments.length >= maxAliments ? null : _ajouter,
           icon: const Icon(Icons.add),
@@ -719,6 +785,56 @@ class _PhotoRepasPageState extends State<PhotoRepasPage> {
         ),
         TextButton(onPressed: _manuel, child: Text(t.saisirALaMain)),
       ],
+    );
+  }
+
+  /// Huile et sauce peu visibles : l'erreur la plus fréquente sur les calories.
+  Widget _carteGras(AppLocalizations t) {
+    final textes = Theme.of(context).textTheme;
+    Widget ligne(
+      String libelle,
+      QuantiteGras valeur,
+      void Function(QuantiteGras) choisir,
+    ) => Padding(
+      padding: const EdgeInsets.only(top: 6),
+      child: Wrap(
+        spacing: 6,
+        runSpacing: 4,
+        crossAxisAlignment: WrapCrossAlignment.center,
+        children: [
+          SizedBox(width: 120, child: Text(libelle, style: textes.bodyMedium)),
+          for (final (q, nom) in [
+            (QuantiteGras.aucune, t.grasAucune),
+            (QuantiteGras.unPeu, t.grasUnPeu),
+            (QuantiteGras.beaucoup, t.grasBeaucoup),
+          ])
+            ChoiceChip(
+              label: Text(nom),
+              selected: valeur == q,
+              onSelected: (_) => _changerBase(() => choisir(q)),
+            ),
+        ],
+      ),
+    );
+    return Card(
+      margin: const EdgeInsets.only(top: 12),
+      child: Padding(
+        padding: const EdgeInsets.all(12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(t.grasTitre, style: textes.titleSmall),
+            Text(
+              t.grasAide,
+              style: textes.bodySmall?.copyWith(
+                color: context.palette.texteDoux,
+              ),
+            ),
+            ligne(t.grasHuile, _huile, (q) => _huile = q),
+            ligne(t.grasSauce, _sauce, (q) => _sauce = q),
+          ],
+        ),
+      ),
     );
   }
 
@@ -777,6 +893,15 @@ class _PhotoRepasPageState extends State<PhotoRepasPage> {
                         t.fourchetteGrammes(
                           a.grammesMin!.round(),
                           a.grammesMax!.round(),
+                        ),
+                        style: textes.labelSmall?.copyWith(
+                          color: context.palette.texteDoux,
+                        ),
+                      ),
+                    if (_calibres[i] case final f?)
+                      Text(
+                        t.ajusteHabitudes(
+                          '${f > 1 ? '+' : '−'}${((f - 1).abs() * 100).round()} %',
                         ),
                         style: textes.labelSmall?.copyWith(
                           color: context.palette.texteDoux,

@@ -2698,6 +2698,96 @@ abstract class AppLocalizations {
   /// **'Diminuer : {nom}'**
   String ajusterMoins(String nom);
 
+  /// No description provided for @grasTitre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Gras peu visible'**
+  String get grasTitre;
+
+  /// No description provided for @grasAide.
+  ///
+  /// In fr, this message translates to:
+  /// **'L\'huile de cuisson et les sauces se voient mal sur une photo : ce sont elles qui faussent le plus les calories.'**
+  String get grasAide;
+
+  /// No description provided for @grasHuile.
+  ///
+  /// In fr, this message translates to:
+  /// **'Huile de cuisson'**
+  String get grasHuile;
+
+  /// No description provided for @grasSauce.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sauce'**
+  String get grasSauce;
+
+  /// No description provided for @grasAucune.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucune'**
+  String get grasAucune;
+
+  /// No description provided for @grasUnPeu.
+  ///
+  /// In fr, this message translates to:
+  /// **'Un peu'**
+  String get grasUnPeu;
+
+  /// No description provided for @grasBeaucoup.
+  ///
+  /// In fr, this message translates to:
+  /// **'Beaucoup'**
+  String get grasBeaucoup;
+
+  /// No description provided for @ajusteHabitudes.
+  ///
+  /// In fr, this message translates to:
+  /// **'Portion ajustée d\'après tes corrections ({ecart})'**
+  String ajusteHabitudes(String ecart);
+
+  /// No description provided for @assietteTitre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Taille de mes assiettes'**
+  String get assietteTitre;
+
+  /// No description provided for @assietteAide.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aide l\'IA à estimer les portions sur les photos.'**
+  String get assietteAide;
+
+  /// No description provided for @assietteNonRenseignee.
+  ///
+  /// In fr, this message translates to:
+  /// **'Non renseignée'**
+  String get assietteNonRenseignee;
+
+  /// No description provided for @assietteCm.
+  ///
+  /// In fr, this message translates to:
+  /// **'{n} cm de diamètre'**
+  String assietteCm(int n);
+
+  /// No description provided for @etalonnageOublier.
+  ///
+  /// In fr, this message translates to:
+  /// **'Oublier mes corrections de portions'**
+  String get etalonnageOublier;
+
+  /// No description provided for @etalonnageAide.
+  ///
+  /// In fr, this message translates to:
+  /// **'L\'appli apprend de tes corrections pour mieux estimer tes portions ; ces données restent sur le téléphone.'**
+  String get etalonnageAide;
+
+  /// No description provided for @etalonnageOublie.
+  ///
+  /// In fr, this message translates to:
+  /// **'Corrections de portions oubliées.'**
+  String get etalonnageOublie;
+
   /// No description provided for @courbePoids.
   ///
   /// In fr, this message translates to:

@@ -12,6 +12,7 @@ import 'poids/pesees_repository.dart';
 import 'journal/catalogue.dart';
 import 'journal/photos_repas.dart';
 import 'reglages/reglage_rapports.dart';
+import 'journal/preferences_analyse.dart';
 import 'reglages/reglage_theme.dart';
 import 'sauvegarde/fichiers.dart';
 import 'sauvegarde/sauvegarde.dart';
@@ -37,6 +38,7 @@ class Services {
     required this.catalogue,
     required this.photosRepas,
     required this.theme,
+    this.preferencesAnalyse = const PreferencesAnalyseNeutres(),
     required this.rapports,
     required this.sauvegarde,
     required this.fichiers,
@@ -67,6 +69,9 @@ class Services {
   final CatalogueProduits catalogue;
   final PhotosRepas photosRepas;
   final ReglageTheme theme;
+
+  /// Taille des assiettes et portions apprises, pour l'analyse photo.
+  final PreferencesAnalyse preferencesAnalyse;
 
   /// Envoi des rapports de plantage, choisi dans les Réglages.
   final ReglageRapports rapports;

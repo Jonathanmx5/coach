@@ -1526,6 +1526,58 @@ class AppLocalizationsFr extends AppLocalizations {
   }
 
   @override
+  String get grasTitre => 'Gras peu visible';
+
+  @override
+  String get grasAide =>
+      'L\'huile de cuisson et les sauces se voient mal sur une photo : ce sont elles qui faussent le plus les calories.';
+
+  @override
+  String get grasHuile => 'Huile de cuisson';
+
+  @override
+  String get grasSauce => 'Sauce';
+
+  @override
+  String get grasAucune => 'Aucune';
+
+  @override
+  String get grasUnPeu => 'Un peu';
+
+  @override
+  String get grasBeaucoup => 'Beaucoup';
+
+  @override
+  String ajusteHabitudes(String ecart) {
+    return 'Portion ajustée d\'après tes corrections ($ecart)';
+  }
+
+  @override
+  String get assietteTitre => 'Taille de mes assiettes';
+
+  @override
+  String get assietteAide =>
+      'Aide l\'IA à estimer les portions sur les photos.';
+
+  @override
+  String get assietteNonRenseignee => 'Non renseignée';
+
+  @override
+  String assietteCm(int n) {
+    return '$n cm de diamètre';
+  }
+
+  @override
+  String get etalonnageOublier => 'Oublier mes corrections de portions';
+
+  @override
+  String get etalonnageAide =>
+      'L\'appli apprend de tes corrections pour mieux estimer tes portions ; ces données restent sur le téléphone.';
+
+  @override
+  String get etalonnageOublie => 'Corrections de portions oubliées.';
+
+  @override
   String get courbePoids => 'Évolution du poids';
 
   @override

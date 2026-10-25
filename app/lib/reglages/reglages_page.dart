@@ -8,6 +8,7 @@ import 'package:qr_flutter/qr_flutter.dart';
 
 import '../compte/auth_service.dart';
 import '../compte/donnees_compte.dart';
+import '../journal/preferences_analyse.dart';
 import '../l10n/app_localizations.dart';
 import '../sauvegarde/fichiers.dart';
 import '../sauvegarde/sauvegarde.dart';
@@ -283,6 +284,34 @@ class _ReglagesPageState extends State<ReglagesPage> {
     }
   }
 
+  Future<void> _choisirAssiette() async {
+    final t = AppLocalizations.of(context)!;
+    final actuel = _s.preferencesAnalyse.assietteCm;
+    final choix = await showDialog<int>(
+      context: context,
+      builder: (ctx) => SimpleDialog(
+        title: Text(t.assietteTitre),
+        children: [
+          for (final (valeur, libelle) in [
+            (0, t.assietteNonRenseignee),
+            for (final cm in diametresAssiette) (cm, t.assietteCm(cm)),
+          ])
+            ListTile(
+              title: Text(libelle),
+              trailing: valeur == (actuel ?? 0)
+                  ? const Icon(Icons.check)
+                  : null,
+              selected: valeur == (actuel ?? 0),
+              onTap: () => Navigator.of(ctx).pop(valeur),
+            ),
+        ],
+      ),
+    );
+    if (choix == null || !mounted) return;
+    await _s.preferencesAnalyse.definirAssiette(choix == 0 ? null : choix);
+    if (mounted) setState(() {});
+  }
+
   void _message(String texte) {
     ScaffoldMessenger.of(context)
       ..hideCurrentSnackBar()
@@ -500,6 +529,27 @@ class _ReglagesPageState extends State<ReglagesPage> {
             ),
           ),
           const SizedBox(height: 16),
+          ListTile(
+            contentPadding: EdgeInsets.zero,
+            leading: const Icon(Icons.dinner_dining_outlined),
+            title: Text(t.assietteTitre),
+            subtitle: Text(
+              _s.preferencesAnalyse.assietteCm == null
+                  ? t.assietteAide
+                  : t.assietteCm(_s.preferencesAnalyse.assietteCm!),
+            ),
+            onTap: _choisirAssiette,
+          ),
+          ListTile(
+            contentPadding: EdgeInsets.zero,
+            leading: const Icon(Icons.restart_alt),
+            title: Text(t.etalonnageOublier),
+            subtitle: Text(t.etalonnageAide),
+            onTap: () async {
+              await _s.preferencesAnalyse.oublier();
+              if (mounted) _message(t.etalonnageOublie);
+            },
+          ),
           StreamBuilder<Set<Consentement>>(
             stream: _s.consentements.accordes(_uid),
             builder: (context, snap) => SwitchListTile(
