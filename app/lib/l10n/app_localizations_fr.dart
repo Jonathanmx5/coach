@@ -1578,6 +1578,11 @@ class AppLocalizationsFr extends AppLocalizations {
   String get etalonnageOublie => 'Corrections de portions oubliées.';
 
   @override
+  String valeursCiqual(String reference) {
+    return 'Valeurs de la table Ciqual (ANSES) : $reference';
+  }
+
+  @override
   String get courbePoids => 'Évolution du poids';
 
   @override

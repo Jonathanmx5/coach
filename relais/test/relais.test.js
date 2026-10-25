@@ -490,7 +490,7 @@ test('Llama 3.2 : JSON sans accolades, clés capitalisées, réponse coupée', (
   assert.equal(analyse(complete).aliments[0].nom, 'Pomme');
 
   // Du JSON normal avec des clés accentuées ou capitalisées.
-  const normal = analyse('{"Description":"y","aliments":[{"nom":"Poire","grammes":100,"kcal":57,"Protéines":0.4}]}');
+  const normal = analyse('{"Description":"y","aliments":[{"nom":"Kiwi","grammes":100,"kcal":57,"Protéines":0.4}]}');
   assert.equal(normal.aliments[0].proteines, 0.4);
 });
 
@@ -666,12 +666,17 @@ test('texte libre : fibres, récapitulatif « Total » et poids total ignorés',
 
 test('aliment sans calories ni macros : signalé « à vérifier », ou réponse illisible', () => {
   // Seul aliment, sans aucune valeur : rien d'exploitable (422, ou modèle de secours).
-  assert.equal(analyse({ aliments: [{ nom: 'Gratin dauphinois', grammes: 250 }] }), null);
-  assert.equal(analyse('*   Gratin dauphinois : 250 g'), null);
+  assert.equal(analyse({ aliments: [{ nom: 'Plat du jour', grammes: 250 }] }), null);
+  assert.equal(analyse('*   Plat du jour : 250 g'), null);
+  // Aliment d'une table : ses valeurs servent de repère, toujours « à vérifier ».
+  const connu = analyse({ aliments: [{ nom: 'Gratin dauphinois', grammes: 250 }] }).aliments[0];
+  assert.equal(connu.kcal, 273);
+  assert.equal(connu.reference, 'Gratin dauphinois');
+  assert.equal(connu.confiance, 0.3);
   // À côté d'un aliment chiffré : gardé, mais à 0,3 de confiance au plus.
   const r = analyse({
     aliments: [
-      { nom: 'Gratin dauphinois', grammes: 250, confiance: 0.9 },
+      { nom: 'Plat du jour', grammes: 250, confiance: 0.9 },
       { nom: 'Steak', grammes: 150, kcal: 330, proteines: 40, lipides: 18, confiance: 0.9 },
     ],
   });
@@ -684,7 +689,7 @@ test('aliment sans calories ni macros : signalé « à vérifier », ou réponse
 
 test('relais : une réponse sans aucune calorie donne 422 (illisible)', async () => {
   const { cles, jeton } = await fabrique();
-  const vide = env(async () => ({ response: '{"aliments":[{"nom":"Gratin dauphinois","grammes":250}]}' }));
+  const vide = env(async () => ({ response: '{"aliments":[{"nom":"Plat du jour","grammes":250}]}' }));
   const r = await traiter(requete({ jeton: await jeton() }), vide, { cles, maintenant: MAINTENANT });
   assert.equal(r.status, 422);
   assert.equal((await r.json()).erreur, 'illisible');

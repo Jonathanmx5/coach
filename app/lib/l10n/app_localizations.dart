@@ -2788,6 +2788,12 @@ abstract class AppLocalizations {
   /// **'Corrections de portions oubliées.'**
   String get etalonnageOublie;
 
+  /// No description provided for @valeursCiqual.
+  ///
+  /// In fr, this message translates to:
+  /// **'Valeurs de la table Ciqual (ANSES) : {reference}'**
+  String valeursCiqual(String reference);
+
   /// No description provided for @courbePoids.
   ///
   /// In fr, this message translates to:

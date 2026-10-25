@@ -25,6 +25,7 @@ class AlimentEstime {
     this.satures,
     this.grammesMin,
     this.grammesMax,
+    this.reference,
   });
 
   final String nom;
@@ -46,6 +47,10 @@ class AlimentEstime {
   final double? grammesMin;
   final double? grammesMax;
 
+  /// Libellé de la table Ciqual (ANSES) dont viennent les apports, quand le
+  /// relais a corrigé l'estimation de l'IA avec elle ; null sinon.
+  final String? reference;
+
   /// Vrai si la fourchette est assez large pour valoir la peine d'être montrée.
   bool get aFourchette =>
       grammesMin != null &&
@@ -62,6 +67,7 @@ class AlimentEstime {
     if (satures != null) 'satures': satures,
     if (grammesMin != null) 'grammesMin': grammesMin,
     if (grammesMax != null) 'grammesMax': grammesMax,
+    if (reference != null) 'reference': reference,
   };
 
   static AlimentEstime fromMap(Map<String, Object?> m) => AlimentEstime(
@@ -73,6 +79,7 @@ class AlimentEstime {
     satures: (m['satures'] as num?)?.toDouble(),
     grammesMin: (m['grammesMin'] as num?)?.toDouble(),
     grammesMax: (m['grammesMax'] as num?)?.toDouble(),
+    reference: m['reference'] as String?,
   );
 
   bool get aVerifier => confiance != null && confiance! < seuilConfiance;
@@ -89,9 +96,12 @@ class AlimentEstime {
       grammesMin: grammesMin == null ? null : grammesMin! * f,
       grammesMax: grammesMax == null ? null : grammesMax! * f,
       macros: grammes <= 0 ? macros : macros.multiplie(f),
+      reference: reference,
     );
   }
 
+  /// Même aliment sous un autre nom ; la référence Ciqual ne vaut plus pour
+  /// un aliment renommé.
   AlimentEstime avecNom(String n) => AlimentEstime(
     nom: n,
     grammes: grammes,
@@ -101,6 +111,7 @@ class AlimentEstime {
     satures: satures,
     grammesMin: grammesMin,
     grammesMax: grammesMax,
+    reference: n == nom ? reference : null,
   );
 
   /// Même aliment, vérifié par l'utilisateur (nom ou portion corrigés) : il
@@ -113,6 +124,7 @@ class AlimentEstime {
     satures: satures,
     grammesMin: grammesMin,
     grammesMax: grammesMax,
+    reference: reference,
   );
 }
 
@@ -259,6 +271,7 @@ class AnalysePhotoRelais implements AnalysePhoto {
               satures: (a['satures'] as num?)?.toDouble(),
               grammesMin: (a['grammes_min'] as num?)?.toDouble(),
               grammesMax: (a['grammes_max'] as num?)?.toDouble(),
+              reference: a['reference'] as String?,
               macros: Macros(
                 kcal: (a['kcal'] as num).toDouble(),
                 proteines: (a['proteines'] as num?)?.toDouble() ?? 0,

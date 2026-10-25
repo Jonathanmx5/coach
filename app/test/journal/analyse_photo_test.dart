@@ -119,6 +119,34 @@ void main() {
     expect(fourchetteKcal([r.aliments[1]]), isNull);
   });
 
+  test(
+    'référence Ciqual lue, gardée avec la portion, oubliée au renommage',
+    () async {
+      final c = client(
+        (_) async => json({
+          'aliments': [
+            {
+              'nom': 'Quiche lorraine',
+              'grammes': 150,
+              'kcal': 411,
+              'reference': 'Quiche lorraine, préemballée',
+            },
+            {'nom': 'Salade', 'grammes': 50, 'kcal': 9},
+          ],
+        }),
+      );
+      final r = await c.analyser(image);
+      final quiche = r.aliments[0];
+
+      expect(quiche.reference, 'Quiche lorraine, préemballée');
+      expect(r.aliments[1].reference, isNull);
+      expect(quiche.avecGrammes(200).reference, quiche.reference);
+      expect(AlimentEstime.fromMap(quiche.toMap()).reference, quiche.reference);
+      expect(quiche.avecNom('Quiche lorraine').reference, quiche.reference);
+      expect(quiche.avecNom('Tarte aux poireaux').reference, isNull);
+    },
+  );
+
   test('envoie l\'image avec le jeton et lit les aliments', () async {
     late http.Request vue;
     final c = client((r) async {

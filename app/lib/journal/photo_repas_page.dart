@@ -907,6 +907,13 @@ class _PhotoRepasPageState extends State<PhotoRepasPage> {
                           color: context.palette.texteDoux,
                         ),
                       ),
+                    if (a.reference case final ref?)
+                      Text(
+                        t.valeursCiqual(ref),
+                        style: textes.labelSmall?.copyWith(
+                          color: context.palette.texteDoux,
+                        ),
+                      ),
                     if (a.aVerifier)
                       Text(
                         t.aVerifier,

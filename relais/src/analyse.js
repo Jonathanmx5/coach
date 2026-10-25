@@ -1,3 +1,4 @@
+import { ciqual } from './ciqual.js';
 import { referentiel } from './referentiel.js';
 
 export const CONSIGNE = `Tu es un diététicien sportif. La photo montre soit un plat ou des aliments, soit un produit emballé (avec parfois son tableau de valeurs nutritionnelles).
@@ -37,6 +38,9 @@ const CLES_MACROS = {
 const CLES_IGNOREES = /fibres|sel|sodium|acides gras|satur|poids|total/;
 // Début d'un récapitulatif (« Total : », « Récapitulatif », « Bilan ») : il
 // reprend les valeurs des aliments, la liste s'arrête là.
+// Produit à la recette particulière (« Gâteau de semoule protéiné Aldi ») :
+// ses valeurs ne sont pas celles de l'aliment ordinaire de la table Ciqual.
+const PRODUIT_PARTICULIER = /(^|[^a-z])(proteine|allege|light|zero|0 ?%|sans sucre|edulcor|enrichi|vegan|vegetal)/;
 const RECAPITULATIF = /^(total|totaux|recapitulatif|bilan)([^a-z]|$)/;
 
 // Boissons alcoolisées : leurs calories viennent surtout de l'alcool, que
@@ -165,6 +169,7 @@ export function aliments(texteOuObjet) {
   if (!json || !Array.isArray(json.aliments)) return null;
   const sortie = [];
   let devinesANul = 0;
+  const particulier = typeof json.description === 'string' && PRODUIT_PARTICULIER.test(sansAccents(json.description));
   for (const a of json.aliments) {
     if (!a || typeof a.nom !== 'string' || a.nom.trim() === '') continue;
     const grammesLus = nombre(a.grammes);
@@ -190,13 +195,16 @@ export function aliments(texteOuObjet) {
     // Les modèles se trompent souvent en arithmétique : si les calories
     // s'écartent de plus de 25 % de ce que donnent les macros, on garde les macros.
     else if (depuisMacros > 0 && !alcoolNonCompte && Math.abs(kcal - depuisMacros) / depuisMacros > 0.25) kcal = depuisMacros;
-    // Aliment connu : si la densité calorique du modèle s'écarte de plus de
-    // 25 % du repère usuel, on garde les grammes du modèle et on reprend les
-    // apports du tableau (voir referentiel.js). Jamais pour des valeurs lues
-    // sur l'étiquette d'un produit emballé.
+    // Aliment reconnu sans ambiguïté : si la densité calorique du modèle
+    // s'écarte de plus de 25 % de celle d'une table, on garde les grammes du
+    // modèle et on reprend les apports de la table. D'abord les aliments
+    // courants (referentiel.js), puis la table Ciqual de l'ANSES (ciqual.js),
+    // dont le libellé retenu est renvoyé dans "reference". Jamais pour des
+    // valeurs lues sur l'étiquette d'un produit emballé.
     const etiquette = typeof a.source === 'string' && sansAccents(a.source).trim() === 'etiquette';
-    const repere = etiquette ? null : referentiel(a.nom);
-    if (repere && Math.abs(kcal / grammes - repere.kcal / 100) / (repere.kcal / 100) > 0.25) {
+    const trouve = etiquette ? null : (referentiel(a.nom) ?? (particulier ? null : ciqual(a.nom)));
+    const repere = trouve && Math.abs(kcal / grammes - trouve.kcal / 100) / Math.max(trouve.kcal / 100, 0.05) > 0.25 ? trouve : null;
+    if (repere) {
       const f = grammes / 100;
       p = repere.p * f;
       g = repere.g * f;
@@ -228,6 +236,7 @@ export function aliments(texteOuObjet) {
       sucres: Math.round(sucres * 10) / 10,
       satures: Math.round(satures * 10) / 10,
       confiance: Math.round(confiance * 100) / 100,
+      ...(repere?.reference ? { reference: repere.reference } : {}),
     });
     if (sansValeurs && sortie.at(-1).kcal === 0) devinesANul++;
     if (sortie.length === 8) break;

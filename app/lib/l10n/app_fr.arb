@@ -831,6 +831,8 @@
   "etalonnageOublier": "Oublier mes corrections de portions",
   "etalonnageAide": "L'appli apprend de tes corrections pour mieux estimer tes portions ; ces données restent sur le téléphone.",
   "etalonnageOublie": "Corrections de portions oubliées.",
+  "valeursCiqual": "Valeurs de la table Ciqual (ANSES) : {reference}",
+  "@valeursCiqual": {"placeholders": {"reference": {"type": "String"}}},
   "courbePoids": "Évolution du poids",
   "periode90": "90 jours",
   "periode1an": "1 an",
