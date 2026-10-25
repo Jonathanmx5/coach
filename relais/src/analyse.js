@@ -36,11 +36,11 @@ const CLES_MACROS = {
 
 // Lignes annexes d'une liste à puces : ni des aliments, ni des macros demandées.
 const CLES_IGNOREES = /fibres|sel|sodium|acides gras|satur|poids|total/;
-// Début d'un récapitulatif (« Total : », « Récapitulatif », « Bilan ») : il
-// reprend les valeurs des aliments, la liste s'arrête là.
 // Produit à la recette particulière (« Gâteau de semoule protéiné Aldi ») :
 // ses valeurs ne sont pas celles de l'aliment ordinaire de la table Ciqual.
 const PRODUIT_PARTICULIER = /(^|[^a-z])(proteine|allege|light|zero|0 ?%|sans sucre|edulcor|enrichi|vegan|vegetal)/;
+// Début d'un récapitulatif (« Total : », « Récapitulatif », « Bilan ») : il
+// reprend les valeurs des aliments, la liste s'arrête là.
 const RECAPITULATIF = /^(total|totaux|recapitulatif|bilan)([^a-z]|$)/;
 
 // Boissons alcoolisées : leurs calories viennent surtout de l'alcool, que
