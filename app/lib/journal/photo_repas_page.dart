@@ -17,6 +17,7 @@ import 'formulaires.dart';
 import '../profil/modele.dart';
 import 'modele.dart';
 import 'photos_repas.dart';
+import 'pieces.dart';
 import 'preferences_analyse.dart';
 import 'repas_recents.dart';
 import 'signalement.dart';
@@ -421,7 +422,10 @@ class _PhotoRepasPageState extends State<PhotoRepasPage> {
   /// ±10 % de la portion, arrondi à 5 g (au moins 5 g d'écart).
   void _ajuster(int i, int sens) {
     final g = _aliments[i].grammes;
-    final nouveau = portionSuivante(g, sens);
+    final piece = pieceDe(_aliments[i].nom);
+    final nouveau = piece == null
+        ? portionSuivante(g, sens)
+        : pieceSuivante(piece, g, sens);
     if (nouveau == g) return;
     _changerBase(
       () => _aliments = [..._aliments]..[i] = _aliments[i].avecGrammes(nouveau),
@@ -888,6 +892,15 @@ class _PhotoRepasPageState extends State<PhotoRepasPage> {
                       ),
                       style: textes.bodySmall,
                     ),
+                    if (pieceDe(a.nom) case final p?)
+                      if (textePieces(p, a.grammes) case final s
+                          when s.isNotEmpty)
+                        Text(
+                          t.environPieces(s),
+                          style: textes.labelSmall?.copyWith(
+                            color: context.palette.texteDoux,
+                          ),
+                        ),
                     if (a.aFourchette)
                       Text(
                         t.fourchetteGrammes(

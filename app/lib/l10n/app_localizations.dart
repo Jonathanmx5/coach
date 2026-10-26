@@ -2824,6 +2824,48 @@ abstract class AppLocalizations {
   /// **'Chercher dans la table Ciqual'**
   String get ciqualChercher;
 
+  /// No description provided for @environPieces.
+  ///
+  /// In fr, this message translates to:
+  /// **'environ {pieces}'**
+  String environPieces(String pieces);
+
+  /// No description provided for @cuissonTitre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Cuisson'**
+  String get cuissonTitre;
+
+  /// No description provided for @cuissonVapeur.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vapeur'**
+  String get cuissonVapeur;
+
+  /// No description provided for @cuissonPoele.
+  ///
+  /// In fr, this message translates to:
+  /// **'Poêlé'**
+  String get cuissonPoele;
+
+  /// No description provided for @cuissonFrit.
+  ///
+  /// In fr, this message translates to:
+  /// **'Frit'**
+  String get cuissonFrit;
+
+  /// No description provided for @cuissonFour.
+  ///
+  /// In fr, this message translates to:
+  /// **'Au four'**
+  String get cuissonFour;
+
+  /// No description provided for @cuissonBouilli.
+  ///
+  /// In fr, this message translates to:
+  /// **'Bouilli'**
+  String get cuissonBouilli;
+
   /// No description provided for @courbePoids.
   ///
   /// In fr, this message translates to:

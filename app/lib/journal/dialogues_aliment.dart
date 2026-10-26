@@ -233,10 +233,11 @@ class DialogueAlimentState extends State<DialogueAliment> {
     ),
   );
 
-  Future<void> _chercher() async {
+  Future<void> _chercher([String cuisson = '']) async {
     final a = await showDialog<AlimentCiqual>(
       context: context,
-      builder: (_) => DialogueRechercheCiqual(depart: _nom.text),
+      builder: (_) =>
+          DialogueRechercheCiqual(depart: '${_nom.text} $cuisson'.trim()),
     );
     if (a == null || !mounted) return;
     setState(() {
@@ -263,6 +264,31 @@ class DialogueAlimentState extends State<DialogueAliment> {
               icon: const Icon(Icons.search),
               label: Text(t.ciqualChercher),
             ),
+            if (!_creation) ...[
+              Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  t.cuissonTitre,
+                  style: Theme.of(context).textTheme.labelMedium,
+                ),
+              ),
+              Wrap(
+                spacing: 6,
+                children: [
+                  for (final (libelle, mot) in [
+                    (t.cuissonVapeur, 'vapeur'),
+                    (t.cuissonPoele, 'poêlé'),
+                    (t.cuissonFrit, 'frit'),
+                    (t.cuissonFour, 'four'),
+                    (t.cuissonBouilli, 'bouilli'),
+                  ])
+                    ActionChip(
+                      label: Text(libelle),
+                      onPressed: () => _chercher(mot),
+                    ),
+                ],
+              ),
+            ],
             if (_ciqual != null)
               Text(
                 t.valeursCiqual(_ciqual!.nom),

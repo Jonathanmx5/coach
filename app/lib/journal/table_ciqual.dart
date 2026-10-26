@@ -51,10 +51,10 @@ class AlimentCiqual {
 }
 
 String _simple(String s) {
-  const de = 'àâäçéèêëîïôöùûüÿœ';
-  const vers = 'aaaceeeeiioouuuyo';
+  const de = 'àâäçéèêëîïôöùûüÿ';
+  const vers = 'aaaceeeeiioouuuy';
   final b = StringBuffer();
-  for (final c in s.toLowerCase().split('')) {
+  for (final c in s.toLowerCase().replaceAll('œ', 'oe').split('')) {
     final i = de.indexOf(c);
     b.write(i < 0 ? c : vers[i]);
   }

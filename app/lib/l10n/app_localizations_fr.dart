@@ -1600,6 +1600,29 @@ class AppLocalizationsFr extends AppLocalizations {
   String get ciqualChercher => 'Chercher dans la table Ciqual';
 
   @override
+  String environPieces(String pieces) {
+    return 'environ $pieces';
+  }
+
+  @override
+  String get cuissonTitre => 'Cuisson';
+
+  @override
+  String get cuissonVapeur => 'Vapeur';
+
+  @override
+  String get cuissonPoele => 'Poêlé';
+
+  @override
+  String get cuissonFrit => 'Frit';
+
+  @override
+  String get cuissonFour => 'Au four';
+
+  @override
+  String get cuissonBouilli => 'Bouilli';
+
+  @override
   String get courbePoids => 'Évolution du poids';
 
   @override
