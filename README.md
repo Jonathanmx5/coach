@@ -46,5 +46,5 @@ Aucune licence : le code est visible, mais tous droits sont réservés. Pour le 
 ## Crédits
 
 - Photos de démonstration des exercices (`app/assets/exercices/`) : jeu libre de droits [free-exercise-db](https://github.com/yuhonas/free-exercise-db) (licence Unlicense, domaine public), réduites à 480 px. Le script `app/tool/telecharger_exercices.mjs` les récupère.
-- Valeurs nutritionnelles de référence du relais (`relais/donnees/ciqual.json`) : ANSES, Table de composition nutritionnelle des aliments Ciqual 2020 ([doi:10.5281/zenodo.4770600](https://doi.org/10.5281/zenodo.4770600)), licence [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) ; extrait (énergie et macronutriments pour 100 g) converti en JSON.
+- Valeurs nutritionnelles de référence du relais (`relais/donnees/ciqual.json`) et recherche d’aliments de l’appli (`app/assets/ciqual.json`) : ANSES, Table de composition nutritionnelle des aliments Ciqual 2020 ([doi:10.5281/zenodo.4770600](https://doi.org/10.5281/zenodo.4770600)), licence [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) ; extrait (énergie et macronutriments pour 100 g) converti en JSON.
 - Photos des recettes (`app/assets/recettes/`) : illustrations générées par IA (modèle flux-1-schnell, licence Apache 2.0).

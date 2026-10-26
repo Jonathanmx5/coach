@@ -7,6 +7,7 @@ import '../profil/saisie.dart';
 import '../theme.dart';
 import 'analyse_photo.dart';
 import 'modele.dart';
+import 'table_ciqual.dart';
 
 /// Quand l'IA doute : l'utilisateur dit ce que c'est et relance l'analyse.
 class CartePrecision extends StatelessWidget {
@@ -151,6 +152,9 @@ class DialogueAlimentState extends State<DialogueAliment> {
   final _lip = TextEditingController();
   String? _erreur;
 
+  /// Aliment choisi dans la table Ciqual : ses valeurs pour 100 g servent.
+  AlimentCiqual? _ciqual;
+
   bool get _creation => widget.modele == null;
 
   @override
@@ -170,6 +174,12 @@ class DialogueAlimentState extends State<DialogueAliment> {
     }
     if (g == null || g <= 0 || g > 5000) {
       setState(() => _erreur = t.erreurPlage(1, 5000));
+      return;
+    }
+    final choisi = _ciqual;
+    if (choisi != null) {
+      Navigator.of(context)
+          .pop(choisi.pour(g, nomAffiche: nom).valideParUtilisateur());
       return;
     }
     if (!_creation) {
@@ -223,6 +233,20 @@ class DialogueAlimentState extends State<DialogueAliment> {
     ),
   );
 
+  Future<void> _chercher() async {
+    final a = await showDialog<AlimentCiqual>(
+      context: context,
+      builder: (_) => DialogueRechercheCiqual(depart: _nom.text),
+    );
+    if (a == null || !mounted) return;
+    setState(() {
+      _ciqual = a;
+      _erreur = null;
+      final court = a.nom.split(',').first.trim();
+      _nom.text = court.length <= 60 ? court : court.substring(0, 60);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context)!;
@@ -234,7 +258,17 @@ class DialogueAlimentState extends State<DialogueAliment> {
           children: [
             _champ(_nom, t.nomAliment, texte: true, longueurMax: 60),
             _champ(_grammes, t.champQuantite),
-            if (_creation) ...[
+            TextButton.icon(
+              onPressed: _chercher,
+              icon: const Icon(Icons.search),
+              label: Text(t.ciqualChercher),
+            ),
+            if (_ciqual != null)
+              Text(
+                t.valeursCiqual(_ciqual!.nom),
+                style: Theme.of(context).textTheme.labelSmall,
+              ),
+            if (_creation && _ciqual == null) ...[
               _champ(_kcal, t.champKcal),
               _champ(_prot, t.champProteines),
               _champ(_gluc, t.champGlucides),

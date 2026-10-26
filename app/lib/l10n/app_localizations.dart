@@ -2794,6 +2794,36 @@ abstract class AppLocalizations {
   /// **'Valeurs de la table Ciqual (ANSES) : {reference}'**
   String valeursCiqual(String reference);
 
+  /// No description provided for @ciqualRechercheTitre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Chercher un aliment'**
+  String get ciqualRechercheTitre;
+
+  /// No description provided for @ciqualRechercheLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nom de l\'aliment'**
+  String get ciqualRechercheLabel;
+
+  /// No description provided for @ciqualPour100.
+  ///
+  /// In fr, this message translates to:
+  /// **'{kcal} kcal pour 100 g'**
+  String ciqualPour100(int kcal);
+
+  /// No description provided for @ciqualSource.
+  ///
+  /// In fr, this message translates to:
+  /// **'Table Ciqual 2020, ANSES (CC BY 4.0)'**
+  String get ciqualSource;
+
+  /// No description provided for @ciqualChercher.
+  ///
+  /// In fr, this message translates to:
+  /// **'Chercher dans la table Ciqual'**
+  String get ciqualChercher;
+
   /// No description provided for @courbePoids.
   ///
   /// In fr, this message translates to:

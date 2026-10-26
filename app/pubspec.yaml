@@ -94,6 +94,7 @@ flutter:
   assets:
     - assets/recettes/
     - assets/exercices/
+    - assets/ciqual.json
   generate: true
 
   # To add assets to your application, add an assets section, like this:

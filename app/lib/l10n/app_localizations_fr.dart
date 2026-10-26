@@ -1583,6 +1583,23 @@ class AppLocalizationsFr extends AppLocalizations {
   }
 
   @override
+  String get ciqualRechercheTitre => 'Chercher un aliment';
+
+  @override
+  String get ciqualRechercheLabel => 'Nom de l\'aliment';
+
+  @override
+  String ciqualPour100(int kcal) {
+    return '$kcal kcal pour 100 g';
+  }
+
+  @override
+  String get ciqualSource => 'Table Ciqual 2020, ANSES (CC BY 4.0)';
+
+  @override
+  String get ciqualChercher => 'Chercher dans la table Ciqual';
+
+  @override
   String get courbePoids => 'Évolution du poids';
 
   @override
