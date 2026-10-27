@@ -86,11 +86,17 @@ String _simple(String s) {
   return b.toString();
 }
 
+final _transforme = RegExp(
+  r' (compote|jus|tarte|gateau|glace|mousse|puree|confiture|sirop|sorbet|smoothie|chaud|poudre|lait|boisson|creme|sauce|salade|soupe|pate a|yaourt aux?) ',
+);
+
 /// La pièce correspondant au nom de l'aliment, ou null s'il ne se compte pas
 /// ainsi (le plus long mot-clé trouvé l'emporte : « pain au chocolat » avant
 /// « chocolat »).
 Piece? pieceDe(String nom) {
   final n = ' ${_simple(nom).replaceAll(RegExp(r'[^a-z ]'), ' ')} ';
+  // Préparations où le fruit ou le chocolat ne se compte plus en pièces.
+  if (_transforme.hasMatch(n)) return null;
   Piece? meilleure;
   var longueur = 0;
   for (final p in _pieces) {

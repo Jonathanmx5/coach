@@ -7,6 +7,9 @@ void main() {
     expect(pieceDe('Pain au chocolat')?.singulier, 'pain au chocolat');
     expect(pieceDe('Banane')?.grammes, 120);
     expect(pieceDe('Riz'), isNull);
+    expect(pieceDe('Compote de pommes'), isNull);
+    expect(pieceDe('Chocolat chaud'), isNull);
+    expect(pieceDe("Jus d'orange"), isNull);
     expect(pieceDe('Poulet'), isNull);
   });
 
