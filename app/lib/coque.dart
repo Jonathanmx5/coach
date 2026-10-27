@@ -261,51 +261,102 @@ class _CoqueState extends State<Coque> with WidgetsBindingObserver {
     ),
   };
 
+  Widget _bandeauHorsLigne(AppLocalizations t) => StreamBuilder<bool>(
+    stream: _enLigne,
+    initialData: true,
+    builder: (context, snap) => snap.data == false
+        ? Material(
+            color: CouleursCoach.orange,
+            child: SizedBox(
+              width: double.infinity,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 6,
+                ),
+                child: Text(
+                  t.horsLigne,
+                  // Texte foncé fixe : sur l'orange, le texte clair du thème
+                  // sombre serait illisible.
+                  style: Theme.of(context).textTheme.bodySmall
+                      ?.copyWith(color: CouleursCoach.texte),
+                ),
+              ),
+            ),
+          )
+        : const SizedBox.shrink(),
+  );
+
+  Widget _corps() => Theme(
+    // Les onglets laissent voir le fond de verre.
+    data: Theme.of(context)
+        .copyWith(scaffoldBackgroundColor: Colors.transparent),
+    child: IndexedStack(
+      index: _onglet,
+      children: [for (final page in _pages) page ?? const SizedBox.shrink()],
+    ),
+  );
+
   @override
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context)!;
-    return FondVerre(
-      child: Scaffold(
-        backgroundColor: Colors.transparent,
-        body: Theme(
-          // Les onglets laissent voir le fond de verre.
-          data: Theme.of(context)
-              .copyWith(scaffoldBackgroundColor: Colors.transparent),
-          child: IndexedStack(
-            index: _onglet,
+    final onglets = [
+      (Icons.home_outlined, Icons.home, t.tabAccueil),
+      (Icons.restaurant_outlined, Icons.restaurant, t.tabJournal),
+      (Icons.fitness_center_outlined, Icons.fitness_center, t.tabSport),
+      (Icons.monitor_weight_outlined, Icons.monitor_weight, t.tabPoids),
+      (Icons.spa_outlined, Icons.spa, t.tabBienEtre),
+    ];
+    // Tablette ou téléphone à plat : barre latérale à gauche, contenu centré.
+    if (largeEcran(context)) {
+      return FondVerre(
+        child: Scaffold(
+          backgroundColor: Colors.transparent,
+          body: Row(
             children: [
-              for (final page in _pages) page ?? const SizedBox.shrink(),
+              SafeArea(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(10, 10, 0, 10),
+                  child: VerreFlou(
+                    rayon: 34,
+                    child: NavigationRail(
+                      backgroundColor: Colors.transparent,
+                      selectedIndex: _onglet,
+                      onDestinationSelected: _choisirOnglet,
+                      labelType: NavigationRailLabelType.all,
+                      destinations: [
+                        for (final (icone, plein, libelle) in onglets)
+                          NavigationRailDestination(
+                            icon: Icon(icone),
+                            selectedIcon: Icon(plein),
+                            label: Text(libelle),
+                          ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+              Expanded(
+                child: Column(
+                  children: [
+                    _bandeauHorsLigne(t),
+                    Expanded(child: ColonneCentree(child: _corps())),
+                  ],
+                ),
+              ),
             ],
           ),
         ),
+      );
+    }
+    return FondVerre(
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        body: _corps(),
         bottomNavigationBar: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            StreamBuilder<bool>(
-              stream: _enLigne,
-              initialData: true,
-              builder: (context, snap) => snap.data == false
-                  ? Material(
-                      color: CouleursCoach.orange,
-                      child: SizedBox(
-                        width: double.infinity,
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 6,
-                          ),
-                          child: Text(
-                            t.horsLigne,
-                            // Texte foncé fixe : sur l'orange, le texte clair
-                            // du thème sombre serait illisible.
-                            style: Theme.of(context).textTheme.bodySmall
-                                ?.copyWith(color: CouleursCoach.texte),
-                          ),
-                        ),
-                      ),
-                    )
-                  : const SizedBox.shrink(),
-            ),
+            _bandeauHorsLigne(t),
             Padding(
               padding: const EdgeInsets.fromLTRB(14, 4, 14, 10),
               child: VerreFlou(
@@ -314,31 +365,12 @@ class _CoqueState extends State<Coque> with WidgetsBindingObserver {
                   selectedIndex: _onglet,
                   onDestinationSelected: _choisirOnglet,
                   destinations: [
-                    NavigationDestination(
-                      icon: const Icon(Icons.home_outlined),
-                      selectedIcon: const Icon(Icons.home),
-                      label: t.tabAccueil,
-                    ),
-                    NavigationDestination(
-                      icon: const Icon(Icons.restaurant_outlined),
-                      selectedIcon: const Icon(Icons.restaurant),
-                      label: t.tabJournal,
-                    ),
-                    NavigationDestination(
-                      icon: const Icon(Icons.fitness_center_outlined),
-                      selectedIcon: const Icon(Icons.fitness_center),
-                      label: t.tabSport,
-                    ),
-                    NavigationDestination(
-                      icon: const Icon(Icons.monitor_weight_outlined),
-                      selectedIcon: const Icon(Icons.monitor_weight),
-                      label: t.tabPoids,
-                    ),
-                    NavigationDestination(
-                      icon: const Icon(Icons.spa_outlined),
-                      selectedIcon: const Icon(Icons.spa),
-                      label: t.tabBienEtre,
-                    ),
+                    for (final (icone, plein, libelle) in onglets)
+                      NavigationDestination(
+                        icon: Icon(icone),
+                        selectedIcon: Icon(plein),
+                        label: libelle,
+                      ),
                   ],
                 ),
               ),

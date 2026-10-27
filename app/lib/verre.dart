@@ -167,3 +167,36 @@ class VerreFlou extends StatelessWidget {
     );
   }
 }
+
+/// Largeur à partir de laquelle l'appli passe en mise en page de tablette.
+const largeurTablette = 840.0;
+
+/// Largeur maximale du contenu : au-delà, les listes pensées pour un
+/// téléphone s'étirent trop.
+const largeurContenuMax = 880.0;
+
+/// Vrai sur une tablette ou un téléphone tenu à plat.
+bool largeEcran(BuildContext context) =>
+    MediaQuery.sizeOf(context).width >= largeurTablette;
+
+/// Centre le contenu et limite sa largeur sur grand écran ; sur téléphone,
+/// il occupe toute la largeur comme avant.
+class ColonneCentree extends StatelessWidget {
+  const ColonneCentree({super.key, required this.child});
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) => LayoutBuilder(
+    builder: (context, c) => c.maxWidth <= largeurContenuMax
+        ? child
+        : Align(
+            alignment: Alignment.topCenter,
+            child: SizedBox(
+              width: largeurContenuMax,
+              height: c.hasBoundedHeight ? c.maxHeight : null,
+              child: child,
+            ),
+          ),
+  );
+}

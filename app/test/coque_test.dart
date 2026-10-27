@@ -137,6 +137,48 @@ Future<void> onglet(WidgetTester tester, String nom) async {
 }
 
 void main() {
+  group('tablette', () {
+    testWidgets('écran large : barre latérale, contenu limité en largeur', (
+      tester,
+    ) async {
+      tester.view.physicalSize = const Size(1600, 1000);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
+      final banc = Banc();
+      await banc.monter(tester);
+
+      expect(find.byType(NavigationRail), findsOneWidget);
+      expect(find.byType(NavigationBar), findsNothing);
+      expect(
+        tester.getSize(find.byType(AccueilPage)).width,
+        lessThanOrEqualTo(largeurContenuMax),
+      );
+
+      await tester.tap(
+        find.descendant(
+          of: find.byType(NavigationRail),
+          matching: find.text('Poids'),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(find.byType(PoidsPage), findsOneWidget);
+    });
+
+    testWidgets('téléphone : barre du bas, contenu sur toute la largeur', (
+      tester,
+    ) async {
+      tester.view.physicalSize = const Size(400, 800);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
+      final banc = Banc();
+      await banc.monter(tester);
+
+      expect(find.byType(NavigationBar), findsOneWidget);
+      expect(find.byType(NavigationRail), findsNothing);
+      expect(tester.getSize(find.byType(AccueilPage)).width, 400);
+    });
+  });
+
   group('onglets', () {
     testWidgets('au démarrage, seul l\'onglet Accueil est construit', (
       tester,

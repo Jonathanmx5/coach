@@ -17,7 +17,7 @@ Route<T> routeVerre<T>(WidgetBuilder builder, {RouteSettings? settings}) =>
           data: Theme.of(context)
               .copyWith(scaffoldBackgroundColor: Colors.transparent),
           // Le contexte passé à la page est sous le thème transparent.
-          child: Builder(builder: builder),
+          child: ColonneCentree(child: Builder(builder: builder)),
         ),
       ),
     );
