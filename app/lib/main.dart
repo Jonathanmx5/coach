@@ -31,6 +31,7 @@ import 'recettes/planning_repository.dart';
 import 'reglages/mises_a_jour.dart';
 import 'reglages/reglage_rapports.dart';
 import 'journal/preferences_analyse.dart';
+import 'journal/synchro_preferences_analyse.dart';
 import 'reglages/reglage_theme.dart';
 import 'sauvegarde/fichiers.dart';
 import 'sauvegarde/sauvegarde.dart';
@@ -41,7 +42,7 @@ import 'sante/sante_service.dart';
 import 'services.dart';
 
 /// Réglages de l'analyse photo ; si le stockage échoue, rien d'appris.
-Future<PreferencesAnalyse> _chargerPreferencesAnalyse() async {
+Future<PreferencesAnalyseMemoire> _chargerPreferencesAnalyse() async {
   try {
     return await PreferencesAnalyseLocales.charger();
   } catch (_) {
@@ -113,6 +114,12 @@ Future<void> main() async {
   final auth = FirebaseAuthService();
   final theme = await _chargerTheme();
   final preferencesAnalyse = await _chargerPreferencesAnalyse();
+  // Mêmes réglages d'analyse sur tous les appareils du compte.
+  SynchroPreferencesAnalyse(
+    prefs: preferencesAnalyse,
+    depot: FirestoreDepotPreferencesAnalyse(),
+    comptes: auth.changements.map((u) => u?.uid),
+  );
   runApp(
     CoachApp(
       theme: theme.mode,

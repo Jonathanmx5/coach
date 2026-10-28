@@ -119,6 +119,10 @@ service cloud.firestore {
         || (id == 'entrainement'
           && d.keys().hasOnly(['materiel'])
           && (!('materiel' in d) || (d.materiel is list && d.materiel.size() <= 20)))
+        || (id == 'analyse'
+          && d.keys().hasOnly(['assiette', 'etalonnage'])
+          && (!('assiette' in d) || (d.assiette is int && d.assiette >= 10 && d.assiette <= 40))
+          && (!('etalonnage' in d) || (d.etalonnage is map && d.etalonnage.size() <= 200)))
         || (id == 'recettes'
           && d.keys().hasOnly(['avis'])
           && (!('avis' in d) || (d.avis is map && d.avis.size() <= 500)));

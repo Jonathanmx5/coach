@@ -203,6 +203,12 @@ test('réglages : seuls les quatre documents connus, avec leurs champs', async (
   await assertSucceeds(setDoc(r('entrainement'), { materiel: ['halteres'] }));
   await assertSucceeds(setDoc(r('recettes'), { avis: { r1: 'aime' } }));
 
+  await assertSucceeds(
+    setDoc(r('analyse'), { assiette: 26, etalonnage: { riz: { f: 1.2, n: 3 } } }),
+  );
+  await assertFails(setDoc(r('analyse'), { assiette: 'grande' }));
+  await assertFails(setDoc(r('analyse'), { assiette: 26, admin: 1 }));
+
   await assertFails(setDoc(r('autre'), { meteo: true }));
   await assertFails(setDoc(r('consentements'), { photo: 'oui' }));
   await assertFails(setDoc(r('consentements'), { photo: 1, admin: 1 }));

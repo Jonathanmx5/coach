@@ -94,7 +94,8 @@ double facteurAppris(Etalonnage? e) {
   return (f - 1).abs() < 0.05 ? 1 : f;
 }
 
-/// Réglages et apprentissages de l'analyse photo, gardés sur le téléphone.
+/// Réglages et apprentissages de l'analyse photo, gardés sur l'appareil et
+/// partagés entre les appareils du même compte.
 abstract class PreferencesAnalyse {
   /// Diamètre des assiettes habituelles, en cm ; null si non renseigné.
   int? get assietteCm;
@@ -156,10 +157,24 @@ class PreferencesAnalyseMemoire implements PreferencesAnalyse {
   @override
   int? get assietteCm => _assiette;
 
+  /// Appelé après chaque modification faite ici (pas après celles venues d'un
+  /// autre appareil) : sert à les envoyer au compte.
+  VoidCallback? surModification;
+
+  /// Reprend les réglages d'un autre appareil du même compte.
+  Future<void> remplacerPar(int? cm, Map<String, Etalonnage> appris) async {
+    _assiette = diametresAssiette.contains(cm) ? cm : null;
+    _appris
+      ..clear()
+      ..addAll(appris);
+    await enregistrer();
+  }
+
   @override
   Future<void> definirAssiette(int? cm) async {
     _assiette = cm;
     await enregistrer();
+    surModification?.call();
   }
 
   @override
@@ -179,12 +194,14 @@ class PreferencesAnalyseMemoire implements PreferencesAnalyse {
       _appris.remove(_appris.keys.first);
     }
     await enregistrer();
+    surModification?.call();
   }
 
   @override
   Future<void> oublier() async {
     _appris.clear();
     await enregistrer();
+    surModification?.call();
   }
 
   /// Rien à faire en mémoire ; la version locale écrit sur le téléphone.
