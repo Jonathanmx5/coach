@@ -490,7 +490,7 @@ test('Llama 3.2 : JSON sans accolades, clés capitalisées, réponse coupée', (
   assert.equal(analyse(complete).aliments[0].nom, 'Pomme');
 
   // Du JSON normal avec des clés accentuées ou capitalisées.
-  const normal = analyse('{"Description":"y","aliments":[{"nom":"Kiwi","grammes":100,"kcal":57,"Protéines":0.4}]}');
+  const normal = analyse('{"Description":"y","aliments":[{"nom":"Plat du jour","grammes":100,"kcal":57,"Protéines":0.4}]}');
   assert.equal(normal.aliments[0].proteines, 0.4);
 });
 

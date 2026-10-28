@@ -102,6 +102,44 @@ for (const a of ALIMENTS) {
   PAR_PREMIER.get(a.premier).push(a);
 }
 
+// Aliments courants que la prudence ci-dessus écarterait (« Frites », « Huile
+// d'olive », « Baguette »...) : correspondance choisie à la main, pour le nom
+// entier seulement (« Poulet » seul reste sans réponse). Libellés Ciqual exacts.
+const ALIAS = [
+  [['poulet rôti', 'poulet roti'], 'Poulet, viande et peau, rôti/cuit au four'],
+  [['poulet grillé', 'poulet grille'], 'Poulet, poitrine, viande et peau, rôti/cuit au four'],
+  [['blanc de poulet', 'filet de poulet', 'escalope de poulet'], 'Poulet, filet, sans peau, sauté/poêlé'],
+  [['jambon blanc', 'jambon cuit'], 'Jambon cuit, supérieur'],
+  [['frites', 'frite', 'portion de frites'], 'Frites de pommes de terre, surgelées, cuites en friteuse'],
+  [["huile d'olive", 'huile olive'], "Huile d'olive vierge extra"],
+  [['baguette', 'pain blanc', 'baguette de pain'], 'Pain, baguette, courante'],
+  [['spaghetti', 'spaghettis', 'tagliatelles', 'penne', 'fusilli', 'macaroni', 'coquillettes'], 'Pâtes sèches standard, cuites, non salées'],
+  [['purée', 'purée de pommes de terre', 'purée de pomme de terre'], 'Pomme de terre, purée (aliment moyen)'],
+  [['steak haché', 'steak hache'], 'Boeuf, steak haché 15% MG, cuit'],
+  [['saumon'], 'Saumon, cuit, sans précision (aliment moyen)'],
+  [['omelette'], 'Omelette, garnitures diverses : légumes, fromages, viandes... (aliment moyen)'],
+  [['yaourt grec', 'yaourt à la grecque'], 'Yaourt à la grecque, nature'],
+  [['mozzarella'], 'Mozzarella au lait de vache'],
+  [['haricots verts', 'haricot vert'], 'Haricot vert, cuit'],
+  [['courgette', 'courgettes'], 'Courgette, pulpe et peau, cuite'],
+  [['épinards', 'épinard'], 'Épinard, cuit'],
+  [['kiwi', 'kiwis'], 'Kiwi, pulpe et graines, cru'],
+  [['noix'], 'Noix, séchée, cerneaux'],
+  [['lentilles', 'lentille'], "Lentille, bouillie/cuite à l'eau"],
+  [['pois chiches', 'pois chiche'], "Pois chiche, bouilli/cuit à l'eau"],
+  [['boulgour'], 'Boulgour de blé, cuit, non salé'],
+  [['semoule'], 'Semoule de blé dur, cuite, non salée'],
+  [['petits pois'], 'Petits pois, cuits'],
+  [['maïs', 'mais'], 'Maïs doux, appertisé, égoutté'],
+];
+const PAR_LIBELLE = new Map(ALIMENTS.map((a) => [a.nom, a]));
+const PAR_ALIAS = new Map();
+for (const [noms, libelle] of ALIAS) {
+  const a = PAR_LIBELLE.get(libelle);
+  if (!a) throw new Error(`Ciqual : libellé introuvable pour l'alias « ${noms[0]} » : ${libelle}`);
+  for (const n of noms) PAR_ALIAS.set(mots(n).join(' '), a);
+}
+
 function cout(a, demande) {
   let c = a.generique ? -0.5 : 0;
   const cuit = a.mots.has('cuit');
@@ -131,6 +169,8 @@ export function ciqual(nom) {
   // Retire les précisions entre parenthèses : « Poisson (halibut ou saumon) ».
   const liste = mots(nom.replace(/\([^)]*\)/g, ' '));
   if (liste.length === 0 || liste.length > 8) return null;
+  const alias = PAR_ALIAS.get(liste.join(' '));
+  if (alias) return valeurs(alias);
   const demande = new Set(liste);
   const candidats = [];
   for (const a of PAR_PREMIER.get(liste[0]) ?? []) {
@@ -143,7 +183,10 @@ export function ciqual(nom) {
   const kcal = candidats.filter((x) => x.c - meilleur.c <= ECART_TOLERE).map((x) => x.a.kcal);
   const ecart = Math.max(...kcal) - Math.min(...kcal);
   if (ecart > ECART_KCAL_ABSOLU && ecart / Math.max(meilleur.a.kcal, 1) > ECART_KCAL) return null;
-  const a = meilleur.a;
+  return valeurs(meilleur.a);
+}
+
+function valeurs(a) {
   const g = a.glucides ?? 0;
   const l = a.lipides ?? 0;
   return {

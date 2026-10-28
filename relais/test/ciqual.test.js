@@ -27,7 +27,6 @@ test('Ciqual : dans le doute, rien plutôt qu\'un autre aliment', () => {
   assert.equal(ciqual('Poulet'), null); // filet ou cuisse ?
   assert.equal(ciqual('Burger'), null); // seul « Burger au poulet » existe
   assert.equal(ciqual('Glace'), null); // pas « Glace à l'eau »
-  assert.equal(ciqual('Noix'), null); // pas « Noix, fraîche »
   assert.equal(ciqual('Jambon'), null); // pas « Jambon de poulet »
   assert.equal(ciqual('Pommes de terre sautées'), null);
   assert.equal(ciqual('Spécialité du chef'), null);
@@ -57,4 +56,18 @@ test('Ciqual : jamais pour une étiquette ni pour un produit à la recette parti
   assert.equal(analyse({ aliments: [{ ...quiche, source: 'etiquette' }] }).aliments[0].kcal, 150);
   assert.equal(analyse({ description: 'Quiche lorraine allégée Marque', aliments: [quiche] }).aliments[0].kcal, 150);
   assert.equal(analyse({ description: 'Quiche', aliments: [quiche] }).aliments[0].kcal, 274);
+});
+
+test('Ciqual : aliments courants à correspondance choisie à la main', () => {
+  assert.equal(ciqual('Frites').kcal, 285);
+  assert.equal(ciqual("Huile d'olive").kcal, 900);
+  assert.equal(ciqual('Baguette').reference, 'Pain, baguette, courante');
+  assert.equal(ciqual('Jambon blanc').reference, 'Jambon cuit, supérieur');
+  assert.equal(ciqual('Poulet rôti').reference, 'Poulet, viande et peau, rôti/cuit au four');
+  assert.equal(ciqual('Haricots verts').reference, 'Haricot vert, cuit');
+  assert.equal(ciqual('Noix').kcal, 686);
+  assert.equal(ciqual('Spaghettis').reference, 'Pâtes sèches standard, cuites, non salées');
+  // Le nom entier seulement : le reste garde la prudence habituelle.
+  assert.equal(ciqual('Poulet'), null);
+  assert.equal(ciqual('Frites de patate douce'), null);
 });
