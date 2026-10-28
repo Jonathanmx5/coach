@@ -348,7 +348,12 @@ class _CoqueState extends State<Coque> with WidgetsBindingObserver {
                 child: Column(
                   children: [
                     _bandeauHorsLigne(t),
-                    Expanded(child: ColonneCentree(child: _corps())),
+                    Expanded(
+                      child: ColonneCentree(
+                        largeurMax: largeurContenuLarge,
+                        child: _corps(),
+                      ),
+                    ),
                   ],
                 ),
               ),

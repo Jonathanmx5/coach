@@ -829,7 +829,7 @@
   "assietteCm": "{n} cm de diamètre",
   "@assietteCm": {"placeholders": {"n": {"type": "int"}}},
   "etalonnageOublier": "Oublier mes corrections de portions",
-  "etalonnageAide": "L'appli apprend de tes corrections pour mieux estimer tes portions ; ces données restent sur le téléphone.",
+  "etalonnageAide": "L'appli apprend de tes corrections pour mieux estimer tes portions ; ces données sont gardées sur ton compte, pour tous tes appareils.",
   "etalonnageOublie": "Corrections de portions oubliées.",
   "valeursCiqual": "Valeurs de la table Ciqual (ANSES) : {reference}",
   "@valeursCiqual": {"placeholders": {"reference": {"type": "String"}}},

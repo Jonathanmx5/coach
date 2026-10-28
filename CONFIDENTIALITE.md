@@ -8,6 +8,7 @@ Crunch & Go est une application Android de coaching sportif et alimentaire. Cett
 
 - **Compte Google** : sert uniquement à vous identifier et à sauvegarder votre profil.
 - **Profil** (objectif, sexe, année de naissance, taille, poids, type de vie, préférences d'entraînement, réponse à la question santé, présence d'une montre) : stocké dans Google Firebase (Cloud Firestore), **hébergé en Europe**. Vous seul pouvez y accéder.
+- **Réglages de l'analyse photo** (taille habituelle de vos assiettes, et pour chaque aliment le rapport moyen entre vos portions corrigées et celles estimées par l'IA) : stockés avec votre profil dans Cloud Firestore, pour être identiques sur tous vos appareils. Ils ne contiennent aucune photo. « Oublier mes corrections de portions » (Réglages) les efface ; la suppression du compte aussi.
 
 ## Données de santé (Health Connect)
 

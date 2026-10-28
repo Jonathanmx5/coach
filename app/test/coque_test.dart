@@ -1,6 +1,8 @@
 import 'dart:async';
 
 import 'package:coach/accueil/accueil_page.dart';
+import 'package:coach/accueil/anneaux.dart';
+import 'package:coach/accueil/carte_semaine.dart';
 import 'package:coach/app.dart';
 import 'package:coach/bienetre/bienetre_page.dart';
 import 'package:coach/compte/auth_service.dart';
@@ -151,7 +153,7 @@ void main() {
       expect(find.byType(NavigationBar), findsNothing);
       expect(
         tester.getSize(find.byType(AccueilPage)).width,
-        lessThanOrEqualTo(largeurContenuMax),
+        lessThanOrEqualTo(largeurContenuLarge),
       );
 
       await tester.tap(
@@ -204,6 +206,28 @@ void main() {
       banc.reseau.changer(false);
       await tester.pumpAndSettle();
       expect(find.textContaining('Hors-ligne'), findsOneWidget);
+    });
+
+    testWidgets('deux colonnes sur grand écran, une seule sur écran étroit', (
+      tester,
+    ) async {
+      addTearDown(tester.view.reset);
+      tester.view.devicePixelRatio = 1;
+
+      tester.view.physicalSize = const Size(1280, 800);
+      final banc = Banc();
+      await banc.monter(tester);
+      final jour = tester.getTopLeft(find.byType(CarteAujourdhui));
+      final semaine = tester.getTopLeft(find.byType(CarteSemaine));
+      expect(semaine.dx, greaterThan(jour.dx + 300), reason: 'côte à côte');
+
+      tester.view.physicalSize = const Size(960, 600);
+      await tester.pumpAndSettle();
+      expect(
+        tester.getTopLeft(find.byType(CarteSemaine)).dx,
+        tester.getTopLeft(find.byType(CarteAujourdhui)).dx,
+        reason: 'empilées',
+      );
     });
 
     // Rotation : chaque onglet doit tenir sans débordement dans toutes les

@@ -26,6 +26,7 @@ import '../sante/mes_donnees_page.dart';
 import '../sante/sante_service.dart';
 import '../sante/suivi.dart';
 import '../theme.dart';
+import '../verre.dart';
 import '../route_verre.dart';
 
 class AccueilPage extends StatefulWidget {
@@ -221,59 +222,65 @@ class _AccueilPageState extends State<AccueilPage> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        CarteAujourdhui(
-                          key: ValueKey(widget.horloge().day),
-                          uid: widget.utilisateur.uid,
-                          profil: _profil,
-                          suivi: _suivi,
-                          journal: widget.journal,
-                          bienetre: widget.bienetre,
-                          meteoSuivi: widget.meteoSuivi,
-                          horloge: widget.horloge,
-                          onOnglet: widget.onOnglet,
-                          majWidget: widget.majWidget,
-                        ),
-                        const SizedBox(height: 16),
-                        // Recréée le lendemain : la fenêtre des 7 jours avance.
-                        CarteSemaine(
-                          key: ValueKey(('semaine', widget.horloge().day)),
-                          uid: widget.utilisateur.uid,
-                          profil: _profil,
-                          suivi: _suivi,
-                          journal: widget.journal,
-                          pesees: widget.pesees,
-                          horloge: widget.horloge,
-                          onJournal: () => widget.onOnglet(1),
-                        ),
-                        const SizedBox(height: 24),
-                        CarteJournee(
-                          suivi: _suivi,
-                          montre: _profil.montre,
-                          onConnecter: _modifierProfil,
-                          onAutoriser: _autoriser,
-                          onDetail: () => Navigator.of(context).push(
-                            routeVerre<void>(
-                              (_) => MesDonneesPage(suivi: _suivi),
+                        ColonnesAdaptatives(
+                          gauche: [
+                            CarteAujourdhui(
+                              key: ValueKey(widget.horloge().day),
+                              uid: widget.utilisateur.uid,
+                              profil: _profil,
+                              suivi: _suivi,
+                              journal: widget.journal,
+                              bienetre: widget.bienetre,
+                              meteoSuivi: widget.meteoSuivi,
+                              horloge: widget.horloge,
+                              onOnglet: widget.onOnglet,
+                              majWidget: widget.majWidget,
                             ),
-                          ),
-                        ),
-                        const SizedBox(height: 12),
-                        _CarteAction(
-                          icone: Icons.fitness_center,
-                          titre: t.carteProgramme,
-                          sousTitre: t.carteProgrammeSous,
-                          fond: context.palette.vertClair,
-                          couleur: Theme.of(context).colorScheme.primary,
-                          onTap: () => widget.onOnglet(2),
-                        ),
-                        const SizedBox(height: 12),
-                        _CarteAction(
-                          icone: Icons.swipe_outlined,
-                          titre: t.carteIdees,
-                          sousTitre: t.carteIdeesSous,
-                          fond: context.palette.orangeClair,
-                          couleur: context.palette.orangeFonce,
-                          onTap: widget.onIdees,
+                            const SizedBox(height: 16),
+                          ],
+                          droite: [
+                            // Recréée le lendemain : la fenêtre des 7 jours avance.
+                            CarteSemaine(
+                              key: ValueKey(('semaine', widget.horloge().day)),
+                              uid: widget.utilisateur.uid,
+                              profil: _profil,
+                              suivi: _suivi,
+                              journal: widget.journal,
+                              pesees: widget.pesees,
+                              horloge: widget.horloge,
+                              onJournal: () => widget.onOnglet(1),
+                            ),
+                            const SizedBox(height: 24),
+                            CarteJournee(
+                              suivi: _suivi,
+                              montre: _profil.montre,
+                              onConnecter: _modifierProfil,
+                              onAutoriser: _autoriser,
+                              onDetail: () => Navigator.of(context).push(
+                                routeVerre<void>(
+                                  (_) => MesDonneesPage(suivi: _suivi),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 12),
+                            _CarteAction(
+                              icone: Icons.fitness_center,
+                              titre: t.carteProgramme,
+                              sousTitre: t.carteProgrammeSous,
+                              fond: context.palette.vertClair,
+                              couleur: Theme.of(context).colorScheme.primary,
+                              onTap: () => widget.onOnglet(2),
+                            ),
+                            const SizedBox(height: 12),
+                            _CarteAction(
+                              icone: Icons.swipe_outlined,
+                              titre: t.carteIdees,
+                              sousTitre: t.carteIdeesSous,
+                              fond: context.palette.orangeClair,
+                              couleur: context.palette.orangeFonce,
+                              onTap: widget.onIdees,
+                            ),
+                          ],
                         ),
                         const SizedBox(height: 20),
                         TextButton.icon(

@@ -21,6 +21,7 @@ import '../sante/modele.dart';
 import '../sante/sante_service.dart';
 import '../sante/suivi.dart';
 import '../theme.dart';
+import '../verre.dart';
 import 'mensurations_repository.dart';
 import 'mensurations_section.dart';
 import 'pesees.dart';
@@ -62,6 +63,9 @@ class PoidsPage extends StatefulWidget {
 }
 
 class _PoidsPageState extends State<PoidsPage> {
+  /// Le bouton « Ajouter une pesée » se réduit quand la liste descend.
+  final _fabReduit = ValueNotifier<bool>(false);
+
   int _jours = 30;
   List<Mesure> _montre = const [];
 
@@ -158,117 +162,137 @@ class _PoidsPageState extends State<PoidsPage> {
   }
 
   @override
+  void dispose() {
+    _fabReduit.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context)!;
     final textes = Theme.of(context).textTheme;
     return Scaffold(
       appBar: AppBar(title: Text(t.tabPoids)),
-      floatingActionButton: FloatingActionButton.extended(
+      floatingActionButton: BoutonFlottantReductible(
+        reduit: _fabReduit,
         heroTag: 'fab-poids',
         onPressed: _ouvrirAjout,
-        icon: const Icon(Icons.add),
-        label: Text(t.ajouterPesee),
+        icone: Icons.add,
+        libelle: t.ajouterPesee,
       ),
-      body: StreamBuilder<List<Pesee>>(
-        stream: _saisies,
-        builder: (context, snap) {
-          final toutes = fusionnerPesees(snap.data ?? const [], _montre);
-          final maintenant = widget.horloge();
-          final dernierePesee = toutes.isEmpty ? null : toutes.last;
-          final poids = dernierePesee?.kg ?? _profil.poidsKg;
-          final ecart = ecartDepuisPremiere(toutes);
-          final debut = DateTime(
-            maintenant.year,
-            maintenant.month,
-            maintenant.day - _jours,
-          );
-          final visibles = peseesDepuis(toutes, debut);
-          // Tendance calculée sur toutes les pesées : le début de la période
-          // tient compte des jours qui la précèdent.
-          final tendance = [
-            for (final p in moyenneMobile(toutes))
-              if (!p.date.isBefore(debut)) p,
-          ];
-          // Une projection partie d'une pesée ancienne serait fausse.
-          final depart = peseeRecente(toutes, maintenant)
-              ? tendance.last
-              : null;
-          return ListView(
-            padding: const EdgeInsets.fromLTRB(20, 8, 20, 96),
-            children: [
-              _CartePoids(
-                kg: poids,
-                depuis: ecart == null
-                    ? null
-                    : t.poidsDepuis(
-                        '${ecart > 0 ? '+' : '−'}'
-                        '${formatDecimal(ecart.abs())}',
-                        DateFormat.yMMMd('fr').format(toutes.first.date),
-                      ),
-              ),
-              const SizedBox(height: 16),
-              _CarteImc(imc: imc(poids, _profil.tailleCm)),
-              const SizedBox(height: 24),
-              Text(t.courbePoids, style: textes.titleLarge),
-              const SizedBox(height: 12),
-              SegmentedButton<int>(
-                showSelectedIcon: false,
-                segments: [
-                  ButtonSegment(value: 30, label: Text(t.periode30)),
-                  ButtonSegment(value: 90, label: Text(t.periode90)),
-                  ButtonSegment(value: 365, label: Text(t.periode1an)),
-                ],
-                selected: {_jours},
-                onSelectionChanged: (s) => setState(() => _jours = s.first),
-              ),
-              const SizedBox(height: 12),
-              ListenableBuilder(
-                listenable: widget.suivi,
-                builder: (context, _) {
-                  final reperes = widget.suivi.reperesDuJour(_profil);
-                  return _CourbeAvecProjection(
-                    journal: widget.journal,
-                    uid: _uid,
-                    maintien: reperes.maintien,
-                    kcalCible: reperes.kcalCible,
-                    joursMontre: widget.suivi.jours,
-                    maintenant: maintenant,
-                    pesees: visibles,
-                    tendance: tendance,
-                    depart: depart,
-                    debut: debut,
-                  );
-                },
-              ),
-              const SizedBox(height: 24),
-              MensurationsSection(
-                depot: widget.mensurations,
-                uid: _uid,
-                horloge: widget.horloge,
-              ),
-              const SizedBox(height: 16),
-              PhotosSection(photos: widget.photos, horloge: widget.horloge),
-              const SizedBox(height: 24),
-              Text(t.historiquePoids, style: textes.titleLarge),
-              const SizedBox(height: 8),
-              if (toutes.isEmpty)
-                Text(
-                  t.aucunePesee,
-                  style: textes.bodyMedium?.copyWith(
-                    color: context.palette.texteDoux,
-                  ),
-                )
-              else
-                for (final p in toutes.reversed)
-                  _LignePesee(
-                    pesee: p,
-                    onSupprimer: p.id == null
-                        ? null
-                        : () => _supprimer(p, toutes),
-                  ),
-            ],
-          );
-        },
+      body: ReductionAuDefilement(
+        reduit: _fabReduit,
+        child: StreamBuilder<List<Pesee>>(
+          stream: _saisies,
+          builder: (context, snap) {
+            final toutes = fusionnerPesees(snap.data ?? const [], _montre);
+            final maintenant = widget.horloge();
+            final dernierePesee = toutes.isEmpty ? null : toutes.last;
+            final poids = dernierePesee?.kg ?? _profil.poidsKg;
+            final ecart = ecartDepuisPremiere(toutes);
+            final debut = DateTime(
+              maintenant.year,
+              maintenant.month,
+              maintenant.day - _jours,
+            );
+            final visibles = peseesDepuis(toutes, debut);
+            // Tendance calculée sur toutes les pesées : le début de la période
+            // tient compte des jours qui la précèdent.
+            final tendance = [
+              for (final p in moyenneMobile(toutes))
+                if (!p.date.isBefore(debut)) p,
+            ];
+            // Une projection partie d'une pesée ancienne serait fausse.
+            final depart = peseeRecente(toutes, maintenant)
+                ? tendance.last
+                : null;
+            return ListView(
+              padding: const EdgeInsets.fromLTRB(20, 8, 20, 96),
+              children: [
+                ColonnesAdaptatives(
+                  gauche: [
+                    _CartePoids(
+                      kg: poids,
+                      depuis: ecart == null
+                          ? null
+                          : t.poidsDepuis(
+                              '${ecart > 0 ? '+' : '−'}'
+                              '${formatDecimal(ecart.abs())}',
+                              DateFormat.yMMMd('fr').format(toutes.first.date),
+                            ),
+                    ),
+                    const SizedBox(height: 16),
+                    _CarteImc(imc: imc(poids, _profil.tailleCm)),
+                    const SizedBox(height: 24),
+                    Text(t.courbePoids, style: textes.titleLarge),
+                    const SizedBox(height: 12),
+                    SegmentedButton<int>(
+                      showSelectedIcon: false,
+                      segments: [
+                        ButtonSegment(value: 30, label: Text(t.periode30)),
+                        ButtonSegment(value: 90, label: Text(t.periode90)),
+                        ButtonSegment(value: 365, label: Text(t.periode1an)),
+                      ],
+                      selected: {_jours},
+                      onSelectionChanged: (s) =>
+                          setState(() => _jours = s.first),
+                    ),
+                    const SizedBox(height: 12),
+                    ListenableBuilder(
+                      listenable: widget.suivi,
+                      builder: (context, _) {
+                        final reperes = widget.suivi.reperesDuJour(_profil);
+                        return _CourbeAvecProjection(
+                          journal: widget.journal,
+                          uid: _uid,
+                          maintien: reperes.maintien,
+                          kcalCible: reperes.kcalCible,
+                          joursMontre: widget.suivi.jours,
+                          maintenant: maintenant,
+                          pesees: visibles,
+                          tendance: tendance,
+                          depart: depart,
+                          debut: debut,
+                        );
+                      },
+                    ),
+                    const SizedBox(height: 24),
+                  ],
+                  droite: [
+                    MensurationsSection(
+                      depot: widget.mensurations,
+                      uid: _uid,
+                      horloge: widget.horloge,
+                    ),
+                    const SizedBox(height: 16),
+                    PhotosSection(
+                      photos: widget.photos,
+                      horloge: widget.horloge,
+                    ),
+                    const SizedBox(height: 24),
+                  ],
+                ),
+                Text(t.historiquePoids, style: textes.titleLarge),
+                const SizedBox(height: 8),
+                if (toutes.isEmpty)
+                  Text(
+                    t.aucunePesee,
+                    style: textes.bodyMedium?.copyWith(
+                      color: context.palette.texteDoux,
+                    ),
+                  )
+                else
+                  for (final p in toutes.reversed)
+                    _LignePesee(
+                      pesee: p,
+                      onSupprimer: p.id == null
+                          ? null
+                          : () => _supprimer(p, toutes),
+                    ),
+              ],
+            );
+          },
+        ),
       ),
     );
   }

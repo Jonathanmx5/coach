@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart' show ScrollDirection;
 
 import 'theme.dart';
 
@@ -182,21 +183,123 @@ bool largeEcran(BuildContext context) =>
 /// Centre le contenu et limite sa largeur sur grand écran ; sur téléphone,
 /// il occupe toute la largeur comme avant.
 class ColonneCentree extends StatelessWidget {
-  const ColonneCentree({super.key, required this.child});
+  const ColonneCentree({
+    super.key,
+    required this.child,
+    this.largeurMax = largeurContenuMax,
+  });
 
   final Widget child;
+  final double largeurMax;
 
   @override
   Widget build(BuildContext context) => LayoutBuilder(
-    builder: (context, c) => c.maxWidth <= largeurContenuMax
+    builder: (context, c) => c.maxWidth <= largeurMax
         ? child
         : Align(
             alignment: Alignment.topCenter,
             child: SizedBox(
-              width: largeurContenuMax,
+              width: largeurMax,
               height: c.hasBoundedHeight ? c.maxHeight : null,
               child: child,
             ),
           ),
+  );
+}
+
+/// Largeur du contenu des onglets sur grand écran, où deux colonnes tiennent.
+const largeurContenuLarge = 1320.0;
+
+/// Largeur à partir de laquelle un onglet passe sur deux colonnes.
+const largeurDeuxColonnes = 1000.0;
+
+/// Deux colonnes côte à côte quand la place le permet ; sinon une seule
+/// colonne, [gauche] puis [droite], comme sur téléphone.
+class ColonnesAdaptatives extends StatelessWidget {
+  const ColonnesAdaptatives({
+    super.key,
+    required this.gauche,
+    required this.droite,
+  });
+
+  final List<Widget> gauche;
+  final List<Widget> droite;
+
+  @override
+  Widget build(BuildContext context) => LayoutBuilder(
+    builder: (context, c) => c.maxWidth >= largeurDeuxColonnes
+        ? Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(child: _colonne(gauche)),
+              const SizedBox(width: 24),
+              Expanded(child: _colonne(droite)),
+            ],
+          )
+        : _colonne([...gauche, ...droite]),
+  );
+
+  Widget _colonne(List<Widget> enfants) =>
+      Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: enfants);
+}
+
+/// Suit le défilement d'une liste pour réduire un bouton flottant à son icône
+/// quand on descend, et le rétablir quand on remonte : il masque moins de
+/// contenu.
+class ReductionAuDefilement extends StatelessWidget {
+  const ReductionAuDefilement({
+    super.key,
+    required this.reduit,
+    required this.child,
+  });
+
+  final ValueNotifier<bool> reduit;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) =>
+      NotificationListener<UserScrollNotification>(
+        onNotification: (n) {
+          if (n.depth != 0) return false;
+          if (n.direction == ScrollDirection.reverse) {
+            reduit.value = true;
+          } else if (n.direction == ScrollDirection.forward ||
+              n.metrics.pixels <= 0) {
+            reduit.value = false;
+          }
+          return false;
+        },
+        child: child,
+      );
+}
+
+/// Bouton flottant étendu qui se réduit à son icône quand [reduit] est vrai.
+class BoutonFlottantReductible extends StatelessWidget {
+  const BoutonFlottantReductible({
+    super.key,
+    required this.reduit,
+    required this.heroTag,
+    required this.onPressed,
+    required this.icone,
+    required this.libelle,
+  });
+
+  final ValueNotifier<bool> reduit;
+  final Object heroTag;
+  final VoidCallback onPressed;
+  final IconData icone;
+  final String libelle;
+
+  @override
+  Widget build(BuildContext context) => ValueListenableBuilder<bool>(
+    valueListenable: reduit,
+    builder: (context, r, _) => FloatingActionButton.extended(
+      heroTag: heroTag,
+      tooltip: libelle,
+      isExtended: !r,
+      onPressed: onPressed,
+      icon: Icon(icone),
+      label: Text(libelle),
+    ),
   );
 }

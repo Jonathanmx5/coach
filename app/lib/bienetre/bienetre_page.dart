@@ -12,6 +12,7 @@ import '../journal/signalement.dart';
 import '../l10n/app_localizations.dart';
 import '../profil/profil_repository.dart';
 import '../theme.dart';
+import '../verre.dart';
 import '../entrainement/entrainement_repository.dart';
 import 'bienetre_repository.dart';
 import 'bloc_series.dart';
@@ -146,76 +147,85 @@ class _BienEtrePageState extends State<BienEtrePage> {
       body: ListView(
         padding: const EdgeInsets.fromLTRB(20, 8, 20, 32),
         children: [
-          StreamBuilder<List<Activite>>(
-            stream: _activites,
-            builder: (context, snapActivites) => StreamBuilder<List<EntreeEau>>(
-              stream: _eau,
-              builder: (context, snapEau) {
-                final minutes = (snapActivites.data ?? const <Activite>[])
-                    .fold<int>(0, (s, a) => s + a.minutes);
-                final entrees = snapEau.data ?? const <EntreeEau>[];
-                return ListenableBuilder(
-                  listenable: widget.meteoSuivi,
-                  builder: (context, _) => _CarteHydratation(
-                    objectifMl: objectifEauMl(
-                      poidsKg: widget.enregistre.profil.poidsKg,
-                      minutesEffort: minutes,
-                      tempMaxC: widget.meteoSuivi.temperature,
-                    ),
-                    bu: totalEauMl(entrees),
-                    minutesEffort: minutes,
-                    temperature: widget.meteoSuivi.temperature,
-                    meteoActive: widget.meteoSuivi.actif,
-                    onBoire: _boire,
-                    onAnnuler: entrees.isEmpty
-                        ? null
-                        : () => _modifier(
-                            widget.bienetre.supprimerEau(
-                              _uid,
-                              entrees.last.id!,
+          ColonnesAdaptatives(
+            gauche: [
+              StreamBuilder<List<Activite>>(
+                stream: _activites,
+                builder: (context, snapActivites) =>
+                    StreamBuilder<List<EntreeEau>>(
+                      stream: _eau,
+                      builder: (context, snapEau) {
+                        final minutes =
+                            (snapActivites.data ?? const <Activite>[])
+                                .fold<int>(0, (s, a) => s + a.minutes);
+                        final entrees = snapEau.data ?? const <EntreeEau>[];
+                        return ListenableBuilder(
+                          listenable: widget.meteoSuivi,
+                          builder: (context, _) => _CarteHydratation(
+                            objectifMl: objectifEauMl(
+                              poidsKg: widget.enregistre.profil.poidsKg,
+                              minutesEffort: minutes,
+                              tempMaxC: widget.meteoSuivi.temperature,
                             ),
+                            bu: totalEauMl(entrees),
+                            minutesEffort: minutes,
+                            temperature: widget.meteoSuivi.temperature,
+                            meteoActive: widget.meteoSuivi.actif,
+                            onBoire: _boire,
+                            onAnnuler: entrees.isEmpty
+                                ? null
+                                : () => _modifier(
+                                    widget.bienetre.supprimerEau(
+                                      _uid,
+                                      entrees.last.id!,
+                                    ),
+                                  ),
+                            onMeteo: _basculerMeteo,
                           ),
-                    onMeteo: _basculerMeteo,
+                        );
+                      },
+                    ),
+              ),
+              const SizedBox(height: 16),
+            ],
+            droite: [
+              BlocSeries(
+                key: ValueKey(_jourFlux),
+                uid: _uid,
+                poidsKg: widget.enregistre.profil.poidsKg,
+                joursParSemaine: widget.enregistre.profil.joursParSemaine,
+                maintenant: maintenant,
+                journal: widget.journal,
+                entrainement: widget.entrainement,
+                bienetre: widget.bienetre,
+              ),
+              const SizedBox(height: 16),
+              StreamBuilder<Set<String>>(
+                stream: _prises,
+                builder: (context, snapPrises) => CarteComplements(
+                  complements: _listeComplements,
+                  prises: snapPrises.data ?? const {},
+                  onPris: (c, pris) => _modifier(
+                    widget.bienetre.marquerPris(
+                      _uid,
+                      widget.horloge(),
+                      c.id!,
+                      pris,
+                    ),
                   ),
-                );
-              },
-            ),
-          ),
-          const SizedBox(height: 16),
-          BlocSeries(
-            key: ValueKey(_jourFlux),
-            uid: _uid,
-            poidsKg: widget.enregistre.profil.poidsKg,
-            joursParSemaine: widget.enregistre.profil.joursParSemaine,
-            maintenant: maintenant,
-            journal: widget.journal,
-            entrainement: widget.entrainement,
-            bienetre: widget.bienetre,
-          ),
-          const SizedBox(height: 16),
-          StreamBuilder<Set<String>>(
-            stream: _prises,
-            builder: (context, snapPrises) => CarteComplements(
-              complements: _listeComplements,
-              prises: snapPrises.data ?? const {},
-              onPris: (c, pris) => _modifier(
-                widget.bienetre.marquerPris(
-                  _uid,
-                  widget.horloge(),
-                  c.id!,
-                  pris,
+                  onAjouter: _ajouterComplement,
+                  onBasculer: (c) => _modifier(
+                    widget.bienetre.modifierComplement(
+                      _uid,
+                      c.copyWith(actif: !c.actif),
+                    ),
+                  ),
+                  onSupprimer: (c) => _modifier(
+                    widget.bienetre.supprimerComplement(_uid, c.id!),
+                  ),
                 ),
               ),
-              onAjouter: _ajouterComplement,
-              onBasculer: (c) => _modifier(
-                widget.bienetre.modifierComplement(
-                  _uid,
-                  c.copyWith(actif: !c.actif),
-                ),
-              ),
-              onSupprimer: (c) =>
-                  _modifier(widget.bienetre.supprimerComplement(_uid, c.id!)),
-            ),
+            ],
           ),
         ],
       ),

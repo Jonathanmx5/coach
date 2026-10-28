@@ -28,6 +28,7 @@ import 'detail_repas_page.dart';
 import '../recettes/planning_page.dart';
 import '../recettes/planning_repository.dart';
 import '../route_verre.dart';
+import '../verre.dart';
 
 /// Demande d'ouvrir l'écran de photo du repas (bouton d'un widget) ; [source]
 /// non nulle : on passe directement par l'appareil ou la bibliothèque.
@@ -462,41 +463,47 @@ class _JournalPageState extends State<JournalPage> with WidgetsBindingObserver {
     return ListView(
       padding: const EdgeInsets.fromLTRB(20, 4, 20, 96),
       children: [
-        SelecteurJour(
-          jour: _jour,
-          estAujourdhui: _estAujourdhui,
-          onChanger: _changerJour,
-        ),
-        const SizedBox(height: 12),
-        CarteBilan(
-          mange: macros.kcal,
-          depense: bilan.depenseJour,
-          ecart: bilan.ecart,
-          cible: cibles.kcal,
-          intensite: bilan.intensite,
-        ),
-        const SizedBox(height: 16),
-        CarteMacros(macros: macros, cibles: cibles),
-        if (repas.isNotEmpty) ...[
-          const SizedBox(height: 16),
-          CarteRecap(repas: repas),
-        ],
-        const SizedBox(height: 24),
-        Text(t.repasTitre, style: Theme.of(context).textTheme.titleLarge),
-        const SizedBox(height: 8),
-        if (repas.isEmpty)
-          Vide(t.aucunRepas)
-        else
-          for (final r in repas)
-            Ligne(
-              icone: Icons.restaurant,
-              titre: r.nom,
-              sousTitre:
-                  '${libelleMoment(t, r.moment)} · '
-                  '${t.kcalValeur(r.macros.kcal.round().toString())}',
-              onTap: () => _ouvrirDetail(r, cibles, macros),
-              onSupprimer: r.id == null ? null : () => _supprimer(r),
+        ColonnesAdaptatives(
+          gauche: [
+            SelecteurJour(
+              jour: _jour,
+              estAujourdhui: _estAujourdhui,
+              onChanger: _changerJour,
             ),
+            const SizedBox(height: 12),
+            CarteBilan(
+              mange: macros.kcal,
+              depense: bilan.depenseJour,
+              ecart: bilan.ecart,
+              cible: cibles.kcal,
+              intensite: bilan.intensite,
+            ),
+            const SizedBox(height: 16),
+            CarteMacros(macros: macros, cibles: cibles),
+            if (repas.isNotEmpty) ...[
+              const SizedBox(height: 16),
+              CarteRecap(repas: repas),
+            ],
+            const SizedBox(height: 24),
+          ],
+          droite: [
+            Text(t.repasTitre, style: Theme.of(context).textTheme.titleLarge),
+            const SizedBox(height: 8),
+            if (repas.isEmpty)
+              Vide(t.aucunRepas)
+            else
+              for (final r in repas)
+                Ligne(
+                  icone: Icons.restaurant,
+                  titre: r.nom,
+                  sousTitre:
+                      '${libelleMoment(t, r.moment)} · '
+                      '${t.kcalValeur(r.macros.kcal.round().toString())}',
+                  onTap: () => _ouvrirDetail(r, cibles, macros),
+                  onSupprimer: r.id == null ? null : () => _supprimer(r),
+                ),
+          ],
+        ),
       ],
     );
   }

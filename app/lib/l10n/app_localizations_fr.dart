@@ -1572,7 +1572,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get etalonnageAide =>
-      'L\'appli apprend de tes corrections pour mieux estimer tes portions ; ces données restent sur le téléphone.';
+      'L\'appli apprend de tes corrections pour mieux estimer tes portions ; ces données sont gardées sur ton compte, pour tous tes appareils.';
 
   @override
   String get etalonnageOublie => 'Corrections de portions oubliées.';

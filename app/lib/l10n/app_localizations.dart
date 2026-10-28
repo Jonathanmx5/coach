@@ -2779,7 +2779,7 @@ abstract class AppLocalizations {
   /// No description provided for @etalonnageAide.
   ///
   /// In fr, this message translates to:
-  /// **'L\'appli apprend de tes corrections pour mieux estimer tes portions ; ces données restent sur le téléphone.'**
+  /// **'L\'appli apprend de tes corrections pour mieux estimer tes portions ; ces données sont gardées sur ton compte, pour tous tes appareils.'**
   String get etalonnageAide;
 
   /// No description provided for @etalonnageOublie.
