@@ -149,6 +149,21 @@ void main() {
     expect(find.text('Lien copié.'), findsOneWidget);
   });
 
+  testWidgets('réglages : sources et licences (Ciqual, Open Food Facts)', (
+    tester,
+  ) async {
+    await ouvrir(tester, FausseMiseAJour());
+
+    await taper(tester, 'Sources et licences');
+    expect(find.textContaining("Ciqual 2020 de l'ANSES"), findsOneWidget);
+    expect(find.textContaining('Open Food Facts'), findsOneWidget);
+    expect(find.textContaining('ODbL'), findsOneWidget);
+    expect(find.text('Licences des bibliothèques'), findsOneWidget);
+
+    await taper(tester, 'OK');
+    expect(find.textContaining('Open Food Facts'), findsNothing);
+  });
+
   testWidgets('réglages : mise à jour proposée, téléchargement, vérification', (
     tester,
   ) async {

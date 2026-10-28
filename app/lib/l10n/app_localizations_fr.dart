@@ -1089,6 +1089,16 @@ class AppLocalizationsFr extends AppLocalizations {
   String get confidentialite => 'Politique de confidentialité';
 
   @override
+  String get sourcesLicences => 'Sources et licences';
+
+  @override
+  String get sourcesLicencesTexte =>
+      'Valeurs nutritionnelles : table Ciqual 2020 de l\'ANSES (licence CC BY 4.0).\n\nProduits scannés : Open Food Facts, base collaborative sous licence ODbL ; son contenu relève de la Database Contents License.\n\nPhotos des exercices : free-exercise-db (domaine public).\n\nIllustrations des recettes : générées par IA (modèle FLUX.1 schnell, licence Apache 2.0).\n\nL\'application s\'appuie aussi sur des bibliothèques libres : leurs licences sont consultables ci-dessous.';
+
+  @override
+  String get licencesBibliotheques => 'Licences des bibliothèques';
+
+  @override
   String get accepter => 'Accepter';
 
   @override

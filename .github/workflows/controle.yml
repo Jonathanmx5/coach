@@ -1,0 +1,77 @@
+name: Contrôle
+
+# À chaque push sur main et à chaque demande de fusion : analyse et tests de
+# l'appli, du relais Cloudflare et des règles Firestore. Rien n'est publié ni
+# déployé ici : ces tâches ne font que vérifier.
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: controle-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  appli:
+    name: Appli (analyse et tests)
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    defaults:
+      run:
+        working-directory: app
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.47.6'
+          channel: stable
+          cache: true
+      - run: flutter pub get
+      - run: flutter analyze --no-pub
+      - run: flutter test --no-pub
+
+  relais:
+    name: Relais (tests)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: relais
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: relais/package-lock.json
+      - run: npm ci
+      - run: npm test
+
+  regles-firestore:
+    name: Règles Firestore (émulateur)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: firebase
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: firebase/package-lock.json
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - uses: actions/cache@v4
+        with:
+          path: ~/.cache/firebase/emulators
+          key: emulateurs-firebase-${{ hashFiles('firebase/package-lock.json') }}
+      - run: npm ci
+      - run: npm test

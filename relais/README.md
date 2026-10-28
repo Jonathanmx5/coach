@@ -63,6 +63,17 @@ Le script lance un petit worker d'évaluation (`wrangler dev --remote`, quota gr
 
 `evaluer.js` mesure, lui, le relais déployé (`RELAIS_URL` et `JETON` Firebase), tel que l'application l'appelle.
 
+### Protocole conseillé pour une mesure fiable
+
+- **20 repas au moins, variés** : plats du quotidien (féculent + viande ou poisson + légumes), un petit-déjeuner, un plat en sauce, un repas au restaurant ou de fast-food, un repas très simple. Une série trop homogène donne une fausse confiance.
+- **Peser avant de manger** : chaque composant séparément, balance remise à zéro. Calculer les calories avec les étiquettes ou la table Ciqual, y compris l'huile et la sauce ; c'est la vérité terrain, donc la partie la plus importante.
+- **Photographier comme dans l'appli** : de dessus, bonne lumière, sans rien cacher ; une seule photo par repas.
+- **Un fichier par repas** : `x.jpg` et `x.json` (`{"kcal": 650, "grammes": 480}`).
+- **Deux mesures** : `comparer.js` pour choisir le modèle, puis `evaluer.js` sur le relais déployé pour mesurer le résultat que verra l'utilisateur (correction Ciqual et référentiel comprises).
+- **Lire le résultat** : l'erreur médiane compte plus que la moyenne (un seul repas aberrant la fausse) ; viser une erreur médiane sous 15 à 20 % et au moins 7 repas sur 10 à ±20 %. Noter aussi les repas ratés et leur cause (sauce, portion cachée, plat composé) : ils indiquent ce qu'il faut corriger.
+- **Ne pas régler le relais sur ces 20 repas seulement** : en garder quelques-uns de côté pour vérifier une amélioration sur des photos que le réglage n'a jamais vues.
+
+
 ## Garde-fous sur la réponse du modèle
 
 - Le relais lit du JSON, du JSON sans accolades extérieures (fréquent avec Llama 3.2), du JSON coupé en route, et même une liste à puces.

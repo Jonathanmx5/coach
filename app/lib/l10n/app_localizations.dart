@@ -1978,6 +1978,24 @@ abstract class AppLocalizations {
   /// **'Politique de confidentialité'**
   String get confidentialite;
 
+  /// No description provided for @sourcesLicences.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sources et licences'**
+  String get sourcesLicences;
+
+  /// No description provided for @sourcesLicencesTexte.
+  ///
+  /// In fr, this message translates to:
+  /// **'Valeurs nutritionnelles : table Ciqual 2020 de l\'ANSES (licence CC BY 4.0).\n\nProduits scannés : Open Food Facts, base collaborative sous licence ODbL ; son contenu relève de la Database Contents License.\n\nPhotos des exercices : free-exercise-db (domaine public).\n\nIllustrations des recettes : générées par IA (modèle FLUX.1 schnell, licence Apache 2.0).\n\nL\'application s\'appuie aussi sur des bibliothèques libres : leurs licences sont consultables ci-dessous.'**
+  String get sourcesLicencesTexte;
+
+  /// No description provided for @licencesBibliotheques.
+  ///
+  /// In fr, this message translates to:
+  /// **'Licences des bibliothèques'**
+  String get licencesBibliotheques;
+
   /// No description provided for @accepter.
   ///
   /// In fr, this message translates to:

@@ -318,6 +318,30 @@ class _ReglagesPageState extends State<ReglagesPage> {
       ..showSnackBar(SnackBar(content: Text(texte)));
   }
 
+  /// Mentions de sources exigées par les licences des données (Ciqual,
+  /// Open Food Facts...) et accès aux licences des bibliothèques.
+  Future<void> _afficherSources(AppLocalizations t) => showDialog<void>(
+    context: context,
+    builder: (contexte) => AlertDialog(
+      scrollable: true,
+      title: Text(t.sourcesLicences),
+      content: Text(t.sourcesLicencesTexte),
+      actions: [
+        TextButton(
+          onPressed: () => showLicensePage(
+            context: contexte,
+            applicationName: 'Crunch & Go',
+          ),
+          child: Text(t.licencesBibliotheques),
+        ),
+        TextButton(
+          onPressed: () => Navigator.of(contexte).pop(),
+          child: Text(t.ok),
+        ),
+      ],
+    ),
+  );
+
   Future<void> _supprimerCompte() async {
     final t = AppLocalizations.of(context)!;
     final confirme = await showDialog<bool>(
@@ -614,6 +638,12 @@ class _ReglagesPageState extends State<ReglagesPage> {
             leading: const Icon(Icons.privacy_tip_outlined),
             title: Text(t.confidentialite),
             onTap: () => _s.ouvrirLien(Uri.parse(lienConfidentialite)),
+          ),
+          ListTile(
+            contentPadding: EdgeInsets.zero,
+            leading: const Icon(Icons.gavel_outlined),
+            title: Text(t.sourcesLicences),
+            onTap: () => _afficherSources(t),
           ),
           const Divider(),
           ListTile(

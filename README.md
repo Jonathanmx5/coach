@@ -1,5 +1,7 @@
 # Crunch & Go
 
+[![Contrôle](https://github.com/Jonathanmx5/coach/actions/workflows/controle.yml/badge.svg)](https://github.com/Jonathanmx5/coach/actions/workflows/controle.yml)
+
 Application Android de coaching sportif et alimentaire pour débutants. Nom de l'application : « Crunch & Go » (le dépôt et le code s'appellent encore `coach`). Français uniquement.
 
 ## Ce que fait l'application
@@ -47,4 +49,5 @@ Aucune licence : le code est visible, mais tous droits sont réservés. Pour le 
 
 - Photos de démonstration des exercices (`app/assets/exercices/`) : jeu libre de droits [free-exercise-db](https://github.com/yuhonas/free-exercise-db) (licence Unlicense, domaine public), réduites à 480 px. Le script `app/tool/telecharger_exercices.mjs` les récupère.
 - Valeurs nutritionnelles de référence du relais (`relais/donnees/ciqual.json`) et recherche d’aliments de l’appli (`app/assets/ciqual.json`) : ANSES, Table de composition nutritionnelle des aliments Ciqual 2020 ([doi:10.5281/zenodo.4770600](https://doi.org/10.5281/zenodo.4770600)), licence [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) ; extrait (énergie et macronutriments pour 100 g) converti en JSON.
+- Produits scannés (code-barres) : [Open Food Facts](https://world.openfoodfacts.org/), base collaborative sous licence [ODbL](https://opendatacommons.org/licenses/odbl/1-0/), contenu sous [Database Contents License](https://opendatacommons.org/licenses/dbcl/1-0/). Les données consultées ne sont pas copiées dans l'application.
 - Photos des recettes (`app/assets/recettes/`) : illustrations générées par IA (modèle flux-1-schnell, licence Apache 2.0).
