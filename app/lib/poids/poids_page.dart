@@ -393,19 +393,21 @@ class _CarteImc extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(width: 12),
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 4,
-                  ),
-                  decoration: BoxDecoration(
-                    color: couleur.withValues(alpha: 0.18),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Text(
-                    _libelleImc(t, categorie),
-                    style: textes.labelLarge?.copyWith(
-                      color: context.palette.texte,
+                Flexible(
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 4,
+                    ),
+                    decoration: BoxDecoration(
+                      color: couleur.withValues(alpha: 0.18),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Text(
+                      _libelleImc(t, categorie),
+                      style: textes.labelLarge?.copyWith(
+                        color: context.palette.texte,
+                      ),
                     ),
                   ),
                 ),

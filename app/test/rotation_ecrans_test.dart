@@ -39,35 +39,54 @@ const tailles = {
   'téléphone paysage': Size(800, 360),
 };
 
-const cibles = CiblesJour(kcal: 2080, proteines: 128, glucides: 250, lipides: 58);
+const cibles = CiblesJour(
+  kcal: 2080,
+  proteines: 128,
+  glucides: 250,
+  lipides: 58,
+);
 
 /// Un journal bien rempli : de quoi remplir les listes et les totaux.
 void remplir(Banc banc) {
   final jour = banc.heure;
-  Repas repas(int h, Moment moment, String nom, int kcal, List<AlimentEstime> a) =>
-      Repas(
-        id: 'r$h',
-        date: DateTime(jour.year, jour.month, jour.day, h),
-        moment: moment,
-        nom: nom,
-        macros: Macros(kcal: kcal.toDouble(), proteines: 30, glucides: 60, lipides: 20),
-        source: SourceRepas.photo,
-        aliments: a,
-      );
+  Repas repas(
+    int h,
+    Moment moment,
+    String nom,
+    int kcal,
+    List<AlimentEstime> a,
+  ) => Repas(
+    id: 'r$h',
+    date: DateTime(jour.year, jour.month, jour.day, h),
+    moment: moment,
+    nom: nom,
+    macros: Macros(
+      kcal: kcal.toDouble(),
+      proteines: 30,
+      glucides: 60,
+      lipides: 20,
+    ),
+    source: SourceRepas.photo,
+    aliments: a,
+  );
   banc.journal.repasParUid['u1'] = [
     repas(8, Moment.petitDejeuner, 'Porridge, Banane, Amandes', 420, [
       aliment('Porridge', 200, 250),
       aliment('Banane', 120, 110),
       aliment('Amandes', 10, 60),
     ]),
-    repas(12, Moment.dejeuner,
-        'Poulet rôti, Riz basmati, Haricots verts, Sauce à la crème et aux champignons',
-        780, [
-      aliment('Poulet rôti', 150, 300),
-      aliment('Riz basmati', 200, 260),
-      aliment('Haricots verts', 150, 50),
-      aliment('Sauce à la crème et aux champignons', 40, 170),
-    ]),
+    repas(
+      12,
+      Moment.dejeuner,
+      'Poulet rôti, Riz basmati, Haricots verts, Sauce à la crème et aux champignons',
+      780,
+      [
+        aliment('Poulet rôti', 150, 300),
+        aliment('Riz basmati', 200, 260),
+        aliment('Haricots verts', 150, 50),
+        aliment('Sauce à la crème et aux champignons', 40, 170),
+      ],
+    ),
     repas(16, Moment.collation, 'Yaourt', 120, [aliment('Yaourt', 125, 120)]),
   ];
   banc.journal.activitesParUid['u1'] = [
@@ -95,11 +114,34 @@ void remplir(Banc banc) {
 AlimentEstime aliment(String nom, double g, double kcal) => AlimentEstime(
   nom: nom,
   grammes: g,
-  macros: Macros(kcal: kcal, proteines: kcal / 20, glucides: kcal / 8, lipides: kcal / 25),
+  macros: Macros(
+    kcal: kcal,
+    proteines: kcal / 20,
+    glucides: kcal / 8,
+    lipides: kcal / 25,
+  ),
 );
 
+/// Tailles de police vérifiées (réglage Android « Taille de la police »).
+const echelles = [1.0, 1.5, 2.0];
+
+/// Avec une police agrandie, trois formats suffisent : le plus étroit, le plus
+/// bas et la tablette à plat.
+const tailleAgrandie = {
+  'téléphone portrait',
+  'téléphone paysage',
+  'tablette 10" paysage',
+};
+
 void main() {
-  for (final MapEntry(key: nom, value: taille) in tailles.entries) {
+  final cas = [
+    for (final echelle in echelles)
+      for (final MapEntry(key: nomBrut, value: taille) in tailles.entries)
+        if (echelle == 1 || tailleAgrandie.contains(nomBrut))
+          (echelle, nomBrut, taille),
+  ];
+  for (final (echelle, nomBrut, taille) in cas) {
+    final nom = echelle == 1 ? nomBrut : '$nomBrut, police ×$echelle';
     group(nom, () {
       late Banc banc;
 
@@ -107,7 +149,9 @@ void main() {
         tester.view.physicalSize = taille;
         tester.view.devicePixelRatio = 1;
         tester.view.viewInsets = FakeViewPadding(bottom: clavier);
+        tester.platformDispatcher.textScaleFactorTestValue = echelle;
         addTearDown(tester.view.reset);
+        addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
         banc = Banc();
         remplir(banc);
         await banc.monter(tester);
@@ -119,7 +163,8 @@ void main() {
         expect(
           erreur,
           isNull,
-          reason: '$nom / $quoi ${erreur is FlutterError ? erreur.toStringDeep() : ''}',
+          reason:
+              '$nom / $quoi ${erreur is FlutterError ? erreur.diagnostics.map((d) => d.toDescription()).join(' | ') : ''}',
         );
       }
 
@@ -145,7 +190,13 @@ void main() {
         final barre = taille.width >= largeurTablette
             ? find.byType(NavigationRail)
             : find.byType(NavigationBar);
-        for (final onglet in ['Repas', 'Sport', 'Poids', 'Bien-être', 'Accueil']) {
+        for (final onglet in [
+          'Repas',
+          'Sport',
+          'Poids',
+          'Bien-être',
+          'Accueil',
+        ]) {
           await tester.tap(
             find.descendant(of: barre, matching: find.text(onglet)).first,
           );
@@ -215,7 +266,12 @@ void main() {
           'Détail du repas',
           (_) => DetailRepasPage(
             repas: repas,
-            dejaMange: const Macros(kcal: 540, proteines: 40, glucides: 90, lipides: 25),
+            dejaMange: const Macros(
+              kcal: 540,
+              proteines: 40,
+              glucides: 90,
+              lipides: 25,
+            ),
             cibles: cibles,
             objectif: Objectif.perte,
             photos: s.photosRepas,
@@ -269,7 +325,12 @@ void main() {
             accordPhoto: (_) async => true,
             scan: (_) async => null,
             cibles: cibles,
-            dejaMange: const Macros(kcal: 540, proteines: 40, glucides: 90, lipides: 25),
+            dejaMange: const Macros(
+              kcal: 540,
+              proteines: 40,
+              glucides: 90,
+              lipides: 25,
+            ),
           ),
           ensuite: () async {
             await taper(tester, 'Prendre une photo');
@@ -284,14 +345,21 @@ void main() {
         tester.view.physicalSize = taille;
         tester.view.devicePixelRatio = 1;
         tester.view.viewInsets = FakeViewPadding(bottom: taille.height * 0.45);
+        tester.platformDispatcher.textScaleFactorTestValue = echelle;
+        addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
         addTearDown(tester.view.reset);
         // Page neutre : on juge les dialogues, pas l'écran en dessous.
-        await tester.pumpWidget(const CoachApp(accueil: Scaffold(body: SizedBox())));
+        await tester.pumpWidget(
+          const CoachApp(accueil: Scaffold(body: SizedBox())),
+        );
         await tester.pumpAndSettle();
         final contexte = tester.element(find.byType(Scaffold));
         for (final (quoi, dialogue) in <(String, Widget)>[
           ('portion', const DialoguePortion(nom: 'Riz basmati')),
-          ('aliment', DialogueAliment(modele: aliment('Riz basmati', 200, 260))),
+          (
+            'aliment',
+            DialogueAliment(modele: aliment('Riz basmati', 200, 260)),
+          ),
           ('nouvel aliment', const DialogueAliment()),
           ('recherche Ciqual', const DialogueRechercheCiqual(depart: 'riz')),
         ]) {

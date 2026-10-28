@@ -150,11 +150,24 @@ class _DialogueRechercheCiqualState extends State<DialogueRechercheCiqual> {
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context)!;
     final resultats = _table?.chercher(_requete.text) ?? const [];
+    // Liste de 420 au plus, plus basse quand le clavier, l'écran à plat ou une
+    // police agrandie réduisent la place ; si cela ne suffit pas encore, le
+    // dialogue lui-même défile (titre et contenu), les boutons restent en bas.
+    final echelle = MediaQuery.textScalerOf(context).scale(1);
+    final dispo =
+        MediaQuery.sizeOf(context).height -
+        MediaQuery.viewInsetsOf(context).bottom;
+    // Au moins de quoi loger le champ, quelques lignes et la source.
+    final hauteur = (dispo - (130 + 212 * echelle)).clamp(
+      100 * echelle + 80,
+      420.0,
+    );
     return AlertDialog(
+      scrollable: true,
       title: Text(t.ciqualRechercheTitre),
       content: SizedBox(
         width: double.maxFinite,
-        height: 420,
+        height: hauteur,
         child: Column(
           children: [
             TextField(

@@ -73,6 +73,8 @@ DropdownButtonFormField<Moment> _choixMoment(
   Moment valeur,
   ValueChanged<Moment> onChanged,
 ) => DropdownButtonFormField<Moment>(
+  // Pleine largeur : un libellé long passe à la ligne au lieu de déborder.
+  isExpanded: true,
   initialValue: valeur,
   decoration: InputDecoration(labelText: t.champMoment),
   items: [

@@ -600,23 +600,29 @@ class _Ligne extends StatelessWidget {
                 ],
               ),
             ),
-            Text.rich(
-              TextSpan(
-                children: [
-                  TextSpan(
-                    text: valeur,
-                    style: textes.headlineSmall?.copyWith(
-                      color: couleurTexte,
-                      fontWeight: FontWeight.w700,
+            // Flexible : avec une police agrandie, la valeur passe à la ligne
+            // au lieu de déborder.
+            Flexible(
+              flex: 2,
+              child: Text.rich(
+                textAlign: TextAlign.end,
+                TextSpan(
+                  children: [
+                    TextSpan(
+                      text: valeur,
+                      style: textes.headlineSmall?.copyWith(
+                        color: couleurTexte,
+                        fontWeight: FontWeight.w700,
+                      ),
                     ),
-                  ),
-                  TextSpan(
-                    text: ' / $objectif $unite',
-                    style: textes.bodyMedium?.copyWith(
-                      color: context.palette.texteDoux,
+                    TextSpan(
+                      text: ' / $objectif $unite',
+                      style: textes.bodyMedium?.copyWith(
+                        color: context.palette.texteDoux,
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           ],

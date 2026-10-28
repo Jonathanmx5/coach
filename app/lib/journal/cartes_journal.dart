@@ -39,7 +39,7 @@ class CarteRecap extends StatelessWidget {
                   padding: const EdgeInsets.symmetric(vertical: 3),
                   child: Row(
                     children: [
-                      Text(libelleMoment(t, m)),
+                      Flexible(child: Text(libelleMoment(t, m))),
                       const SizedBox(width: 12),
                       Expanded(
                         child: Text(
@@ -150,18 +150,20 @@ class CarteBilan extends StatelessWidget {
             Row(
               children: [
                 Expanded(child: Text(t.bilanTitre, style: textes.titleMedium)),
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 4,
+                Flexible(
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 4,
+                    ),
+                    decoration: BoxDecoration(
+                      color: intensite == IntensiteJour.intense
+                          ? context.palette.orangeClair
+                          : context.palette.vertClair,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Text(libelleIntensite, style: textes.labelMedium),
                   ),
-                  decoration: BoxDecoration(
-                    color: intensite == IntensiteJour.intense
-                        ? context.palette.orangeClair
-                        : context.palette.vertClair,
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Text(libelleIntensite, style: textes.labelMedium),
                 ),
               ],
             ),
