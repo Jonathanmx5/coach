@@ -82,6 +82,8 @@ class DialoguePortionState extends State<DialoguePortion> {
     final t = AppLocalizations.of(context)!;
     final valeur = double.tryParse(_grammes.text.replaceAll(',', '.'));
     return AlertDialog(
+      // Défile quand le clavier laisse peu de place (écran à plat).
+      scrollable: true,
       title: Text(widget.nom),
       content: TextField(
         controller: _grammes,
@@ -252,6 +254,8 @@ class DialogueAlimentState extends State<DialogueAliment> {
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context)!;
     return AlertDialog(
+      // Titre et champs défilent ensemble quand le clavier prend la place.
+      scrollable: true,
       title: Text(_creation ? t.ajouterAliment : t.modifierAliment),
       content: SingleChildScrollView(
         child: Column(

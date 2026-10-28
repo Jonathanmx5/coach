@@ -50,6 +50,12 @@ class _CoqueState extends State<Coque> with WidgetsBindingObserver {
   /// changer d'onglet ne reconstruit ni ne réabonne les autres pages.
   final List<Widget?> _pages = List.filled(5, null);
 
+  /// Gardent l'état des onglets et du bandeau quand une rotation change la
+  /// mise en page (barre du bas ↔ barre latérale) : sans elles, tout serait
+  /// reconstruit et le flux du réseau, qui n'accepte qu'une écoute, planterait.
+  final _cleCorps = GlobalKey();
+  final _cleBandeau = GlobalKey();
+
   /// Relecture du suivi au changement de jour, appli ouverte.
   Timer? _minuit;
   late final SuiviMeteo _meteoSuivi = SuiviMeteo(
@@ -262,6 +268,7 @@ class _CoqueState extends State<Coque> with WidgetsBindingObserver {
   };
 
   Widget _bandeauHorsLigne(AppLocalizations t) => StreamBuilder<bool>(
+    key: _cleBandeau,
     stream: _enLigne,
     initialData: true,
     builder: (context, snap) => snap.data == false
@@ -288,6 +295,7 @@ class _CoqueState extends State<Coque> with WidgetsBindingObserver {
   );
 
   Widget _corps() => Theme(
+    key: _cleCorps,
     // Les onglets laissent voir le fond de verre.
     data: Theme.of(context)
         .copyWith(scaffoldBackgroundColor: Colors.transparent),

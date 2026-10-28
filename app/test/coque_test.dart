@@ -177,6 +177,71 @@ void main() {
       expect(find.byType(NavigationRail), findsNothing);
       expect(tester.getSize(find.byType(AccueilPage)).width, 400);
     });
+
+    testWidgets('rotation en cours d’utilisation : rien n’est reconstruit', (
+      tester,
+    ) async {
+      tester.view.physicalSize = const Size(800, 1280);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
+      final banc = Banc();
+      await banc.monter(tester);
+      await onglet(tester, 'Poids');
+      final etat = tester.state(find.byType(PoidsPage));
+
+      tester.view.physicalSize = const Size(1280, 800);
+      await tester.pumpAndSettle();
+      expect(tester.takeException(), isNull);
+      expect(find.byType(NavigationRail), findsOneWidget);
+      expect(tester.state(find.byType(PoidsPage)), same(etat));
+
+      tester.view.physicalSize = const Size(800, 1280);
+      await tester.pumpAndSettle();
+      expect(tester.takeException(), isNull);
+      expect(find.byType(NavigationBar), findsOneWidget);
+      expect(tester.state(find.byType(PoidsPage)), same(etat));
+
+      banc.reseau.changer(false);
+      await tester.pumpAndSettle();
+      expect(find.textContaining('Hors-ligne'), findsOneWidget);
+    });
+
+    // Rotation : chaque onglet doit tenir sans débordement dans toutes les
+    // tailles et orientations (tablettes 8" et 10", téléphone à plat).
+    const tailles = {
+      'tablette 10" portrait': Size(800, 1280),
+      'tablette 10" paysage': Size(1280, 800),
+      'tablette 8" portrait': Size(600, 960),
+      'tablette 8" paysage': Size(960, 600),
+      'téléphone portrait': Size(400, 800),
+      'téléphone paysage': Size(800, 360),
+    };
+    for (final MapEntry(key: nom, value: taille) in tailles.entries) {
+      testWidgets('rotation : $nom, aucun débordement', (tester) async {
+        tester.view.physicalSize = taille;
+        tester.view.devicePixelRatio = 1;
+        addTearDown(tester.view.reset);
+        final banc = Banc();
+        await banc.monter(tester);
+        final barre = taille.width >= largeurTablette
+            ? find.byType(NavigationRail)
+            : find.byType(NavigationBar);
+        expect(barre, findsOneWidget);
+        for (final onglet in [
+          'Repas',
+          'Sport',
+          'Poids',
+          'Bien-être',
+          'Accueil',
+        ]) {
+          await tester.tap(
+            find.descendant(of: barre, matching: find.text(onglet)).first,
+          );
+          await tester.pumpAndSettle();
+          expect(tester.takeException(), isNull, reason: '$nom / $onglet');
+        }
+      });
+    }
   });
 
   group('onglets', () {
