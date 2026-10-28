@@ -53,6 +53,13 @@ android {
         }
     }
 
+    packaging {
+        jniLibs {
+            // Bibliothèques natives compressées dans l'APK : moins à télécharger.
+            useLegacyPackaging = true
+        }
+    }
+
     buildTypes {
         release {
             // Sans key.properties (autre machine, intégration continue), la
