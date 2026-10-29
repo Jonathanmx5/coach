@@ -21,9 +21,9 @@ const reponse = (corps, statut = 200) =>
 /** Octets magiques d'un JPEG (FF D8 FF) : l'application ré-encode toujours en JPEG. */
 export const estJpeg = (o) => o.length >= 3 && o[0] === 0xff && o[1] === 0xd8 && o[2] === 0xff;
 
-/** Workers AI : quota de neurones du compte épuisé (erreur 3036). */
+/** Workers AI : quota de neurones du compte épuisé (erreur 3036 ou 4006). */
 export function quotaWorkersEpuise(e) {
-  return /\b3036\b|free allocation|used up your daily/i.test(String(e?.message ?? e ?? ''));
+  return /\b(3036|4006)\b|free allocation|used up your daily/i.test(String(e?.message ?? e ?? ''));
 }
 
 class DelaiDepasse extends Error {

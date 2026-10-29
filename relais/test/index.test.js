@@ -343,6 +343,8 @@ test('quota Workers AI épuisé : 429 « service », secours non appelé, unité
   assert.deepEqual(ia.appels.map((a) => a.modele), ['principal']);
   assert.equal(kv.m.get(CLE_U), '0');
   assert.equal(quotaWorkersEpuise(new Error('panne réseau')), false);
+  assert.equal(quotaWorkersEpuise(new Error('4006: you have used up your daily free allocation')), true);
+  assert.equal(quotaWorkersEpuise(new Error('AiError: 4006')), true);
 });
 
 test('limite connue (KV non atomique) : une rafale simultanée dépasse le plafond', async () => {
