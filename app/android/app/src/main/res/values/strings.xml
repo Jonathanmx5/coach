@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="widget_description">Tes anneaux du jour et l\'ajout d\'eau en un geste.</string>
+    <string name="widget_titre_eau">Hydratation</string>
+    <string name="widget_anneaux_description">Anneaux du jour : calories brûlées et mangées, protéines</string>
+    <string name="widget_titre_repas">Repas du jour</string>
+    <string name="widget_photo_repas">📷 Photographier</string>
+    <string name="widget_eau_description">Ton eau du jour et deux boutons pour en ajouter.</string>
+    <string name="widget_repas_description">Calories et protéines du jour, et un accès direct à la photo du repas.</string>
+    <string name="widget_ajouter_250">Ajouter 250 millilitres d’eau</string>
+    <string name="widget_ajouter_500">Ajouter 500 millilitres d’eau</string>
+    <string name="widget_photo_description">Photographier mon repas</string>
+    <string name="widget_ajouter_1000">Ajouter 1 litre d’eau</string>
+    <string name="widget_ajouter_180">Ajouter 18 centilitres d’eau</string>
+    <string name="widget_connecte_toi">Connecte-toi dans l’appli</string>
+</resources>

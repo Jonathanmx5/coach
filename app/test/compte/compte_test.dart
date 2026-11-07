@@ -1,0 +1,373 @@
+import 'dart:io';
+
+import 'package:coach/compte/auth_service.dart';
+import 'package:coach/compte/donnees_compte.dart';
+import 'package:coach/journal/calculs.dart';
+import 'package:coach/journal/modele.dart';
+import 'package:coach/reglages/reglage_rapports.dart';
+import 'package:coach/sante/modele.dart' as sante;
+import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_test/flutter_test.dart';
+
+import '../fakes.dart';
+import '../parcours.dart';
+import '../racine_test.dart' as racine;
+
+Activite activite(DateTime date, int minutes, double kcal) => Activite(
+  date: date,
+  type: TypeActivite.course,
+  minutes: minutes,
+  intensite: Intensite.moderee,
+  kcal: kcal,
+);
+
+sante.Seance montre(DateTime debut, int minutes) => sante.Seance(
+  type: 'course',
+  debut: debut,
+  duree: Duration(minutes: minutes),
+);
+
+void main() {
+  group('calories des activités déjà comptées par la montre', () {
+    final midi = DateTime(2026, 10, 9, 12);
+
+    test('sans séance de la montre : tout compte', () {
+      expect(
+        kcalActivitesNonComptees([
+          activite(midi, 30, 300),
+          activite(midi, 20, 100),
+        ], const []),
+        400,
+      );
+    });
+
+    test('séance de la montre au même moment : pas comptée deux fois', () {
+      // La séance Coach finit à 12 h 00 après 30 min ; la montre a mesuré
+      // 11 h 30 – 12 h 00.
+      expect(
+        kcalActivitesNonComptees(
+          [activite(midi, 30, 300)],
+          [montre(DateTime(2026, 10, 9, 11, 30), 30)],
+        ),
+        0,
+      );
+    });
+
+    test('séance de la montre à un autre moment : l\'activité compte', () {
+      expect(
+        kcalActivitesNonComptees(
+          [activite(midi, 30, 300)],
+          [montre(DateTime(2026, 10, 9, 18), 45)],
+        ),
+        300,
+      );
+    });
+
+    test('on ne retire que ce qui chevauche', () {
+      expect(
+        kcalActivitesNonComptees(
+          [
+            activite(midi, 30, 300),
+            activite(DateTime(2026, 10, 9, 20), 30, 200),
+          ],
+          [montre(DateTime(2026, 10, 9, 11, 40), 20)],
+        ),
+        200,
+      );
+    });
+  });
+
+  test('l\'effacement vide toutes les collections, puis le profil', () async {
+    final db = FakeFirebaseFirestore();
+    for (final nom in FirestoreDonneesCompte.collections) {
+      for (var i = 0; i < 3; i++) {
+        await db.collection('users/u1/$nom').add({'x': i});
+      }
+    }
+    await db.doc('users/u1').set({'profil': 1});
+    await db.collection('users/u2/repas').add({'x': 1});
+
+    await FirestoreDonneesCompte(db).supprimerTout('u1');
+
+    for (final nom in FirestoreDonneesCompte.collections) {
+      expect((await db.collection('users/u1/$nom').get()).docs, isEmpty);
+    }
+    expect((await db.doc('users/u1').get()).exists, isFalse);
+    expect((await db.collection('users/u2/repas').get()).docs, hasLength(1));
+  });
+
+  test('l\'effacement gère plus de 400 documents', () async {
+    final db = FakeFirebaseFirestore();
+    for (var i = 0; i < 950; i++) {
+      await db.collection('users/u1/eau').add({'ml': i});
+    }
+    await FirestoreDonneesCompte(db).supprimerTout('u1');
+    expect((await db.collection('users/u1/eau').get()).docs, isEmpty);
+  });
+
+  test('toute collection utilisée par l\'appli est effacée avec le compte', () {
+    final trouvees = <String>{};
+    final motif = RegExp(r"(?:_col\(uid, |\.collection\()'(\w+)'");
+    for (final f in Directory('lib').listSync(recursive: true)) {
+      if (f is! File || !f.path.endsWith('.dart')) continue;
+      for (final m in motif.allMatches(f.readAsStringSync())) {
+        trouvees.add(m.group(1)!);
+      }
+    }
+    trouvees.remove('users');
+    expect(trouvees, isNotEmpty);
+    expect(
+      FirestoreDonneesCompte.collections.toSet(),
+      containsAll(trouvees),
+      reason: 'collection oubliée dans FirestoreDonneesCompte.collections',
+    );
+  });
+
+  test('consentements : enregistrés avec la date, retirables', () async {
+    final db = FakeFirebaseFirestore();
+    final depot = FirestoreConsentementsRepository(db);
+    expect(await depot.accordes('u1').first, isEmpty);
+
+    await depot.definir('u1', Consentement.photo, true);
+    expect(await depot.accordes('u1').first, {Consentement.photo});
+    final doc = await db.doc('users/u1/reglages/consentements').get();
+    expect(doc.data()!['photo'], isA<num>());
+
+    await depot.definir('u1', Consentement.photo, false);
+    expect(await depot.accordes('u1').first, isEmpty);
+  });
+
+  test('un accord photo ancien est redemandé, pas celui de la météo', () async {
+    final db = FakeFirebaseFirestore();
+    await db.doc('users/u1/reglages/consentements').set({
+      'photo': DateTime(2026, 10, 1).millisecondsSinceEpoch,
+      'meteo': DateTime(2026, 10, 1).millisecondsSinceEpoch,
+    });
+    final depot = FirestoreConsentementsRepository(db);
+
+    expect(await depot.accordes('u1').first, {Consentement.meteo});
+
+    await depot.definir('u1', Consentement.photo, true);
+    expect(await depot.accordes('u1').first, {
+      Consentement.meteo,
+      Consentement.photo,
+    });
+  });
+
+  group('connexion récente avant suppression', () {
+    final maintenant = DateTime(2026, 10, 20, 12);
+
+    test('connexion de moins de 4 minutes : rien à redemander', () {
+      expect(
+        reconnexionNecessaire(
+          maintenant.subtract(const Duration(minutes: 3)),
+          maintenant,
+        ),
+        isFalse,
+      );
+    });
+
+    test('connexion ancienne ou inconnue : compte Google redemandé', () {
+      expect(
+        reconnexionNecessaire(
+          maintenant.subtract(const Duration(minutes: 5)),
+          maintenant,
+        ),
+        isTrue,
+      );
+      expect(
+        reconnexionNecessaire(
+          maintenant.subtract(const Duration(days: 7)),
+          maintenant,
+        ),
+        isTrue,
+      );
+      expect(reconnexionNecessaire(null, maintenant), isTrue);
+    });
+  });
+
+  group('réglages', () {
+    Future<void> ouvrir(
+      WidgetTester tester, {
+      FauxAuth? auth,
+      FauxDonnees? donnees,
+      FauxConsentements? consentements,
+      FauxReseau? reseau,
+      FauxWidget? widgetAccueil,
+      FauxFichiers? fichiers,
+      ReglageRapports? rapports,
+    }) async {
+      await racine.monter(
+        tester,
+        auth ?? FauxAuth(connecte: racine.lea),
+        racine.depotAvecProfil(),
+        donnees: donnees,
+        consentements: consentements,
+        reseau: reseau,
+        widgetAccueil: widgetAccueil,
+        fichiers: fichiers,
+        rapports: rapports,
+      );
+      await tester.tap(find.byTooltip('Réglages'));
+      await tester.pumpAndSettle();
+    }
+
+    final interrupteurPhoto = find.widgetWithText(
+      SwitchListTile,
+      'Photo de repas analysée par IA',
+    );
+
+    testWidgets('retirer son accord pour la photo', (tester) async {
+      final consentements = FauxConsentements({Consentement.photo});
+      await ouvrir(tester, consentements: consentements);
+
+      await defilerJusqua(tester, interrupteurPhoto);
+      await tester.tap(interrupteurPhoto);
+      await tester.pumpAndSettle();
+
+      expect(consentements.accordesMaintenant, isEmpty);
+    });
+
+    testWidgets('donner son accord passe par le texte complet', (tester) async {
+      final consentements = FauxConsentements();
+      await ouvrir(tester, consentements: consentements);
+
+      await defilerJusqua(tester, interrupteurPhoto);
+      await tester.tap(interrupteurPhoto);
+      await tester.pumpAndSettle();
+
+      // Le dialogue d'accord s'ouvre : rien n'est accordé sans lui.
+      expect(find.text("Envoyer la photo pour l'analyse ?"), findsOneWidget);
+      expect(consentements.accordesMaintenant, isEmpty);
+      await taper(tester, 'Refuser');
+      expect(consentements.accordesMaintenant, isEmpty);
+
+      await tester.tap(interrupteurPhoto);
+      await tester.pumpAndSettle();
+      await taper(tester, 'Accepter');
+      expect(consentements.accordesMaintenant, {Consentement.photo});
+    });
+
+    testWidgets('rapports de plantage : activés par défaut, refusables', (
+      tester,
+    ) async {
+      final appliques = <bool>[];
+      final rapports = ReglageRapportsFixe(true, (v) async => appliques.add(v));
+      await ouvrir(tester, rapports: rapports);
+
+      final interrupteur = find.widgetWithText(
+        SwitchListTile,
+        'Envoyer les rapports de plantage',
+      );
+      await defilerJusqua(tester, interrupteur);
+      expect(tester.widget<SwitchListTile>(interrupteur).value, isTrue);
+
+      await tester.tap(interrupteur);
+      await tester.pumpAndSettle();
+      expect(rapports.actif.value, isFalse);
+      expect(appliques, [false]);
+      expect(tester.widget<SwitchListTile>(interrupteur).value, isFalse);
+
+      await tester.tap(interrupteur);
+      await tester.pumpAndSettle();
+      expect(appliques, [false, true]);
+    });
+
+    testWidgets("compte Google non confirmé : rien n'est effacé", (
+      tester,
+    ) async {
+      final auth = FauxAuth(connecte: racine.lea)
+        ..echecPreparation = const ConnexionEchouee('annulée');
+      final donnees = FauxDonnees();
+      final fichiers = FauxFichiers();
+      await ouvrir(tester, auth: auth, donnees: donnees, fichiers: fichiers);
+
+      await taper(tester, 'Supprimer mon compte et mes données');
+      await taper(tester, 'Tout supprimer');
+
+      expect(auth.preparations, 1);
+      expect(donnees.supprimes, isEmpty);
+      expect(fichiers.cachesVides, 0);
+      expect(auth.compteSupprime, isFalse);
+      expect(find.textContaining("Rien n'a été effacé"), findsOneWidget);
+      expect(find.text('Réglages'), findsOneWidget);
+    });
+
+    testWidgets('supprimer le compte : données, compte, retour à l\'accueil', (
+      tester,
+    ) async {
+      final auth = FauxAuth(connecte: racine.lea);
+      final donnees = FauxDonnees();
+      final widget = FauxWidget();
+      final fichiers = FauxFichiers();
+      await ouvrir(
+        tester,
+        auth: auth,
+        donnees: donnees,
+        widgetAccueil: widget,
+        fichiers: fichiers,
+      );
+
+      await taper(tester, 'Supprimer mon compte et mes données');
+      expect(
+        find.text('Supprimer définitivement ton compte ?'),
+        findsOneWidget,
+      );
+      await taper(tester, 'Tout supprimer');
+
+      // Le compte Google est confirmé avant tout effacement.
+      expect(auth.preparations, 1);
+      expect(donnees.supprimes, ['u1']);
+      expect(auth.compteSupprime, isTrue);
+      expect(find.text('Commencer'), findsOneWidget);
+      // Plus rien du compte sur l'écran d'accueil du téléphone.
+      expect(widget.effacements, 1);
+      // Ni dans le cache : sauvegarde importée, photos de l'appareil photo.
+      expect(fichiers.cachesVides, 1);
+    });
+
+    testWidgets('annuler : rien n\'est supprimé', (tester) async {
+      final auth = FauxAuth(connecte: racine.lea);
+      final donnees = FauxDonnees();
+      await ouvrir(tester, auth: auth, donnees: donnees);
+
+      await taper(tester, 'Supprimer mon compte et mes données');
+      await taper(tester, 'Annuler');
+
+      expect(donnees.supprimes, isEmpty);
+      expect(auth.compteSupprime, isFalse);
+    });
+
+    testWidgets('hors-ligne : message, rien n\'est supprimé', (tester) async {
+      final auth = FauxAuth(connecte: racine.lea);
+      final donnees = FauxDonnees();
+      await ouvrir(
+        tester,
+        auth: auth,
+        donnees: donnees,
+        reseau: FauxReseau(false),
+      );
+
+      await taper(tester, 'Supprimer mon compte et mes données');
+      await taper(tester, 'Tout supprimer');
+
+      expect(find.textContaining('Connecte-toi à internet'), findsOneWidget);
+      expect(auth.preparations, 0);
+      expect(donnees.supprimes, isEmpty);
+      expect(auth.compteSupprime, isFalse);
+    });
+
+    testWidgets('échec : message, on reste sur les réglages', (tester) async {
+      final auth = FauxAuth(connecte: racine.lea)
+        ..echecSuppression = const ConnexionEchouee('trop ancienne');
+      await ouvrir(tester, auth: auth);
+
+      await taper(tester, 'Supprimer mon compte et mes données');
+      await taper(tester, 'Tout supprimer');
+
+      expect(find.textContaining('La suppression a échoué'), findsOneWidget);
+      expect(find.text('Réglages'), findsOneWidget);
+    });
+  });
+}

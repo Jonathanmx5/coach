@@ -1,0 +1,304 @@
+import 'dart:async';
+
+import 'package:flutter/material.dart';
+
+import '../../compte/auth_service.dart';
+import '../../l10n/app_localizations.dart';
+import '../../theme.dart';
+import '../../sante/sante_service.dart';
+import '../besoins.dart';
+import '../modele.dart';
+import '../profil_repository.dart';
+import 'controleur.dart';
+import 'etapes.dart';
+import 'resultat.dart';
+
+class QuestionnairePage extends StatefulWidget {
+  const QuestionnairePage({
+    super.key,
+    required this.controleur,
+    required this.auth,
+    required this.depot,
+    required this.sante,
+    required this.horloge,
+    required this.quandTermine,
+  });
+
+  final QuestionnaireControleur controleur;
+  final AuthService auth;
+  final ProfilRepository depot;
+  final SanteService sante;
+  final DateTime Function() horloge;
+  final VoidCallback quandTermine;
+
+  @override
+  State<QuestionnairePage> createState() => _QuestionnairePageState();
+}
+
+class _QuestionnairePageState extends State<QuestionnairePage> {
+  bool _connexionEnCours = false;
+  bool _connexionEchouee = false;
+
+  // Étape « application de la montre » : état de Health Connect.
+  DispoSante? _dispo;
+  bool? _accesAccorde;
+  bool _demandeEnCours = false;
+
+  @override
+  void initState() {
+    super.initState();
+    widget.sante.disponibilite().then(
+      (d) {
+        if (mounted) setState(() => _dispo = d);
+      },
+      onError: (Object _) {
+        if (mounted) setState(() => _dispo = DispoSante.indisponible);
+      },
+    );
+  }
+
+  Future<void> _autoriser() async {
+    setState(() => _demandeEnCours = true);
+    var accorde = false;
+    try {
+      accorde = await widget.sante.demanderAutorisations();
+    } catch (_) {
+      accorde = false;
+    }
+    if (!mounted) return;
+    setState(() {
+      _demandeEnCours = false;
+      _accesAccorde = accorde;
+    });
+  }
+
+  Future<void> _installer() async {
+    await widget.sante.installer();
+    final d = await widget.sante.disponibilite();
+    if (mounted) setState(() => _dispo = d);
+  }
+
+  QuestionnaireControleur get _c => widget.controleur;
+
+  void _terminer(String uid) {
+    final profil = _c.construireProfil();
+    final reperes = calculerReperes(profil, maintenant: widget.horloge());
+    // Hors-ligne, l'écriture ne se termine qu'à la synchronisation :
+    // le cache local suffit pour avancer.
+    unawaited(widget.depot.enregistrer(uid, profil, reperes));
+    widget.quandTermine();
+  }
+
+  Future<void> _connecter() async {
+    setState(() {
+      _connexionEnCours = true;
+      _connexionEchouee = false;
+    });
+    try {
+      final u = await widget.auth.connecterGoogle();
+      if (!mounted) return;
+      setState(() => _connexionEnCours = false);
+      if (u != null) _terminer(u.uid);
+    } on ConnexionEchouee {
+      if (!mounted) return;
+      setState(() {
+        _connexionEnCours = false;
+        _connexionEchouee = true;
+      });
+    }
+  }
+
+  void _avancer() {
+    if (_c.estDerniereEtape) {
+      final uid = widget.auth.actuel?.uid;
+      if (uid != null) _terminer(uid);
+    } else {
+      _c.suivant();
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
+    return ListenableBuilder(
+      listenable: _c,
+      builder: (context, _) {
+        final alerte = _c.alerte;
+        final enConnexion = _c.etape == Etape.connexion;
+        final numero = _c.etapes.indexOf(_c.etape) + 1;
+        final premiere = numero == 1;
+        return Scaffold(
+          body: SafeArea(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(8, 8, 20, 0),
+                  child: Row(
+                    children: [
+                      if (premiere)
+                        const SizedBox(width: 12, height: 48)
+                      else
+                        IconButton(
+                          tooltip: t.boutonRetour,
+                          onPressed: _connexionEnCours ? null : _c.precedent,
+                          icon: const Icon(Icons.arrow_back),
+                        ),
+                      Text(
+                        t.etapeSur(numero, _c.etapes.length),
+                        style: Theme.of(context).textTheme.labelLarge
+                            ?.copyWith(color: context.palette.texteDoux),
+                      ),
+                    ],
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(20, 4, 20, 0),
+                  child: _BarreEtapes(total: _c.etapes.length, faites: numero),
+                ),
+                Expanded(
+                  child: ListView(
+                    key: ValueKey(_c.etape),
+                    padding: const EdgeInsets.fromLTRB(20, 24, 20, 16),
+                    children: [
+                      Text(
+                        titreEtape(t, _c.etape),
+                        style: Theme.of(context).textTheme.headlineSmall,
+                      ),
+                      const SizedBox(height: 20),
+                      ...contenuEtape(context, _c),
+                      if (_c.etape == Etape.resultat) _resultat(),
+                      if (enConnexion) ..._contenuConnexion(t),
+                      if (_c.etape == Etape.appMontre && _c.appMontre != null)
+                        ..._contenuAutorisation(t, _c.appMontre!),
+                      if (alerte != null) ...[
+                        const SizedBox(height: 16),
+                        if (alerte == Alerte.recomposition)
+                          EncadreInfo(texteAlerte(t, alerte))
+                        else
+                          EncadreAlerte(texteAlerte(t, alerte)),
+                      ],
+                    ],
+                  ),
+                ),
+                if (!enConnexion)
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(20, 8, 20, 16),
+                    child: FilledButton(
+                      onPressed: _c.peutContinuer ? _avancer : null,
+                      child: Text(
+                        _c.etape == Etape.resultat && _c.estDerniereEtape
+                            ? t.boutonCestParti
+                            : t.boutonSuivant,
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _resultat() {
+    final maintenant = widget.horloge();
+    final profil = _c.construireProfil();
+    return ResultatQuestionnaire(
+      profil: profil,
+      reperes: calculerReperes(profil, maintenant: maintenant),
+      maintenant: maintenant,
+      objectifDemande: _c.objectif,
+    );
+  }
+
+  List<Widget> _contenuAutorisation(AppLocalizations t, AppMontre app) {
+    final accorde = _accesAccorde;
+    return [
+      const SizedBox(height: 8),
+      EncadreInfo(
+        app == AppMontre.autre
+            ? t.consignePartageAutre
+            : t.consignePartage(libelleAppMontre(t, app)),
+      ),
+      const SizedBox(height: 16),
+      switch (_dispo) {
+        null => const Center(child: CircularProgressIndicator()),
+        DispoSante.indisponible => EncadreAlerte(t.hcIndisponible),
+        DispoSante.aInstaller => Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            EncadreAlerte(t.hcAInstaller),
+            const SizedBox(height: 12),
+            OutlinedButton.icon(
+              onPressed: _installer,
+              icon: const Icon(Icons.download_outlined),
+              label: Text(t.boutonInstallerHc),
+            ),
+          ],
+        ),
+        DispoSante.disponible =>
+          _demandeEnCours
+              ? const Center(child: CircularProgressIndicator())
+              : OutlinedButton.icon(
+                  onPressed: _autoriser,
+                  icon: const Icon(Icons.lock_open_outlined),
+                  label: Text(t.boutonAutoriser),
+                ),
+      },
+      if (accorde != null) ...[
+        const SizedBox(height: 16),
+        accorde ? EncadreInfo(t.accesAccorde) : EncadreAlerte(t.accesRefuse),
+      ],
+    ];
+  }
+
+  List<Widget> _contenuConnexion(AppLocalizations t) => [
+    Padding(
+      padding: const EdgeInsets.symmetric(vertical: 24),
+      child: Icon(
+        Icons.cloud_done_outlined,
+        size: 88,
+        color: context.palette.accent,
+      ),
+    ),
+    if (_connexionEnCours)
+      const Center(child: CircularProgressIndicator())
+    else
+      FilledButton.icon(
+        onPressed: _connecter,
+        icon: const Icon(Icons.login),
+        label: Text(t.boutonGoogle),
+      ),
+    if (_connexionEchouee) ...[
+      const SizedBox(height: 16),
+      EncadreAlerte(t.erreurConnexion),
+    ],
+  ];
+}
+
+class _BarreEtapes extends StatelessWidget {
+  const _BarreEtapes({required this.total, required this.faites});
+
+  final int total;
+  final int faites;
+
+  @override
+  Widget build(BuildContext context) => Row(
+    children: [
+      for (var i = 0; i < total; i++) ...[
+        if (i > 0) const SizedBox(width: 4),
+        Expanded(
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 200),
+            height: 6,
+            decoration: BoxDecoration(
+              color: i < faites ? CouleursCoach.vert : context.palette.bordure,
+              borderRadius: BorderRadius.circular(3),
+            ),
+          ),
+        ),
+      ],
+    ],
+  );
+}

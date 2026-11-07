@@ -1,0 +1,2041 @@
+// ignore: unused_import
+import 'package:intl/intl.dart' as intl;
+
+import 'app_localizations.dart';
+
+// ignore_for_file: type=lint
+
+/// The translations for French (`fr`).
+class AppLocalizationsFr extends AppLocalizations {
+  AppLocalizationsFr([String locale = 'fr']) : super(locale);
+
+  @override
+  String get appTitre => 'Vyta';
+
+  @override
+  String get bienvenueTitre => 'Ton coach sport et alimentation';
+
+  @override
+  String get bienvenueSousTitre => 'Un programme adapté à toi, en une minute.';
+
+  @override
+  String get boutonCommencer => 'Commencer';
+
+  @override
+  String get boutonDejaCompte => 'J\'ai déjà un compte';
+
+  @override
+  String get boutonSuivant => 'Suivant';
+
+  @override
+  String get boutonRetour => 'Retour';
+
+  @override
+  String get boutonOui => 'Oui';
+
+  @override
+  String get boutonNon => 'Non';
+
+  @override
+  String get qObjectif => 'Quel est ton objectif ?';
+
+  @override
+  String get objectifPerte => 'Perdre du poids';
+
+  @override
+  String get objectifMuscle => 'Prendre du muscle';
+
+  @override
+  String get objectifForme => 'Garder la forme';
+
+  @override
+  String get objectifReprise => 'Reprendre le sport';
+
+  @override
+  String get qSexeAge => 'Parle-nous un peu de toi';
+
+  @override
+  String get sexeHomme => 'Homme';
+
+  @override
+  String get sexeFemme => 'Femme';
+
+  @override
+  String get sexeExplication => 'Sert uniquement au calcul de tes besoins.';
+
+  @override
+  String get champAge => 'Âge';
+
+  @override
+  String get qMensurations => 'Ta taille et ton poids';
+
+  @override
+  String get champTaille => 'Taille (cm)';
+
+  @override
+  String get champPoids => 'Poids (kg)';
+
+  @override
+  String get champPoidsCible => 'Poids visé (kg, facultatif)';
+
+  @override
+  String get erreurCibleBasse => 'Ce poids serait trop bas pour ta taille.';
+
+  @override
+  String get qTypeDeVie => 'Hors sport, ton quotidien ressemble plutôt à…';
+
+  @override
+  String get qTypeDeVieAide =>
+      'Ne compte pas tes séances : elles s\'ajoutent à part, les jours où tu en fais.';
+
+  @override
+  String get vieSedentaire => 'Assis toute la journée';
+
+  @override
+  String get vieSedentaireEx => 'Bureau, voiture, peu de marche';
+
+  @override
+  String get viePeuActif => 'Un peu actif';
+
+  @override
+  String get viePeuActifEx => 'Souvent debout, un peu de marche';
+
+  @override
+  String get vieActif => 'Actif, hors sport';
+
+  @override
+  String get vieActifEx => 'Métier physique ou beaucoup de marche au quotidien';
+
+  @override
+  String get vieTresActif => 'Très actif, hors sport';
+
+  @override
+  String get vieTresActifEx =>
+      'Travail très physique toute la journée (bâtiment, manutention…)';
+
+  @override
+  String get qEntrainements => 'Où veux-tu t\'entraîner ?';
+
+  @override
+  String get qEntrainementsAide => 'Plusieurs choix possibles.';
+
+  @override
+  String get entrainementSalle => 'Salle de sport';
+
+  @override
+  String get entrainementMaison => 'À la maison';
+
+  @override
+  String get entrainementCourse => 'Course à pied';
+
+  @override
+  String get entrainementMarche => 'Marche';
+
+  @override
+  String get qNiveau => 'Ton niveau';
+
+  @override
+  String get niveauDebutant => 'Débutant';
+
+  @override
+  String get niveauReprise => 'Je reprends';
+
+  @override
+  String get niveauRegulier => 'Régulier';
+
+  @override
+  String get qDisponibilite => 'Ton temps disponible';
+
+  @override
+  String get champJours => 'Jours par semaine';
+
+  @override
+  String get champDuree => 'Durée d\'une séance';
+
+  @override
+  String dureeMinutes(int n) {
+    return '$n min';
+  }
+
+  @override
+  String get qSante => 'L\'un de ces cas te concerne-t-il ?';
+
+  @override
+  String get qSanteAide =>
+      'Coche tout ce qui s\'applique : tes repères et tes séances s\'adaptent.';
+
+  @override
+  String get precautionEnceinte => 'Enceinte ou allaitante';
+
+  @override
+  String get precautionEnceinteEx =>
+      'Pas de régime : on vise la forme, sans saut ni exercice allongé.';
+
+  @override
+  String get precautionMedecin => 'Perte de poids suivie par un médecin';
+
+  @override
+  String get precautionMedecinEx =>
+      'Déficit plus doux et exercices sans impact. Ses consignes passent avant les nôtres.';
+
+  @override
+  String get precautionArticulations => 'Douleurs articulaires';
+
+  @override
+  String get precautionArticulationsEx =>
+      'Exercices sans saut ni impact ; la course est remplacée par la marche.';
+
+  @override
+  String get precautionAucune => 'Aucun de ces cas';
+
+  @override
+  String get santeAPreciser =>
+      'Cette question a changé : précise ta réponse. En attendant, toutes les précautions restent appliquées.';
+
+  @override
+  String get messagePerteGrossesse =>
+      'Pendant la grossesse ou l\'allaitement, pas de régime : on part sur « garder la forme ». Parles-en à ta sage-femme ou à ton médecin.';
+
+  @override
+  String get messagePertePlancher =>
+      'Tes besoins de tous les jours sont déjà au niveau du minimum conseillé : manger moins ne serait pas sûr. On part plutôt sur « garder la forme ».';
+
+  @override
+  String get messageRecomposition =>
+      'Avec ton IMC, on te propose une recomposition : un léger déficit et beaucoup de protéines, pour gagner du muscle tout en perdant du gras.';
+
+  @override
+  String get messageMineur =>
+      'Vyta est réservé aux personnes de 18 ans et plus. Les besoins des adolescents sont différents : parles-en à ton médecin.';
+
+  @override
+  String get messagePerteImc =>
+      'Ton poids est déjà bas pour ta taille : on part plutôt sur « garder la forme ».';
+
+  @override
+  String get erreurNombre => 'Entre un nombre valide.';
+
+  @override
+  String erreurPlage(int min, int max) {
+    return 'Entre une valeur entre $min et $max.';
+  }
+
+  @override
+  String get qConnexion => 'Dernière étape : sauvegarde ton profil';
+
+  @override
+  String get boutonGoogle => 'Continuer avec Google';
+
+  @override
+  String get erreurConnexion =>
+      'La connexion a échoué. Vérifie ta connexion internet et réessaie.';
+
+  @override
+  String get mentionMedicale => 'Vyta ne remplace pas un avis médical.';
+
+  @override
+  String accueilBonjour(String prenom) {
+    return 'Bonjour $prenom !';
+  }
+
+  @override
+  String get accueilBonjourSansNom => 'Bonjour !';
+
+  @override
+  String get boutonModifierProfil => 'Modifier mon profil';
+
+  @override
+  String get boutonDeconnexion => 'Se déconnecter';
+
+  @override
+  String get bienvenuePoint1 => 'Programme à la maison, en salle ou en course';
+
+  @override
+  String get bienvenuePoint2 => 'Repas en photo, sans compter';
+
+  @override
+  String aSuivre(String exercice) {
+    return 'À suivre : $exercice';
+  }
+
+  @override
+  String etapeSur(int n, int total) {
+    return 'Étape $n sur $total';
+  }
+
+  @override
+  String objectifPastille(String objectif) {
+    return 'Objectif : $objectif';
+  }
+
+  @override
+  String get reperesTitre => 'Tes repères du jour';
+
+  @override
+  String get reperesKcalLabel => 'kcal par jour';
+
+  @override
+  String reperesProteinesValeur(int g) {
+    return '$g g';
+  }
+
+  @override
+  String get reperesProteinesLabel => 'de protéines';
+
+  @override
+  String get reperesEstimation => 'Estimations calculées d\'après ton profil.';
+
+  @override
+  String get qResultat => 'Ton plan';
+
+  @override
+  String get objectifRecomposition => 'Recomposition';
+
+  @override
+  String resultatMaintien(int kcal) {
+    return 'Maintien estimé : $kcal kcal par jour, hors sport.';
+  }
+
+  @override
+  String resultatRythmePerte(String kg) {
+    return 'Rythme attendu : environ $kg kg de moins par semaine.';
+  }
+
+  @override
+  String resultatRythmePrise(String kg) {
+    return 'Rythme attendu : environ $kg kg de plus par semaine.';
+  }
+
+  @override
+  String get resultatRythmeStable => 'Rythme attendu : poids stable.';
+
+  @override
+  String resultatDate(String kg, String date) {
+    return 'Poids visé de $kg kg vers le $date.';
+  }
+
+  @override
+  String resultatSansDate(String kg) {
+    return 'Pas de date estimée pour $kg kg avec cet objectif.';
+  }
+
+  @override
+  String get resultatAide =>
+      'Ces repères s\'ajustent avec tes pesées et ton activité.';
+
+  @override
+  String get boutonCestParti => 'C\'est parti';
+
+  @override
+  String get carteProgramme => 'Ton programme';
+
+  @override
+  String get carteProgrammeSous => 'Ta séance du jour';
+
+  @override
+  String get carteIdees => 'Idées de repas';
+
+  @override
+  String get carteIdeesSous => 'Balaie des idées adaptées à toi';
+
+  @override
+  String get tabSport => 'Sport';
+
+  @override
+  String get qMontre => 'As-tu une montre ou un bracelet connecté ?';
+
+  @override
+  String get montreAide =>
+      'Vyta pourra lire ton activité, ton sommeil et ton cœur via Health Connect. Ces données restent sur ton téléphone ; seul ton poids le plus récent est enregistré dans ton profil en ligne.';
+
+  @override
+  String get qAppMontre => 'Quelle application l\'accompagne ?';
+
+  @override
+  String get appGoogleFit => 'Google Fit';
+
+  @override
+  String get appSamsungHealth => 'Samsung Health';
+
+  @override
+  String get appMiFitness => 'Mi Fitness';
+
+  @override
+  String get appFitbit => 'Fitbit';
+
+  @override
+  String get appGarmin => 'Garmin Connect';
+
+  @override
+  String get appAutre => 'Autre';
+
+  @override
+  String consignePartage(String app) {
+    return 'Dans $app, active le partage des données vers Health Connect (souvent dans Profil ou Paramètres, rubrique « Health Connect » ou « Applications connectées »).';
+  }
+
+  @override
+  String get consignePartageAutre =>
+      'Dans l\'application de ta montre, active le partage des données vers Health Connect.';
+
+  @override
+  String get boutonAutoriser => 'Autoriser l\'accès';
+
+  @override
+  String get boutonInstallerHc => 'Installer Health Connect';
+
+  @override
+  String get hcAInstaller =>
+      'Health Connect doit être installé ou mis à jour sur ce téléphone.';
+
+  @override
+  String get hcIndisponible =>
+      'Health Connect n\'est pas disponible sur ce téléphone. Vyta utilisera des estimations.';
+
+  @override
+  String get accesAccorde =>
+      'Accès autorisé : Vyta lira les données de ta montre.';
+
+  @override
+  String get accesRefuse =>
+      'Accès non autorisé. Pas de souci : Vyta utilisera des estimations, et tu pourras réessayer plus tard.';
+
+  @override
+  String get sourceMesure => 'Mesuré par ta montre';
+
+  @override
+  String get sourceEstime => 'Estimé';
+
+  @override
+  String get maJournee => 'Ma journée';
+
+  @override
+  String get statPas => 'pas';
+
+  @override
+  String get statKcal => 'kcal brûlées';
+
+  @override
+  String get statSommeil => 'de sommeil';
+
+  @override
+  String get statFcRepos => 'bpm au repos';
+
+  @override
+  String dureeHeures(int h, String m) {
+    return '$h h $m';
+  }
+
+  @override
+  String get connecterMontre => 'Connecte ta montre';
+
+  @override
+  String get connecterMontreAide =>
+      'Pour voir ton activité et ton sommeil, et ajuster tes repères.';
+
+  @override
+  String get aucuneDonneeMontre =>
+      'Aucune donnée reçue de ta montre pour l\'instant.';
+
+  @override
+  String get suiviErreur =>
+      'Impossible de lire les données de ta montre pour le moment.';
+
+  @override
+  String get voirDetail => 'Voir le détail';
+
+  @override
+  String get mesDonnees => 'Mes données';
+
+  @override
+  String get sectionActivite => 'Activité';
+
+  @override
+  String get sectionSommeil => 'Sommeil';
+
+  @override
+  String get sectionCoeur => 'Cœur et respiration';
+
+  @override
+  String get sectionCorps => 'Corps';
+
+  @override
+  String get periode7 => '7 jours';
+
+  @override
+  String get periode30 => '30 jours';
+
+  @override
+  String get mesurePas => 'Pas';
+
+  @override
+  String get mesureKcalActives => 'Calories actives';
+
+  @override
+  String get mesureDistance => 'Distance (km)';
+
+  @override
+  String get mesureEtages => 'Étages';
+
+  @override
+  String get mesureSommeil => 'Durée de sommeil (h)';
+
+  @override
+  String get phaseProfond => 'Profond';
+
+  @override
+  String get phaseLeger => 'Léger';
+
+  @override
+  String get phaseParadoxal => 'Paradoxal';
+
+  @override
+  String get mesureFcRepos => 'FC au repos (bpm)';
+
+  @override
+  String get mesureVariabilite => 'Variabilité cardiaque (ms)';
+
+  @override
+  String get mesureSpo2 => 'Oxygène sanguin (%)';
+
+  @override
+  String get mesureFreqResp => 'Fréquence respiratoire (/min)';
+
+  @override
+  String get mesurePoids => 'Poids (kg)';
+
+  @override
+  String get mesureMasseGrassePct => 'Masse grasse (%)';
+
+  @override
+  String derniereValeur(String valeur) {
+    return 'Dernière valeur : $valeur';
+  }
+
+  @override
+  String get aucuneDonneePeriode => 'Aucune donnée sur cette période.';
+
+  @override
+  String get tabAccueil => 'Accueil';
+
+  @override
+  String get tabPoids => 'Poids';
+
+  @override
+  String get poidsActuel => 'Poids actuel';
+
+  @override
+  String poidsDepuis(String ecart, String date) {
+    return '$ecart kg depuis le $date';
+  }
+
+  @override
+  String poidsKgValeur(String kg) {
+    return '$kg kg';
+  }
+
+  @override
+  String importPoidsTitre(String kg) {
+    return 'Importer $kg kg de ta balance ?';
+  }
+
+  @override
+  String importPoidsTexte(String ancien) {
+    return 'C\'est loin de ton dernier poids ($ancien kg). Si quelqu\'un d\'autre est monté sur ta balance, ignore cette pesée.';
+  }
+
+  @override
+  String get importPoidsIgnorer => 'Ignorer';
+
+  @override
+  String get imcTitre => 'Ton IMC';
+
+  @override
+  String get imcMaigreur => 'Maigreur';
+
+  @override
+  String get imcNormal => 'Poids normal';
+
+  @override
+  String get imcSurpoids => 'Surpoids';
+
+  @override
+  String get imcObesite => 'Obésité';
+
+  @override
+  String get imcAide =>
+      'L\'IMC est un repère général : il ne tient pas compte de ta masse musculaire.';
+
+  @override
+  String get projectionLegende =>
+      'Pointillés : projection sur 5 jours d\'après les journées complètes de ton journal des 7 derniers jours (au moins 2 repas et 60 % de ta cible).';
+
+  @override
+  String get courbeLegende =>
+      'Trait épais : moyenne sur 7 jours, qui lisse les variations d\'eau. Points : tes pesées.';
+
+  @override
+  String courbeSemantique(
+    String debut,
+    String dateDebut,
+    String fin,
+    String dateFin,
+    String tendance,
+  ) {
+    return 'Évolution du poids : $debut kg le $dateDebut, $fin kg le $dateFin. Moyenne sur 7 jours : $tendance kg.';
+  }
+
+  @override
+  String projectionSemantique(String kg) {
+    return 'Projection dans 5 jours : $kg kg.';
+  }
+
+  @override
+  String dateChoisie(String date) {
+    return 'Date : $date';
+  }
+
+  @override
+  String photoDateChoisie(String date) {
+    return 'Date de la photo : $date';
+  }
+
+  @override
+  String libelleUnite(String libelle, String unite) {
+    return '$libelle ($unite)';
+  }
+
+  @override
+  String erreurMesure(String mesure, String erreur) {
+    return '$mesure : $erreur';
+  }
+
+  @override
+  String get mensurationsTitre => 'Mensurations';
+
+  @override
+  String get mesureTaille => 'Tour de taille';
+
+  @override
+  String get mesurePoitrine => 'Tour de poitrine';
+
+  @override
+  String get mesureBras => 'Tour de bras';
+
+  @override
+  String get mensurationMasseGrasse => 'Masse grasse';
+
+  @override
+  String get ajouterMesures => 'Ajouter des mesures';
+
+  @override
+  String get aucuneMesure => 'Pas encore de mesure. Un mètre ruban suffit !';
+
+  @override
+  String get mesuresAide => 'Remplis seulement ce que tu as mesuré.';
+
+  @override
+  String get erreurMesures => 'Entre au moins une mesure.';
+
+  @override
+  String get photosTitre => 'Photos de progression';
+
+  @override
+  String get photosAide =>
+      'Une photo par mois, de face et dans la même lumière. Elles restent sur ton téléphone, rien n\'est envoyé.';
+
+  @override
+  String get prendrePhoto => 'Prendre une photo';
+
+  @override
+  String get comparerPhotos => 'Comparer';
+
+  @override
+  String get supprimerPhoto => 'Supprimer la photo';
+
+  @override
+  String get photoAvant => 'Avant';
+
+  @override
+  String get photoApres => 'Après';
+
+  @override
+  String get tabEntrainement => 'Entraînement';
+
+  @override
+  String get lieuMaison => 'Maison';
+
+  @override
+  String get lieuSalle => 'Salle';
+
+  @override
+  String get lieuCourse => 'Course à pied';
+
+  @override
+  String get lieuMarche => 'Marche';
+
+  @override
+  String get materielHalteres => 'Haltères';
+
+  @override
+  String get materielElastiques => 'Élastiques';
+
+  @override
+  String get materielBarre => 'Barre de traction';
+
+  @override
+  String get materielKettlebell => 'Kettlebell';
+
+  @override
+  String get materielBanc => 'Banc';
+
+  @override
+  String get materielCorde => 'Corde à sauter';
+
+  @override
+  String get monMateriel => 'Mon matériel';
+
+  @override
+  String get materielAide =>
+      'Coche ce que tu as chez toi : sans matériel, on remplace par un exercice au poids du corps.';
+
+  @override
+  String get commencerSeance => 'Commencer la séance';
+
+  @override
+  String get seanceTerminee => 'Séance terminée, bravo !';
+
+  @override
+  String get terminer => 'Terminer';
+
+  @override
+  String get couperVoix => 'Couper la voix';
+
+  @override
+  String get activerVoix => 'Activer la voix';
+
+  @override
+  String get reprendre => 'Reprendre';
+
+  @override
+  String get pause => 'Pause';
+
+  @override
+  String get passer => 'Passer';
+
+  @override
+  String get fait => 'Fait';
+
+  @override
+  String seancesSemaine(int faites, int prevues) {
+    return 'Cette semaine : $faites séance(s) sur $prevues';
+  }
+
+  @override
+  String dureeEstimee(int minutes) {
+    return 'Environ $minutes min';
+  }
+
+  @override
+  String remplace(String nom) {
+    return 'remplace $nom';
+  }
+
+  @override
+  String repetitions(int n) {
+    return '$n répétitions';
+  }
+
+  @override
+  String get recuperationTitre => 'Récupération';
+
+  @override
+  String get recuperationVide =>
+      'Pas encore de donnée de sommeil. Dis-nous comment tu te sens, ou connecte ta montre.';
+
+  @override
+  String get recuperationBon =>
+      'Feu vert : tu peux faire ta séance normalement.';
+
+  @override
+  String get recuperationMoyen =>
+      'Récupération correcte : écoute ton corps, évite de forcer sur l\'intensité.';
+
+  @override
+  String get recuperationFaible =>
+      'Corps fatigué : privilégie une marche, des étirements ou du repos aujourd\'hui.';
+
+  @override
+  String get ressentiQuestion => 'Comment te sens-tu ce matin ?';
+
+  @override
+  String get ressentiFatigue => 'Fatigué';
+
+  @override
+  String get ressentiMoyen => 'Moyen';
+
+  @override
+  String get ressentiForme => 'En forme';
+
+  @override
+  String get mobiliteTitre => 'Mobilité et étirements';
+
+  @override
+  String get routineApresEffort => 'Étirements après l\'effort';
+
+  @override
+  String get routineReveil => 'Réveil articulaire (5 min)';
+
+  @override
+  String get routineRecuperation => 'Récupération douce (8 min)';
+
+  @override
+  String get conseilleMaintenant => 'Conseillé maintenant';
+
+  @override
+  String get tabBienEtre => 'Bien-être';
+
+  @override
+  String get hydratationTitre => 'Hydratation';
+
+  @override
+  String eauBueSur(String bu, String objectif) {
+    return '$bu L sur $objectif L';
+  }
+
+  @override
+  String get eauBaseProfil => 'Selon ton poids';
+
+  @override
+  String eauEffort(int minutes) {
+    return '$minutes min d\'effort';
+  }
+
+  @override
+  String eauChaleur(int degres) {
+    return '$degres °C aujourd\'hui';
+  }
+
+  @override
+  String ajouterEau(int ml) {
+    return '+ $ml ml';
+  }
+
+  @override
+  String get annulerDernier => 'Annuler le dernier';
+
+  @override
+  String get adapterMeteo => 'Adapter à la météo';
+
+  @override
+  String get meteoAide =>
+      'Utilise ta position approximative pour la température du jour. Elle n\'est pas enregistrée.';
+
+  @override
+  String get annuler => 'Annuler';
+
+  @override
+  String get complementsTitre => 'Compléments';
+
+  @override
+  String get complementsAide =>
+      'Un rappel par jour pour ne pas oublier. Vyta ne conseille aucune dose : demande à ton médecin ou à ton pharmacien.';
+
+  @override
+  String get ajouterComplement => 'Ajouter un complément';
+
+  @override
+  String get nomComplement => 'Nom (ex. vitamine D)';
+
+  @override
+  String rappelA(String heure) {
+    return 'Rappel à $heure';
+  }
+
+  @override
+  String get rappelDesactive => 'Rappel désactivé';
+
+  @override
+  String get optionsComplement => 'Options';
+
+  @override
+  String get activerRappel => 'Activer le rappel';
+
+  @override
+  String get desactiverRappel => 'Désactiver le rappel';
+
+  @override
+  String get supprimerComplement => 'Supprimer';
+
+  @override
+  String get seriesTitre => 'Tes séries';
+
+  @override
+  String get serieJournal => 'Journal tenu';
+
+  @override
+  String get serieEntrainement => 'Séance faite';
+
+  @override
+  String get serieEau => 'Objectif d\'eau atteint';
+
+  @override
+  String nbJours(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$n jours',
+      one: '1 jour',
+      zero: '0 jour',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get horsLigne =>
+      'Hors-ligne : tes saisies sont gardées et seront envoyées au retour du réseau.';
+
+  @override
+  String get menuPhoto => 'Photo du repas';
+
+  @override
+  String get analyseEnCours => 'Analyse de ton repas…';
+
+  @override
+  String get analyseReseau =>
+      'Pas de connexion pour analyser la photo. Réessaie quand le réseau revient, ou saisis le repas à la main.';
+
+  @override
+  String get analyseAuth =>
+      'Ta session a expiré. Reconnecte-toi pour analyser une photo.';
+
+  @override
+  String get analyseQuota =>
+      'Tu as atteint la limite de photos analysées pour aujourd\'hui (ou le service est très sollicité). Saisis le repas à la main, ou réessaie demain.';
+
+  @override
+  String get analyseIllisible =>
+      'Je n\'ai pas réussi à lire cette photo. Essaie avec plus de lumière, ou saisis le repas à la main.';
+
+  @override
+  String get analyseTropGros =>
+      'Cette photo est trop lourde pour être analysée. Choisis-en une autre, ou saisis le repas à la main.';
+
+  @override
+  String get analyseIndisponible =>
+      'Le service d\'analyse est indisponible pour le moment.';
+
+  @override
+  String get reessayer => 'Réessayer';
+
+  @override
+  String get saisirALaMain => 'Saisir à la main';
+
+  @override
+  String get aucunAliment => 'Je ne vois pas d\'aliment sur cette photo.';
+
+  @override
+  String get estimationAVerifier =>
+      'Estimation par IA, à vérifier : décoche ce qui est faux et corrige les portions.';
+
+  @override
+  String get changerPortion => 'Changer la portion';
+
+  @override
+  String get planningTitre => 'Repas de la semaine';
+
+  @override
+  String planningAide(int kcal) {
+    return 'Des repas simples qui visent tes $kcal kcal par jour. Touche un repas pour voir la recette.';
+  }
+
+  @override
+  String get sansViande => 'Sans viande ni poisson';
+
+  @override
+  String nbPortions(String n) {
+    return '$n portion(s)';
+  }
+
+  @override
+  String minutesValeur(int n) {
+    return '$n min';
+  }
+
+  @override
+  String get ingredientsTitre => 'Ingrédients';
+
+  @override
+  String get preparationTitre => 'Préparation';
+
+  @override
+  String get ajouterAuJournal => 'Ajouter au journal';
+
+  @override
+  String get changerRecette => 'Changer de recette';
+
+  @override
+  String get repasAjoute => 'Repas ajouté au journal.';
+
+  @override
+  String get coursesTitre => 'Liste de courses';
+
+  @override
+  String get coursesAide =>
+      'Tout ce qu\'il faut pour la semaine, rangé par rayon.';
+
+  @override
+  String get rayonFruitsLegumes => 'Fruits et légumes';
+
+  @override
+  String get rayonBoulangerie => 'Boulangerie';
+
+  @override
+  String get rayonViandePoisson => 'Viandes et poissons';
+
+  @override
+  String get rayonCremerie => 'Crèmerie et œufs';
+
+  @override
+  String get rayonEpicerie => 'Épicerie';
+
+  @override
+  String get menuPlanning => 'Repas de la semaine';
+
+  @override
+  String get ideesTitre => 'Idées de repas';
+
+  @override
+  String get mesEnvies => 'Mes envies';
+
+  @override
+  String get filtreSeche => 'Spécial sèche';
+
+  @override
+  String get tousLesRepas => 'Tous';
+
+  @override
+  String get ideesTerminees =>
+      'Tu as fait le tour des idées pour ce choix ! Retrouve tes préférées dans « Mes envies », ou change de type de repas.';
+
+  @override
+  String get jeNaimePas => 'Je n\'aime pas';
+
+  @override
+  String get jAimePlusTard => 'J\'aime, pour une prochaine fois';
+
+  @override
+  String get photosIllustratives => 'Photos illustratives générées par IA.';
+
+  @override
+  String get etiquetteEnvie => 'ENVIE';
+
+  @override
+  String get etiquetteNon => 'NON';
+
+  @override
+  String pourToiKcal(int kcal) {
+    return '≈ $kcal kcal pour toi';
+  }
+
+  @override
+  String get vegetarienCourt => 'végé';
+
+  @override
+  String get aucuneEnvie =>
+      'Aucune envie pour l\'instant. Balaie une carte vers la droite pour garder une recette pour une prochaine fois.';
+
+  @override
+  String get retirerEnvie => 'Retirer de mes envies';
+
+  @override
+  String get menuIdees => 'Idées de repas';
+
+  @override
+  String get reglagesTitre => 'Réglages';
+
+  @override
+  String get reglagesInfobulle => 'Réglages';
+
+  @override
+  String versionNumero(String v) {
+    return 'Version $v';
+  }
+
+  @override
+  String majDisponible(String v) {
+    return 'Nouvelle version $v disponible';
+  }
+
+  @override
+  String get majTelecharger => 'Télécharger la mise à jour';
+
+  @override
+  String get majAJour => 'Tu as la dernière version.';
+
+  @override
+  String get majAideVerifier =>
+      'Touche le bouton pour chercher une nouvelle version.';
+
+  @override
+  String get majVerifier => 'Vérifier les mises à jour';
+
+  @override
+  String get partagerTitre => 'Partager l\'application';
+
+  @override
+  String get partagerAide =>
+      'Fais scanner ce code à un ami pour qu\'il puisse installer l\'application.';
+
+  @override
+  String get copierLien => 'Copier le lien';
+
+  @override
+  String get lienCopie => 'Lien copié.';
+
+  @override
+  String get confidentialite => 'Politique de confidentialité';
+
+  @override
+  String get sourcesLicences => 'Sources et licences';
+
+  @override
+  String get sourcesLicencesTexte =>
+      'Valeurs nutritionnelles : table Ciqual 2020 de l\'ANSES (licence CC BY 4.0).\n\nProduits scannés : Open Food Facts, base collaborative sous licence ODbL ; son contenu relève de la Database Contents License.\n\nPhotos des exercices : free-exercise-db (domaine public).\n\nVidéos de certains exercices : wger, auteur Goulart (licence CC BY-SA 4.0) ; extraits raccourcis et recompressés, sous la même licence.\n\nIllustrations des recettes : générées par IA (modèle FLUX.1 schnell, licence Apache 2.0).\n\nL\'application s\'appuie aussi sur des bibliothèques libres : leurs licences sont consultables ci-dessous.';
+
+  @override
+  String get licencesBibliotheques => 'Licences des bibliothèques';
+
+  @override
+  String get accepter => 'Accepter';
+
+  @override
+  String get refuser => 'Refuser';
+
+  @override
+  String get consentPhotoTitre => 'Envoyer la photo pour l\'analyse ?';
+
+  @override
+  String get consentPhotoTexte =>
+      'La photo de ton repas, avec la précision que tu écris éventuellement, est envoyée à un service d\'IA pour estimer les aliments : Google Gemini (offre payante, qui n\'utilise pas tes photos pour entraîner ses modèles), via un relais hébergé par Cloudflare, ou à défaut Cloudflare Workers AI. Le relais ne la garde pas. Elle peut être traitée hors de l\'Union européenne, par Google ou par Cloudflare. Dans l\'appli, elle n\'est gardée que sur ton téléphone, jamais dans le cloud, pour que tu puisses revoir ton repas ; seul le résultat que tu valides est ajouté à ton journal en ligne. Tu peux retirer ton accord à tout moment dans les Réglages.';
+
+  @override
+  String get consentMeteoTitre => 'Utiliser ta position ?';
+
+  @override
+  String get consentMeteoTexte =>
+      'Ta position approximative (arrondie à environ 10 km) est envoyée au service Open-Meteo pour connaître la température du jour. Elle n\'est pas enregistrée.';
+
+  @override
+  String get consentPhotoReglage => 'Photo de repas analysée par IA';
+
+  @override
+  String get consentPhotoReglageAide =>
+      'Autorise l\'envoi de tes photos de repas à l\'analyse par IA (via un relais Cloudflare : Cloudflare Workers AI ou Google Gemini). Le détail s\'affiche avant d\'accepter.';
+
+  @override
+  String get rapportsPlantage => 'Envoyer les rapports de plantage';
+
+  @override
+  String get rapportsPlantageAide =>
+      'Si l\'appli plante, la trace de l\'erreur, le modèle du téléphone et la version d\'Android sont envoyés à Google (Firebase Crashlytics, traitement possible hors de l\'UE) pour corriger le bug.';
+
+  @override
+  String get identifiantCompte => 'Identifiant du compte';
+
+  @override
+  String identifiantCompteAide(String uid) {
+    return '$uid\nTouche pour le copier. Note-le avant de désinstaller : il suffit pour demander l\'effacement de tes données sans l\'appli.';
+  }
+
+  @override
+  String get identifiantCopie => 'Identifiant copié.';
+
+  @override
+  String get supprimerCompte => 'Supprimer mon compte et mes données';
+
+  @override
+  String get supprimerCompteTitre => 'Supprimer définitivement ton compte ?';
+
+  @override
+  String get supprimerCompteTexte =>
+      'Ton profil, tes repas, ton poids, tes séances, ton eau et tes compléments seront effacés pour toujours, ainsi que les photos de progression de ce téléphone. Cette action est irréversible. Ton compte Google peut t\'être redemandé pour confirmer.';
+
+  @override
+  String get supprimerConfirmer => 'Tout supprimer';
+
+  @override
+  String get supprimerEnCours => 'Suppression en cours…';
+
+  @override
+  String get supprimerHorsLigne =>
+      'Connecte-toi à internet pour supprimer ton compte.';
+
+  @override
+  String get supprimerEchec =>
+      'La suppression a échoué. Réessaie ; si besoin, reconnecte-toi puis recommence.';
+
+  @override
+  String get supprimerReauthEchec =>
+      'Suppression annulée : ton compte Google n\'a pas été confirmé. Rien n\'a été effacé.';
+
+  @override
+  String get anneauxTitre => 'Aujourd\'hui';
+
+  @override
+  String get libBrule => 'Calories brûlées';
+
+  @override
+  String get libMange => 'Calories mangées';
+
+  @override
+  String get libProteines => 'Protéines';
+
+  @override
+  String get libEau => 'Hydratation';
+
+  @override
+  String get objectifDuJour => 'Objectif du jour';
+
+  @override
+  String get sourceEstimeJusqua => 'Estimé jusqu\'à maintenant';
+
+  @override
+  String get bilanCentre => 'bilan kcal';
+
+  @override
+  String get photoConseil =>
+      'Photographie ton repas de dessus, dans une bonne lumière, sans rien cacher : l\'estimation des portions n\'en sera que meilleure.';
+
+  @override
+  String get prendrePhotoRepas => 'Prendre une photo';
+
+  @override
+  String get galerieChoix => 'Choisir dans la galerie';
+
+  @override
+  String get precisionLabel => 'Une précision ? (facultatif)';
+
+  @override
+  String get precisionAide => 'ex. sauce à part, grande assiette, sans pain';
+
+  @override
+  String get analyserRepas => 'Analyser ce repas';
+
+  @override
+  String get changerPhoto => 'Changer de photo';
+
+  @override
+  String get aVerifier => 'À vérifier';
+
+  @override
+  String get ajouterAliment => 'Ajouter un aliment';
+
+  @override
+  String get modifierAliment => 'Modifier l\'aliment';
+
+  @override
+  String get nomAliment => 'Nom de l\'aliment';
+
+  @override
+  String get erreurNomAliment => 'Donne un nom à l\'aliment.';
+
+  @override
+  String get sansAnalyse =>
+      'Sans analyse par IA, tu peux saisir ton repas à la main.';
+
+  @override
+  String ceRepas(int kcal, int p, int g, int l) {
+    return 'Ce repas : $kcal kcal · $p g de protéines · $g g de glucides · $l g de lipides';
+  }
+
+  @override
+  String apresRepas(int kcal, int cible, int p, int pc) {
+    return 'Après ce repas : $kcal / $cible kcal · $p / $pc g de protéines';
+  }
+
+  @override
+  String get cartonVert => 'C\'est un carton vert !';
+
+  @override
+  String get cartonOrange => 'C\'est un carton orange !';
+
+  @override
+  String get cartonRouge => 'C\'est un carton rouge !';
+
+  @override
+  String ilSagit(String nom) {
+    return 'Il s\'agit de : $nom';
+  }
+
+  @override
+  String get verdictCoach => 'Le verdict du coach';
+
+  @override
+  String get verdictJournee => 'Et pour ta journée';
+
+  @override
+  String get tuileCalories => 'Calories';
+
+  @override
+  String get tuileProteines => 'Protéines';
+
+  @override
+  String get tuileGlucides => 'Glucides';
+
+  @override
+  String get tuileLipides => 'Lipides';
+
+  @override
+  String dontSucres(int s) {
+    return 'dont $s g de sucres';
+  }
+
+  @override
+  String dontSatures(int s) {
+    return 'dont $s g de saturés';
+  }
+
+  @override
+  String get recapTitre => 'Total de la journée';
+
+  @override
+  String get recapTotal => 'Total';
+
+  @override
+  String recapValeur(int kcal, int p) {
+    return '$kcal kcal · $p g de protéines';
+  }
+
+  @override
+  String get activitesDuJour => 'Activités d\'aujourd\'hui';
+
+  @override
+  String get supprimerActivite => 'Supprimer l\'activité';
+
+  @override
+  String get ajouterPhotoProgres => 'Ajouter une photo';
+
+  @override
+  String get photoAppareil => 'Appareil photo';
+
+  @override
+  String get photoBibliotheque => 'Bibliothèque de photos';
+
+  @override
+  String get photoAjoutAide =>
+      'Choisis la date de la photo (aujourd\'hui par défaut), puis d\'où elle vient.';
+
+  @override
+  String get composition => 'Composition';
+
+  @override
+  String get repasSansAnalyse =>
+      'Ce repas a été saisi à la main : il n\'y a pas d\'analyse détaillée à revoir.';
+
+  @override
+  String portionGrammes(int g, int kcal) {
+    return '$g g · $kcal kcal';
+  }
+
+  @override
+  String get photosRepasTitre => 'Photos de repas';
+
+  @override
+  String photosRepasBilan(int nombre, String mo) {
+    return '$nombre sur ce téléphone · $mo Mo';
+  }
+
+  @override
+  String get photosRepasNettoyer => 'Supprimer les photos de plus de 90 jours';
+
+  @override
+  String get photosRepasNettoyerAide =>
+      'Les repas et leur analyse restent dans ton journal ; seules les photos sont effacées de ce téléphone.';
+
+  @override
+  String photosRepasNettoyees(int nombre) {
+    return '$nombre photo(s) supprimée(s).';
+  }
+
+  @override
+  String get enregistrerModifications => 'Enregistrer les modifications';
+
+  @override
+  String get catalogueErreur =>
+      'Impossible de joindre Open Food Facts. Vérifie ta connexion.';
+
+  @override
+  String get produitInconnu =>
+      'Produit introuvable. Essaie avec la photo du repas.';
+
+  @override
+  String get scanPortionLabel => 'Quantité mangée (g)';
+
+  @override
+  String get analyseIncertaine =>
+      'Je ne suis pas sûr de ce que je vois. Dis-moi ce que c\'est, je regarde à nouveau.';
+
+  @override
+  String get reanalyser => 'Analyser à nouveau';
+
+  @override
+  String anneauxSemantique(
+    int brulees,
+    int objBrule,
+    int mangees,
+    int objMange,
+    int proteines,
+    int objProteines,
+    int eau,
+    int objEau,
+    String bilan,
+  ) {
+    return 'Anneaux du jour. Calories brûlées : $brulees sur $objBrule. Calories mangées : $mangees sur $objMange. Protéines : $proteines sur $objProteines grammes. Eau : $eau sur $objEau millilitres. Bilan : $bilan kilocalories.';
+  }
+
+  @override
+  String widgetAnneauxSemantique(
+    int brulees,
+    int objBrule,
+    int mangees,
+    int objMange,
+    int proteines,
+    int objProteines,
+    String bilan,
+  ) {
+    return 'Anneaux du jour. Calories brûlées : $brulees sur $objBrule. Calories mangées : $mangees sur $objMange. Protéines : $proteines sur $objProteines grammes. Bilan : $bilan kilocalories.';
+  }
+
+  @override
+  String get apparence => 'Apparence';
+
+  @override
+  String get teinteReglage => 'Couleurs';
+
+  @override
+  String get teinteTitre => 'Choisis tes couleurs';
+
+  @override
+  String get teinteAide =>
+      'Touche un aperçu pour l\'essayer. Tu pourras changer à tout moment dans les Réglages.';
+
+  @override
+  String get teinteForet => 'Forêt';
+
+  @override
+  String get teinteAurore => 'Aurore';
+
+  @override
+  String get teinteContinuer => 'Continuer';
+
+  @override
+  String get themeClair => 'Clair';
+
+  @override
+  String get themeSombre => 'Sombre';
+
+  @override
+  String get themeAuto => 'Auto';
+
+  @override
+  String get sauvegardeTitre => 'Sauvegarde';
+
+  @override
+  String get sauvegardeExporter => 'Enregistrer une sauvegarde (Excel)';
+
+  @override
+  String get sauvegardeExporterAide =>
+      'Repas, activités, pesées, eau, compléments et séances dans un fichier .xlsx.';
+
+  @override
+  String get sauvegardeImporter => 'Importer une sauvegarde';
+
+  @override
+  String get sauvegardeImporterAide =>
+      'Ajoute l\'historique d\'un fichier Excel de sauvegarde ; rien n\'est supprimé.';
+
+  @override
+  String get sauvegardeEnregistree => 'Sauvegarde enregistrée.';
+
+  @override
+  String get sauvegardeEchec =>
+      'La sauvegarde n\'a pas pu être créée. Réessaie.';
+
+  @override
+  String get sauvegardeHorsLigne =>
+      'Connecte-toi à internet pour importer : les données sont envoyées à ton compte.';
+
+  @override
+  String get sauvegardeExportHorsLigne =>
+      'Connecte-toi à internet pour enregistrer une sauvegarde : hors ligne, elle serait incomplète.';
+
+  @override
+  String get importConfirmerTitre => 'Importer cette sauvegarde ?';
+
+  @override
+  String get importConfirmerTexte =>
+      'L\'historique du fichier est ajouté à ton compte. Les lignes déjà présentes sont gardées telles quelles, rien n\'est supprimé.';
+
+  @override
+  String get importRemplacer => 'Remplacer les lignes existantes';
+
+  @override
+  String get importRemplacerAide =>
+      'Les lignes du fichier écrasent celles de ton compte, même modifiées depuis la sauvegarde.';
+
+  @override
+  String get importer => 'Importer';
+
+  @override
+  String importTermine(int importes, int ignores) {
+    return '$importes ligne(s) importée(s), $ignores ignorée(s).';
+  }
+
+  @override
+  String importDejaPresents(int n) {
+    return '$n ligne(s) déjà dans ton compte, gardée(s) telle(s) quelle(s).';
+  }
+
+  @override
+  String get importResultatTitre => 'Import terminé';
+
+  @override
+  String get importInterrompuTitre => 'Import interrompu';
+
+  @override
+  String get importInterrompu =>
+      'L\'import s\'est arrêté en route : les lignes importées ci-dessus sont déjà dans ton compte. Relance-le une fois connecté : elles ne seront pas ajoutées en double.';
+
+  @override
+  String get importRefuse =>
+      'Ton compte a refusé l\'écriture. Déconnecte-toi puis reconnecte-toi, et relance l\'import : les lignes déjà importées ne seront pas ajoutées en double.';
+
+  @override
+  String get importLignesIgnorees => 'Lignes ignorées :';
+
+  @override
+  String importAutresMotifs(int n) {
+    return '… et $n autre(s).';
+  }
+
+  @override
+  String get importTropGros =>
+      'Ce fichier est trop gros (plus de 20 Mo) pour être une sauvegarde Vyta.';
+
+  @override
+  String get importLectureEchec =>
+      'Le fichier n\'a pas pu être lu. S\'il est sur un service en ligne, télécharge-le d\'abord sur le téléphone.';
+
+  @override
+  String get importInvalide => 'Ce fichier n\'est pas une sauvegarde Vyta.';
+
+  @override
+  String get importEchec => 'L\'import a échoué. Réessaie.';
+
+  @override
+  String get ok => 'OK';
+
+  @override
+  String sourceMesureDe(String source, String heure) {
+    return '$source · mis à jour à $heure';
+  }
+
+  @override
+  String fourchetteGrammes(int min, int max) {
+    return 'entre $min et $max g';
+  }
+
+  @override
+  String fourchetteKcal(int min, int max) {
+    return 'Environ $min à $max kcal en tout';
+  }
+
+  @override
+  String ajusterPlus(String nom) {
+    return 'Augmenter : $nom';
+  }
+
+  @override
+  String ajusterMoins(String nom) {
+    return 'Diminuer : $nom';
+  }
+
+  @override
+  String get grasTitre => 'Gras peu visible';
+
+  @override
+  String get grasAide =>
+      'L\'huile de cuisson et les sauces se voient mal sur une photo : ce sont elles qui faussent le plus les calories.';
+
+  @override
+  String get grasHuile => 'Huile de cuisson';
+
+  @override
+  String get grasSauce => 'Sauce';
+
+  @override
+  String get grasAucune => 'Aucune';
+
+  @override
+  String get grasUnPeu => 'Un peu';
+
+  @override
+  String get grasBeaucoup => 'Beaucoup';
+
+  @override
+  String ajusteHabitudes(String ecart) {
+    return 'Portion ajustée d\'après tes corrections ($ecart)';
+  }
+
+  @override
+  String get assietteTitre => 'Taille de mes assiettes';
+
+  @override
+  String get assietteAide =>
+      'Aide l\'IA à estimer les portions sur les photos.';
+
+  @override
+  String get assietteNonRenseignee => 'Non renseignée';
+
+  @override
+  String assietteCm(int n) {
+    return '$n cm de diamètre';
+  }
+
+  @override
+  String get etalonnageOublier => 'Oublier mes corrections de portions';
+
+  @override
+  String get etalonnageAide =>
+      'L\'appli apprend de tes corrections pour mieux estimer tes portions ; ces données sont gardées sur ton compte, pour tous tes appareils.';
+
+  @override
+  String get etalonnageOublie => 'Corrections de portions oubliées.';
+
+  @override
+  String valeursCiqual(String reference) {
+    return 'Valeurs de la table Ciqual (ANSES) : $reference';
+  }
+
+  @override
+  String get ciqualRechercheTitre => 'Chercher un aliment';
+
+  @override
+  String get ciqualRechercheLabel => 'Nom de l\'aliment';
+
+  @override
+  String ciqualPour100(int kcal) {
+    return '$kcal kcal pour 100 g';
+  }
+
+  @override
+  String get ciqualSource => 'Table Ciqual 2020, ANSES (CC BY 4.0)';
+
+  @override
+  String get ciqualChercher => 'Chercher dans la table Ciqual';
+
+  @override
+  String environPieces(String pieces) {
+    return 'environ $pieces';
+  }
+
+  @override
+  String get cuissonTitre => 'Cuisson';
+
+  @override
+  String get cuissonVapeur => 'Vapeur';
+
+  @override
+  String get cuissonPoele => 'Poêlé';
+
+  @override
+  String get cuissonFrit => 'Frit';
+
+  @override
+  String get cuissonFour => 'Au four';
+
+  @override
+  String get cuissonBouilli => 'Bouilli';
+
+  @override
+  String get courbePoids => 'Évolution du poids';
+
+  @override
+  String get periode90 => '90 jours';
+
+  @override
+  String get periode1an => '1 an';
+
+  @override
+  String get ajouterPesee => 'Ajouter une pesée';
+
+  @override
+  String get enregistrer => 'Enregistrer';
+
+  @override
+  String get historiquePoids => 'Historique';
+
+  @override
+  String get supprimerPesee => 'Supprimer';
+
+  @override
+  String get aucunePesee =>
+      'Aucune pesée pour l\'instant. Ajoute la première !';
+
+  @override
+  String get sourceMontre => 'Montre';
+
+  @override
+  String get sourceSaisie => 'Saisie';
+
+  @override
+  String get tabJournal => 'Repas';
+
+  @override
+  String get jourAujourdhui => 'Aujourd\'hui';
+
+  @override
+  String get jourPrecedent => 'Jour précédent';
+
+  @override
+  String get jourSuivant => 'Jour suivant';
+
+  @override
+  String get bilanTitre => 'Bilan énergétique';
+
+  @override
+  String get bilanMange => 'Mangé';
+
+  @override
+  String get bilanDepense => 'Dépensé';
+
+  @override
+  String get bilanSolde => 'Solde';
+
+  @override
+  String kcalValeur(String kcal) {
+    return '$kcal kcal';
+  }
+
+  @override
+  String get soldeDeficit => 'Déficit';
+
+  @override
+  String get soldeExcedent => 'Excédent';
+
+  @override
+  String cibleJour(int kcal) {
+    return 'Objectif du jour : $kcal kcal';
+  }
+
+  @override
+  String get jourRepos => 'Jour de repos';
+
+  @override
+  String get jourModere => 'Jour modéré';
+
+  @override
+  String get jourIntense => 'Jour intense';
+
+  @override
+  String get macrosTitre => 'Macros du jour';
+
+  @override
+  String get macroProteines => 'Protéines';
+
+  @override
+  String get macroGlucides => 'Glucides';
+
+  @override
+  String get macroLipides => 'Lipides';
+
+  @override
+  String macroProgression(int mange, int cible) {
+    return '$mange / $cible g';
+  }
+
+  @override
+  String get repasTitre => 'Repas de la journée';
+
+  @override
+  String get activitesTitre => 'Activités';
+
+  @override
+  String get aucunRepas => 'Aucun repas enregistré.';
+
+  @override
+  String get ajouterUnRepas => 'Ajouter un repas';
+
+  @override
+  String get aucuneActivite => 'Aucune activité enregistrée.';
+
+  @override
+  String get momentPetitDej => 'Petit-déjeuner';
+
+  @override
+  String get momentDejeuner => 'Déjeuner';
+
+  @override
+  String get momentDiner => 'Dîner';
+
+  @override
+  String get momentCollation => 'Collation';
+
+  @override
+  String get menuRepas => 'Saisie à la main';
+
+  @override
+  String get menuScanner => 'Scanner un produit';
+
+  @override
+  String get menuActivite => 'Ajouter une activité';
+
+  @override
+  String get ajouter => 'Ajouter';
+
+  @override
+  String get champNomRepas => 'Nom du repas';
+
+  @override
+  String get champKcal => 'Calories (kcal)';
+
+  @override
+  String get champProteines => 'Protéines (g)';
+
+  @override
+  String get champGlucides => 'Glucides (g)';
+
+  @override
+  String get champLipides => 'Lipides (g)';
+
+  @override
+  String get champMoment => 'Moment';
+
+  @override
+  String get nomRepasDefaut => 'Repas';
+
+  @override
+  String get scanTitre => 'Scanner un produit';
+
+  @override
+  String get scanAide => 'Place le code-barres dans le cadre.';
+
+  @override
+  String get scanOuSaisir => 'Ou saisis le code à la main';
+
+  @override
+  String get champCode => 'Code-barres';
+
+  @override
+  String get scanRechercher => 'Rechercher';
+
+  @override
+  String get produitIntrouvable =>
+      'Produit introuvable. Tu peux l\'ajouter à la main.';
+
+  @override
+  String get erreurReseauProduit =>
+      'Impossible de joindre Open Food Facts. Vérifie ta connexion.';
+
+  @override
+  String get champQuantite => 'Quantité (g)';
+
+  @override
+  String produitPour100g(int kcal) {
+    return 'Pour 100 g : $kcal kcal';
+  }
+
+  @override
+  String get actVelo => 'Vélo';
+
+  @override
+  String get actMma => 'MMA';
+
+  @override
+  String get actCourse => 'Course à pied';
+
+  @override
+  String get actNatation => 'Natation';
+
+  @override
+  String get actMuscu => 'Musculation';
+
+  @override
+  String get actMarche => 'Marche';
+
+  @override
+  String get actAutre => 'Autre';
+
+  @override
+  String get champDureeMin => 'Durée (min)';
+
+  @override
+  String get intLegere => 'Légère';
+
+  @override
+  String get intModeree => 'Modérée';
+
+  @override
+  String get intIntense => 'Intense';
+
+  @override
+  String activiteEstimation(int kcal) {
+    return '≈ $kcal kcal brûlées';
+  }
+
+  @override
+  String get supprimer => 'Supprimer';
+
+  @override
+  String get erreurDuree => 'Entre une durée en minutes.';
+
+  @override
+  String get champHeureDebut => 'Heure de début';
+
+  @override
+  String get cameraRefusee =>
+      'Accès à l\'appareil photo refusé. Choisis une photo dans la galerie, ou autorise l\'appareil photo dans les réglages du téléphone.';
+
+  @override
+  String get galerieCourt => 'Galerie';
+
+  @override
+  String get photoIndisponible => 'Impossible d\'ouvrir cette photo. Réessaie.';
+
+  @override
+  String get produitIllisible =>
+      'Les informations de ce produit sont illisibles. Essaie avec la photo du repas.';
+
+  @override
+  String tropDAliments(int max) {
+    return 'Un repas compte au plus $max aliments.';
+  }
+
+  @override
+  String get modificationRefusee =>
+      'La modification du repas n\'a pas pu être enregistrée.';
+
+  @override
+  String get repasNonEnregistre => 'Repas non enregistré.';
+
+  @override
+  String get repasSupprime => 'Repas supprimé';
+
+  @override
+  String grammesValeur(int g) {
+    return '$g g';
+  }
+
+  @override
+  String get modificationNonEnregistree => 'Modification non enregistrée.';
+
+  @override
+  String get eauNonEnregistree => 'Eau non enregistrée.';
+
+  @override
+  String get activiteNonEnregistree => 'Activité non enregistrée.';
+
+  @override
+  String get seanceNonEnregistree => 'Séance non enregistrée.';
+
+  @override
+  String get planningNonEnregistre => 'Planning non enregistré.';
+
+  @override
+  String get demonstrationExercice => 'Démonstration de l\'exercice';
+
+  @override
+  String get seanceDuJourFaite => 'Séance du jour faite, bravo !';
+
+  @override
+  String get seanceDejaFaite =>
+      'Une séance par jour : celle d\'aujourd\'hui est déjà faite. Place à la récupération.';
+
+  @override
+  String prochaineSeance(String jour) {
+    return 'Prochaine séance : $jour.';
+  }
+
+  @override
+  String get reposOuMobilite => 'D\'ici là, repos ou mobilité.';
+
+  @override
+  String get jourDeRepos => 'Aujourd\'hui : repos.';
+
+  @override
+  String get semaineFaite => 'Séances de la semaine faites.';
+
+  @override
+  String get commencerQuandMeme => 'Commencer quand même';
+
+  @override
+  String joursPrevus(String jours) {
+    return 'Jours prévus : $jours';
+  }
+
+  @override
+  String get photoSansAccord =>
+      'Sans ton accord, la photo n\'est pas envoyée. Tu peux scanner un produit, reprendre un repas récent ou saisir le repas à la main.';
+
+  @override
+  String get repasRecentsTitre => 'Repas récents';
+
+  @override
+  String get repasRecentsAide =>
+      'Un appui pour le remettre au journal, avec les mêmes aliments.';
+
+  @override
+  String repasRecentLigne(String moment, String jour, int kcal) {
+    return '$moment du $jour · $kcal kcal';
+  }
+
+  @override
+  String repasRecentAjouter(String nom) {
+    return 'Ajouter de nouveau : $nom';
+  }
+
+  @override
+  String analysesRestantes(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: 'Encore $n analyses photo possibles aujourd\'hui.',
+      one: 'Encore 1 analyse photo possible aujourd\'hui.',
+      zero: 'Plus d\'analyse photo possible aujourd\'hui.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get maSemaine => 'Ma semaine';
+
+  @override
+  String get maSemaineSous => '7 derniers jours';
+
+  @override
+  String get semaineKcal => 'kcal mangées par jour en moyenne';
+
+  @override
+  String get semaineDansCible => 'jours notés dans la cible (±10 %)';
+
+  @override
+  String get semaineProteines => 'protéines par jour en moyenne';
+
+  @override
+  String get semaineSeances => 'séances faites';
+
+  @override
+  String get semaineEvolutionPoids =>
+      'poids moyen, comparé à la semaine d\'avant';
+
+  @override
+  String get semainePoidsMoyen => 'poids moyen sur 7 jours';
+
+  @override
+  String get semaineSansPesee => 'aucune pesée cette semaine';
+
+  @override
+  String get semaineAucunRepas =>
+      'Aucun repas noté ces 7 derniers jours : notez vos repas dans le Journal pour suivre votre semaine.';
+}

@@ -1,0 +1,1026 @@
+{
+  "@@locale": "fr",
+  "appTitre": "Vyta",
+  "bienvenueTitre": "Ton coach sport et alimentation",
+  "bienvenueSousTitre": "Un programme adapté à toi, en une minute.",
+  "boutonCommencer": "Commencer",
+  "boutonDejaCompte": "J'ai déjà un compte",
+  "boutonSuivant": "Suivant",
+  "boutonRetour": "Retour",
+  "boutonOui": "Oui",
+  "boutonNon": "Non",
+  "qObjectif": "Quel est ton objectif ?",
+  "objectifPerte": "Perdre du poids",
+  "objectifMuscle": "Prendre du muscle",
+  "objectifForme": "Garder la forme",
+  "objectifReprise": "Reprendre le sport",
+  "qSexeAge": "Parle-nous un peu de toi",
+  "sexeHomme": "Homme",
+  "sexeFemme": "Femme",
+  "sexeExplication": "Sert uniquement au calcul de tes besoins.",
+  "champAge": "Âge",
+  "qMensurations": "Ta taille et ton poids",
+  "champTaille": "Taille (cm)",
+  "champPoids": "Poids (kg)",
+  "champPoidsCible": "Poids visé (kg, facultatif)",
+  "erreurCibleBasse": "Ce poids serait trop bas pour ta taille.",
+  "qTypeDeVie": "Hors sport, ton quotidien ressemble plutôt à…",
+  "qTypeDeVieAide": "Ne compte pas tes séances : elles s'ajoutent à part, les jours où tu en fais.",
+  "vieSedentaire": "Assis toute la journée",
+  "vieSedentaireEx": "Bureau, voiture, peu de marche",
+  "viePeuActif": "Un peu actif",
+  "viePeuActifEx": "Souvent debout, un peu de marche",
+  "vieActif": "Actif, hors sport",
+  "vieActifEx": "Métier physique ou beaucoup de marche au quotidien",
+  "vieTresActif": "Très actif, hors sport",
+  "vieTresActifEx": "Travail très physique toute la journée (bâtiment, manutention…)",
+  "qEntrainements": "Où veux-tu t'entraîner ?",
+  "qEntrainementsAide": "Plusieurs choix possibles.",
+  "entrainementSalle": "Salle de sport",
+  "entrainementMaison": "À la maison",
+  "entrainementCourse": "Course à pied",
+  "entrainementMarche": "Marche",
+  "qNiveau": "Ton niveau",
+  "niveauDebutant": "Débutant",
+  "niveauReprise": "Je reprends",
+  "niveauRegulier": "Régulier",
+  "qDisponibilite": "Ton temps disponible",
+  "champJours": "Jours par semaine",
+  "champDuree": "Durée d'une séance",
+  "dureeMinutes": "{n} min",
+  "@dureeMinutes": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "qSante": "L'un de ces cas te concerne-t-il ?",
+  "qSanteAide": "Coche tout ce qui s'applique : tes repères et tes séances s'adaptent.",
+  "precautionEnceinte": "Enceinte ou allaitante",
+  "precautionEnceinteEx": "Pas de régime : on vise la forme, sans saut ni exercice allongé.",
+  "precautionMedecin": "Perte de poids suivie par un médecin",
+  "precautionMedecinEx": "Déficit plus doux et exercices sans impact. Ses consignes passent avant les nôtres.",
+  "precautionArticulations": "Douleurs articulaires",
+  "precautionArticulationsEx": "Exercices sans saut ni impact ; la course est remplacée par la marche.",
+  "precautionAucune": "Aucun de ces cas",
+  "santeAPreciser": "Cette question a changé : précise ta réponse. En attendant, toutes les précautions restent appliquées.",
+  "messagePerteGrossesse": "Pendant la grossesse ou l'allaitement, pas de régime : on part sur « garder la forme ». Parles-en à ta sage-femme ou à ton médecin.",
+  "messagePertePlancher": "Tes besoins de tous les jours sont déjà au niveau du minimum conseillé : manger moins ne serait pas sûr. On part plutôt sur « garder la forme ».",
+  "messageRecomposition": "Avec ton IMC, on te propose une recomposition : un léger déficit et beaucoup de protéines, pour gagner du muscle tout en perdant du gras.",
+  "messageMineur": "Vyta est réservé aux personnes de 18 ans et plus. Les besoins des adolescents sont différents : parles-en à ton médecin.",
+  "messagePerteImc": "Ton poids est déjà bas pour ta taille : on part plutôt sur « garder la forme ».",
+  "erreurNombre": "Entre un nombre valide.",
+  "erreurPlage": "Entre une valeur entre {min} et {max}.",
+  "@erreurPlage": {
+    "placeholders": {
+      "min": {
+        "type": "int"
+      },
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "qConnexion": "Dernière étape : sauvegarde ton profil",
+  "boutonGoogle": "Continuer avec Google",
+  "erreurConnexion": "La connexion a échoué. Vérifie ta connexion internet et réessaie.",
+  "mentionMedicale": "Vyta ne remplace pas un avis médical.",
+  "accueilBonjour": "Bonjour {prenom} !",
+  "@accueilBonjour": {
+    "placeholders": {
+      "prenom": {
+        "type": "String"
+      }
+    }
+  },
+  "accueilBonjourSansNom": "Bonjour !",
+  "boutonModifierProfil": "Modifier mon profil",
+  "boutonDeconnexion": "Se déconnecter",
+  "bienvenuePoint1": "Programme à la maison, en salle ou en course",
+  "bienvenuePoint2": "Repas en photo, sans compter",
+  "aSuivre": "À suivre : {exercice}",
+  "@aSuivre": {
+    "placeholders": {
+      "exercice": {
+        "type": "String"
+      }
+    }
+  },
+  "etapeSur": "Étape {n} sur {total}",
+  "@etapeSur": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "objectifPastille": "Objectif : {objectif}",
+  "@objectifPastille": {
+    "placeholders": {
+      "objectif": {
+        "type": "String"
+      }
+    }
+  },
+  "reperesTitre": "Tes repères du jour",
+  "reperesKcalLabel": "kcal par jour",
+  "reperesProteinesValeur": "{g} g",
+  "@reperesProteinesValeur": {
+    "placeholders": {
+      "g": {
+        "type": "int"
+      }
+    }
+  },
+  "reperesProteinesLabel": "de protéines",
+  "reperesEstimation": "Estimations calculées d'après ton profil.",
+  "qResultat": "Ton plan",
+  "objectifRecomposition": "Recomposition",
+  "resultatMaintien": "Maintien estimé : {kcal} kcal par jour, hors sport.",
+  "@resultatMaintien": {
+    "placeholders": {
+      "kcal": {
+        "type": "int"
+      }
+    }
+  },
+  "resultatRythmePerte": "Rythme attendu : environ {kg} kg de moins par semaine.",
+  "@resultatRythmePerte": {
+    "placeholders": {
+      "kg": {
+        "type": "String"
+      }
+    }
+  },
+  "resultatRythmePrise": "Rythme attendu : environ {kg} kg de plus par semaine.",
+  "@resultatRythmePrise": {
+    "placeholders": {
+      "kg": {
+        "type": "String"
+      }
+    }
+  },
+  "resultatRythmeStable": "Rythme attendu : poids stable.",
+  "resultatDate": "Poids visé de {kg} kg vers le {date}.",
+  "@resultatDate": {
+    "placeholders": {
+      "kg": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "resultatSansDate": "Pas de date estimée pour {kg} kg avec cet objectif.",
+  "@resultatSansDate": {
+    "placeholders": {
+      "kg": {
+        "type": "String"
+      }
+    }
+  },
+  "resultatAide": "Ces repères s'ajustent avec tes pesées et ton activité.",
+  "boutonCestParti": "C'est parti",
+  "carteProgramme": "Ton programme",
+  "carteProgrammeSous": "Ta séance du jour",
+  "carteIdees": "Idées de repas",
+  "carteIdeesSous": "Balaie des idées adaptées à toi",
+  "tabSport": "Sport",
+  "qMontre": "As-tu une montre ou un bracelet connecté ?",
+  "montreAide": "Vyta pourra lire ton activité, ton sommeil et ton cœur via Health Connect. Ces données restent sur ton téléphone ; seul ton poids le plus récent est enregistré dans ton profil en ligne.",
+  "qAppMontre": "Quelle application l'accompagne ?",
+  "appGoogleFit": "Google Fit",
+  "appSamsungHealth": "Samsung Health",
+  "appMiFitness": "Mi Fitness",
+  "appFitbit": "Fitbit",
+  "appGarmin": "Garmin Connect",
+  "appAutre": "Autre",
+  "consignePartage": "Dans {app}, active le partage des données vers Health Connect (souvent dans Profil ou Paramètres, rubrique « Health Connect » ou « Applications connectées »).",
+  "@consignePartage": {
+    "placeholders": {
+      "app": {
+        "type": "String"
+      }
+    }
+  },
+  "consignePartageAutre": "Dans l'application de ta montre, active le partage des données vers Health Connect.",
+  "boutonAutoriser": "Autoriser l'accès",
+  "boutonInstallerHc": "Installer Health Connect",
+  "hcAInstaller": "Health Connect doit être installé ou mis à jour sur ce téléphone.",
+  "hcIndisponible": "Health Connect n'est pas disponible sur ce téléphone. Vyta utilisera des estimations.",
+  "accesAccorde": "Accès autorisé : Vyta lira les données de ta montre.",
+  "accesRefuse": "Accès non autorisé. Pas de souci : Vyta utilisera des estimations, et tu pourras réessayer plus tard.",
+  "sourceMesure": "Mesuré par ta montre",
+  "sourceEstime": "Estimé",
+  "maJournee": "Ma journée",
+  "statPas": "pas",
+  "statKcal": "kcal brûlées",
+  "statSommeil": "de sommeil",
+  "statFcRepos": "bpm au repos",
+  "dureeHeures": "{h} h {m}",
+  "@dureeHeures": {
+    "placeholders": {
+      "h": {
+        "type": "int"
+      },
+      "m": {
+        "type": "String"
+      }
+    }
+  },
+  "connecterMontre": "Connecte ta montre",
+  "connecterMontreAide": "Pour voir ton activité et ton sommeil, et ajuster tes repères.",
+  "aucuneDonneeMontre": "Aucune donnée reçue de ta montre pour l'instant.",
+  "suiviErreur": "Impossible de lire les données de ta montre pour le moment.",
+  "voirDetail": "Voir le détail",
+  "mesDonnees": "Mes données",
+  "sectionActivite": "Activité",
+  "sectionSommeil": "Sommeil",
+  "sectionCoeur": "Cœur et respiration",
+  "sectionCorps": "Corps",
+  "periode7": "7 jours",
+  "periode30": "30 jours",
+  "mesurePas": "Pas",
+  "mesureKcalActives": "Calories actives",
+  "mesureDistance": "Distance (km)",
+  "mesureEtages": "Étages",
+  "mesureSommeil": "Durée de sommeil (h)",
+  "phaseProfond": "Profond",
+  "phaseLeger": "Léger",
+  "phaseParadoxal": "Paradoxal",
+  "mesureFcRepos": "FC au repos (bpm)",
+  "mesureVariabilite": "Variabilité cardiaque (ms)",
+  "mesureSpo2": "Oxygène sanguin (%)",
+  "mesureFreqResp": "Fréquence respiratoire (/min)",
+  "mesurePoids": "Poids (kg)",
+  "mesureMasseGrassePct": "Masse grasse (%)",
+  "derniereValeur": "Dernière valeur : {valeur}",
+  "@derniereValeur": {
+    "placeholders": {
+      "valeur": {
+        "type": "String"
+      }
+    }
+  },
+  "aucuneDonneePeriode": "Aucune donnée sur cette période.",
+  "tabAccueil": "Accueil",
+  "tabPoids": "Poids",
+  "poidsActuel": "Poids actuel",
+  "poidsDepuis": "{ecart} kg depuis le {date}",
+  "@poidsDepuis": {
+    "placeholders": {
+      "ecart": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "poidsKgValeur": "{kg} kg",
+  "@poidsKgValeur": {
+    "placeholders": {
+      "kg": {
+        "type": "String"
+      }
+    }
+  },
+  "importPoidsTitre": "Importer {kg} kg de ta balance ?",
+  "@importPoidsTitre": {"placeholders": {"kg": {"type": "String"}}},
+  "importPoidsTexte": "C'est loin de ton dernier poids ({ancien} kg). Si quelqu'un d'autre est monté sur ta balance, ignore cette pesée.",
+  "@importPoidsTexte": {"placeholders": {"ancien": {"type": "String"}}},
+  "importPoidsIgnorer": "Ignorer",
+  "imcTitre": "Ton IMC",
+  "imcMaigreur": "Maigreur",
+  "imcNormal": "Poids normal",
+  "imcSurpoids": "Surpoids",
+  "imcObesite": "Obésité",
+  "imcAide": "L'IMC est un repère général : il ne tient pas compte de ta masse musculaire.",
+  "projectionLegende": "Pointillés : projection sur 5 jours d'après les journées complètes de ton journal des 7 derniers jours (au moins 2 repas et 60 % de ta cible).",
+  "courbeLegende": "Trait épais : moyenne sur 7 jours, qui lisse les variations d'eau. Points : tes pesées.",
+  "courbeSemantique": "Évolution du poids : {debut} kg le {dateDebut}, {fin} kg le {dateFin}. Moyenne sur 7 jours : {tendance} kg.",
+  "@courbeSemantique": {
+    "placeholders": {
+      "debut": {
+        "type": "String"
+      },
+      "dateDebut": {
+        "type": "String"
+      },
+      "fin": {
+        "type": "String"
+      },
+      "dateFin": {
+        "type": "String"
+      },
+      "tendance": {
+        "type": "String"
+      }
+    }
+  },
+  "projectionSemantique": "Projection dans 5 jours : {kg} kg.",
+  "@projectionSemantique": {
+    "placeholders": {
+      "kg": {
+        "type": "String"
+      }
+    }
+  },
+  "dateChoisie": "Date : {date}",
+  "@dateChoisie": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "photoDateChoisie": "Date de la photo : {date}",
+  "@photoDateChoisie": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "libelleUnite": "{libelle} ({unite})",
+  "@libelleUnite": {
+    "placeholders": {
+      "libelle": {
+        "type": "String"
+      },
+      "unite": {
+        "type": "String"
+      }
+    }
+  },
+  "erreurMesure": "{mesure} : {erreur}",
+  "@erreurMesure": {
+    "placeholders": {
+      "mesure": {
+        "type": "String"
+      },
+      "erreur": {
+        "type": "String"
+      }
+    }
+  },
+  "mensurationsTitre": "Mensurations",
+  "mesureTaille": "Tour de taille",
+  "mesurePoitrine": "Tour de poitrine",
+  "mesureBras": "Tour de bras",
+  "mensurationMasseGrasse": "Masse grasse",
+  "ajouterMesures": "Ajouter des mesures",
+  "aucuneMesure": "Pas encore de mesure. Un mètre ruban suffit !",
+  "mesuresAide": "Remplis seulement ce que tu as mesuré.",
+  "erreurMesures": "Entre au moins une mesure.",
+  "photosTitre": "Photos de progression",
+  "photosAide": "Une photo par mois, de face et dans la même lumière. Elles restent sur ton téléphone, rien n'est envoyé.",
+  "prendrePhoto": "Prendre une photo",
+  "comparerPhotos": "Comparer",
+  "supprimerPhoto": "Supprimer la photo",
+  "photoAvant": "Avant",
+  "photoApres": "Après",
+  "tabEntrainement": "Entraînement",
+  "lieuMaison": "Maison",
+  "lieuSalle": "Salle",
+  "lieuCourse": "Course à pied",
+  "lieuMarche": "Marche",
+  "materielHalteres": "Haltères",
+  "materielElastiques": "Élastiques",
+  "materielBarre": "Barre de traction",
+  "materielKettlebell": "Kettlebell",
+  "materielBanc": "Banc",
+  "materielCorde": "Corde à sauter",
+  "monMateriel": "Mon matériel",
+  "materielAide": "Coche ce que tu as chez toi : sans matériel, on remplace par un exercice au poids du corps.",
+  "commencerSeance": "Commencer la séance",
+  "seanceTerminee": "Séance terminée, bravo !",
+  "terminer": "Terminer",
+  "couperVoix": "Couper la voix",
+  "activerVoix": "Activer la voix",
+  "reprendre": "Reprendre",
+  "pause": "Pause",
+  "passer": "Passer",
+  "fait": "Fait",
+  "seancesSemaine": "Cette semaine : {faites} séance(s) sur {prevues}",
+  "@seancesSemaine": {
+    "placeholders": {
+      "faites": {
+        "type": "int"
+      },
+      "prevues": {
+        "type": "int"
+      }
+    }
+  },
+  "dureeEstimee": "Environ {minutes} min",
+  "@dureeEstimee": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "remplace": "remplace {nom}",
+  "@remplace": {
+    "placeholders": {
+      "nom": {
+        "type": "String"
+      }
+    }
+  },
+  "repetitions": "{n} répétitions",
+  "@repetitions": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "recuperationTitre": "Récupération",
+  "recuperationVide": "Pas encore de donnée de sommeil. Dis-nous comment tu te sens, ou connecte ta montre.",
+  "recuperationBon": "Feu vert : tu peux faire ta séance normalement.",
+  "recuperationMoyen": "Récupération correcte : écoute ton corps, évite de forcer sur l'intensité.",
+  "recuperationFaible": "Corps fatigué : privilégie une marche, des étirements ou du repos aujourd'hui.",
+  "ressentiQuestion": "Comment te sens-tu ce matin ?",
+  "ressentiFatigue": "Fatigué",
+  "ressentiMoyen": "Moyen",
+  "ressentiForme": "En forme",
+  "mobiliteTitre": "Mobilité et étirements",
+  "routineApresEffort": "Étirements après l'effort",
+  "routineReveil": "Réveil articulaire (5 min)",
+  "routineRecuperation": "Récupération douce (8 min)",
+  "conseilleMaintenant": "Conseillé maintenant",
+  "tabBienEtre": "Bien-être",
+  "hydratationTitre": "Hydratation",
+  "eauBueSur": "{bu} L sur {objectif} L",
+  "@eauBueSur": {
+    "placeholders": {
+      "bu": {
+        "type": "String"
+      },
+      "objectif": {
+        "type": "String"
+      }
+    }
+  },
+  "eauBaseProfil": "Selon ton poids",
+  "eauEffort": "{minutes} min d'effort",
+  "@eauEffort": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "eauChaleur": "{degres} °C aujourd'hui",
+  "@eauChaleur": {
+    "placeholders": {
+      "degres": {
+        "type": "int"
+      }
+    }
+  },
+  "ajouterEau": "+ {ml} ml",
+  "@ajouterEau": {
+    "placeholders": {
+      "ml": {
+        "type": "int"
+      }
+    }
+  },
+  "annulerDernier": "Annuler le dernier",
+  "adapterMeteo": "Adapter à la météo",
+  "meteoAide": "Utilise ta position approximative pour la température du jour. Elle n'est pas enregistrée.",
+  "annuler": "Annuler",
+  "complementsTitre": "Compléments",
+  "complementsAide": "Un rappel par jour pour ne pas oublier. Vyta ne conseille aucune dose : demande à ton médecin ou à ton pharmacien.",
+  "ajouterComplement": "Ajouter un complément",
+  "nomComplement": "Nom (ex. vitamine D)",
+  "rappelA": "Rappel à {heure}",
+  "@rappelA": {
+    "placeholders": {
+      "heure": {
+        "type": "String"
+      }
+    }
+  },
+  "rappelDesactive": "Rappel désactivé",
+  "optionsComplement": "Options",
+  "activerRappel": "Activer le rappel",
+  "desactiverRappel": "Désactiver le rappel",
+  "supprimerComplement": "Supprimer",
+  "seriesTitre": "Tes séries",
+  "serieJournal": "Journal tenu",
+  "serieEntrainement": "Séance faite",
+  "serieEau": "Objectif d'eau atteint",
+  "nbJours": "{n, plural, =0{0 jour} =1{1 jour} other{{n} jours}}",
+  "@nbJours": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "horsLigne": "Hors-ligne : tes saisies sont gardées et seront envoyées au retour du réseau.",
+  "menuPhoto": "Photo du repas",
+  "analyseEnCours": "Analyse de ton repas…",
+  "analyseReseau": "Pas de connexion pour analyser la photo. Réessaie quand le réseau revient, ou saisis le repas à la main.",
+  "analyseAuth": "Ta session a expiré. Reconnecte-toi pour analyser une photo.",
+  "analyseQuota": "Tu as atteint la limite de photos analysées pour aujourd'hui (ou le service est très sollicité). Saisis le repas à la main, ou réessaie demain.",
+  "analyseIllisible": "Je n'ai pas réussi à lire cette photo. Essaie avec plus de lumière, ou saisis le repas à la main.",
+  "analyseTropGros": "Cette photo est trop lourde pour être analysée. Choisis-en une autre, ou saisis le repas à la main.",
+  "analyseIndisponible": "Le service d'analyse est indisponible pour le moment.",
+  "reessayer": "Réessayer",
+  "saisirALaMain": "Saisir à la main",
+  "aucunAliment": "Je ne vois pas d'aliment sur cette photo.",
+  "estimationAVerifier": "Estimation par IA, à vérifier : décoche ce qui est faux et corrige les portions.",
+  "changerPortion": "Changer la portion",
+  "planningTitre": "Repas de la semaine",
+  "planningAide": "Des repas simples qui visent tes {kcal} kcal par jour. Touche un repas pour voir la recette.",
+  "@planningAide": {
+    "placeholders": {
+      "kcal": {
+        "type": "int"
+      }
+    }
+  },
+  "sansViande": "Sans viande ni poisson",
+  "nbPortions": "{n} portion(s)",
+  "@nbPortions": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "minutesValeur": "{n} min",
+  "@minutesValeur": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "ingredientsTitre": "Ingrédients",
+  "preparationTitre": "Préparation",
+  "ajouterAuJournal": "Ajouter au journal",
+  "changerRecette": "Changer de recette",
+  "repasAjoute": "Repas ajouté au journal.",
+  "coursesTitre": "Liste de courses",
+  "coursesAide": "Tout ce qu'il faut pour la semaine, rangé par rayon.",
+  "rayonFruitsLegumes": "Fruits et légumes",
+  "rayonBoulangerie": "Boulangerie",
+  "rayonViandePoisson": "Viandes et poissons",
+  "rayonCremerie": "Crèmerie et œufs",
+  "rayonEpicerie": "Épicerie",
+  "menuPlanning": "Repas de la semaine",
+  "ideesTitre": "Idées de repas",
+  "mesEnvies": "Mes envies",
+  "filtreSeche": "Spécial sèche",
+  "tousLesRepas": "Tous",
+  "ideesTerminees": "Tu as fait le tour des idées pour ce choix ! Retrouve tes préférées dans « Mes envies », ou change de type de repas.",
+  "jeNaimePas": "Je n'aime pas",
+  "jAimePlusTard": "J'aime, pour une prochaine fois",
+  "photosIllustratives": "Photos illustratives générées par IA.",
+  "etiquetteEnvie": "ENVIE",
+  "etiquetteNon": "NON",
+  "pourToiKcal": "≈ {kcal} kcal pour toi",
+  "@pourToiKcal": {
+    "placeholders": {
+      "kcal": {
+        "type": "int"
+      }
+    }
+  },
+  "vegetarienCourt": "végé",
+  "aucuneEnvie": "Aucune envie pour l'instant. Balaie une carte vers la droite pour garder une recette pour une prochaine fois.",
+  "retirerEnvie": "Retirer de mes envies",
+  "menuIdees": "Idées de repas",
+  "reglagesTitre": "Réglages",
+  "reglagesInfobulle": "Réglages",
+  "versionNumero": "Version {v}",
+  "@versionNumero": {
+    "placeholders": {
+      "v": {
+        "type": "String"
+      }
+    }
+  },
+  "majDisponible": "Nouvelle version {v} disponible",
+  "@majDisponible": {
+    "placeholders": {
+      "v": {
+        "type": "String"
+      }
+    }
+  },
+  "majTelecharger": "Télécharger la mise à jour",
+  "majAJour": "Tu as la dernière version.",
+  "majAideVerifier": "Touche le bouton pour chercher une nouvelle version.",
+  "majVerifier": "Vérifier les mises à jour",
+  "partagerTitre": "Partager l'application",
+  "partagerAide": "Fais scanner ce code à un ami pour qu'il puisse installer l'application.",
+  "copierLien": "Copier le lien",
+  "lienCopie": "Lien copié.",
+  "confidentialite": "Politique de confidentialité",
+  "sourcesLicences": "Sources et licences",
+  "sourcesLicencesTexte": "Valeurs nutritionnelles : table Ciqual 2020 de l'ANSES (licence CC BY 4.0).\n\nProduits scannés : Open Food Facts, base collaborative sous licence ODbL ; son contenu relève de la Database Contents License.\n\nPhotos des exercices : free-exercise-db (domaine public).\n\nVidéos de certains exercices : wger, auteur Goulart (licence CC BY-SA 4.0) ; extraits raccourcis et recompressés, sous la même licence.\n\nIllustrations des recettes : générées par IA (modèle FLUX.1 schnell, licence Apache 2.0).\n\nL'application s'appuie aussi sur des bibliothèques libres : leurs licences sont consultables ci-dessous.",
+  "licencesBibliotheques": "Licences des bibliothèques",
+  "accepter": "Accepter",
+  "refuser": "Refuser",
+  "consentPhotoTitre": "Envoyer la photo pour l'analyse ?",
+  "consentPhotoTexte": "La photo de ton repas, avec la précision que tu écris éventuellement, est envoyée à un service d'IA pour estimer les aliments : Google Gemini (offre payante, qui n'utilise pas tes photos pour entraîner ses modèles), via un relais hébergé par Cloudflare, ou à défaut Cloudflare Workers AI. Le relais ne la garde pas. Elle peut être traitée hors de l'Union européenne, par Google ou par Cloudflare. Dans l'appli, elle n'est gardée que sur ton téléphone, jamais dans le cloud, pour que tu puisses revoir ton repas ; seul le résultat que tu valides est ajouté à ton journal en ligne. Tu peux retirer ton accord à tout moment dans les Réglages.",
+  "consentMeteoTitre": "Utiliser ta position ?",
+  "consentMeteoTexte": "Ta position approximative (arrondie à environ 10 km) est envoyée au service Open-Meteo pour connaître la température du jour. Elle n'est pas enregistrée.",
+  "consentPhotoReglage": "Photo de repas analysée par IA",
+  "consentPhotoReglageAide": "Autorise l'envoi de tes photos de repas à l'analyse par IA (via un relais Cloudflare : Cloudflare Workers AI ou Google Gemini). Le détail s'affiche avant d'accepter.",
+  "rapportsPlantage": "Envoyer les rapports de plantage",
+  "rapportsPlantageAide": "Si l'appli plante, la trace de l'erreur, le modèle du téléphone et la version d'Android sont envoyés à Google (Firebase Crashlytics, traitement possible hors de l'UE) pour corriger le bug.",
+  "identifiantCompte": "Identifiant du compte",
+  "identifiantCompteAide": "{uid}\nTouche pour le copier. Note-le avant de désinstaller : il suffit pour demander l'effacement de tes données sans l'appli.",
+  "@identifiantCompteAide": {"placeholders": {"uid": {"type": "String"}}},
+  "identifiantCopie": "Identifiant copié.",
+  "supprimerCompte": "Supprimer mon compte et mes données",
+  "supprimerCompteTitre": "Supprimer définitivement ton compte ?",
+  "supprimerCompteTexte": "Ton profil, tes repas, ton poids, tes séances, ton eau et tes compléments seront effacés pour toujours, ainsi que les photos de progression de ce téléphone. Cette action est irréversible. Ton compte Google peut t'être redemandé pour confirmer.",
+  "supprimerConfirmer": "Tout supprimer",
+  "supprimerEnCours": "Suppression en cours…",
+  "supprimerHorsLigne": "Connecte-toi à internet pour supprimer ton compte.",
+  "supprimerEchec": "La suppression a échoué. Réessaie ; si besoin, reconnecte-toi puis recommence.",
+  "supprimerReauthEchec": "Suppression annulée : ton compte Google n'a pas été confirmé. Rien n'a été effacé.",
+  "anneauxTitre": "Aujourd'hui",
+  "libBrule": "Calories brûlées",
+  "libMange": "Calories mangées",
+  "libProteines": "Protéines",
+  "libEau": "Hydratation",
+  "objectifDuJour": "Objectif du jour",
+  "sourceEstimeJusqua": "Estimé jusqu'à maintenant",
+  "bilanCentre": "bilan kcal",
+  "photoConseil": "Photographie ton repas de dessus, dans une bonne lumière, sans rien cacher : l'estimation des portions n'en sera que meilleure.",
+  "prendrePhotoRepas": "Prendre une photo",
+  "galerieChoix": "Choisir dans la galerie",
+  "precisionLabel": "Une précision ? (facultatif)",
+  "precisionAide": "ex. sauce à part, grande assiette, sans pain",
+  "analyserRepas": "Analyser ce repas",
+  "changerPhoto": "Changer de photo",
+  "aVerifier": "À vérifier",
+  "ajouterAliment": "Ajouter un aliment",
+  "modifierAliment": "Modifier l'aliment",
+  "nomAliment": "Nom de l'aliment",
+  "erreurNomAliment": "Donne un nom à l'aliment.",
+  "sansAnalyse": "Sans analyse par IA, tu peux saisir ton repas à la main.",
+  "ceRepas": "Ce repas : {kcal} kcal · {p} g de protéines · {g} g de glucides · {l} g de lipides",
+  "@ceRepas": {
+    "placeholders": {
+      "kcal": {
+        "type": "int"
+      },
+      "p": {
+        "type": "int"
+      },
+      "g": {
+        "type": "int"
+      },
+      "l": {
+        "type": "int"
+      }
+    }
+  },
+  "apresRepas": "Après ce repas : {kcal} / {cible} kcal · {p} / {pc} g de protéines",
+  "@apresRepas": {
+    "placeholders": {
+      "kcal": {
+        "type": "int"
+      },
+      "cible": {
+        "type": "int"
+      },
+      "p": {
+        "type": "int"
+      },
+      "pc": {
+        "type": "int"
+      }
+    }
+  },
+  "cartonVert": "C'est un carton vert !",
+  "cartonOrange": "C'est un carton orange !",
+  "cartonRouge": "C'est un carton rouge !",
+  "ilSagit": "Il s'agit de : {nom}",
+  "@ilSagit": {
+    "placeholders": {
+      "nom": {
+        "type": "String"
+      }
+    }
+  },
+  "verdictCoach": "Le verdict du coach",
+  "verdictJournee": "Et pour ta journée",
+  "tuileCalories": "Calories",
+  "tuileProteines": "Protéines",
+  "tuileGlucides": "Glucides",
+  "tuileLipides": "Lipides",
+  "dontSucres": "dont {s} g de sucres",
+  "@dontSucres": {
+    "placeholders": {
+      "s": {
+        "type": "int"
+      }
+    }
+  },
+  "dontSatures": "dont {s} g de saturés",
+  "@dontSatures": {
+    "placeholders": {
+      "s": {
+        "type": "int"
+      }
+    }
+  },
+  "recapTitre": "Total de la journée",
+  "recapTotal": "Total",
+  "recapValeur": "{kcal} kcal · {p} g de protéines",
+  "@recapValeur": {
+    "placeholders": {
+      "kcal": {
+        "type": "int"
+      },
+      "p": {
+        "type": "int"
+      }
+    }
+  },
+  "activitesDuJour": "Activités d'aujourd'hui",
+  "supprimerActivite": "Supprimer l'activité",
+  "ajouterPhotoProgres": "Ajouter une photo",
+  "photoAppareil": "Appareil photo",
+  "photoBibliotheque": "Bibliothèque de photos",
+  "photoAjoutAide": "Choisis la date de la photo (aujourd'hui par défaut), puis d'où elle vient.",
+  "composition": "Composition",
+  "repasSansAnalyse": "Ce repas a été saisi à la main : il n'y a pas d'analyse détaillée à revoir.",
+  "portionGrammes": "{g} g · {kcal} kcal",
+  "@portionGrammes": {"placeholders": {"g": {"type": "int"}, "kcal": {"type": "int"}}},
+  "photosRepasTitre": "Photos de repas",
+  "photosRepasBilan": "{nombre} sur ce téléphone · {mo} Mo",
+  "@photosRepasBilan": {"placeholders": {"nombre": {"type": "int"}, "mo": {"type": "String"}}},
+  "photosRepasNettoyer": "Supprimer les photos de plus de 90 jours",
+  "photosRepasNettoyerAide": "Les repas et leur analyse restent dans ton journal ; seules les photos sont effacées de ce téléphone.",
+  "photosRepasNettoyees": "{nombre} photo(s) supprimée(s).",
+  "@photosRepasNettoyees": {"placeholders": {"nombre": {"type": "int"}}},
+  "enregistrerModifications": "Enregistrer les modifications",
+  "catalogueErreur": "Impossible de joindre Open Food Facts. Vérifie ta connexion.",
+  "produitInconnu": "Produit introuvable. Essaie avec la photo du repas.",
+  "scanPortionLabel": "Quantité mangée (g)",
+  "analyseIncertaine": "Je ne suis pas sûr de ce que je vois. Dis-moi ce que c'est, je regarde à nouveau.",
+  "reanalyser": "Analyser à nouveau",
+  "anneauxSemantique": "Anneaux du jour. Calories brûlées : {brulees} sur {objBrule}. Calories mangées : {mangees} sur {objMange}. Protéines : {proteines} sur {objProteines} grammes. Eau : {eau} sur {objEau} millilitres. Bilan : {bilan} kilocalories.",
+  "@anneauxSemantique": {"placeholders": {"brulees": {"type": "int"}, "objBrule": {"type": "int"}, "mangees": {"type": "int"}, "objMange": {"type": "int"}, "proteines": {"type": "int"}, "objProteines": {"type": "int"}, "eau": {"type": "int"}, "objEau": {"type": "int"}, "bilan": {"type": "String"}}},
+  "widgetAnneauxSemantique": "Anneaux du jour. Calories brûlées : {brulees} sur {objBrule}. Calories mangées : {mangees} sur {objMange}. Protéines : {proteines} sur {objProteines} grammes. Bilan : {bilan} kilocalories.",
+  "@widgetAnneauxSemantique": {"description": "Lu par TalkBack sur les anneaux du widget de l'écran d'accueil (sans l'eau, affichée à côté).", "placeholders": {"brulees": {"type": "int"}, "objBrule": {"type": "int"}, "mangees": {"type": "int"}, "objMange": {"type": "int"}, "proteines": {"type": "int"}, "objProteines": {"type": "int"}, "bilan": {"type": "String"}}},
+  "apparence": "Apparence",
+  "teinteReglage": "Couleurs",
+  "teinteTitre": "Choisis tes couleurs",
+  "teinteAide": "Touche un aperçu pour l'essayer. Tu pourras changer à tout moment dans les Réglages.",
+  "teinteForet": "Forêt",
+  "teinteAurore": "Aurore",
+  "teinteContinuer": "Continuer",
+  "themeClair": "Clair",
+  "themeSombre": "Sombre",
+  "themeAuto": "Auto",
+  "sauvegardeTitre": "Sauvegarde",
+  "sauvegardeExporter": "Enregistrer une sauvegarde (Excel)",
+  "sauvegardeExporterAide": "Repas, activités, pesées, eau, compléments et séances dans un fichier .xlsx.",
+  "sauvegardeImporter": "Importer une sauvegarde",
+  "sauvegardeImporterAide": "Ajoute l'historique d'un fichier Excel de sauvegarde ; rien n'est supprimé.",
+  "sauvegardeEnregistree": "Sauvegarde enregistrée.",
+  "sauvegardeEchec": "La sauvegarde n'a pas pu être créée. Réessaie.",
+  "sauvegardeHorsLigne": "Connecte-toi à internet pour importer : les données sont envoyées à ton compte.",
+  "sauvegardeExportHorsLigne": "Connecte-toi à internet pour enregistrer une sauvegarde : hors ligne, elle serait incomplète.",
+  "importConfirmerTitre": "Importer cette sauvegarde ?",
+  "importConfirmerTexte": "L'historique du fichier est ajouté à ton compte. Les lignes déjà présentes sont gardées telles quelles, rien n'est supprimé.",
+  "importRemplacer": "Remplacer les lignes existantes",
+  "importRemplacerAide": "Les lignes du fichier écrasent celles de ton compte, même modifiées depuis la sauvegarde.",
+  "importer": "Importer",
+  "importTermine": "{importes} ligne(s) importée(s), {ignores} ignorée(s).",
+  "@importTermine": {"placeholders": {"importes": {"type": "int"}, "ignores": {"type": "int"}}},
+  "importDejaPresents": "{n} ligne(s) déjà dans ton compte, gardée(s) telle(s) quelle(s).",
+  "@importDejaPresents": {"placeholders": {"n": {"type": "int"}}},
+  "importResultatTitre": "Import terminé",
+  "importInterrompuTitre": "Import interrompu",
+  "importInterrompu": "L'import s'est arrêté en route : les lignes importées ci-dessus sont déjà dans ton compte. Relance-le une fois connecté : elles ne seront pas ajoutées en double.",
+  "importRefuse": "Ton compte a refusé l'écriture. Déconnecte-toi puis reconnecte-toi, et relance l'import : les lignes déjà importées ne seront pas ajoutées en double.",
+  "importLignesIgnorees": "Lignes ignorées :",
+  "importAutresMotifs": "… et {n} autre(s).",
+  "@importAutresMotifs": {"placeholders": {"n": {"type": "int"}}},
+  "importTropGros": "Ce fichier est trop gros (plus de 20 Mo) pour être une sauvegarde Vyta.",
+  "importLectureEchec": "Le fichier n'a pas pu être lu. S'il est sur un service en ligne, télécharge-le d'abord sur le téléphone.",
+  "importInvalide": "Ce fichier n'est pas une sauvegarde Vyta.",
+  "importEchec": "L'import a échoué. Réessaie.",
+  "ok": "OK",
+  "sourceMesureDe": "{source} · mis à jour à {heure}",
+  "@sourceMesureDe": {"placeholders": {"source": {"type": "String"}, "heure": {"type": "String"}}},
+  "fourchetteGrammes": "entre {min} et {max} g",
+  "@fourchetteGrammes": {"placeholders": {"min": {"type": "int"}, "max": {"type": "int"}}},
+  "fourchetteKcal": "Environ {min} à {max} kcal en tout",
+  "@fourchetteKcal": {"placeholders": {"min": {"type": "int"}, "max": {"type": "int"}}},
+  "ajusterPlus": "Augmenter : {nom}",
+  "@ajusterPlus": {"placeholders": {"nom": {"type": "String"}}},
+  "ajusterMoins": "Diminuer : {nom}",
+  "@ajusterMoins": {"placeholders": {"nom": {"type": "String"}}},
+  "grasTitre": "Gras peu visible",
+  "grasAide": "L'huile de cuisson et les sauces se voient mal sur une photo : ce sont elles qui faussent le plus les calories.",
+  "grasHuile": "Huile de cuisson",
+  "grasSauce": "Sauce",
+  "grasAucune": "Aucune",
+  "grasUnPeu": "Un peu",
+  "grasBeaucoup": "Beaucoup",
+  "ajusteHabitudes": "Portion ajustée d'après tes corrections ({ecart})",
+  "@ajusteHabitudes": {"placeholders": {"ecart": {"type": "String"}}},
+  "assietteTitre": "Taille de mes assiettes",
+  "assietteAide": "Aide l'IA à estimer les portions sur les photos.",
+  "assietteNonRenseignee": "Non renseignée",
+  "assietteCm": "{n} cm de diamètre",
+  "@assietteCm": {"placeholders": {"n": {"type": "int"}}},
+  "etalonnageOublier": "Oublier mes corrections de portions",
+  "etalonnageAide": "L'appli apprend de tes corrections pour mieux estimer tes portions ; ces données sont gardées sur ton compte, pour tous tes appareils.",
+  "etalonnageOublie": "Corrections de portions oubliées.",
+  "valeursCiqual": "Valeurs de la table Ciqual (ANSES) : {reference}",
+  "@valeursCiqual": {"placeholders": {"reference": {"type": "String"}}},
+  "ciqualRechercheTitre": "Chercher un aliment",
+  "ciqualRechercheLabel": "Nom de l'aliment",
+  "ciqualPour100": "{kcal} kcal pour 100 g",
+  "@ciqualPour100": {"placeholders": {"kcal": {"type": "int"}}},
+  "ciqualSource": "Table Ciqual 2020, ANSES (CC BY 4.0)",
+  "ciqualChercher": "Chercher dans la table Ciqual",
+  "environPieces": "environ {pieces}",
+  "@environPieces": {"placeholders": {"pieces": {"type": "String"}}},
+  "cuissonTitre": "Cuisson",
+  "cuissonVapeur": "Vapeur",
+  "cuissonPoele": "Poêlé",
+  "cuissonFrit": "Frit",
+  "cuissonFour": "Au four",
+  "cuissonBouilli": "Bouilli",
+  "courbePoids": "Évolution du poids",
+  "periode90": "90 jours",
+  "periode1an": "1 an",
+  "ajouterPesee": "Ajouter une pesée",
+  "enregistrer": "Enregistrer",
+  "historiquePoids": "Historique",
+  "supprimerPesee": "Supprimer",
+  "aucunePesee": "Aucune pesée pour l'instant. Ajoute la première !",
+  "sourceMontre": "Montre",
+  "sourceSaisie": "Saisie",
+  "tabJournal": "Repas",
+  "jourAujourdhui": "Aujourd'hui",
+  "jourPrecedent": "Jour précédent",
+  "jourSuivant": "Jour suivant",
+  "bilanTitre": "Bilan énergétique",
+  "bilanMange": "Mangé",
+  "bilanDepense": "Dépensé",
+  "bilanSolde": "Solde",
+  "kcalValeur": "{kcal} kcal",
+  "@kcalValeur": {
+    "placeholders": {
+      "kcal": {
+        "type": "String"
+      }
+    }
+  },
+  "soldeDeficit": "Déficit",
+  "soldeExcedent": "Excédent",
+  "cibleJour": "Objectif du jour : {kcal} kcal",
+  "@cibleJour": {
+    "placeholders": {
+      "kcal": {
+        "type": "int"
+      }
+    }
+  },
+  "jourRepos": "Jour de repos",
+  "jourModere": "Jour modéré",
+  "jourIntense": "Jour intense",
+  "macrosTitre": "Macros du jour",
+  "macroProteines": "Protéines",
+  "macroGlucides": "Glucides",
+  "macroLipides": "Lipides",
+  "macroProgression": "{mange} / {cible} g",
+  "@macroProgression": {
+    "placeholders": {
+      "mange": {
+        "type": "int"
+      },
+      "cible": {
+        "type": "int"
+      }
+    }
+  },
+  "repasTitre": "Repas de la journée",
+  "activitesTitre": "Activités",
+  "aucunRepas": "Aucun repas enregistré.",
+  "ajouterUnRepas": "Ajouter un repas",
+  "aucuneActivite": "Aucune activité enregistrée.",
+  "momentPetitDej": "Petit-déjeuner",
+  "momentDejeuner": "Déjeuner",
+  "momentDiner": "Dîner",
+  "momentCollation": "Collation",
+  "menuRepas": "Saisie à la main",
+  "menuScanner": "Scanner un produit",
+  "menuActivite": "Ajouter une activité",
+  "ajouter": "Ajouter",
+  "champNomRepas": "Nom du repas",
+  "champKcal": "Calories (kcal)",
+  "champProteines": "Protéines (g)",
+  "champGlucides": "Glucides (g)",
+  "champLipides": "Lipides (g)",
+  "champMoment": "Moment",
+  "nomRepasDefaut": "Repas",
+  "scanTitre": "Scanner un produit",
+  "scanAide": "Place le code-barres dans le cadre.",
+  "scanOuSaisir": "Ou saisis le code à la main",
+  "champCode": "Code-barres",
+  "scanRechercher": "Rechercher",
+  "produitIntrouvable": "Produit introuvable. Tu peux l'ajouter à la main.",
+  "erreurReseauProduit": "Impossible de joindre Open Food Facts. Vérifie ta connexion.",
+  "champQuantite": "Quantité (g)",
+  "produitPour100g": "Pour 100 g : {kcal} kcal",
+  "@produitPour100g": {
+    "placeholders": {
+      "kcal": {
+        "type": "int"
+      }
+    }
+  },
+  "actVelo": "Vélo",
+  "actMma": "MMA",
+  "actCourse": "Course à pied",
+  "actNatation": "Natation",
+  "actMuscu": "Musculation",
+  "actMarche": "Marche",
+  "actAutre": "Autre",
+  "champDureeMin": "Durée (min)",
+  "intLegere": "Légère",
+  "intModeree": "Modérée",
+  "intIntense": "Intense",
+  "activiteEstimation": "≈ {kcal} kcal brûlées",
+  "@activiteEstimation": {
+    "placeholders": {
+      "kcal": {
+        "type": "int"
+      }
+    }
+  },
+  "supprimer": "Supprimer",
+  "erreurDuree": "Entre une durée en minutes.",
+  "champHeureDebut": "Heure de début",
+  "cameraRefusee": "Accès à l'appareil photo refusé. Choisis une photo dans la galerie, ou autorise l'appareil photo dans les réglages du téléphone.",
+  "galerieCourt": "Galerie",
+  "photoIndisponible": "Impossible d'ouvrir cette photo. Réessaie.",
+  "produitIllisible": "Les informations de ce produit sont illisibles. Essaie avec la photo du repas.",
+  "tropDAliments": "Un repas compte au plus {max} aliments.",
+  "@tropDAliments": {"placeholders": {"max": {"type": "int"}}},
+  "modificationRefusee": "La modification du repas n'a pas pu être enregistrée.",
+  "repasNonEnregistre": "Repas non enregistré.",
+  "repasSupprime": "Repas supprimé",
+  "grammesValeur": "{g} g",
+  "@grammesValeur": {"placeholders": {"g": {"type": "int"}}},
+  "modificationNonEnregistree": "Modification non enregistrée.",
+  "eauNonEnregistree": "Eau non enregistrée.",
+  "activiteNonEnregistree": "Activité non enregistrée.",
+  "seanceNonEnregistree": "Séance non enregistrée.",
+  "planningNonEnregistre": "Planning non enregistré.",
+  "demonstrationExercice": "Démonstration de l'exercice",
+  "seanceDuJourFaite": "Séance du jour faite, bravo !",
+  "seanceDejaFaite": "Une séance par jour : celle d'aujourd'hui est déjà faite. Place à la récupération.",
+  "prochaineSeance": "Prochaine séance : {jour}.",
+  "@prochaineSeance": {"placeholders": {"jour": {"type": "String"}}},
+  "reposOuMobilite": "D'ici là, repos ou mobilité.",
+  "jourDeRepos": "Aujourd'hui : repos.",
+  "semaineFaite": "Séances de la semaine faites.",
+  "commencerQuandMeme": "Commencer quand même",
+  "joursPrevus": "Jours prévus : {jours}",
+  "@joursPrevus": {"placeholders": {"jours": {"type": "String"}}},
+  "photoSansAccord": "Sans ton accord, la photo n'est pas envoyée. Tu peux scanner un produit, reprendre un repas récent ou saisir le repas à la main.",
+  "repasRecentsTitre": "Repas récents",
+  "repasRecentsAide": "Un appui pour le remettre au journal, avec les mêmes aliments.",
+  "repasRecentLigne": "{moment} du {jour} · {kcal} kcal",
+  "@repasRecentLigne": {"placeholders": {"moment": {"type": "String"}, "jour": {"type": "String"}, "kcal": {"type": "int"}}},
+  "repasRecentAjouter": "Ajouter de nouveau : {nom}",
+  "@repasRecentAjouter": {"placeholders": {"nom": {"type": "String"}}},
+  "analysesRestantes": "{n, plural, =0{Plus d'analyse photo possible aujourd'hui.} =1{Encore 1 analyse photo possible aujourd'hui.} other{Encore {n} analyses photo possibles aujourd'hui.}}",
+  "@analysesRestantes": {"placeholders": {"n": {"type": "int"}}},
+  "maSemaine": "Ma semaine",
+  "maSemaineSous": "7 derniers jours",
+  "semaineKcal": "kcal mangées par jour en moyenne",
+  "semaineDansCible": "jours notés dans la cible (±10 %)",
+  "semaineProteines": "protéines par jour en moyenne",
+  "semaineSeances": "séances faites",
+  "semaineEvolutionPoids": "poids moyen, comparé à la semaine d'avant",
+  "semainePoidsMoyen": "poids moyen sur 7 jours",
+  "semaineSansPesee": "aucune pesée cette semaine",
+  "semaineAucunRepas": "Aucun repas noté ces 7 derniers jours : notez vos repas dans le Journal pour suivre votre semaine."
+}

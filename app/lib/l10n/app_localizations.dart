@@ -1,0 +1,3644 @@
+import 'dart:async';
+
+import 'package:flutter/foundation.dart';
+import 'package:flutter/widgets.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:intl/intl.dart' as intl;
+
+import 'app_localizations_fr.dart';
+
+// ignore_for_file: type=lint
+
+/// Callers can lookup localized strings with an instance of AppLocalizations
+/// returned by `AppLocalizations.of(context)`.
+///
+/// Applications need to include `AppLocalizations.delegate()` in their app's
+/// `localizationDelegates` list, and the locales they support in the app's
+/// `supportedLocales` list. For example:
+///
+/// ```dart
+/// import 'l10n/app_localizations.dart';
+///
+/// return MaterialApp(
+///   localizationsDelegates: AppLocalizations.localizationsDelegates,
+///   supportedLocales: AppLocalizations.supportedLocales,
+///   home: MyApplicationHome(),
+/// );
+/// ```
+///
+/// ## Update pubspec.yaml
+///
+/// Please make sure to update your pubspec.yaml to include the following
+/// packages:
+///
+/// ```yaml
+/// dependencies:
+///   # Internationalization support.
+///   flutter_localizations:
+///     sdk: flutter
+///   intl: any # Use the pinned version from flutter_localizations
+///
+///   # Rest of dependencies
+/// ```
+///
+/// ## iOS Applications
+///
+/// iOS applications define key application metadata, including supported
+/// locales, in an Info.plist file that is built into the application bundle.
+/// To configure the locales supported by your app, you’ll need to edit this
+/// file.
+///
+/// First, open your project’s ios/Runner.xcworkspace Xcode workspace file.
+/// Then, in the Project Navigator, open the Info.plist file under the Runner
+/// project’s Runner folder.
+///
+/// Next, select the Information Property List item, select Add Item from the
+/// Editor menu, then select Localizations from the pop-up menu.
+///
+/// Select and expand the newly-created Localizations item then, for each
+/// locale your application supports, add a new item and select the locale
+/// you wish to add from the pop-up menu in the Value field. This list should
+/// be consistent with the languages listed in the AppLocalizations.supportedLocales
+/// property.
+abstract class AppLocalizations {
+  AppLocalizations(String locale)
+    : localeName = intl.Intl.canonicalizedLocale(locale.toString());
+
+  final String localeName;
+
+  static AppLocalizations? of(BuildContext context) {
+    return Localizations.of<AppLocalizations>(context, AppLocalizations);
+  }
+
+  static const LocalizationsDelegate<AppLocalizations> delegate =
+      _AppLocalizationsDelegate();
+
+  /// A list of this localizations delegate along with the default localizations
+  /// delegates.
+  ///
+  /// Returns a list of localizations delegates containing this delegate along with
+  /// GlobalMaterialLocalizations.delegate, GlobalCupertinoLocalizations.delegate,
+  /// and GlobalWidgetsLocalizations.delegate.
+  ///
+  /// Additional delegates can be added by appending to this list in
+  /// MaterialApp. This list does not have to be used at all if a custom list
+  /// of delegates is preferred or required.
+  static const List<LocalizationsDelegate<dynamic>> localizationsDelegates =
+      <LocalizationsDelegate<dynamic>>[
+        delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+      ];
+
+  /// A list of this localizations delegate's supported locales.
+  static const List<Locale> supportedLocales = <Locale>[Locale('fr')];
+
+  /// No description provided for @appTitre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vyta'**
+  String get appTitre;
+
+  /// No description provided for @bienvenueTitre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton coach sport et alimentation'**
+  String get bienvenueTitre;
+
+  /// No description provided for @bienvenueSousTitre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Un programme adapté à toi, en une minute.'**
+  String get bienvenueSousTitre;
+
+  /// No description provided for @boutonCommencer.
+  ///
+  /// In fr, this message translates to:
+  /// **'Commencer'**
+  String get boutonCommencer;
+
+  /// No description provided for @boutonDejaCompte.
+  ///
+  /// In fr, this message translates to:
+  /// **'J\'ai déjà un compte'**
+  String get boutonDejaCompte;
+
+  /// No description provided for @boutonSuivant.
+  ///
+  /// In fr, this message translates to:
+  /// **'Suivant'**
+  String get boutonSuivant;
+
+  /// No description provided for @boutonRetour.
+  ///
+  /// In fr, this message translates to:
+  /// **'Retour'**
+  String get boutonRetour;
+
+  /// No description provided for @boutonOui.
+  ///
+  /// In fr, this message translates to:
+  /// **'Oui'**
+  String get boutonOui;
+
+  /// No description provided for @boutonNon.
+  ///
+  /// In fr, this message translates to:
+  /// **'Non'**
+  String get boutonNon;
+
+  /// No description provided for @qObjectif.
+  ///
+  /// In fr, this message translates to:
+  /// **'Quel est ton objectif ?'**
+  String get qObjectif;
+
+  /// No description provided for @objectifPerte.
+  ///
+  /// In fr, this message translates to:
+  /// **'Perdre du poids'**
+  String get objectifPerte;
+
+  /// No description provided for @objectifMuscle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Prendre du muscle'**
+  String get objectifMuscle;
+
+  /// No description provided for @objectifForme.
+  ///
+  /// In fr, this message translates to:
+  /// **'Garder la forme'**
+  String get objectifForme;
+
+  /// No description provided for @objectifReprise.
+  ///
+  /// In fr, this message translates to:
+  /// **'Reprendre le sport'**
+  String get objectifReprise;
+
+  /// No description provided for @qSexeAge.
+  ///
+  /// In fr, this message translates to:
+  /// **'Parle-nous un peu de toi'**
+  String get qSexeAge;
+
+  /// No description provided for @sexeHomme.
+  ///
+  /// In fr, this message translates to:
+  /// **'Homme'**
+  String get sexeHomme;
+
+  /// No description provided for @sexeFemme.
+  ///
+  /// In fr, this message translates to:
+  /// **'Femme'**
+  String get sexeFemme;
+
+  /// No description provided for @sexeExplication.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sert uniquement au calcul de tes besoins.'**
+  String get sexeExplication;
+
+  /// No description provided for @champAge.
+  ///
+  /// In fr, this message translates to:
+  /// **'Âge'**
+  String get champAge;
+
+  /// No description provided for @qMensurations.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ta taille et ton poids'**
+  String get qMensurations;
+
+  /// No description provided for @champTaille.
+  ///
+  /// In fr, this message translates to:
+  /// **'Taille (cm)'**
+  String get champTaille;
+
+  /// No description provided for @champPoids.
+  ///
+  /// In fr, this message translates to:
+  /// **'Poids (kg)'**
+  String get champPoids;
+
+  /// No description provided for @champPoidsCible.
+  ///
+  /// In fr, this message translates to:
+  /// **'Poids visé (kg, facultatif)'**
+  String get champPoidsCible;
+
+  /// No description provided for @erreurCibleBasse.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce poids serait trop bas pour ta taille.'**
+  String get erreurCibleBasse;
+
+  /// No description provided for @qTypeDeVie.
+  ///
+  /// In fr, this message translates to:
+  /// **'Hors sport, ton quotidien ressemble plutôt à…'**
+  String get qTypeDeVie;
+
+  /// No description provided for @qTypeDeVieAide.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ne compte pas tes séances : elles s\'ajoutent à part, les jours où tu en fais.'**
+  String get qTypeDeVieAide;
+
+  /// No description provided for @vieSedentaire.
+  ///
+  /// In fr, this message translates to:
+  /// **'Assis toute la journée'**
+  String get vieSedentaire;
+
+  /// No description provided for @vieSedentaireEx.
+  ///
+  /// In fr, this message translates to:
+  /// **'Bureau, voiture, peu de marche'**
+  String get vieSedentaireEx;
+
+  /// No description provided for @viePeuActif.
+  ///
+  /// In fr, this message translates to:
+  /// **'Un peu actif'**
+  String get viePeuActif;
+
+  /// No description provided for @viePeuActifEx.
+  ///
+  /// In fr, this message translates to:
+  /// **'Souvent debout, un peu de marche'**
+  String get viePeuActifEx;
+
+  /// No description provided for @vieActif.
+  ///
+  /// In fr, this message translates to:
+  /// **'Actif, hors sport'**
+  String get vieActif;
+
+  /// No description provided for @vieActifEx.
+  ///
+  /// In fr, this message translates to:
+  /// **'Métier physique ou beaucoup de marche au quotidien'**
+  String get vieActifEx;
+
+  /// No description provided for @vieTresActif.
+  ///
+  /// In fr, this message translates to:
+  /// **'Très actif, hors sport'**
+  String get vieTresActif;
+
+  /// No description provided for @vieTresActifEx.
+  ///
+  /// In fr, this message translates to:
+  /// **'Travail très physique toute la journée (bâtiment, manutention…)'**
+  String get vieTresActifEx;
+
+  /// No description provided for @qEntrainements.
+  ///
+  /// In fr, this message translates to:
+  /// **'Où veux-tu t\'entraîner ?'**
+  String get qEntrainements;
+
+  /// No description provided for @qEntrainementsAide.
+  ///
+  /// In fr, this message translates to:
+  /// **'Plusieurs choix possibles.'**
+  String get qEntrainementsAide;
+
+  /// No description provided for @entrainementSalle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Salle de sport'**
+  String get entrainementSalle;
+
+  /// No description provided for @entrainementMaison.
+  ///
+  /// In fr, this message translates to:
+  /// **'À la maison'**
+  String get entrainementMaison;
+
+  /// No description provided for @entrainementCourse.
+  ///
+  /// In fr, this message translates to:
+  /// **'Course à pied'**
+  String get entrainementCourse;
+
+  /// No description provided for @entrainementMarche.
+  ///
+  /// In fr, this message translates to:
+  /// **'Marche'**
+  String get entrainementMarche;
+
+  /// No description provided for @qNiveau.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton niveau'**
+  String get qNiveau;
+
+  /// No description provided for @niveauDebutant.
+  ///
+  /// In fr, this message translates to:
+  /// **'Débutant'**
+  String get niveauDebutant;
+
+  /// No description provided for @niveauReprise.
+  ///
+  /// In fr, this message translates to:
+  /// **'Je reprends'**
+  String get niveauReprise;
+
+  /// No description provided for @niveauRegulier.
+  ///
+  /// In fr, this message translates to:
+  /// **'Régulier'**
+  String get niveauRegulier;
+
+  /// No description provided for @qDisponibilite.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton temps disponible'**
+  String get qDisponibilite;
+
+  /// No description provided for @champJours.
+  ///
+  /// In fr, this message translates to:
+  /// **'Jours par semaine'**
+  String get champJours;
+
+  /// No description provided for @champDuree.
+  ///
+  /// In fr, this message translates to:
+  /// **'Durée d\'une séance'**
+  String get champDuree;
+
+  /// No description provided for @dureeMinutes.
+  ///
+  /// In fr, this message translates to:
+  /// **'{n} min'**
+  String dureeMinutes(int n);
+
+  /// No description provided for @qSante.
+  ///
+  /// In fr, this message translates to:
+  /// **'L\'un de ces cas te concerne-t-il ?'**
+  String get qSante;
+
+  /// No description provided for @qSanteAide.
+  ///
+  /// In fr, this message translates to:
+  /// **'Coche tout ce qui s\'applique : tes repères et tes séances s\'adaptent.'**
+  String get qSanteAide;
+
+  /// No description provided for @precautionEnceinte.
+  ///
+  /// In fr, this message translates to:
+  /// **'Enceinte ou allaitante'**
+  String get precautionEnceinte;
+
+  /// No description provided for @precautionEnceinteEx.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pas de régime : on vise la forme, sans saut ni exercice allongé.'**
+  String get precautionEnceinteEx;
+
+  /// No description provided for @precautionMedecin.
+  ///
+  /// In fr, this message translates to:
+  /// **'Perte de poids suivie par un médecin'**
+  String get precautionMedecin;
+
+  /// No description provided for @precautionMedecinEx.
+  ///
+  /// In fr, this message translates to:
+  /// **'Déficit plus doux et exercices sans impact. Ses consignes passent avant les nôtres.'**
+  String get precautionMedecinEx;
+
+  /// No description provided for @precautionArticulations.
+  ///
+  /// In fr, this message translates to:
+  /// **'Douleurs articulaires'**
+  String get precautionArticulations;
+
+  /// No description provided for @precautionArticulationsEx.
+  ///
+  /// In fr, this message translates to:
+  /// **'Exercices sans saut ni impact ; la course est remplacée par la marche.'**
+  String get precautionArticulationsEx;
+
+  /// No description provided for @precautionAucune.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucun de ces cas'**
+  String get precautionAucune;
+
+  /// No description provided for @santeAPreciser.
+  ///
+  /// In fr, this message translates to:
+  /// **'Cette question a changé : précise ta réponse. En attendant, toutes les précautions restent appliquées.'**
+  String get santeAPreciser;
+
+  /// No description provided for @messagePerteGrossesse.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pendant la grossesse ou l\'allaitement, pas de régime : on part sur « garder la forme ». Parles-en à ta sage-femme ou à ton médecin.'**
+  String get messagePerteGrossesse;
+
+  /// No description provided for @messagePertePlancher.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tes besoins de tous les jours sont déjà au niveau du minimum conseillé : manger moins ne serait pas sûr. On part plutôt sur « garder la forme ».'**
+  String get messagePertePlancher;
+
+  /// No description provided for @messageRecomposition.
+  ///
+  /// In fr, this message translates to:
+  /// **'Avec ton IMC, on te propose une recomposition : un léger déficit et beaucoup de protéines, pour gagner du muscle tout en perdant du gras.'**
+  String get messageRecomposition;
+
+  /// No description provided for @messageMineur.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vyta est réservé aux personnes de 18 ans et plus. Les besoins des adolescents sont différents : parles-en à ton médecin.'**
+  String get messageMineur;
+
+  /// No description provided for @messagePerteImc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton poids est déjà bas pour ta taille : on part plutôt sur « garder la forme ».'**
+  String get messagePerteImc;
+
+  /// No description provided for @erreurNombre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Entre un nombre valide.'**
+  String get erreurNombre;
+
+  /// No description provided for @erreurPlage.
+  ///
+  /// In fr, this message translates to:
+  /// **'Entre une valeur entre {min} et {max}.'**
+  String erreurPlage(int min, int max);
+
+  /// No description provided for @qConnexion.
+  ///
+  /// In fr, this message translates to:
+  /// **'Dernière étape : sauvegarde ton profil'**
+  String get qConnexion;
+
+  /// No description provided for @boutonGoogle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Continuer avec Google'**
+  String get boutonGoogle;
+
+  /// No description provided for @erreurConnexion.
+  ///
+  /// In fr, this message translates to:
+  /// **'La connexion a échoué. Vérifie ta connexion internet et réessaie.'**
+  String get erreurConnexion;
+
+  /// No description provided for @mentionMedicale.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vyta ne remplace pas un avis médical.'**
+  String get mentionMedicale;
+
+  /// No description provided for @accueilBonjour.
+  ///
+  /// In fr, this message translates to:
+  /// **'Bonjour {prenom} !'**
+  String accueilBonjour(String prenom);
+
+  /// No description provided for @accueilBonjourSansNom.
+  ///
+  /// In fr, this message translates to:
+  /// **'Bonjour !'**
+  String get accueilBonjourSansNom;
+
+  /// No description provided for @boutonModifierProfil.
+  ///
+  /// In fr, this message translates to:
+  /// **'Modifier mon profil'**
+  String get boutonModifierProfil;
+
+  /// No description provided for @boutonDeconnexion.
+  ///
+  /// In fr, this message translates to:
+  /// **'Se déconnecter'**
+  String get boutonDeconnexion;
+
+  /// No description provided for @bienvenuePoint1.
+  ///
+  /// In fr, this message translates to:
+  /// **'Programme à la maison, en salle ou en course'**
+  String get bienvenuePoint1;
+
+  /// No description provided for @bienvenuePoint2.
+  ///
+  /// In fr, this message translates to:
+  /// **'Repas en photo, sans compter'**
+  String get bienvenuePoint2;
+
+  /// No description provided for @aSuivre.
+  ///
+  /// In fr, this message translates to:
+  /// **'À suivre : {exercice}'**
+  String aSuivre(String exercice);
+
+  /// No description provided for @etapeSur.
+  ///
+  /// In fr, this message translates to:
+  /// **'Étape {n} sur {total}'**
+  String etapeSur(int n, int total);
+
+  /// No description provided for @objectifPastille.
+  ///
+  /// In fr, this message translates to:
+  /// **'Objectif : {objectif}'**
+  String objectifPastille(String objectif);
+
+  /// No description provided for @reperesTitre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tes repères du jour'**
+  String get reperesTitre;
+
+  /// No description provided for @reperesKcalLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'kcal par jour'**
+  String get reperesKcalLabel;
+
+  /// No description provided for @reperesProteinesValeur.
+  ///
+  /// In fr, this message translates to:
+  /// **'{g} g'**
+  String reperesProteinesValeur(int g);
+
+  /// No description provided for @reperesProteinesLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'de protéines'**
+  String get reperesProteinesLabel;
+
+  /// No description provided for @reperesEstimation.
+  ///
+  /// In fr, this message translates to:
+  /// **'Estimations calculées d\'après ton profil.'**
+  String get reperesEstimation;
+
+  /// No description provided for @qResultat.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton plan'**
+  String get qResultat;
+
+  /// No description provided for @objectifRecomposition.
+  ///
+  /// In fr, this message translates to:
+  /// **'Recomposition'**
+  String get objectifRecomposition;
+
+  /// No description provided for @resultatMaintien.
+  ///
+  /// In fr, this message translates to:
+  /// **'Maintien estimé : {kcal} kcal par jour, hors sport.'**
+  String resultatMaintien(int kcal);
+
+  /// No description provided for @resultatRythmePerte.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rythme attendu : environ {kg} kg de moins par semaine.'**
+  String resultatRythmePerte(String kg);
+
+  /// No description provided for @resultatRythmePrise.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rythme attendu : environ {kg} kg de plus par semaine.'**
+  String resultatRythmePrise(String kg);
+
+  /// No description provided for @resultatRythmeStable.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rythme attendu : poids stable.'**
+  String get resultatRythmeStable;
+
+  /// No description provided for @resultatDate.
+  ///
+  /// In fr, this message translates to:
+  /// **'Poids visé de {kg} kg vers le {date}.'**
+  String resultatDate(String kg, String date);
+
+  /// No description provided for @resultatSansDate.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pas de date estimée pour {kg} kg avec cet objectif.'**
+  String resultatSansDate(String kg);
+
+  /// No description provided for @resultatAide.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ces repères s\'ajustent avec tes pesées et ton activité.'**
+  String get resultatAide;
+
+  /// No description provided for @boutonCestParti.
+  ///
+  /// In fr, this message translates to:
+  /// **'C\'est parti'**
+  String get boutonCestParti;
+
+  /// No description provided for @carteProgramme.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton programme'**
+  String get carteProgramme;
+
+  /// No description provided for @carteProgrammeSous.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ta séance du jour'**
+  String get carteProgrammeSous;
+
+  /// No description provided for @carteIdees.
+  ///
+  /// In fr, this message translates to:
+  /// **'Idées de repas'**
+  String get carteIdees;
+
+  /// No description provided for @carteIdeesSous.
+  ///
+  /// In fr, this message translates to:
+  /// **'Balaie des idées adaptées à toi'**
+  String get carteIdeesSous;
+
+  /// No description provided for @tabSport.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sport'**
+  String get tabSport;
+
+  /// No description provided for @qMontre.
+  ///
+  /// In fr, this message translates to:
+  /// **'As-tu une montre ou un bracelet connecté ?'**
+  String get qMontre;
+
+  /// No description provided for @montreAide.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vyta pourra lire ton activité, ton sommeil et ton cœur via Health Connect. Ces données restent sur ton téléphone ; seul ton poids le plus récent est enregistré dans ton profil en ligne.'**
+  String get montreAide;
+
+  /// No description provided for @qAppMontre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Quelle application l\'accompagne ?'**
+  String get qAppMontre;
+
+  /// No description provided for @appGoogleFit.
+  ///
+  /// In fr, this message translates to:
+  /// **'Google Fit'**
+  String get appGoogleFit;
+
+  /// No description provided for @appSamsungHealth.
+  ///
+  /// In fr, this message translates to:
+  /// **'Samsung Health'**
+  String get appSamsungHealth;
+
+  /// No description provided for @appMiFitness.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mi Fitness'**
+  String get appMiFitness;
+
+  /// No description provided for @appFitbit.
+  ///
+  /// In fr, this message translates to:
+  /// **'Fitbit'**
+  String get appFitbit;
+
+  /// No description provided for @appGarmin.
+  ///
+  /// In fr, this message translates to:
+  /// **'Garmin Connect'**
+  String get appGarmin;
+
+  /// No description provided for @appAutre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Autre'**
+  String get appAutre;
+
+  /// No description provided for @consignePartage.
+  ///
+  /// In fr, this message translates to:
+  /// **'Dans {app}, active le partage des données vers Health Connect (souvent dans Profil ou Paramètres, rubrique « Health Connect » ou « Applications connectées »).'**
+  String consignePartage(String app);
+
+  /// No description provided for @consignePartageAutre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Dans l\'application de ta montre, active le partage des données vers Health Connect.'**
+  String get consignePartageAutre;
+
+  /// No description provided for @boutonAutoriser.
+  ///
+  /// In fr, this message translates to:
+  /// **'Autoriser l\'accès'**
+  String get boutonAutoriser;
+
+  /// No description provided for @boutonInstallerHc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Installer Health Connect'**
+  String get boutonInstallerHc;
+
+  /// No description provided for @hcAInstaller.
+  ///
+  /// In fr, this message translates to:
+  /// **'Health Connect doit être installé ou mis à jour sur ce téléphone.'**
+  String get hcAInstaller;
+
+  /// No description provided for @hcIndisponible.
+  ///
+  /// In fr, this message translates to:
+  /// **'Health Connect n\'est pas disponible sur ce téléphone. Vyta utilisera des estimations.'**
+  String get hcIndisponible;
+
+  /// No description provided for @accesAccorde.
+  ///
+  /// In fr, this message translates to:
+  /// **'Accès autorisé : Vyta lira les données de ta montre.'**
+  String get accesAccorde;
+
+  /// No description provided for @accesRefuse.
+  ///
+  /// In fr, this message translates to:
+  /// **'Accès non autorisé. Pas de souci : Vyta utilisera des estimations, et tu pourras réessayer plus tard.'**
+  String get accesRefuse;
+
+  /// No description provided for @sourceMesure.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mesuré par ta montre'**
+  String get sourceMesure;
+
+  /// No description provided for @sourceEstime.
+  ///
+  /// In fr, this message translates to:
+  /// **'Estimé'**
+  String get sourceEstime;
+
+  /// No description provided for @maJournee.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ma journée'**
+  String get maJournee;
+
+  /// No description provided for @statPas.
+  ///
+  /// In fr, this message translates to:
+  /// **'pas'**
+  String get statPas;
+
+  /// No description provided for @statKcal.
+  ///
+  /// In fr, this message translates to:
+  /// **'kcal brûlées'**
+  String get statKcal;
+
+  /// No description provided for @statSommeil.
+  ///
+  /// In fr, this message translates to:
+  /// **'de sommeil'**
+  String get statSommeil;
+
+  /// No description provided for @statFcRepos.
+  ///
+  /// In fr, this message translates to:
+  /// **'bpm au repos'**
+  String get statFcRepos;
+
+  /// No description provided for @dureeHeures.
+  ///
+  /// In fr, this message translates to:
+  /// **'{h} h {m}'**
+  String dureeHeures(int h, String m);
+
+  /// No description provided for @connecterMontre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Connecte ta montre'**
+  String get connecterMontre;
+
+  /// No description provided for @connecterMontreAide.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pour voir ton activité et ton sommeil, et ajuster tes repères.'**
+  String get connecterMontreAide;
+
+  /// No description provided for @aucuneDonneeMontre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucune donnée reçue de ta montre pour l\'instant.'**
+  String get aucuneDonneeMontre;
+
+  /// No description provided for @suiviErreur.
+  ///
+  /// In fr, this message translates to:
+  /// **'Impossible de lire les données de ta montre pour le moment.'**
+  String get suiviErreur;
+
+  /// No description provided for @voirDetail.
+  ///
+  /// In fr, this message translates to:
+  /// **'Voir le détail'**
+  String get voirDetail;
+
+  /// No description provided for @mesDonnees.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mes données'**
+  String get mesDonnees;
+
+  /// No description provided for @sectionActivite.
+  ///
+  /// In fr, this message translates to:
+  /// **'Activité'**
+  String get sectionActivite;
+
+  /// No description provided for @sectionSommeil.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sommeil'**
+  String get sectionSommeil;
+
+  /// No description provided for @sectionCoeur.
+  ///
+  /// In fr, this message translates to:
+  /// **'Cœur et respiration'**
+  String get sectionCoeur;
+
+  /// No description provided for @sectionCorps.
+  ///
+  /// In fr, this message translates to:
+  /// **'Corps'**
+  String get sectionCorps;
+
+  /// No description provided for @periode7.
+  ///
+  /// In fr, this message translates to:
+  /// **'7 jours'**
+  String get periode7;
+
+  /// No description provided for @periode30.
+  ///
+  /// In fr, this message translates to:
+  /// **'30 jours'**
+  String get periode30;
+
+  /// No description provided for @mesurePas.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pas'**
+  String get mesurePas;
+
+  /// No description provided for @mesureKcalActives.
+  ///
+  /// In fr, this message translates to:
+  /// **'Calories actives'**
+  String get mesureKcalActives;
+
+  /// No description provided for @mesureDistance.
+  ///
+  /// In fr, this message translates to:
+  /// **'Distance (km)'**
+  String get mesureDistance;
+
+  /// No description provided for @mesureEtages.
+  ///
+  /// In fr, this message translates to:
+  /// **'Étages'**
+  String get mesureEtages;
+
+  /// No description provided for @mesureSommeil.
+  ///
+  /// In fr, this message translates to:
+  /// **'Durée de sommeil (h)'**
+  String get mesureSommeil;
+
+  /// No description provided for @phaseProfond.
+  ///
+  /// In fr, this message translates to:
+  /// **'Profond'**
+  String get phaseProfond;
+
+  /// No description provided for @phaseLeger.
+  ///
+  /// In fr, this message translates to:
+  /// **'Léger'**
+  String get phaseLeger;
+
+  /// No description provided for @phaseParadoxal.
+  ///
+  /// In fr, this message translates to:
+  /// **'Paradoxal'**
+  String get phaseParadoxal;
+
+  /// No description provided for @mesureFcRepos.
+  ///
+  /// In fr, this message translates to:
+  /// **'FC au repos (bpm)'**
+  String get mesureFcRepos;
+
+  /// No description provided for @mesureVariabilite.
+  ///
+  /// In fr, this message translates to:
+  /// **'Variabilité cardiaque (ms)'**
+  String get mesureVariabilite;
+
+  /// No description provided for @mesureSpo2.
+  ///
+  /// In fr, this message translates to:
+  /// **'Oxygène sanguin (%)'**
+  String get mesureSpo2;
+
+  /// No description provided for @mesureFreqResp.
+  ///
+  /// In fr, this message translates to:
+  /// **'Fréquence respiratoire (/min)'**
+  String get mesureFreqResp;
+
+  /// No description provided for @mesurePoids.
+  ///
+  /// In fr, this message translates to:
+  /// **'Poids (kg)'**
+  String get mesurePoids;
+
+  /// No description provided for @mesureMasseGrassePct.
+  ///
+  /// In fr, this message translates to:
+  /// **'Masse grasse (%)'**
+  String get mesureMasseGrassePct;
+
+  /// No description provided for @derniereValeur.
+  ///
+  /// In fr, this message translates to:
+  /// **'Dernière valeur : {valeur}'**
+  String derniereValeur(String valeur);
+
+  /// No description provided for @aucuneDonneePeriode.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucune donnée sur cette période.'**
+  String get aucuneDonneePeriode;
+
+  /// No description provided for @tabAccueil.
+  ///
+  /// In fr, this message translates to:
+  /// **'Accueil'**
+  String get tabAccueil;
+
+  /// No description provided for @tabPoids.
+  ///
+  /// In fr, this message translates to:
+  /// **'Poids'**
+  String get tabPoids;
+
+  /// No description provided for @poidsActuel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Poids actuel'**
+  String get poidsActuel;
+
+  /// No description provided for @poidsDepuis.
+  ///
+  /// In fr, this message translates to:
+  /// **'{ecart} kg depuis le {date}'**
+  String poidsDepuis(String ecart, String date);
+
+  /// No description provided for @poidsKgValeur.
+  ///
+  /// In fr, this message translates to:
+  /// **'{kg} kg'**
+  String poidsKgValeur(String kg);
+
+  /// No description provided for @importPoidsTitre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Importer {kg} kg de ta balance ?'**
+  String importPoidsTitre(String kg);
+
+  /// No description provided for @importPoidsTexte.
+  ///
+  /// In fr, this message translates to:
+  /// **'C\'est loin de ton dernier poids ({ancien} kg). Si quelqu\'un d\'autre est monté sur ta balance, ignore cette pesée.'**
+  String importPoidsTexte(String ancien);
+
+  /// No description provided for @importPoidsIgnorer.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ignorer'**
+  String get importPoidsIgnorer;
+
+  /// No description provided for @imcTitre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton IMC'**
+  String get imcTitre;
+
+  /// No description provided for @imcMaigreur.
+  ///
+  /// In fr, this message translates to:
+  /// **'Maigreur'**
+  String get imcMaigreur;
+
+  /// No description provided for @imcNormal.
+  ///
+  /// In fr, this message translates to:
+  /// **'Poids normal'**
+  String get imcNormal;
+
+  /// No description provided for @imcSurpoids.
+  ///
+  /// In fr, this message translates to:
+  /// **'Surpoids'**
+  String get imcSurpoids;
+
+  /// No description provided for @imcObesite.
+  ///
+  /// In fr, this message translates to:
+  /// **'Obésité'**
+  String get imcObesite;
+
+  /// No description provided for @imcAide.
+  ///
+  /// In fr, this message translates to:
+  /// **'L\'IMC est un repère général : il ne tient pas compte de ta masse musculaire.'**
+  String get imcAide;
+
+  /// No description provided for @projectionLegende.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pointillés : projection sur 5 jours d\'après les journées complètes de ton journal des 7 derniers jours (au moins 2 repas et 60 % de ta cible).'**
+  String get projectionLegende;
+
+  /// No description provided for @courbeLegende.
+  ///
+  /// In fr, this message translates to:
+  /// **'Trait épais : moyenne sur 7 jours, qui lisse les variations d\'eau. Points : tes pesées.'**
+  String get courbeLegende;
+
+  /// No description provided for @courbeSemantique.
+  ///
+  /// In fr, this message translates to:
+  /// **'Évolution du poids : {debut} kg le {dateDebut}, {fin} kg le {dateFin}. Moyenne sur 7 jours : {tendance} kg.'**
+  String courbeSemantique(
+    String debut,
+    String dateDebut,
+    String fin,
+    String dateFin,
+    String tendance,
+  );
+
+  /// No description provided for @projectionSemantique.
+  ///
+  /// In fr, this message translates to:
+  /// **'Projection dans 5 jours : {kg} kg.'**
+  String projectionSemantique(String kg);
+
+  /// No description provided for @dateChoisie.
+  ///
+  /// In fr, this message translates to:
+  /// **'Date : {date}'**
+  String dateChoisie(String date);
+
+  /// No description provided for @photoDateChoisie.
+  ///
+  /// In fr, this message translates to:
+  /// **'Date de la photo : {date}'**
+  String photoDateChoisie(String date);
+
+  /// No description provided for @libelleUnite.
+  ///
+  /// In fr, this message translates to:
+  /// **'{libelle} ({unite})'**
+  String libelleUnite(String libelle, String unite);
+
+  /// No description provided for @erreurMesure.
+  ///
+  /// In fr, this message translates to:
+  /// **'{mesure} : {erreur}'**
+  String erreurMesure(String mesure, String erreur);
+
+  /// No description provided for @mensurationsTitre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mensurations'**
+  String get mensurationsTitre;
+
+  /// No description provided for @mesureTaille.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tour de taille'**
+  String get mesureTaille;
+
+  /// No description provided for @mesurePoitrine.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tour de poitrine'**
+  String get mesurePoitrine;
+
+  /// No description provided for @mesureBras.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tour de bras'**
+  String get mesureBras;
+
+  /// No description provided for @mensurationMasseGrasse.
+  ///
+  /// In fr, this message translates to:
+  /// **'Masse grasse'**
+  String get mensurationMasseGrasse;
+
+  /// No description provided for @ajouterMesures.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ajouter des mesures'**
+  String get ajouterMesures;
+
+  /// No description provided for @aucuneMesure.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pas encore de mesure. Un mètre ruban suffit !'**
+  String get aucuneMesure;
+
+  /// No description provided for @mesuresAide.
+  ///
+  /// In fr, this message translates to:
+  /// **'Remplis seulement ce que tu as mesuré.'**
+  String get mesuresAide;
+
+  /// No description provided for @erreurMesures.
+  ///
+  /// In fr, this message translates to:
+  /// **'Entre au moins une mesure.'**
+  String get erreurMesures;
+
+  /// No description provided for @photosTitre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Photos de progression'**
+  String get photosTitre;
+
+  /// No description provided for @photosAide.
+  ///
+  /// In fr, this message translates to:
+  /// **'Une photo par mois, de face et dans la même lumière. Elles restent sur ton téléphone, rien n\'est envoyé.'**
+  String get photosAide;
+
+  /// No description provided for @prendrePhoto.
+  ///
+  /// In fr, this message translates to:
+  /// **'Prendre une photo'**
+  String get prendrePhoto;
+
+  /// No description provided for @comparerPhotos.
+  ///
+  /// In fr, this message translates to:
+  /// **'Comparer'**
+  String get comparerPhotos;
+
+  /// No description provided for @supprimerPhoto.
+  ///
+  /// In fr, this message translates to:
+  /// **'Supprimer la photo'**
+  String get supprimerPhoto;
+
+  /// No description provided for @photoAvant.
+  ///
+  /// In fr, this message translates to:
+  /// **'Avant'**
+  String get photoAvant;
+
+  /// No description provided for @photoApres.
+  ///
+  /// In fr, this message translates to:
+  /// **'Après'**
+  String get photoApres;
+
+  /// No description provided for @tabEntrainement.
+  ///
+  /// In fr, this message translates to:
+  /// **'Entraînement'**
+  String get tabEntrainement;
+
+  /// No description provided for @lieuMaison.
+  ///
+  /// In fr, this message translates to:
+  /// **'Maison'**
+  String get lieuMaison;
+
+  /// No description provided for @lieuSalle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Salle'**
+  String get lieuSalle;
+
+  /// No description provided for @lieuCourse.
+  ///
+  /// In fr, this message translates to:
+  /// **'Course à pied'**
+  String get lieuCourse;
+
+  /// No description provided for @lieuMarche.
+  ///
+  /// In fr, this message translates to:
+  /// **'Marche'**
+  String get lieuMarche;
+
+  /// No description provided for @materielHalteres.
+  ///
+  /// In fr, this message translates to:
+  /// **'Haltères'**
+  String get materielHalteres;
+
+  /// No description provided for @materielElastiques.
+  ///
+  /// In fr, this message translates to:
+  /// **'Élastiques'**
+  String get materielElastiques;
+
+  /// No description provided for @materielBarre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Barre de traction'**
+  String get materielBarre;
+
+  /// No description provided for @materielKettlebell.
+  ///
+  /// In fr, this message translates to:
+  /// **'Kettlebell'**
+  String get materielKettlebell;
+
+  /// No description provided for @materielBanc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Banc'**
+  String get materielBanc;
+
+  /// No description provided for @materielCorde.
+  ///
+  /// In fr, this message translates to:
+  /// **'Corde à sauter'**
+  String get materielCorde;
+
+  /// No description provided for @monMateriel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mon matériel'**
+  String get monMateriel;
+
+  /// No description provided for @materielAide.
+  ///
+  /// In fr, this message translates to:
+  /// **'Coche ce que tu as chez toi : sans matériel, on remplace par un exercice au poids du corps.'**
+  String get materielAide;
+
+  /// No description provided for @commencerSeance.
+  ///
+  /// In fr, this message translates to:
+  /// **'Commencer la séance'**
+  String get commencerSeance;
+
+  /// No description provided for @seanceTerminee.
+  ///
+  /// In fr, this message translates to:
+  /// **'Séance terminée, bravo !'**
+  String get seanceTerminee;
+
+  /// No description provided for @terminer.
+  ///
+  /// In fr, this message translates to:
+  /// **'Terminer'**
+  String get terminer;
+
+  /// No description provided for @couperVoix.
+  ///
+  /// In fr, this message translates to:
+  /// **'Couper la voix'**
+  String get couperVoix;
+
+  /// No description provided for @activerVoix.
+  ///
+  /// In fr, this message translates to:
+  /// **'Activer la voix'**
+  String get activerVoix;
+
+  /// No description provided for @reprendre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Reprendre'**
+  String get reprendre;
+
+  /// No description provided for @pause.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pause'**
+  String get pause;
+
+  /// No description provided for @passer.
+  ///
+  /// In fr, this message translates to:
+  /// **'Passer'**
+  String get passer;
+
+  /// No description provided for @fait.
+  ///
+  /// In fr, this message translates to:
+  /// **'Fait'**
+  String get fait;
+
+  /// No description provided for @seancesSemaine.
+  ///
+  /// In fr, this message translates to:
+  /// **'Cette semaine : {faites} séance(s) sur {prevues}'**
+  String seancesSemaine(int faites, int prevues);
+
+  /// No description provided for @dureeEstimee.
+  ///
+  /// In fr, this message translates to:
+  /// **'Environ {minutes} min'**
+  String dureeEstimee(int minutes);
+
+  /// No description provided for @remplace.
+  ///
+  /// In fr, this message translates to:
+  /// **'remplace {nom}'**
+  String remplace(String nom);
+
+  /// No description provided for @repetitions.
+  ///
+  /// In fr, this message translates to:
+  /// **'{n} répétitions'**
+  String repetitions(int n);
+
+  /// No description provided for @recuperationTitre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Récupération'**
+  String get recuperationTitre;
+
+  /// No description provided for @recuperationVide.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pas encore de donnée de sommeil. Dis-nous comment tu te sens, ou connecte ta montre.'**
+  String get recuperationVide;
+
+  /// No description provided for @recuperationBon.
+  ///
+  /// In fr, this message translates to:
+  /// **'Feu vert : tu peux faire ta séance normalement.'**
+  String get recuperationBon;
+
+  /// No description provided for @recuperationMoyen.
+  ///
+  /// In fr, this message translates to:
+  /// **'Récupération correcte : écoute ton corps, évite de forcer sur l\'intensité.'**
+  String get recuperationMoyen;
+
+  /// No description provided for @recuperationFaible.
+  ///
+  /// In fr, this message translates to:
+  /// **'Corps fatigué : privilégie une marche, des étirements ou du repos aujourd\'hui.'**
+  String get recuperationFaible;
+
+  /// No description provided for @ressentiQuestion.
+  ///
+  /// In fr, this message translates to:
+  /// **'Comment te sens-tu ce matin ?'**
+  String get ressentiQuestion;
+
+  /// No description provided for @ressentiFatigue.
+  ///
+  /// In fr, this message translates to:
+  /// **'Fatigué'**
+  String get ressentiFatigue;
+
+  /// No description provided for @ressentiMoyen.
+  ///
+  /// In fr, this message translates to:
+  /// **'Moyen'**
+  String get ressentiMoyen;
+
+  /// No description provided for @ressentiForme.
+  ///
+  /// In fr, this message translates to:
+  /// **'En forme'**
+  String get ressentiForme;
+
+  /// No description provided for @mobiliteTitre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mobilité et étirements'**
+  String get mobiliteTitre;
+
+  /// No description provided for @routineApresEffort.
+  ///
+  /// In fr, this message translates to:
+  /// **'Étirements après l\'effort'**
+  String get routineApresEffort;
+
+  /// No description provided for @routineReveil.
+  ///
+  /// In fr, this message translates to:
+  /// **'Réveil articulaire (5 min)'**
+  String get routineReveil;
+
+  /// No description provided for @routineRecuperation.
+  ///
+  /// In fr, this message translates to:
+  /// **'Récupération douce (8 min)'**
+  String get routineRecuperation;
+
+  /// No description provided for @conseilleMaintenant.
+  ///
+  /// In fr, this message translates to:
+  /// **'Conseillé maintenant'**
+  String get conseilleMaintenant;
+
+  /// No description provided for @tabBienEtre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Bien-être'**
+  String get tabBienEtre;
+
+  /// No description provided for @hydratationTitre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Hydratation'**
+  String get hydratationTitre;
+
+  /// No description provided for @eauBueSur.
+  ///
+  /// In fr, this message translates to:
+  /// **'{bu} L sur {objectif} L'**
+  String eauBueSur(String bu, String objectif);
+
+  /// No description provided for @eauBaseProfil.
+  ///
+  /// In fr, this message translates to:
+  /// **'Selon ton poids'**
+  String get eauBaseProfil;
+
+  /// No description provided for @eauEffort.
+  ///
+  /// In fr, this message translates to:
+  /// **'{minutes} min d\'effort'**
+  String eauEffort(int minutes);
+
+  /// No description provided for @eauChaleur.
+  ///
+  /// In fr, this message translates to:
+  /// **'{degres} °C aujourd\'hui'**
+  String eauChaleur(int degres);
+
+  /// No description provided for @ajouterEau.
+  ///
+  /// In fr, this message translates to:
+  /// **'+ {ml} ml'**
+  String ajouterEau(int ml);
+
+  /// No description provided for @annulerDernier.
+  ///
+  /// In fr, this message translates to:
+  /// **'Annuler le dernier'**
+  String get annulerDernier;
+
+  /// No description provided for @adapterMeteo.
+  ///
+  /// In fr, this message translates to:
+  /// **'Adapter à la météo'**
+  String get adapterMeteo;
+
+  /// No description provided for @meteoAide.
+  ///
+  /// In fr, this message translates to:
+  /// **'Utilise ta position approximative pour la température du jour. Elle n\'est pas enregistrée.'**
+  String get meteoAide;
+
+  /// No description provided for @annuler.
+  ///
+  /// In fr, this message translates to:
+  /// **'Annuler'**
+  String get annuler;
+
+  /// No description provided for @complementsTitre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Compléments'**
+  String get complementsTitre;
+
+  /// No description provided for @complementsAide.
+  ///
+  /// In fr, this message translates to:
+  /// **'Un rappel par jour pour ne pas oublier. Vyta ne conseille aucune dose : demande à ton médecin ou à ton pharmacien.'**
+  String get complementsAide;
+
+  /// No description provided for @ajouterComplement.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ajouter un complément'**
+  String get ajouterComplement;
+
+  /// No description provided for @nomComplement.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nom (ex. vitamine D)'**
+  String get nomComplement;
+
+  /// No description provided for @rappelA.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rappel à {heure}'**
+  String rappelA(String heure);
+
+  /// No description provided for @rappelDesactive.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rappel désactivé'**
+  String get rappelDesactive;
+
+  /// No description provided for @optionsComplement.
+  ///
+  /// In fr, this message translates to:
+  /// **'Options'**
+  String get optionsComplement;
+
+  /// No description provided for @activerRappel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Activer le rappel'**
+  String get activerRappel;
+
+  /// No description provided for @desactiverRappel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Désactiver le rappel'**
+  String get desactiverRappel;
+
+  /// No description provided for @supprimerComplement.
+  ///
+  /// In fr, this message translates to:
+  /// **'Supprimer'**
+  String get supprimerComplement;
+
+  /// No description provided for @seriesTitre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tes séries'**
+  String get seriesTitre;
+
+  /// No description provided for @serieJournal.
+  ///
+  /// In fr, this message translates to:
+  /// **'Journal tenu'**
+  String get serieJournal;
+
+  /// No description provided for @serieEntrainement.
+  ///
+  /// In fr, this message translates to:
+  /// **'Séance faite'**
+  String get serieEntrainement;
+
+  /// No description provided for @serieEau.
+  ///
+  /// In fr, this message translates to:
+  /// **'Objectif d\'eau atteint'**
+  String get serieEau;
+
+  /// No description provided for @nbJours.
+  ///
+  /// In fr, this message translates to:
+  /// **'{n, plural, =0{0 jour} =1{1 jour} other{{n} jours}}'**
+  String nbJours(int n);
+
+  /// No description provided for @horsLigne.
+  ///
+  /// In fr, this message translates to:
+  /// **'Hors-ligne : tes saisies sont gardées et seront envoyées au retour du réseau.'**
+  String get horsLigne;
+
+  /// No description provided for @menuPhoto.
+  ///
+  /// In fr, this message translates to:
+  /// **'Photo du repas'**
+  String get menuPhoto;
+
+  /// No description provided for @analyseEnCours.
+  ///
+  /// In fr, this message translates to:
+  /// **'Analyse de ton repas…'**
+  String get analyseEnCours;
+
+  /// No description provided for @analyseReseau.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pas de connexion pour analyser la photo. Réessaie quand le réseau revient, ou saisis le repas à la main.'**
+  String get analyseReseau;
+
+  /// No description provided for @analyseAuth.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ta session a expiré. Reconnecte-toi pour analyser une photo.'**
+  String get analyseAuth;
+
+  /// No description provided for @analyseQuota.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tu as atteint la limite de photos analysées pour aujourd\'hui (ou le service est très sollicité). Saisis le repas à la main, ou réessaie demain.'**
+  String get analyseQuota;
+
+  /// No description provided for @analyseIllisible.
+  ///
+  /// In fr, this message translates to:
+  /// **'Je n\'ai pas réussi à lire cette photo. Essaie avec plus de lumière, ou saisis le repas à la main.'**
+  String get analyseIllisible;
+
+  /// No description provided for @analyseTropGros.
+  ///
+  /// In fr, this message translates to:
+  /// **'Cette photo est trop lourde pour être analysée. Choisis-en une autre, ou saisis le repas à la main.'**
+  String get analyseTropGros;
+
+  /// No description provided for @analyseIndisponible.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le service d\'analyse est indisponible pour le moment.'**
+  String get analyseIndisponible;
+
+  /// No description provided for @reessayer.
+  ///
+  /// In fr, this message translates to:
+  /// **'Réessayer'**
+  String get reessayer;
+
+  /// No description provided for @saisirALaMain.
+  ///
+  /// In fr, this message translates to:
+  /// **'Saisir à la main'**
+  String get saisirALaMain;
+
+  /// No description provided for @aucunAliment.
+  ///
+  /// In fr, this message translates to:
+  /// **'Je ne vois pas d\'aliment sur cette photo.'**
+  String get aucunAliment;
+
+  /// No description provided for @estimationAVerifier.
+  ///
+  /// In fr, this message translates to:
+  /// **'Estimation par IA, à vérifier : décoche ce qui est faux et corrige les portions.'**
+  String get estimationAVerifier;
+
+  /// No description provided for @changerPortion.
+  ///
+  /// In fr, this message translates to:
+  /// **'Changer la portion'**
+  String get changerPortion;
+
+  /// No description provided for @planningTitre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Repas de la semaine'**
+  String get planningTitre;
+
+  /// No description provided for @planningAide.
+  ///
+  /// In fr, this message translates to:
+  /// **'Des repas simples qui visent tes {kcal} kcal par jour. Touche un repas pour voir la recette.'**
+  String planningAide(int kcal);
+
+  /// No description provided for @sansViande.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sans viande ni poisson'**
+  String get sansViande;
+
+  /// No description provided for @nbPortions.
+  ///
+  /// In fr, this message translates to:
+  /// **'{n} portion(s)'**
+  String nbPortions(String n);
+
+  /// No description provided for @minutesValeur.
+  ///
+  /// In fr, this message translates to:
+  /// **'{n} min'**
+  String minutesValeur(int n);
+
+  /// No description provided for @ingredientsTitre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ingrédients'**
+  String get ingredientsTitre;
+
+  /// No description provided for @preparationTitre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Préparation'**
+  String get preparationTitre;
+
+  /// No description provided for @ajouterAuJournal.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ajouter au journal'**
+  String get ajouterAuJournal;
+
+  /// No description provided for @changerRecette.
+  ///
+  /// In fr, this message translates to:
+  /// **'Changer de recette'**
+  String get changerRecette;
+
+  /// No description provided for @repasAjoute.
+  ///
+  /// In fr, this message translates to:
+  /// **'Repas ajouté au journal.'**
+  String get repasAjoute;
+
+  /// No description provided for @coursesTitre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Liste de courses'**
+  String get coursesTitre;
+
+  /// No description provided for @coursesAide.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tout ce qu\'il faut pour la semaine, rangé par rayon.'**
+  String get coursesAide;
+
+  /// No description provided for @rayonFruitsLegumes.
+  ///
+  /// In fr, this message translates to:
+  /// **'Fruits et légumes'**
+  String get rayonFruitsLegumes;
+
+  /// No description provided for @rayonBoulangerie.
+  ///
+  /// In fr, this message translates to:
+  /// **'Boulangerie'**
+  String get rayonBoulangerie;
+
+  /// No description provided for @rayonViandePoisson.
+  ///
+  /// In fr, this message translates to:
+  /// **'Viandes et poissons'**
+  String get rayonViandePoisson;
+
+  /// No description provided for @rayonCremerie.
+  ///
+  /// In fr, this message translates to:
+  /// **'Crèmerie et œufs'**
+  String get rayonCremerie;
+
+  /// No description provided for @rayonEpicerie.
+  ///
+  /// In fr, this message translates to:
+  /// **'Épicerie'**
+  String get rayonEpicerie;
+
+  /// No description provided for @menuPlanning.
+  ///
+  /// In fr, this message translates to:
+  /// **'Repas de la semaine'**
+  String get menuPlanning;
+
+  /// No description provided for @ideesTitre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Idées de repas'**
+  String get ideesTitre;
+
+  /// No description provided for @mesEnvies.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mes envies'**
+  String get mesEnvies;
+
+  /// No description provided for @filtreSeche.
+  ///
+  /// In fr, this message translates to:
+  /// **'Spécial sèche'**
+  String get filtreSeche;
+
+  /// No description provided for @tousLesRepas.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tous'**
+  String get tousLesRepas;
+
+  /// No description provided for @ideesTerminees.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tu as fait le tour des idées pour ce choix ! Retrouve tes préférées dans « Mes envies », ou change de type de repas.'**
+  String get ideesTerminees;
+
+  /// No description provided for @jeNaimePas.
+  ///
+  /// In fr, this message translates to:
+  /// **'Je n\'aime pas'**
+  String get jeNaimePas;
+
+  /// No description provided for @jAimePlusTard.
+  ///
+  /// In fr, this message translates to:
+  /// **'J\'aime, pour une prochaine fois'**
+  String get jAimePlusTard;
+
+  /// No description provided for @photosIllustratives.
+  ///
+  /// In fr, this message translates to:
+  /// **'Photos illustratives générées par IA.'**
+  String get photosIllustratives;
+
+  /// No description provided for @etiquetteEnvie.
+  ///
+  /// In fr, this message translates to:
+  /// **'ENVIE'**
+  String get etiquetteEnvie;
+
+  /// No description provided for @etiquetteNon.
+  ///
+  /// In fr, this message translates to:
+  /// **'NON'**
+  String get etiquetteNon;
+
+  /// No description provided for @pourToiKcal.
+  ///
+  /// In fr, this message translates to:
+  /// **'≈ {kcal} kcal pour toi'**
+  String pourToiKcal(int kcal);
+
+  /// No description provided for @vegetarienCourt.
+  ///
+  /// In fr, this message translates to:
+  /// **'végé'**
+  String get vegetarienCourt;
+
+  /// No description provided for @aucuneEnvie.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucune envie pour l\'instant. Balaie une carte vers la droite pour garder une recette pour une prochaine fois.'**
+  String get aucuneEnvie;
+
+  /// No description provided for @retirerEnvie.
+  ///
+  /// In fr, this message translates to:
+  /// **'Retirer de mes envies'**
+  String get retirerEnvie;
+
+  /// No description provided for @menuIdees.
+  ///
+  /// In fr, this message translates to:
+  /// **'Idées de repas'**
+  String get menuIdees;
+
+  /// No description provided for @reglagesTitre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Réglages'**
+  String get reglagesTitre;
+
+  /// No description provided for @reglagesInfobulle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Réglages'**
+  String get reglagesInfobulle;
+
+  /// No description provided for @versionNumero.
+  ///
+  /// In fr, this message translates to:
+  /// **'Version {v}'**
+  String versionNumero(String v);
+
+  /// No description provided for @majDisponible.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nouvelle version {v} disponible'**
+  String majDisponible(String v);
+
+  /// No description provided for @majTelecharger.
+  ///
+  /// In fr, this message translates to:
+  /// **'Télécharger la mise à jour'**
+  String get majTelecharger;
+
+  /// No description provided for @majAJour.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tu as la dernière version.'**
+  String get majAJour;
+
+  /// No description provided for @majAideVerifier.
+  ///
+  /// In fr, this message translates to:
+  /// **'Touche le bouton pour chercher une nouvelle version.'**
+  String get majAideVerifier;
+
+  /// No description provided for @majVerifier.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vérifier les mises à jour'**
+  String get majVerifier;
+
+  /// No description provided for @partagerTitre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Partager l\'application'**
+  String get partagerTitre;
+
+  /// No description provided for @partagerAide.
+  ///
+  /// In fr, this message translates to:
+  /// **'Fais scanner ce code à un ami pour qu\'il puisse installer l\'application.'**
+  String get partagerAide;
+
+  /// No description provided for @copierLien.
+  ///
+  /// In fr, this message translates to:
+  /// **'Copier le lien'**
+  String get copierLien;
+
+  /// No description provided for @lienCopie.
+  ///
+  /// In fr, this message translates to:
+  /// **'Lien copié.'**
+  String get lienCopie;
+
+  /// No description provided for @confidentialite.
+  ///
+  /// In fr, this message translates to:
+  /// **'Politique de confidentialité'**
+  String get confidentialite;
+
+  /// No description provided for @sourcesLicences.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sources et licences'**
+  String get sourcesLicences;
+
+  /// No description provided for @sourcesLicencesTexte.
+  ///
+  /// In fr, this message translates to:
+  /// **'Valeurs nutritionnelles : table Ciqual 2020 de l\'ANSES (licence CC BY 4.0).\n\nProduits scannés : Open Food Facts, base collaborative sous licence ODbL ; son contenu relève de la Database Contents License.\n\nPhotos des exercices : free-exercise-db (domaine public).\n\nVidéos de certains exercices : wger, auteur Goulart (licence CC BY-SA 4.0) ; extraits raccourcis et recompressés, sous la même licence.\n\nIllustrations des recettes : générées par IA (modèle FLUX.1 schnell, licence Apache 2.0).\n\nL\'application s\'appuie aussi sur des bibliothèques libres : leurs licences sont consultables ci-dessous.'**
+  String get sourcesLicencesTexte;
+
+  /// No description provided for @licencesBibliotheques.
+  ///
+  /// In fr, this message translates to:
+  /// **'Licences des bibliothèques'**
+  String get licencesBibliotheques;
+
+  /// No description provided for @accepter.
+  ///
+  /// In fr, this message translates to:
+  /// **'Accepter'**
+  String get accepter;
+
+  /// No description provided for @refuser.
+  ///
+  /// In fr, this message translates to:
+  /// **'Refuser'**
+  String get refuser;
+
+  /// No description provided for @consentPhotoTitre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Envoyer la photo pour l\'analyse ?'**
+  String get consentPhotoTitre;
+
+  /// No description provided for @consentPhotoTexte.
+  ///
+  /// In fr, this message translates to:
+  /// **'La photo de ton repas, avec la précision que tu écris éventuellement, est envoyée à un service d\'IA pour estimer les aliments : Google Gemini (offre payante, qui n\'utilise pas tes photos pour entraîner ses modèles), via un relais hébergé par Cloudflare, ou à défaut Cloudflare Workers AI. Le relais ne la garde pas. Elle peut être traitée hors de l\'Union européenne, par Google ou par Cloudflare. Dans l\'appli, elle n\'est gardée que sur ton téléphone, jamais dans le cloud, pour que tu puisses revoir ton repas ; seul le résultat que tu valides est ajouté à ton journal en ligne. Tu peux retirer ton accord à tout moment dans les Réglages.'**
+  String get consentPhotoTexte;
+
+  /// No description provided for @consentMeteoTitre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Utiliser ta position ?'**
+  String get consentMeteoTitre;
+
+  /// No description provided for @consentMeteoTexte.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ta position approximative (arrondie à environ 10 km) est envoyée au service Open-Meteo pour connaître la température du jour. Elle n\'est pas enregistrée.'**
+  String get consentMeteoTexte;
+
+  /// No description provided for @consentPhotoReglage.
+  ///
+  /// In fr, this message translates to:
+  /// **'Photo de repas analysée par IA'**
+  String get consentPhotoReglage;
+
+  /// No description provided for @consentPhotoReglageAide.
+  ///
+  /// In fr, this message translates to:
+  /// **'Autorise l\'envoi de tes photos de repas à l\'analyse par IA (via un relais Cloudflare : Cloudflare Workers AI ou Google Gemini). Le détail s\'affiche avant d\'accepter.'**
+  String get consentPhotoReglageAide;
+
+  /// No description provided for @rapportsPlantage.
+  ///
+  /// In fr, this message translates to:
+  /// **'Envoyer les rapports de plantage'**
+  String get rapportsPlantage;
+
+  /// No description provided for @rapportsPlantageAide.
+  ///
+  /// In fr, this message translates to:
+  /// **'Si l\'appli plante, la trace de l\'erreur, le modèle du téléphone et la version d\'Android sont envoyés à Google (Firebase Crashlytics, traitement possible hors de l\'UE) pour corriger le bug.'**
+  String get rapportsPlantageAide;
+
+  /// No description provided for @identifiantCompte.
+  ///
+  /// In fr, this message translates to:
+  /// **'Identifiant du compte'**
+  String get identifiantCompte;
+
+  /// No description provided for @identifiantCompteAide.
+  ///
+  /// In fr, this message translates to:
+  /// **'{uid}\nTouche pour le copier. Note-le avant de désinstaller : il suffit pour demander l\'effacement de tes données sans l\'appli.'**
+  String identifiantCompteAide(String uid);
+
+  /// No description provided for @identifiantCopie.
+  ///
+  /// In fr, this message translates to:
+  /// **'Identifiant copié.'**
+  String get identifiantCopie;
+
+  /// No description provided for @supprimerCompte.
+  ///
+  /// In fr, this message translates to:
+  /// **'Supprimer mon compte et mes données'**
+  String get supprimerCompte;
+
+  /// No description provided for @supprimerCompteTitre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Supprimer définitivement ton compte ?'**
+  String get supprimerCompteTitre;
+
+  /// No description provided for @supprimerCompteTexte.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton profil, tes repas, ton poids, tes séances, ton eau et tes compléments seront effacés pour toujours, ainsi que les photos de progression de ce téléphone. Cette action est irréversible. Ton compte Google peut t\'être redemandé pour confirmer.'**
+  String get supprimerCompteTexte;
+
+  /// No description provided for @supprimerConfirmer.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tout supprimer'**
+  String get supprimerConfirmer;
+
+  /// No description provided for @supprimerEnCours.
+  ///
+  /// In fr, this message translates to:
+  /// **'Suppression en cours…'**
+  String get supprimerEnCours;
+
+  /// No description provided for @supprimerHorsLigne.
+  ///
+  /// In fr, this message translates to:
+  /// **'Connecte-toi à internet pour supprimer ton compte.'**
+  String get supprimerHorsLigne;
+
+  /// No description provided for @supprimerEchec.
+  ///
+  /// In fr, this message translates to:
+  /// **'La suppression a échoué. Réessaie ; si besoin, reconnecte-toi puis recommence.'**
+  String get supprimerEchec;
+
+  /// No description provided for @supprimerReauthEchec.
+  ///
+  /// In fr, this message translates to:
+  /// **'Suppression annulée : ton compte Google n\'a pas été confirmé. Rien n\'a été effacé.'**
+  String get supprimerReauthEchec;
+
+  /// No description provided for @anneauxTitre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aujourd\'hui'**
+  String get anneauxTitre;
+
+  /// No description provided for @libBrule.
+  ///
+  /// In fr, this message translates to:
+  /// **'Calories brûlées'**
+  String get libBrule;
+
+  /// No description provided for @libMange.
+  ///
+  /// In fr, this message translates to:
+  /// **'Calories mangées'**
+  String get libMange;
+
+  /// No description provided for @libProteines.
+  ///
+  /// In fr, this message translates to:
+  /// **'Protéines'**
+  String get libProteines;
+
+  /// No description provided for @libEau.
+  ///
+  /// In fr, this message translates to:
+  /// **'Hydratation'**
+  String get libEau;
+
+  /// No description provided for @objectifDuJour.
+  ///
+  /// In fr, this message translates to:
+  /// **'Objectif du jour'**
+  String get objectifDuJour;
+
+  /// No description provided for @sourceEstimeJusqua.
+  ///
+  /// In fr, this message translates to:
+  /// **'Estimé jusqu\'à maintenant'**
+  String get sourceEstimeJusqua;
+
+  /// No description provided for @bilanCentre.
+  ///
+  /// In fr, this message translates to:
+  /// **'bilan kcal'**
+  String get bilanCentre;
+
+  /// No description provided for @photoConseil.
+  ///
+  /// In fr, this message translates to:
+  /// **'Photographie ton repas de dessus, dans une bonne lumière, sans rien cacher : l\'estimation des portions n\'en sera que meilleure.'**
+  String get photoConseil;
+
+  /// No description provided for @prendrePhotoRepas.
+  ///
+  /// In fr, this message translates to:
+  /// **'Prendre une photo'**
+  String get prendrePhotoRepas;
+
+  /// No description provided for @galerieChoix.
+  ///
+  /// In fr, this message translates to:
+  /// **'Choisir dans la galerie'**
+  String get galerieChoix;
+
+  /// No description provided for @precisionLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Une précision ? (facultatif)'**
+  String get precisionLabel;
+
+  /// No description provided for @precisionAide.
+  ///
+  /// In fr, this message translates to:
+  /// **'ex. sauce à part, grande assiette, sans pain'**
+  String get precisionAide;
+
+  /// No description provided for @analyserRepas.
+  ///
+  /// In fr, this message translates to:
+  /// **'Analyser ce repas'**
+  String get analyserRepas;
+
+  /// No description provided for @changerPhoto.
+  ///
+  /// In fr, this message translates to:
+  /// **'Changer de photo'**
+  String get changerPhoto;
+
+  /// No description provided for @aVerifier.
+  ///
+  /// In fr, this message translates to:
+  /// **'À vérifier'**
+  String get aVerifier;
+
+  /// No description provided for @ajouterAliment.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ajouter un aliment'**
+  String get ajouterAliment;
+
+  /// No description provided for @modifierAliment.
+  ///
+  /// In fr, this message translates to:
+  /// **'Modifier l\'aliment'**
+  String get modifierAliment;
+
+  /// No description provided for @nomAliment.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nom de l\'aliment'**
+  String get nomAliment;
+
+  /// No description provided for @erreurNomAliment.
+  ///
+  /// In fr, this message translates to:
+  /// **'Donne un nom à l\'aliment.'**
+  String get erreurNomAliment;
+
+  /// No description provided for @sansAnalyse.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sans analyse par IA, tu peux saisir ton repas à la main.'**
+  String get sansAnalyse;
+
+  /// No description provided for @ceRepas.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce repas : {kcal} kcal · {p} g de protéines · {g} g de glucides · {l} g de lipides'**
+  String ceRepas(int kcal, int p, int g, int l);
+
+  /// No description provided for @apresRepas.
+  ///
+  /// In fr, this message translates to:
+  /// **'Après ce repas : {kcal} / {cible} kcal · {p} / {pc} g de protéines'**
+  String apresRepas(int kcal, int cible, int p, int pc);
+
+  /// No description provided for @cartonVert.
+  ///
+  /// In fr, this message translates to:
+  /// **'C\'est un carton vert !'**
+  String get cartonVert;
+
+  /// No description provided for @cartonOrange.
+  ///
+  /// In fr, this message translates to:
+  /// **'C\'est un carton orange !'**
+  String get cartonOrange;
+
+  /// No description provided for @cartonRouge.
+  ///
+  /// In fr, this message translates to:
+  /// **'C\'est un carton rouge !'**
+  String get cartonRouge;
+
+  /// No description provided for @ilSagit.
+  ///
+  /// In fr, this message translates to:
+  /// **'Il s\'agit de : {nom}'**
+  String ilSagit(String nom);
+
+  /// No description provided for @verdictCoach.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le verdict du coach'**
+  String get verdictCoach;
+
+  /// No description provided for @verdictJournee.
+  ///
+  /// In fr, this message translates to:
+  /// **'Et pour ta journée'**
+  String get verdictJournee;
+
+  /// No description provided for @tuileCalories.
+  ///
+  /// In fr, this message translates to:
+  /// **'Calories'**
+  String get tuileCalories;
+
+  /// No description provided for @tuileProteines.
+  ///
+  /// In fr, this message translates to:
+  /// **'Protéines'**
+  String get tuileProteines;
+
+  /// No description provided for @tuileGlucides.
+  ///
+  /// In fr, this message translates to:
+  /// **'Glucides'**
+  String get tuileGlucides;
+
+  /// No description provided for @tuileLipides.
+  ///
+  /// In fr, this message translates to:
+  /// **'Lipides'**
+  String get tuileLipides;
+
+  /// No description provided for @dontSucres.
+  ///
+  /// In fr, this message translates to:
+  /// **'dont {s} g de sucres'**
+  String dontSucres(int s);
+
+  /// No description provided for @dontSatures.
+  ///
+  /// In fr, this message translates to:
+  /// **'dont {s} g de saturés'**
+  String dontSatures(int s);
+
+  /// No description provided for @recapTitre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Total de la journée'**
+  String get recapTitre;
+
+  /// No description provided for @recapTotal.
+  ///
+  /// In fr, this message translates to:
+  /// **'Total'**
+  String get recapTotal;
+
+  /// No description provided for @recapValeur.
+  ///
+  /// In fr, this message translates to:
+  /// **'{kcal} kcal · {p} g de protéines'**
+  String recapValeur(int kcal, int p);
+
+  /// No description provided for @activitesDuJour.
+  ///
+  /// In fr, this message translates to:
+  /// **'Activités d\'aujourd\'hui'**
+  String get activitesDuJour;
+
+  /// No description provided for @supprimerActivite.
+  ///
+  /// In fr, this message translates to:
+  /// **'Supprimer l\'activité'**
+  String get supprimerActivite;
+
+  /// No description provided for @ajouterPhotoProgres.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ajouter une photo'**
+  String get ajouterPhotoProgres;
+
+  /// No description provided for @photoAppareil.
+  ///
+  /// In fr, this message translates to:
+  /// **'Appareil photo'**
+  String get photoAppareil;
+
+  /// No description provided for @photoBibliotheque.
+  ///
+  /// In fr, this message translates to:
+  /// **'Bibliothèque de photos'**
+  String get photoBibliotheque;
+
+  /// No description provided for @photoAjoutAide.
+  ///
+  /// In fr, this message translates to:
+  /// **'Choisis la date de la photo (aujourd\'hui par défaut), puis d\'où elle vient.'**
+  String get photoAjoutAide;
+
+  /// No description provided for @composition.
+  ///
+  /// In fr, this message translates to:
+  /// **'Composition'**
+  String get composition;
+
+  /// No description provided for @repasSansAnalyse.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce repas a été saisi à la main : il n\'y a pas d\'analyse détaillée à revoir.'**
+  String get repasSansAnalyse;
+
+  /// No description provided for @portionGrammes.
+  ///
+  /// In fr, this message translates to:
+  /// **'{g} g · {kcal} kcal'**
+  String portionGrammes(int g, int kcal);
+
+  /// No description provided for @photosRepasTitre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Photos de repas'**
+  String get photosRepasTitre;
+
+  /// No description provided for @photosRepasBilan.
+  ///
+  /// In fr, this message translates to:
+  /// **'{nombre} sur ce téléphone · {mo} Mo'**
+  String photosRepasBilan(int nombre, String mo);
+
+  /// No description provided for @photosRepasNettoyer.
+  ///
+  /// In fr, this message translates to:
+  /// **'Supprimer les photos de plus de 90 jours'**
+  String get photosRepasNettoyer;
+
+  /// No description provided for @photosRepasNettoyerAide.
+  ///
+  /// In fr, this message translates to:
+  /// **'Les repas et leur analyse restent dans ton journal ; seules les photos sont effacées de ce téléphone.'**
+  String get photosRepasNettoyerAide;
+
+  /// No description provided for @photosRepasNettoyees.
+  ///
+  /// In fr, this message translates to:
+  /// **'{nombre} photo(s) supprimée(s).'**
+  String photosRepasNettoyees(int nombre);
+
+  /// No description provided for @enregistrerModifications.
+  ///
+  /// In fr, this message translates to:
+  /// **'Enregistrer les modifications'**
+  String get enregistrerModifications;
+
+  /// No description provided for @catalogueErreur.
+  ///
+  /// In fr, this message translates to:
+  /// **'Impossible de joindre Open Food Facts. Vérifie ta connexion.'**
+  String get catalogueErreur;
+
+  /// No description provided for @produitInconnu.
+  ///
+  /// In fr, this message translates to:
+  /// **'Produit introuvable. Essaie avec la photo du repas.'**
+  String get produitInconnu;
+
+  /// No description provided for @scanPortionLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Quantité mangée (g)'**
+  String get scanPortionLabel;
+
+  /// No description provided for @analyseIncertaine.
+  ///
+  /// In fr, this message translates to:
+  /// **'Je ne suis pas sûr de ce que je vois. Dis-moi ce que c\'est, je regarde à nouveau.'**
+  String get analyseIncertaine;
+
+  /// No description provided for @reanalyser.
+  ///
+  /// In fr, this message translates to:
+  /// **'Analyser à nouveau'**
+  String get reanalyser;
+
+  /// No description provided for @anneauxSemantique.
+  ///
+  /// In fr, this message translates to:
+  /// **'Anneaux du jour. Calories brûlées : {brulees} sur {objBrule}. Calories mangées : {mangees} sur {objMange}. Protéines : {proteines} sur {objProteines} grammes. Eau : {eau} sur {objEau} millilitres. Bilan : {bilan} kilocalories.'**
+  String anneauxSemantique(
+    int brulees,
+    int objBrule,
+    int mangees,
+    int objMange,
+    int proteines,
+    int objProteines,
+    int eau,
+    int objEau,
+    String bilan,
+  );
+
+  /// Lu par TalkBack sur les anneaux du widget de l'écran d'accueil (sans l'eau, affichée à côté).
+  ///
+  /// In fr, this message translates to:
+  /// **'Anneaux du jour. Calories brûlées : {brulees} sur {objBrule}. Calories mangées : {mangees} sur {objMange}. Protéines : {proteines} sur {objProteines} grammes. Bilan : {bilan} kilocalories.'**
+  String widgetAnneauxSemantique(
+    int brulees,
+    int objBrule,
+    int mangees,
+    int objMange,
+    int proteines,
+    int objProteines,
+    String bilan,
+  );
+
+  /// No description provided for @apparence.
+  ///
+  /// In fr, this message translates to:
+  /// **'Apparence'**
+  String get apparence;
+
+  /// No description provided for @teinteReglage.
+  ///
+  /// In fr, this message translates to:
+  /// **'Couleurs'**
+  String get teinteReglage;
+
+  /// No description provided for @teinteTitre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Choisis tes couleurs'**
+  String get teinteTitre;
+
+  /// No description provided for @teinteAide.
+  ///
+  /// In fr, this message translates to:
+  /// **'Touche un aperçu pour l\'essayer. Tu pourras changer à tout moment dans les Réglages.'**
+  String get teinteAide;
+
+  /// No description provided for @teinteForet.
+  ///
+  /// In fr, this message translates to:
+  /// **'Forêt'**
+  String get teinteForet;
+
+  /// No description provided for @teinteAurore.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aurore'**
+  String get teinteAurore;
+
+  /// No description provided for @teinteContinuer.
+  ///
+  /// In fr, this message translates to:
+  /// **'Continuer'**
+  String get teinteContinuer;
+
+  /// No description provided for @themeClair.
+  ///
+  /// In fr, this message translates to:
+  /// **'Clair'**
+  String get themeClair;
+
+  /// No description provided for @themeSombre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sombre'**
+  String get themeSombre;
+
+  /// No description provided for @themeAuto.
+  ///
+  /// In fr, this message translates to:
+  /// **'Auto'**
+  String get themeAuto;
+
+  /// No description provided for @sauvegardeTitre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sauvegarde'**
+  String get sauvegardeTitre;
+
+  /// No description provided for @sauvegardeExporter.
+  ///
+  /// In fr, this message translates to:
+  /// **'Enregistrer une sauvegarde (Excel)'**
+  String get sauvegardeExporter;
+
+  /// No description provided for @sauvegardeExporterAide.
+  ///
+  /// In fr, this message translates to:
+  /// **'Repas, activités, pesées, eau, compléments et séances dans un fichier .xlsx.'**
+  String get sauvegardeExporterAide;
+
+  /// No description provided for @sauvegardeImporter.
+  ///
+  /// In fr, this message translates to:
+  /// **'Importer une sauvegarde'**
+  String get sauvegardeImporter;
+
+  /// No description provided for @sauvegardeImporterAide.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ajoute l\'historique d\'un fichier Excel de sauvegarde ; rien n\'est supprimé.'**
+  String get sauvegardeImporterAide;
+
+  /// No description provided for @sauvegardeEnregistree.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sauvegarde enregistrée.'**
+  String get sauvegardeEnregistree;
+
+  /// No description provided for @sauvegardeEchec.
+  ///
+  /// In fr, this message translates to:
+  /// **'La sauvegarde n\'a pas pu être créée. Réessaie.'**
+  String get sauvegardeEchec;
+
+  /// No description provided for @sauvegardeHorsLigne.
+  ///
+  /// In fr, this message translates to:
+  /// **'Connecte-toi à internet pour importer : les données sont envoyées à ton compte.'**
+  String get sauvegardeHorsLigne;
+
+  /// No description provided for @sauvegardeExportHorsLigne.
+  ///
+  /// In fr, this message translates to:
+  /// **'Connecte-toi à internet pour enregistrer une sauvegarde : hors ligne, elle serait incomplète.'**
+  String get sauvegardeExportHorsLigne;
+
+  /// No description provided for @importConfirmerTitre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Importer cette sauvegarde ?'**
+  String get importConfirmerTitre;
+
+  /// No description provided for @importConfirmerTexte.
+  ///
+  /// In fr, this message translates to:
+  /// **'L\'historique du fichier est ajouté à ton compte. Les lignes déjà présentes sont gardées telles quelles, rien n\'est supprimé.'**
+  String get importConfirmerTexte;
+
+  /// No description provided for @importRemplacer.
+  ///
+  /// In fr, this message translates to:
+  /// **'Remplacer les lignes existantes'**
+  String get importRemplacer;
+
+  /// No description provided for @importRemplacerAide.
+  ///
+  /// In fr, this message translates to:
+  /// **'Les lignes du fichier écrasent celles de ton compte, même modifiées depuis la sauvegarde.'**
+  String get importRemplacerAide;
+
+  /// No description provided for @importer.
+  ///
+  /// In fr, this message translates to:
+  /// **'Importer'**
+  String get importer;
+
+  /// No description provided for @importTermine.
+  ///
+  /// In fr, this message translates to:
+  /// **'{importes} ligne(s) importée(s), {ignores} ignorée(s).'**
+  String importTermine(int importes, int ignores);
+
+  /// No description provided for @importDejaPresents.
+  ///
+  /// In fr, this message translates to:
+  /// **'{n} ligne(s) déjà dans ton compte, gardée(s) telle(s) quelle(s).'**
+  String importDejaPresents(int n);
+
+  /// No description provided for @importResultatTitre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Import terminé'**
+  String get importResultatTitre;
+
+  /// No description provided for @importInterrompuTitre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Import interrompu'**
+  String get importInterrompuTitre;
+
+  /// No description provided for @importInterrompu.
+  ///
+  /// In fr, this message translates to:
+  /// **'L\'import s\'est arrêté en route : les lignes importées ci-dessus sont déjà dans ton compte. Relance-le une fois connecté : elles ne seront pas ajoutées en double.'**
+  String get importInterrompu;
+
+  /// No description provided for @importRefuse.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton compte a refusé l\'écriture. Déconnecte-toi puis reconnecte-toi, et relance l\'import : les lignes déjà importées ne seront pas ajoutées en double.'**
+  String get importRefuse;
+
+  /// No description provided for @importLignesIgnorees.
+  ///
+  /// In fr, this message translates to:
+  /// **'Lignes ignorées :'**
+  String get importLignesIgnorees;
+
+  /// No description provided for @importAutresMotifs.
+  ///
+  /// In fr, this message translates to:
+  /// **'… et {n} autre(s).'**
+  String importAutresMotifs(int n);
+
+  /// No description provided for @importTropGros.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce fichier est trop gros (plus de 20 Mo) pour être une sauvegarde Vyta.'**
+  String get importTropGros;
+
+  /// No description provided for @importLectureEchec.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le fichier n\'a pas pu être lu. S\'il est sur un service en ligne, télécharge-le d\'abord sur le téléphone.'**
+  String get importLectureEchec;
+
+  /// No description provided for @importInvalide.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce fichier n\'est pas une sauvegarde Vyta.'**
+  String get importInvalide;
+
+  /// No description provided for @importEchec.
+  ///
+  /// In fr, this message translates to:
+  /// **'L\'import a échoué. Réessaie.'**
+  String get importEchec;
+
+  /// No description provided for @ok.
+  ///
+  /// In fr, this message translates to:
+  /// **'OK'**
+  String get ok;
+
+  /// No description provided for @sourceMesureDe.
+  ///
+  /// In fr, this message translates to:
+  /// **'{source} · mis à jour à {heure}'**
+  String sourceMesureDe(String source, String heure);
+
+  /// No description provided for @fourchetteGrammes.
+  ///
+  /// In fr, this message translates to:
+  /// **'entre {min} et {max} g'**
+  String fourchetteGrammes(int min, int max);
+
+  /// No description provided for @fourchetteKcal.
+  ///
+  /// In fr, this message translates to:
+  /// **'Environ {min} à {max} kcal en tout'**
+  String fourchetteKcal(int min, int max);
+
+  /// No description provided for @ajusterPlus.
+  ///
+  /// In fr, this message translates to:
+  /// **'Augmenter : {nom}'**
+  String ajusterPlus(String nom);
+
+  /// No description provided for @ajusterMoins.
+  ///
+  /// In fr, this message translates to:
+  /// **'Diminuer : {nom}'**
+  String ajusterMoins(String nom);
+
+  /// No description provided for @grasTitre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Gras peu visible'**
+  String get grasTitre;
+
+  /// No description provided for @grasAide.
+  ///
+  /// In fr, this message translates to:
+  /// **'L\'huile de cuisson et les sauces se voient mal sur une photo : ce sont elles qui faussent le plus les calories.'**
+  String get grasAide;
+
+  /// No description provided for @grasHuile.
+  ///
+  /// In fr, this message translates to:
+  /// **'Huile de cuisson'**
+  String get grasHuile;
+
+  /// No description provided for @grasSauce.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sauce'**
+  String get grasSauce;
+
+  /// No description provided for @grasAucune.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucune'**
+  String get grasAucune;
+
+  /// No description provided for @grasUnPeu.
+  ///
+  /// In fr, this message translates to:
+  /// **'Un peu'**
+  String get grasUnPeu;
+
+  /// No description provided for @grasBeaucoup.
+  ///
+  /// In fr, this message translates to:
+  /// **'Beaucoup'**
+  String get grasBeaucoup;
+
+  /// No description provided for @ajusteHabitudes.
+  ///
+  /// In fr, this message translates to:
+  /// **'Portion ajustée d\'après tes corrections ({ecart})'**
+  String ajusteHabitudes(String ecart);
+
+  /// No description provided for @assietteTitre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Taille de mes assiettes'**
+  String get assietteTitre;
+
+  /// No description provided for @assietteAide.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aide l\'IA à estimer les portions sur les photos.'**
+  String get assietteAide;
+
+  /// No description provided for @assietteNonRenseignee.
+  ///
+  /// In fr, this message translates to:
+  /// **'Non renseignée'**
+  String get assietteNonRenseignee;
+
+  /// No description provided for @assietteCm.
+  ///
+  /// In fr, this message translates to:
+  /// **'{n} cm de diamètre'**
+  String assietteCm(int n);
+
+  /// No description provided for @etalonnageOublier.
+  ///
+  /// In fr, this message translates to:
+  /// **'Oublier mes corrections de portions'**
+  String get etalonnageOublier;
+
+  /// No description provided for @etalonnageAide.
+  ///
+  /// In fr, this message translates to:
+  /// **'L\'appli apprend de tes corrections pour mieux estimer tes portions ; ces données sont gardées sur ton compte, pour tous tes appareils.'**
+  String get etalonnageAide;
+
+  /// No description provided for @etalonnageOublie.
+  ///
+  /// In fr, this message translates to:
+  /// **'Corrections de portions oubliées.'**
+  String get etalonnageOublie;
+
+  /// No description provided for @valeursCiqual.
+  ///
+  /// In fr, this message translates to:
+  /// **'Valeurs de la table Ciqual (ANSES) : {reference}'**
+  String valeursCiqual(String reference);
+
+  /// No description provided for @ciqualRechercheTitre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Chercher un aliment'**
+  String get ciqualRechercheTitre;
+
+  /// No description provided for @ciqualRechercheLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nom de l\'aliment'**
+  String get ciqualRechercheLabel;
+
+  /// No description provided for @ciqualPour100.
+  ///
+  /// In fr, this message translates to:
+  /// **'{kcal} kcal pour 100 g'**
+  String ciqualPour100(int kcal);
+
+  /// No description provided for @ciqualSource.
+  ///
+  /// In fr, this message translates to:
+  /// **'Table Ciqual 2020, ANSES (CC BY 4.0)'**
+  String get ciqualSource;
+
+  /// No description provided for @ciqualChercher.
+  ///
+  /// In fr, this message translates to:
+  /// **'Chercher dans la table Ciqual'**
+  String get ciqualChercher;
+
+  /// No description provided for @environPieces.
+  ///
+  /// In fr, this message translates to:
+  /// **'environ {pieces}'**
+  String environPieces(String pieces);
+
+  /// No description provided for @cuissonTitre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Cuisson'**
+  String get cuissonTitre;
+
+  /// No description provided for @cuissonVapeur.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vapeur'**
+  String get cuissonVapeur;
+
+  /// No description provided for @cuissonPoele.
+  ///
+  /// In fr, this message translates to:
+  /// **'Poêlé'**
+  String get cuissonPoele;
+
+  /// No description provided for @cuissonFrit.
+  ///
+  /// In fr, this message translates to:
+  /// **'Frit'**
+  String get cuissonFrit;
+
+  /// No description provided for @cuissonFour.
+  ///
+  /// In fr, this message translates to:
+  /// **'Au four'**
+  String get cuissonFour;
+
+  /// No description provided for @cuissonBouilli.
+  ///
+  /// In fr, this message translates to:
+  /// **'Bouilli'**
+  String get cuissonBouilli;
+
+  /// No description provided for @courbePoids.
+  ///
+  /// In fr, this message translates to:
+  /// **'Évolution du poids'**
+  String get courbePoids;
+
+  /// No description provided for @periode90.
+  ///
+  /// In fr, this message translates to:
+  /// **'90 jours'**
+  String get periode90;
+
+  /// No description provided for @periode1an.
+  ///
+  /// In fr, this message translates to:
+  /// **'1 an'**
+  String get periode1an;
+
+  /// No description provided for @ajouterPesee.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ajouter une pesée'**
+  String get ajouterPesee;
+
+  /// No description provided for @enregistrer.
+  ///
+  /// In fr, this message translates to:
+  /// **'Enregistrer'**
+  String get enregistrer;
+
+  /// No description provided for @historiquePoids.
+  ///
+  /// In fr, this message translates to:
+  /// **'Historique'**
+  String get historiquePoids;
+
+  /// No description provided for @supprimerPesee.
+  ///
+  /// In fr, this message translates to:
+  /// **'Supprimer'**
+  String get supprimerPesee;
+
+  /// No description provided for @aucunePesee.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucune pesée pour l\'instant. Ajoute la première !'**
+  String get aucunePesee;
+
+  /// No description provided for @sourceMontre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Montre'**
+  String get sourceMontre;
+
+  /// No description provided for @sourceSaisie.
+  ///
+  /// In fr, this message translates to:
+  /// **'Saisie'**
+  String get sourceSaisie;
+
+  /// No description provided for @tabJournal.
+  ///
+  /// In fr, this message translates to:
+  /// **'Repas'**
+  String get tabJournal;
+
+  /// No description provided for @jourAujourdhui.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aujourd\'hui'**
+  String get jourAujourdhui;
+
+  /// No description provided for @jourPrecedent.
+  ///
+  /// In fr, this message translates to:
+  /// **'Jour précédent'**
+  String get jourPrecedent;
+
+  /// No description provided for @jourSuivant.
+  ///
+  /// In fr, this message translates to:
+  /// **'Jour suivant'**
+  String get jourSuivant;
+
+  /// No description provided for @bilanTitre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Bilan énergétique'**
+  String get bilanTitre;
+
+  /// No description provided for @bilanMange.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mangé'**
+  String get bilanMange;
+
+  /// No description provided for @bilanDepense.
+  ///
+  /// In fr, this message translates to:
+  /// **'Dépensé'**
+  String get bilanDepense;
+
+  /// No description provided for @bilanSolde.
+  ///
+  /// In fr, this message translates to:
+  /// **'Solde'**
+  String get bilanSolde;
+
+  /// No description provided for @kcalValeur.
+  ///
+  /// In fr, this message translates to:
+  /// **'{kcal} kcal'**
+  String kcalValeur(String kcal);
+
+  /// No description provided for @soldeDeficit.
+  ///
+  /// In fr, this message translates to:
+  /// **'Déficit'**
+  String get soldeDeficit;
+
+  /// No description provided for @soldeExcedent.
+  ///
+  /// In fr, this message translates to:
+  /// **'Excédent'**
+  String get soldeExcedent;
+
+  /// No description provided for @cibleJour.
+  ///
+  /// In fr, this message translates to:
+  /// **'Objectif du jour : {kcal} kcal'**
+  String cibleJour(int kcal);
+
+  /// No description provided for @jourRepos.
+  ///
+  /// In fr, this message translates to:
+  /// **'Jour de repos'**
+  String get jourRepos;
+
+  /// No description provided for @jourModere.
+  ///
+  /// In fr, this message translates to:
+  /// **'Jour modéré'**
+  String get jourModere;
+
+  /// No description provided for @jourIntense.
+  ///
+  /// In fr, this message translates to:
+  /// **'Jour intense'**
+  String get jourIntense;
+
+  /// No description provided for @macrosTitre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Macros du jour'**
+  String get macrosTitre;
+
+  /// No description provided for @macroProteines.
+  ///
+  /// In fr, this message translates to:
+  /// **'Protéines'**
+  String get macroProteines;
+
+  /// No description provided for @macroGlucides.
+  ///
+  /// In fr, this message translates to:
+  /// **'Glucides'**
+  String get macroGlucides;
+
+  /// No description provided for @macroLipides.
+  ///
+  /// In fr, this message translates to:
+  /// **'Lipides'**
+  String get macroLipides;
+
+  /// No description provided for @macroProgression.
+  ///
+  /// In fr, this message translates to:
+  /// **'{mange} / {cible} g'**
+  String macroProgression(int mange, int cible);
+
+  /// No description provided for @repasTitre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Repas de la journée'**
+  String get repasTitre;
+
+  /// No description provided for @activitesTitre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Activités'**
+  String get activitesTitre;
+
+  /// No description provided for @aucunRepas.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucun repas enregistré.'**
+  String get aucunRepas;
+
+  /// No description provided for @ajouterUnRepas.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ajouter un repas'**
+  String get ajouterUnRepas;
+
+  /// No description provided for @aucuneActivite.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucune activité enregistrée.'**
+  String get aucuneActivite;
+
+  /// No description provided for @momentPetitDej.
+  ///
+  /// In fr, this message translates to:
+  /// **'Petit-déjeuner'**
+  String get momentPetitDej;
+
+  /// No description provided for @momentDejeuner.
+  ///
+  /// In fr, this message translates to:
+  /// **'Déjeuner'**
+  String get momentDejeuner;
+
+  /// No description provided for @momentDiner.
+  ///
+  /// In fr, this message translates to:
+  /// **'Dîner'**
+  String get momentDiner;
+
+  /// No description provided for @momentCollation.
+  ///
+  /// In fr, this message translates to:
+  /// **'Collation'**
+  String get momentCollation;
+
+  /// No description provided for @menuRepas.
+  ///
+  /// In fr, this message translates to:
+  /// **'Saisie à la main'**
+  String get menuRepas;
+
+  /// No description provided for @menuScanner.
+  ///
+  /// In fr, this message translates to:
+  /// **'Scanner un produit'**
+  String get menuScanner;
+
+  /// No description provided for @menuActivite.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ajouter une activité'**
+  String get menuActivite;
+
+  /// No description provided for @ajouter.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ajouter'**
+  String get ajouter;
+
+  /// No description provided for @champNomRepas.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nom du repas'**
+  String get champNomRepas;
+
+  /// No description provided for @champKcal.
+  ///
+  /// In fr, this message translates to:
+  /// **'Calories (kcal)'**
+  String get champKcal;
+
+  /// No description provided for @champProteines.
+  ///
+  /// In fr, this message translates to:
+  /// **'Protéines (g)'**
+  String get champProteines;
+
+  /// No description provided for @champGlucides.
+  ///
+  /// In fr, this message translates to:
+  /// **'Glucides (g)'**
+  String get champGlucides;
+
+  /// No description provided for @champLipides.
+  ///
+  /// In fr, this message translates to:
+  /// **'Lipides (g)'**
+  String get champLipides;
+
+  /// No description provided for @champMoment.
+  ///
+  /// In fr, this message translates to:
+  /// **'Moment'**
+  String get champMoment;
+
+  /// No description provided for @nomRepasDefaut.
+  ///
+  /// In fr, this message translates to:
+  /// **'Repas'**
+  String get nomRepasDefaut;
+
+  /// No description provided for @scanTitre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Scanner un produit'**
+  String get scanTitre;
+
+  /// No description provided for @scanAide.
+  ///
+  /// In fr, this message translates to:
+  /// **'Place le code-barres dans le cadre.'**
+  String get scanAide;
+
+  /// No description provided for @scanOuSaisir.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ou saisis le code à la main'**
+  String get scanOuSaisir;
+
+  /// No description provided for @champCode.
+  ///
+  /// In fr, this message translates to:
+  /// **'Code-barres'**
+  String get champCode;
+
+  /// No description provided for @scanRechercher.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rechercher'**
+  String get scanRechercher;
+
+  /// No description provided for @produitIntrouvable.
+  ///
+  /// In fr, this message translates to:
+  /// **'Produit introuvable. Tu peux l\'ajouter à la main.'**
+  String get produitIntrouvable;
+
+  /// No description provided for @erreurReseauProduit.
+  ///
+  /// In fr, this message translates to:
+  /// **'Impossible de joindre Open Food Facts. Vérifie ta connexion.'**
+  String get erreurReseauProduit;
+
+  /// No description provided for @champQuantite.
+  ///
+  /// In fr, this message translates to:
+  /// **'Quantité (g)'**
+  String get champQuantite;
+
+  /// No description provided for @produitPour100g.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pour 100 g : {kcal} kcal'**
+  String produitPour100g(int kcal);
+
+  /// No description provided for @actVelo.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vélo'**
+  String get actVelo;
+
+  /// No description provided for @actMma.
+  ///
+  /// In fr, this message translates to:
+  /// **'MMA'**
+  String get actMma;
+
+  /// No description provided for @actCourse.
+  ///
+  /// In fr, this message translates to:
+  /// **'Course à pied'**
+  String get actCourse;
+
+  /// No description provided for @actNatation.
+  ///
+  /// In fr, this message translates to:
+  /// **'Natation'**
+  String get actNatation;
+
+  /// No description provided for @actMuscu.
+  ///
+  /// In fr, this message translates to:
+  /// **'Musculation'**
+  String get actMuscu;
+
+  /// No description provided for @actMarche.
+  ///
+  /// In fr, this message translates to:
+  /// **'Marche'**
+  String get actMarche;
+
+  /// No description provided for @actAutre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Autre'**
+  String get actAutre;
+
+  /// No description provided for @champDureeMin.
+  ///
+  /// In fr, this message translates to:
+  /// **'Durée (min)'**
+  String get champDureeMin;
+
+  /// No description provided for @intLegere.
+  ///
+  /// In fr, this message translates to:
+  /// **'Légère'**
+  String get intLegere;
+
+  /// No description provided for @intModeree.
+  ///
+  /// In fr, this message translates to:
+  /// **'Modérée'**
+  String get intModeree;
+
+  /// No description provided for @intIntense.
+  ///
+  /// In fr, this message translates to:
+  /// **'Intense'**
+  String get intIntense;
+
+  /// No description provided for @activiteEstimation.
+  ///
+  /// In fr, this message translates to:
+  /// **'≈ {kcal} kcal brûlées'**
+  String activiteEstimation(int kcal);
+
+  /// No description provided for @supprimer.
+  ///
+  /// In fr, this message translates to:
+  /// **'Supprimer'**
+  String get supprimer;
+
+  /// No description provided for @erreurDuree.
+  ///
+  /// In fr, this message translates to:
+  /// **'Entre une durée en minutes.'**
+  String get erreurDuree;
+
+  /// No description provided for @champHeureDebut.
+  ///
+  /// In fr, this message translates to:
+  /// **'Heure de début'**
+  String get champHeureDebut;
+
+  /// No description provided for @cameraRefusee.
+  ///
+  /// In fr, this message translates to:
+  /// **'Accès à l\'appareil photo refusé. Choisis une photo dans la galerie, ou autorise l\'appareil photo dans les réglages du téléphone.'**
+  String get cameraRefusee;
+
+  /// No description provided for @galerieCourt.
+  ///
+  /// In fr, this message translates to:
+  /// **'Galerie'**
+  String get galerieCourt;
+
+  /// No description provided for @photoIndisponible.
+  ///
+  /// In fr, this message translates to:
+  /// **'Impossible d\'ouvrir cette photo. Réessaie.'**
+  String get photoIndisponible;
+
+  /// No description provided for @produitIllisible.
+  ///
+  /// In fr, this message translates to:
+  /// **'Les informations de ce produit sont illisibles. Essaie avec la photo du repas.'**
+  String get produitIllisible;
+
+  /// No description provided for @tropDAliments.
+  ///
+  /// In fr, this message translates to:
+  /// **'Un repas compte au plus {max} aliments.'**
+  String tropDAliments(int max);
+
+  /// No description provided for @modificationRefusee.
+  ///
+  /// In fr, this message translates to:
+  /// **'La modification du repas n\'a pas pu être enregistrée.'**
+  String get modificationRefusee;
+
+  /// No description provided for @repasNonEnregistre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Repas non enregistré.'**
+  String get repasNonEnregistre;
+
+  /// No description provided for @repasSupprime.
+  ///
+  /// In fr, this message translates to:
+  /// **'Repas supprimé'**
+  String get repasSupprime;
+
+  /// No description provided for @grammesValeur.
+  ///
+  /// In fr, this message translates to:
+  /// **'{g} g'**
+  String grammesValeur(int g);
+
+  /// No description provided for @modificationNonEnregistree.
+  ///
+  /// In fr, this message translates to:
+  /// **'Modification non enregistrée.'**
+  String get modificationNonEnregistree;
+
+  /// No description provided for @eauNonEnregistree.
+  ///
+  /// In fr, this message translates to:
+  /// **'Eau non enregistrée.'**
+  String get eauNonEnregistree;
+
+  /// No description provided for @activiteNonEnregistree.
+  ///
+  /// In fr, this message translates to:
+  /// **'Activité non enregistrée.'**
+  String get activiteNonEnregistree;
+
+  /// No description provided for @seanceNonEnregistree.
+  ///
+  /// In fr, this message translates to:
+  /// **'Séance non enregistrée.'**
+  String get seanceNonEnregistree;
+
+  /// No description provided for @planningNonEnregistre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Planning non enregistré.'**
+  String get planningNonEnregistre;
+
+  /// No description provided for @demonstrationExercice.
+  ///
+  /// In fr, this message translates to:
+  /// **'Démonstration de l\'exercice'**
+  String get demonstrationExercice;
+
+  /// No description provided for @seanceDuJourFaite.
+  ///
+  /// In fr, this message translates to:
+  /// **'Séance du jour faite, bravo !'**
+  String get seanceDuJourFaite;
+
+  /// No description provided for @seanceDejaFaite.
+  ///
+  /// In fr, this message translates to:
+  /// **'Une séance par jour : celle d\'aujourd\'hui est déjà faite. Place à la récupération.'**
+  String get seanceDejaFaite;
+
+  /// No description provided for @prochaineSeance.
+  ///
+  /// In fr, this message translates to:
+  /// **'Prochaine séance : {jour}.'**
+  String prochaineSeance(String jour);
+
+  /// No description provided for @reposOuMobilite.
+  ///
+  /// In fr, this message translates to:
+  /// **'D\'ici là, repos ou mobilité.'**
+  String get reposOuMobilite;
+
+  /// No description provided for @jourDeRepos.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aujourd\'hui : repos.'**
+  String get jourDeRepos;
+
+  /// No description provided for @semaineFaite.
+  ///
+  /// In fr, this message translates to:
+  /// **'Séances de la semaine faites.'**
+  String get semaineFaite;
+
+  /// No description provided for @commencerQuandMeme.
+  ///
+  /// In fr, this message translates to:
+  /// **'Commencer quand même'**
+  String get commencerQuandMeme;
+
+  /// No description provided for @joursPrevus.
+  ///
+  /// In fr, this message translates to:
+  /// **'Jours prévus : {jours}'**
+  String joursPrevus(String jours);
+
+  /// No description provided for @photoSansAccord.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sans ton accord, la photo n\'est pas envoyée. Tu peux scanner un produit, reprendre un repas récent ou saisir le repas à la main.'**
+  String get photoSansAccord;
+
+  /// No description provided for @repasRecentsTitre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Repas récents'**
+  String get repasRecentsTitre;
+
+  /// No description provided for @repasRecentsAide.
+  ///
+  /// In fr, this message translates to:
+  /// **'Un appui pour le remettre au journal, avec les mêmes aliments.'**
+  String get repasRecentsAide;
+
+  /// No description provided for @repasRecentLigne.
+  ///
+  /// In fr, this message translates to:
+  /// **'{moment} du {jour} · {kcal} kcal'**
+  String repasRecentLigne(String moment, String jour, int kcal);
+
+  /// No description provided for @repasRecentAjouter.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ajouter de nouveau : {nom}'**
+  String repasRecentAjouter(String nom);
+
+  /// No description provided for @analysesRestantes.
+  ///
+  /// In fr, this message translates to:
+  /// **'{n, plural, =0{Plus d\'analyse photo possible aujourd\'hui.} =1{Encore 1 analyse photo possible aujourd\'hui.} other{Encore {n} analyses photo possibles aujourd\'hui.}}'**
+  String analysesRestantes(int n);
+
+  /// No description provided for @maSemaine.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ma semaine'**
+  String get maSemaine;
+
+  /// No description provided for @maSemaineSous.
+  ///
+  /// In fr, this message translates to:
+  /// **'7 derniers jours'**
+  String get maSemaineSous;
+
+  /// No description provided for @semaineKcal.
+  ///
+  /// In fr, this message translates to:
+  /// **'kcal mangées par jour en moyenne'**
+  String get semaineKcal;
+
+  /// No description provided for @semaineDansCible.
+  ///
+  /// In fr, this message translates to:
+  /// **'jours notés dans la cible (±10 %)'**
+  String get semaineDansCible;
+
+  /// No description provided for @semaineProteines.
+  ///
+  /// In fr, this message translates to:
+  /// **'protéines par jour en moyenne'**
+  String get semaineProteines;
+
+  /// No description provided for @semaineSeances.
+  ///
+  /// In fr, this message translates to:
+  /// **'séances faites'**
+  String get semaineSeances;
+
+  /// No description provided for @semaineEvolutionPoids.
+  ///
+  /// In fr, this message translates to:
+  /// **'poids moyen, comparé à la semaine d\'avant'**
+  String get semaineEvolutionPoids;
+
+  /// No description provided for @semainePoidsMoyen.
+  ///
+  /// In fr, this message translates to:
+  /// **'poids moyen sur 7 jours'**
+  String get semainePoidsMoyen;
+
+  /// No description provided for @semaineSansPesee.
+  ///
+  /// In fr, this message translates to:
+  /// **'aucune pesée cette semaine'**
+  String get semaineSansPesee;
+
+  /// No description provided for @semaineAucunRepas.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucun repas noté ces 7 derniers jours : notez vos repas dans le Journal pour suivre votre semaine.'**
+  String get semaineAucunRepas;
+}
+
+class _AppLocalizationsDelegate
+    extends LocalizationsDelegate<AppLocalizations> {
+  const _AppLocalizationsDelegate();
+
+  @override
+  Future<AppLocalizations> load(Locale locale) {
+    return SynchronousFuture<AppLocalizations>(lookupAppLocalizations(locale));
+  }
+
+  @override
+  bool isSupported(Locale locale) =>
+      <String>['fr'].contains(locale.languageCode);
+
+  @override
+  bool shouldReload(_AppLocalizationsDelegate old) => false;
+}
+
+AppLocalizations lookupAppLocalizations(Locale locale) {
+  // Lookup logic when only language code is specified.
+  switch (locale.languageCode) {
+    case 'fr':
+      return AppLocalizationsFr();
+  }
+
+  throw FlutterError(
+    'AppLocalizations.delegate failed to load unsupported locale "$locale". This is likely '
+    'an issue with the localizations generation tool. Please file an issue '
+    'on GitHub with a reproducible sample app and the gen-l10n configuration '
+    'that was used.',
+  );
+}

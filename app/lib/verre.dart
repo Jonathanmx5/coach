@@ -1,0 +1,311 @@
+import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart' show ScrollDirection;
+
+import 'theme.dart';
+
+/// Opacité maximale d'une tache de couleur du fond (au centre de la tache).
+/// Les tests de contraste partent de cette valeur, la pire pour la lisibilité.
+double alphaTache(Color couleur, {required bool sombre}) {
+  if (couleur == CouleursCoach.orange) return sombre ? 0.30 : 0.46;
+  if (couleur == CouleursCoach.bleu) return sombre ? 0.38 : 0.42;
+  return sombre ? 0.42 : 0.55;
+}
+
+/// Fond ambiant du « verre givré » : la couleur de fond du thème, avec de
+/// grandes taches douces de vert, d'orange et de bleu (les couleurs de la
+/// marque) qui se devinent à travers les cartes.
+class FondVerre extends StatelessWidget {
+  const FondVerre({super.key, required this.child});
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    final p = context.palette;
+    final sombre = Theme.of(context).brightness == Brightness.dark;
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: p.fond,
+        // En clair, un dégradé vert d'eau vers bleu givre, pour ne pas être un aplat blanc.
+        gradient: sombre
+            ? null
+            : LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: teinteActive == Teinte.aurore
+                    ? const [
+                        Color(0xFFD8C8EC),
+                        Color(0xFFCFD3F0),
+                        Color(0xFFEDD3E2),
+                      ]
+                    : const [
+                        Color(0xFFBFDDCF),
+                        Color(0xFFCCDDEA),
+                        Color(0xFFDDD8CB),
+                      ],
+              ),
+      ),
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          IgnorePointer(
+            child: RepaintBoundary(
+              child: Stack(
+                fit: StackFit.expand,
+                children: [
+                  _Tache(
+                    couleur: CouleursCoach.vertVif,
+                    alpha: alphaTache(CouleursCoach.vertVif, sombre: sombre),
+                    place: const Alignment(-1.1, -0.75),
+                    largeur: 1.05,
+                  ),
+                  _Tache(
+                    couleur: CouleursCoach.orange,
+                    alpha: alphaTache(CouleursCoach.orange, sombre: sombre),
+                    place: const Alignment(1.2, 0.3),
+                    largeur: 0.9,
+                  ),
+                  _Tache(
+                    couleur: CouleursCoach.bleu,
+                    alpha: alphaTache(CouleursCoach.bleu, sombre: sombre),
+                    place: const Alignment(-0.9, 1.0),
+                    largeur: 0.95,
+                  ),
+                ],
+              ),
+            ),
+          ),
+          child,
+        ],
+      ),
+    );
+  }
+}
+
+class _Tache extends StatelessWidget {
+  const _Tache({
+    required this.couleur,
+    required this.alpha,
+    required this.place,
+    required this.largeur,
+  });
+
+  final Color couleur;
+  final double alpha;
+  final Alignment place;
+  final double largeur;
+
+  @override
+  Widget build(BuildContext context) => Align(
+    alignment: place,
+    child: FractionallySizedBox(
+      widthFactor: largeur,
+      child: AspectRatio(
+        aspectRatio: 1,
+        child: DecoratedBox(
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            gradient: RadialGradient(
+              colors: [
+                couleur.withValues(alpha: alpha),
+                couleur.withValues(alpha: 0),
+              ],
+            ),
+          ),
+        ),
+      ),
+    ),
+  );
+}
+
+/// Plaque de verre : un voile translucide, un bord qui capte la lumière et un
+/// reflet diagonal. Sans flou d'arrière-plan : le Scaffold des onglets ne
+/// passe jamais sous la barre, le flou ne traiterait que les taches déjà
+/// douces du fond, pour un effet invisible payé à chaque image.
+class VerreFlou extends StatelessWidget {
+  const VerreFlou({super.key, required this.child, this.rayon = 32});
+
+  final Widget child;
+  final double rayon;
+
+  @override
+  Widget build(BuildContext context) {
+    final p = context.palette;
+    final forme = BorderRadius.circular(rayon);
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        borderRadius: forme,
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0x290F2A24),
+            blurRadius: 24,
+            offset: Offset(0, 8),
+          ),
+        ],
+      ),
+      child: ClipRRect(
+        borderRadius: forme,
+        child: DecoratedBox(
+          decoration: BoxDecoration(
+            color: p.verre,
+            borderRadius: forme,
+            border: Border.all(color: p.verreBord),
+          ),
+          position: DecorationPosition.background,
+          child: DecoratedBox(
+            decoration: BoxDecoration(
+              borderRadius: forme,
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  Colors.white.withValues(alpha: 0.30),
+                  Colors.white.withValues(alpha: 0),
+                  Colors.white.withValues(alpha: 0),
+                  Colors.white.withValues(alpha: 0.10),
+                ],
+                stops: const [0, 0.36, 0.64, 1],
+              ),
+            ),
+            child: child,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Largeur à partir de laquelle l'appli passe en mise en page de tablette.
+const largeurTablette = 840.0;
+
+/// Largeur maximale du contenu : au-delà, les listes pensées pour un
+/// téléphone s'étirent trop.
+const largeurContenuMax = 880.0;
+
+/// Vrai sur une tablette ou un téléphone tenu à plat.
+bool largeEcran(BuildContext context) =>
+    MediaQuery.sizeOf(context).width >= largeurTablette;
+
+/// Centre le contenu et limite sa largeur sur grand écran ; sur téléphone,
+/// il occupe toute la largeur comme avant.
+class ColonneCentree extends StatelessWidget {
+  const ColonneCentree({
+    super.key,
+    required this.child,
+    this.largeurMax = largeurContenuMax,
+  });
+
+  final Widget child;
+  final double largeurMax;
+
+  @override
+  Widget build(BuildContext context) => LayoutBuilder(
+    builder: (context, c) => c.maxWidth <= largeurMax
+        ? child
+        : Align(
+            alignment: Alignment.topCenter,
+            child: SizedBox(
+              width: largeurMax,
+              height: c.hasBoundedHeight ? c.maxHeight : null,
+              child: child,
+            ),
+          ),
+  );
+}
+
+/// Largeur du contenu des onglets sur grand écran, où deux colonnes tiennent.
+const largeurContenuLarge = 1320.0;
+
+/// Largeur à partir de laquelle un onglet passe sur deux colonnes.
+const largeurDeuxColonnes = 1000.0;
+
+/// Deux colonnes côte à côte quand la place le permet ; sinon une seule
+/// colonne, [gauche] puis [droite], comme sur téléphone.
+class ColonnesAdaptatives extends StatelessWidget {
+  const ColonnesAdaptatives({
+    super.key,
+    required this.gauche,
+    required this.droite,
+  });
+
+  final List<Widget> gauche;
+  final List<Widget> droite;
+
+  @override
+  Widget build(BuildContext context) => LayoutBuilder(
+    builder: (context, c) => c.maxWidth >= largeurDeuxColonnes
+        ? Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(child: _colonne(gauche)),
+              const SizedBox(width: 24),
+              Expanded(child: _colonne(droite)),
+            ],
+          )
+        : _colonne([...gauche, ...droite]),
+  );
+
+  Widget _colonne(List<Widget> enfants) =>
+      Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: enfants);
+}
+
+/// Suit le défilement d'une liste pour réduire un bouton flottant à son icône
+/// quand on descend, et le rétablir quand on remonte : il masque moins de
+/// contenu.
+class ReductionAuDefilement extends StatelessWidget {
+  const ReductionAuDefilement({
+    super.key,
+    required this.reduit,
+    required this.child,
+  });
+
+  final ValueNotifier<bool> reduit;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) =>
+      NotificationListener<UserScrollNotification>(
+        onNotification: (n) {
+          if (n.depth != 0) return false;
+          if (n.direction == ScrollDirection.reverse) {
+            reduit.value = true;
+          } else if (n.direction == ScrollDirection.forward ||
+              n.metrics.pixels <= 0) {
+            reduit.value = false;
+          }
+          return false;
+        },
+        child: child,
+      );
+}
+
+/// Bouton flottant étendu qui se réduit à son icône quand [reduit] est vrai.
+class BoutonFlottantReductible extends StatelessWidget {
+  const BoutonFlottantReductible({
+    super.key,
+    required this.reduit,
+    required this.heroTag,
+    required this.onPressed,
+    required this.icone,
+    required this.libelle,
+  });
+
+  final ValueNotifier<bool> reduit;
+  final Object heroTag;
+  final VoidCallback onPressed;
+  final IconData icone;
+  final String libelle;
+
+  @override
+  Widget build(BuildContext context) => ValueListenableBuilder<bool>(
+    valueListenable: reduit,
+    builder: (context, r, _) => FloatingActionButton.extended(
+      heroTag: heroTag,
+      tooltip: libelle,
+      isExtended: !r,
+      onPressed: onPressed,
+      icon: Icon(icone),
+      label: Text(libelle),
+    ),
+  );
+}

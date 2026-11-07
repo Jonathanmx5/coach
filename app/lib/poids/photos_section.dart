@@ -1,0 +1,323 @@
+import 'dart:io';
+
+import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+
+import '../l10n/app_localizations.dart';
+import '../theme.dart';
+import '../journal/analyse_photo.dart' show SourcePhoto;
+import 'photos.dart';
+import '../route_verre.dart';
+
+/// Largeur d'une vignette de la bande, en points.
+const largeurVignette = 90.0;
+
+/// Photo de progrès ; [largeurDecodee] (en pixels) décode une version réduite,
+/// pour une vignette : la photo enregistrée fait jusqu'à 1600 px de large.
+Widget _image(
+  PhotoProgres p, {
+  BoxFit fit = BoxFit.cover,
+  int? largeurDecodee,
+}) => Image.file(
+  File(p.chemin),
+  fit: fit,
+  cacheWidth: largeurDecodee,
+  errorBuilder: (_, _, _) => ColoredBox(
+    color: CouleursCoach.vertPale,
+    child: Center(child: Icon(Icons.image_outlined)),
+  ),
+);
+
+/// Photos mensuelles « avant / après » : prise de vue, liste et comparaison.
+class PhotosSection extends StatefulWidget {
+  const PhotosSection({super.key, required this.photos, required this.horloge});
+
+  final PhotosProgres photos;
+  final DateTime Function() horloge;
+
+  @override
+  State<PhotosSection> createState() => _PhotosSectionState();
+}
+
+class _PhotosSectionState extends State<PhotosSection> {
+  List<PhotoProgres> _liste = const [];
+
+  @override
+  void initState() {
+    super.initState();
+    _recharger();
+  }
+
+  Future<void> _recharger() async {
+    final l = await widget.photos.lister();
+    if (mounted) setState(() => _liste = l);
+  }
+
+  Future<void> _ajouter() async {
+    final choix =
+        await showModalBottomSheet<({SourcePhoto source, DateTime jour})>(
+          context: context,
+          showDragHandle: true,
+          builder: (_) => _FeuillePhoto(maintenant: widget.horloge()),
+        );
+    if (choix == null) return;
+    await widget.photos.ajouter(choix.source, choix.jour);
+    await _recharger();
+  }
+
+  Future<void> _supprimer(PhotoProgres p) async {
+    await widget.photos.supprimer(p);
+    await _recharger();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
+    final textes = Theme.of(context).textTheme;
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(t.photosTitre, style: textes.titleMedium),
+            const SizedBox(height: 4),
+            Text(
+              t.photosAide,
+              style: textes.bodySmall?.copyWith(
+                color: context.palette.texteDoux,
+              ),
+            ),
+            if (_liste.isNotEmpty) ...[
+              const SizedBox(height: 12),
+              SizedBox(
+                height: 120,
+                child: ListView.builder(
+                  scrollDirection: Axis.horizontal,
+                  itemCount: _liste.length,
+                  itemBuilder: (context, i) {
+                    final p = _liste[i];
+                    return Padding(
+                      padding: const EdgeInsets.only(right: 8),
+                      child: Column(
+                        children: [
+                          Expanded(
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(10),
+                              child: AspectRatio(
+                                aspectRatio: 3 / 4,
+                                child: _image(
+                                  p,
+                                  largeurDecodee:
+                                      (largeurVignette *
+                                              MediaQuery.devicePixelRatioOf(
+                                                context,
+                                              ))
+                                          .round(),
+                                ),
+                              ),
+                            ),
+                          ),
+                          Row(
+                            children: [
+                              Text(
+                                DateFormat.yMMMd('fr').format(p.date),
+                                style: textes.labelSmall,
+                              ),
+                              IconButton(
+                                tooltip: t.supprimerPhoto,
+                                visualDensity: VisualDensity.compact,
+                                iconSize: 16,
+                                onPressed: () => _supprimer(p),
+                                icon: const Icon(Icons.delete_outline),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ],
+            const SizedBox(height: 8),
+            Wrap(
+              spacing: 8,
+              children: [
+                OutlinedButton.icon(
+                  style: OutlinedButton.styleFrom(
+                    minimumSize: const Size(0, 48),
+                  ),
+                  onPressed: _ajouter,
+                  icon: const Icon(Icons.photo_camera_outlined),
+                  label: Text(t.ajouterPhotoProgres),
+                ),
+                if (_liste.length >= 2)
+                  FilledButton.icon(
+                    style: FilledButton.styleFrom(
+                      minimumSize: const Size(0, 48),
+                    ),
+                    onPressed: () => Navigator.of(context).push(
+                      routeVerre<void>((_) => ComparaisonPage(photos: _liste)),
+                    ),
+                    icon: const Icon(Icons.compare),
+                    label: Text(t.comparerPhotos),
+                  ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Superpose deux photos : le curseur fait glisser de l'« avant » à l'« après ».
+class ComparaisonPage extends StatefulWidget {
+  const ComparaisonPage({super.key, required this.photos});
+
+  final List<PhotoProgres> photos;
+
+  @override
+  State<ComparaisonPage> createState() => _ComparaisonPageState();
+}
+
+class _ComparaisonPageState extends State<ComparaisonPage> {
+  late PhotoProgres _avant = widget.photos.first;
+  late PhotoProgres _apres = widget.photos.last;
+  double _opacite = 0.5;
+
+  Widget _choix(PhotoProgres valeur, ValueChanged<PhotoProgres> quand) =>
+      DropdownButton<PhotoProgres>(
+        value: valeur,
+        items: [
+          for (final p in widget.photos)
+            DropdownMenuItem(
+              value: p,
+              child: Text(DateFormat.yMMMd('fr').format(p.date)),
+            ),
+        ],
+        onChanged: (p) => quand(p!),
+      );
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
+    return Scaffold(
+      appBar: AppBar(title: Text(t.comparerPhotos)),
+      body: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                _choix(_avant, (p) => setState(() => _avant = p)),
+                _choix(_apres, (p) => setState(() => _apres = p)),
+              ],
+            ),
+            const SizedBox(height: 12),
+            Expanded(
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(rayonCarte),
+                child: Stack(
+                  fit: StackFit.expand,
+                  children: [
+                    _image(_avant),
+                    Opacity(opacity: _opacite, child: _image(_apres)),
+                  ],
+                ),
+              ),
+            ),
+            Row(
+              children: [
+                Text(t.photoAvant),
+                Expanded(
+                  child: Slider(
+                    value: _opacite,
+                    onChanged: (v) => setState(() => _opacite = v),
+                  ),
+                ),
+                Text(t.photoApres),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Choix de la date de la photo, puis de sa provenance (appareil ou
+/// bibliothèque). Rend la source et le jour.
+class _FeuillePhoto extends StatefulWidget {
+  const _FeuillePhoto({required this.maintenant});
+
+  final DateTime maintenant;
+
+  @override
+  State<_FeuillePhoto> createState() => _FeuillePhotoState();
+}
+
+class _FeuillePhotoState extends State<_FeuillePhoto> {
+  late DateTime _jour = DateTime(
+    widget.maintenant.year,
+    widget.maintenant.month,
+    widget.maintenant.day,
+  );
+
+  Future<void> _changerDate() async {
+    final choix = await showDatePicker(
+      context: context,
+      initialDate: _jour,
+      firstDate: DateTime(widget.maintenant.year - 5),
+      lastDate: widget.maintenant,
+      locale: const Locale('fr'),
+    );
+    if (choix != null) setState(() => _jour = choix);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
+    return SafeArea(
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(20, 0, 20, 16),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text(
+              t.photoAjoutAide,
+              style: Theme.of(context).textTheme.bodySmall
+                  ?.copyWith(color: context.palette.texteDoux),
+            ),
+            const SizedBox(height: 8),
+            OutlinedButton.icon(
+              onPressed: _changerDate,
+              icon: const Icon(Icons.calendar_today_outlined),
+              label: Text(
+                t.photoDateChoisie(DateFormat.yMMMd('fr').format(_jour)),
+              ),
+            ),
+            const SizedBox(height: 8),
+            ListTile(
+              leading: const Icon(Icons.photo_camera_outlined),
+              title: Text(t.photoAppareil),
+              onTap: () =>
+                  Navigator.of(context)
+                      .pop((source: SourcePhoto.appareil, jour: _jour)),
+            ),
+            ListTile(
+              leading: const Icon(Icons.photo_library_outlined),
+              title: Text(t.photoBibliotheque),
+              onTap: () =>
+                  Navigator.of(context)
+                      .pop((source: SourcePhoto.galerie, jour: _jour)),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
