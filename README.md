@@ -115,6 +115,7 @@ Android 8 et plus, processeurs arm64. L'application prévient elle-même quand u
 | `relais/` | Le relais Cloudflare Worker pour l'analyse des photos ([détails](relais/README.md)). |
 | `firebase/` | Les règles Firestore et leurs tests. |
 | `docs/superpowers/` | Les spécifications et les plans. |
+| `docs/images/` | Les visuels de cette page, refaits par `app/tool/generer_visuels_github.py`. |
 
 ### Lancer le projet
 
