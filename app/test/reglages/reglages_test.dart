@@ -39,7 +39,7 @@ void main() {
     Map<String, Object?> rel(String tag, {bool draft = false}) => {
       'tag_name': tag,
       'draft': draft,
-      'html_url': 'https://github.com/Jonathanmx5/coach/releases/tag/$tag',
+      'html_url': 'https://github.com/Jonathanmx5/vyta/releases/tag/$tag',
     };
 
     test('plus récente publiée, brouillons ignorés', () async {

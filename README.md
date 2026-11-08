@@ -8,14 +8,14 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/Jonathanmx5/coach/releases/latest"><img alt="Dernière version" src="https://img.shields.io/github/v/release/Jonathanmx5/coach?style=for-the-badge&color=6A3FB5&labelColor=2E145C&label=version"></a>
-  <a href="https://github.com/Jonathanmx5/coach/releases"><img alt="Téléchargements" src="https://img.shields.io/github/downloads/Jonathanmx5/coach/total?style=for-the-badge&color=F287B8&labelColor=2E145C&label=t%C3%A9l%C3%A9chargements"></a>
+  <a href="https://github.com/Jonathanmx5/vyta/releases/latest"><img alt="Dernière version" src="https://img.shields.io/github/v/release/Jonathanmx5/vyta?style=for-the-badge&color=6A3FB5&labelColor=2E145C&label=version"></a>
+  <a href="https://github.com/Jonathanmx5/vyta/releases"><img alt="Téléchargements" src="https://img.shields.io/github/downloads/Jonathanmx5/vyta/total?style=for-the-badge&color=F287B8&labelColor=2E145C&label=t%C3%A9l%C3%A9chargements"></a>
   <img alt="Android 8 et plus" src="https://img.shields.io/badge/Android-8%2B-6A3FB5?style=for-the-badge&labelColor=2E145C">
-  <a href="https://github.com/Jonathanmx5/coach/actions/workflows/controle.yml"><img alt="Contrôle" src="https://github.com/Jonathanmx5/coach/actions/workflows/controle.yml/badge.svg"></a>
+  <a href="https://github.com/Jonathanmx5/vyta/actions/workflows/controle.yml"><img alt="Contrôle" src="https://github.com/Jonathanmx5/vyta/actions/workflows/controle.yml/badge.svg"></a>
 </p>
 
 <p align="center">
-  <a href="https://github.com/Jonathanmx5/coach/releases/latest"><b>⬇&nbsp;&nbsp;Télécharger Vyta pour Android</b></a>
+  <a href="https://github.com/Jonathanmx5/vyta/releases/latest"><b>⬇&nbsp;&nbsp;Télécharger Vyta pour Android</b></a>
 </p>
 
 <br>
@@ -93,7 +93,7 @@
 
 ## Installation
 
-1. Ouvre la [dernière version](https://github.com/Jonathanmx5/coach/releases/latest) et télécharge le fichier `.apk`.
+1. Ouvre la [dernière version](https://github.com/Jonathanmx5/vyta/releases/latest) et télécharge le fichier `.apk`.
 2. Ouvre-le sur ton téléphone. Android te demandera d'autoriser l'installation depuis cette source : c'est normal pour une application hors Play Store.
 3. Vérifie l'empreinte SHA-256 indiquée dans les notes de version si tu veux être sûr du fichier.
 

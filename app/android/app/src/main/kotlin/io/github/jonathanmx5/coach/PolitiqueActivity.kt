@@ -23,6 +23,6 @@ class PolitiqueActivity : Activity() {
 
     private companion object {
         const val URL_POLITIQUE =
-            "https://github.com/Jonathanmx5/coach/blob/main/CONFIDENTIALITE.md"
+            "https://github.com/Jonathanmx5/vyta/blob/main/CONFIDENTIALITE.md"
     }
 }

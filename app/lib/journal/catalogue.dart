@@ -47,7 +47,7 @@ class CatalogueOpenFoodFacts implements CatalogueProduits {
 
   final http.Client _client;
 
-  static const _agent = 'Vyta/1.0 (https://github.com/Jonathanmx5/coach)';
+  static const _agent = 'Vyta/1.0 (https://github.com/Jonathanmx5/vyta)';
 
   @override
   Future<ProduitOff?> chercher(String codeBarres) async {

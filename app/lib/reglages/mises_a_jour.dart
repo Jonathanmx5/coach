@@ -6,10 +6,10 @@ import 'package:package_info_plus/package_info_plus.dart';
 
 /// Adresse à partager (QR code) : la dernière version publiée. Remplacée par
 /// la fiche du Play Store une fois l'application publiée.
-const lienPartage = 'https://github.com/Jonathanmx5/coach/releases/latest';
+const lienPartage = 'https://github.com/Jonathanmx5/vyta/releases/latest';
 
 const lienConfidentialite =
-    'https://github.com/Jonathanmx5/coach/blob/main/CONFIDENTIALITE.md';
+    'https://github.com/Jonathanmx5/vyta/blob/main/CONFIDENTIALITE.md';
 
 @immutable
 class InfoMiseAJour {
@@ -48,7 +48,7 @@ class MisesAJourGithub implements MisesAJour {
     try {
       final r = await _client
           .get(
-            Uri.https('api.github.com', '/repos/Jonathanmx5/coach/releases', {
+            Uri.https('api.github.com', '/repos/Jonathanmx5/vyta/releases', {
               'per_page': '10',
             }),
             headers: {'accept': 'application/vnd.github+json'},
